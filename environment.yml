@@ -1,0 +1,22 @@
+# Conda environment for the recollection.local prototype.
+# Phase-0 lean: only what the smoke test needs. Heavier deps
+# (sentence-transformers, lancedb, pandas) are added by scripts/setup.sh
+# when --phase4 is passed, so first-time setup stays minutes, not tens of minutes.
+#
+# Build / update:
+#   bash scripts/setup.sh              # phase 0 deps + llama-cpp-python (prebuilt wheel on Mac)
+#   bash scripts/setup.sh --phase4     # adds retrieval/embedding stack later
+#
+# llama-cpp-python is installed by scripts/setup.sh (not here) because
+# its install URL/flags depend on the host (Metal wheel vs CUDA wheel vs CPU build).
+
+name: recollection
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - huggingface_hub==0.27.1
+      - psutil==6.1.1
+      - numpy==2.4.4   # what llama-cpp-python==0.3.5 ends up installing; pinned to match

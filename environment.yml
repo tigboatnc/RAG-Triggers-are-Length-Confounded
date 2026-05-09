@@ -1,14 +1,12 @@
 # Conda environment for the recollection.local prototype.
-# Phase-0 lean: only what the smoke test needs. Heavier deps
-# (sentence-transformers, lancedb, pandas) are added by scripts/setup.sh
-# when --phase4 is passed, so first-time setup stays minutes, not tens of minutes.
+# Single supported path: Linux + NVIDIA CUDA. Mac/Metal deferred (see _PLAN.md).
 #
-# Build / update:
-#   bash scripts/setup.sh              # phase 0 deps + llama-cpp-python (prebuilt wheel on Mac)
-#   bash scripts/setup.sh --phase4     # adds retrieval/embedding stack later
+# Pins are floor-pinned (>=) here. After the first clean install, exact
+# resolved versions get captured in `runs/env_lockfile.txt` and we tighten
+# pins from there. Same pattern as the model revision SHAs.
 #
-# llama-cpp-python is installed by scripts/setup.sh (not here) because
-# its install URL/flags depend on the host (Metal wheel vs CUDA wheel vs CPU build).
+# torch is installed by scripts/setup.sh from the cu124 wheel index, not here,
+# because the index URL is platform-specific.
 
 name: recollection
 channels:
@@ -16,7 +14,20 @@ channels:
 dependencies:
   - python=3.11
   - pip
+  - cmake>=3.27
+  - pkg-config
   - pip:
-      - huggingface_hub==0.27.1
-      - psutil==6.1.1
-      - numpy==2.4.4   # what llama-cpp-python==0.3.5 ends up installing; pinned to match
+      # core inference + quantization
+      - "transformers>=4.50"
+      - "accelerate>=1.0"
+      - "safetensors>=0.4"
+      - "bitsandbytes>=0.45"
+      # data + retrieval (Phase 1+)
+      - "huggingface_hub>=0.27"
+      - "sentence-transformers>=3.0"
+      - "lancedb>=0.18"
+      - "datasets>=3.0"
+      - "pandas>=2.2"
+      # observability
+      - "psutil>=6.0"
+      - "numpy>=2.0"

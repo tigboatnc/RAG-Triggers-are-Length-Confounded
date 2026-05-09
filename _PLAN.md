@@ -75,15 +75,19 @@ recollection.local/
 
 ## Phase 0 — Environment + smoke
 
-**Goal:** clean A40 box reaches a HF + bnb + torch-CUDA stack that loads the MoE generator at 4-bit and exposes hidden states.
+**Goal:** clean GPU box reaches a HF + bnb + torch-CUDA stack that loads the MoE generator and exposes hidden states.
 
-- [ ] **0.1** `setup.sh` conda probe handles `/opt/miniforge3/bin/conda` (vast.ai-style boxes); env builds from `environment.yml`; torch installs from cu124 wheel index; lockfile written.
-- [ ] **0.2** `sysinfo.py` reports CUDA visibility, device name, total/free VRAM, torch + transformers + bnb + accelerate versions.
-- [ ] **0.3** `download_models.sh` pulls `microsoft/Phi-4-mini-instruct` by default (small smoke target) and `Qwen/Qwen3.6-35B-A3B-Instruct` with `all`. Revisions captured.
-- [ ] **0.4** `00_smoke.py` loads at 4-bit NF4, generates 32 tokens with `output_hidden_states=True`, prints tok/s, peak VRAM, hidden-state tensor shape.
-- [ ] **0.5** **L4 landmine probe inside `00_smoke.py`:** predictable vs ambiguous prefix → hidden-state L2 norm + next-token entropy. Predictable should be visibly *lower* hidden-state variance than ambiguous and *lower* entropy. If MoE routing noise dominates, L1 is real and Phase 2 design needs a rethink.
+> Hardware update (2026-05-09): Phase 0 closed on A40 46 GB with a `--no-quant` bf16 + CPU-offload fallback (NF4 path blocked by upstream bnb bugs on Qwen3.6-MoE; see `_AGENT.md` 2026-05-09 #2c). Project is moving to an **A800 PCIe 80 GB** box where Qwen3.6-35B-A3B fits in bf16 natively, sidestepping NF4 entirely for Phase 1+. Re-baseline (steps 0.4–0.5 only) pending on new box; see `_AGENT.md` 2026-05-09 #3 for boot plan.
 
-**Visible artifact:** A40 baseline appended to `_AGENT.md` (tok/s, peak VRAM, hidden-state shape, L4 numbers).
+- [x] **0.1** `setup.sh` conda probe handles `/opt/miniforge3/bin/conda` (vast.ai-style boxes); env builds from `environment.yml`; torch installs from cu124 wheel index; lockfile written.
+- [x] **0.2** `sysinfo.py` reports CUDA visibility, device name, total/free VRAM, torch + transformers + bnb + accelerate versions.
+- [x] **0.3** `download_models.sh` pulls `microsoft/Phi-4-mini-instruct` by default and `Qwen/Qwen3.6-35B-A3B` (no `-Instruct` suffix repo exists; chat template bundled) with `all`. Revisions captured + pinned in script.
+- [x] **0.4** `00_smoke.py` loads + generates 32 tokens with `output_hidden_states=True`, prints tok/s, peak VRAM, hidden-state tensor shape. Phi-4-mini at 4-bit NF4 ✓. Qwen3.6-35B-A3B 4-bit NF4 path is broken on transformers 5.8 + bnb 0.49.2 (streaming-quant regression — see `_AGENT.md` 2026-05-09 #2 entry); shipped via `--no-quant` bf16 + CPU-offload fallback. Pre-quantize-on-disk path is a Phase 1 task.
+- [x] **0.5** **L4 landmine probe inside `00_smoke.py`** ran on both Phi (dense) and Qwen (MoE). On the MoE generator: hidden L2 Δ ~ 0.6 % between predictable and ambiguous, entropy Δ 1.73 nats (predictable confident on ` Paris` p=0.568). **L1 confirmed: MoE noise *does* degrade the L2 signal further than dense.** Phase 2.3 must not start from L2-of-mean-pool.
+- [partial] **0.5b** Pre-quantize-on-disk attempt (`tools/quantize_qwen.py`) — sidesteps the transformers 5.8 streaming-load bug by loading source on CPU bf16, replacing each `nn.Linear` with `bnb.nn.Linear4bit`, and quantizing per-module on `.cuda()`. Works for the 350 standard `nn.Linear` modules in <10 s with peak VRAM 0.70 GiB. **Blocked by grouped MoE expert tensors** stored as 3-D `nn.Parameter` inside `Qwen3_5MoeExperts`. Detailed in `_AGENT.md` (2026-05-09 #2b).
+- [info] **0.5c** Upstream root-cause: load-time OOM is huggingface/transformers#43032 (regression introduced by #42246, partially shipped via #42043 with a known unchecked TODO). Two-line patch verified locally; need to package it as a runtime monkey-patch. Grouped-MoE-experts gap is *separate*: bnb integration has no equivalent of mxfp4's `layers.*.mlp.experts.gate_up_proj_blocks` patterns. Three real Phase 1 options for fast NF4 generation: (a) `unsloth/...-bnb-4bit` pre-baked snapshot, (b) switch to MXFP4 for grouped-MoE support, (c) extend the manual pre-quantize script. Detailed in `_AGENT.md` (2026-05-09 #2c).
+
+**Visible artifact:** A40 baseline #2 + Qwen MoE smoke + L4 probe results in `_AGENT.md`.
 
 ---
 

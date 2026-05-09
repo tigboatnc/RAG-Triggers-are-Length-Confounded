@@ -56,6 +56,34 @@ def main() -> None:
         "--prompt",
         default="In one sentence, what is retrieval-augmented generation?",
     )
+    parser.add_argument(
+        "--device-map",
+        default="auto",
+        choices=["single", "auto"],
+        help=(
+            "'auto' lets accelerate split between GPU and CPU. With NF4 + a 4-bit "
+            "BitsAndBytesConfig, quantizable Linear layers go to GPU; non-quantizable "
+            "modules (embeddings, lm_head, norms) may overflow to CPU when the GPU is "
+            "tight (35B@bf16=70GB intermediates exceed our ~44GiB cgroup budget). "
+            "'single' pins everything to cuda:0 — fits only for the small Phi model."
+        ),
+    )
+    parser.add_argument(
+        "--gpu-budget",
+        default="40GiB",
+        help="Per-GPU max for accelerate (auto). 40GiB on A40 leaves headroom for activations.",
+    )
+    parser.add_argument(
+        "--no-quant",
+        action="store_true",
+        help=(
+            "Skip bnb 4-bit and load bf16 with CPU offload. Required for the 35B "
+            "MoE on transformers 5.8 + bnb 0.49.2: the new core_model_loading path "
+            "in 5.8 materializes shards to GPU as bf16 before bnb can quantize, "
+            "OOM'ing the A40 (44GiB) long before reaching the ~18GB NF4 final size. "
+            "CPU bf16 fits in our 2TB RAM and still validates hidden-state extraction."
+        ),
+    )
     args = parser.parse_args()
 
     model_dir = Path("models") / args.model
@@ -69,6 +97,26 @@ def main() -> None:
     print(f"\n[..] importing torch + transformers + bitsandbytes ...")
 
     import torch
+    # Compat shim: accelerate's dispatch_model passes a private `_is_hf_initialized`
+    # kwarg into Params4bit.__new__, but bnb 0.49.2 (the latest as of 2026-05) hasn't
+    # widened the signature to accept it. Result: TypeError during accelerate hook
+    # attachment whenever bnb 4-bit is mixed with cpu offload (or any module that
+    # carries the flag through). Patch the constructor to drop unknown kwargs.
+    # Drop this once bnb >0.49.2 ships.
+    import bitsandbytes.nn as _bnb_nn
+    if not getattr(_bnb_nn.Params4bit, "_recollect_kwargs_patched", False):
+        _orig_new = _bnb_nn.Params4bit.__new__
+        _allowed = {
+            "data", "requires_grad", "quant_state", "blocksize",
+            "compress_statistics", "quant_type", "quant_storage", "module",
+            "bnb_quantized",
+        }
+        def _patched_new(cls, data=None, requires_grad=False, **kwargs):
+            kwargs = {k: v for k, v in kwargs.items() if k in _allowed}
+            return _orig_new(cls, data=data, requires_grad=requires_grad, **kwargs)
+        _bnb_nn.Params4bit.__new__ = _patched_new
+        _bnb_nn.Params4bit._recollect_kwargs_patched = True
+
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
     rss_after_import = _process_rss_gb() or 0.0
@@ -78,24 +126,40 @@ def main() -> None:
         print("[!!] CUDA not available; v3 requires a CUDA GPU.")
         sys.exit(1)
 
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16,
-        bnb_4bit_use_double_quant=True,
-    )
+    if args.no_quant:
+        bnb_config = None
+        load_mode = "bf16 (no bnb)"
+    else:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+        )
+        load_mode = "4-bit NF4, bf16 compute"
 
-    print(f"[..] loading {model_dir} (4-bit NF4, bf16 compute)")
+    print(f"[..] loading {model_dir} ({load_mode})")
     t0 = time.perf_counter()
     # trust_remote_code=False on purpose: bundled modeling_phi3.py in the HF
     # snapshot is pinned to an older transformers API (e.g. LossKwargs) and
     # ImportErrors against current transformers. The built-in Phi3 / Qwen
     # implementations in transformers 5.x handle these architectures natively.
     tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
+    if args.no_quant:
+        device_map_arg = "auto"
+        max_memory = {0: args.gpu_budget, "cpu": "200GiB"}
+        load_kwargs: dict = {"dtype": torch.bfloat16}
+    else:
+        device_map_arg = {"": 0} if args.device_map == "single" else "auto"
+        max_memory = (
+            None if args.device_map == "single" else {0: args.gpu_budget}
+        )
+        load_kwargs = {"quantization_config": bnb_config, "dtype": torch.bfloat16}
     model = AutoModelForCausalLM.from_pretrained(
         str(model_dir),
-        quantization_config=bnb_config,
-        device_map="auto",
+        device_map=device_map_arg,
+        max_memory=max_memory,
+        **load_kwargs,
     )
     model.eval()
     load_secs = time.perf_counter() - t0

@@ -23,10 +23,24 @@ from .hooks import HiddenStateCapture
 from .boundaries import StepBoundaryDetector
 from .vectors import CRVTracker
 from .triggers import CRVTrigger
+from .baseline_gates import (
+    DISCOURSE_PATTERNS,
+    GripSimGate,
+    LatentGateAdapter,
+    RandomGate,
+    RealmRetrieveSimGate,
+    discourse_marker_match,
+)
 
 __all__ = [
     "HiddenStateCapture",
     "StepBoundaryDetector",
     "CRVTracker",
     "CRVTrigger",
+    "DISCOURSE_PATTERNS",
+    "GripSimGate",
+    "LatentGateAdapter",
+    "RandomGate",
+    "RealmRetrieveSimGate",
+    "discourse_marker_match",
 ]

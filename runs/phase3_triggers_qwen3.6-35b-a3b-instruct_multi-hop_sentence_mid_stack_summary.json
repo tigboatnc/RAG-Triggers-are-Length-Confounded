@@ -1,0 +1,114 @@
+{
+  "model_name": "qwen3.6-35b-a3b-instruct",
+  "prompt_class": "multi-hop",
+  "boundary_strategy": "sentence",
+  "fixed_stride": null,
+  "layer_mode": "mid_stack",
+  "capture_subset": [
+    20
+  ],
+  "n_layers_total": 40,
+  "prompt_tokens": 142,
+  "max_new_tokens": 5000,
+  "tokens_generated": 5000,
+  "logical_steps_committed": 446,
+  "tokens_per_step_mean": 11.21,
+  "total_wall_clock_s": 395.615,
+  "mean_tok_per_s": 12.639,
+  "vram_at_step0_mb": 66118.0,
+  "peak_vram_mb": 66258.0,
+  "eos_seen_at": null,
+  "fire_rates": {
+    "latent": 0.9013452914798207,
+    "realm_sim": 0.06053811659192825,
+    "grip_sim": 0.06278026905829596,
+    "random": 0.34155455904334825
+  },
+  "fire_counts": {
+    "latent": 402,
+    "realm_sim": 27,
+    "grip_sim": 28,
+    "random": 153
+  },
+  "gate_metadata": {
+    "latent": {
+      "gate_name": "latent",
+      "threshold_drift": 0.1,
+      "threshold_variance": 1.0,
+      "mode": "or",
+      "caveats": [
+        "thresholds_uncalibrated_phase4_will_calibrate_on_labeled_traces"
+      ]
+    },
+    "realm_sim": {
+      "gate_name": "realm_sim",
+      "rsu_threshold_nats": 2.5,
+      "discourse_patterns": [
+        "\\blet me verify\\b",
+        "\\blet me double[- ]?check\\b",
+        "\\bi need to (verify|check|confirm|recheck)\\b",
+        "\\bi should (verify|check|confirm|recheck)\\b",
+        "\\bactually,",
+        "\\bwait,",
+        "\\bhmm,",
+        "\\bon second thought\\b",
+        "\\bi'?m not (sure|certain)\\b",
+        "\\bi am not (sure|certain)\\b",
+        "\\bi don'?t (remember|recall|know)\\b",
+        "\\bnot entirely sure\\b",
+        "\\bcorrection:",
+        "\\bscratch that\\b"
+      ],
+      "caveats": [
+        "rsu_score_is_generator_entropy_not_trained_verifier",
+        "discourse_pattern_set_is_curated_not_paper_exact"
+      ]
+    },
+    "grip_sim": {
+      "gate_name": "grip_sim",
+      "z_threshold": 1.5,
+      "strong_z_threshold": 2.5,
+      "rolling_window_size": 20,
+      "discourse_patterns": [
+        "\\blet me verify\\b",
+        "\\blet me double[- ]?check\\b",
+        "\\bi need to (verify|check|confirm|recheck)\\b",
+        "\\bi should (verify|check|confirm|recheck)\\b",
+        "\\bactually,",
+        "\\bwait,",
+        "\\bhmm,",
+        "\\bon second thought\\b",
+        "\\bi'?m not (sure|certain)\\b",
+        "\\bi am not (sure|certain)\\b",
+        "\\bi don'?t (remember|recall|know)\\b",
+        "\\bnot entirely sure\\b",
+        "\\bcorrection:",
+        "\\bscratch that\\b"
+      ],
+      "caveats": [
+        "no_trained_control_token_classifier",
+        "entropy_zscore_substitutes_for_classifier_logit",
+        "discourse_pattern_set_is_curated_not_paper_exact"
+      ]
+    },
+    "random": {
+      "gate_name": "random",
+      "seed": 20260509,
+      "calibrated_rate": 0.34155455904334825,
+      "n_other_gates_used_for_calibration": 3,
+      "calibration_recipe": "mean of per-gate fire rates over the same trace"
+    }
+  },
+  "boundary_stats": {
+    "strategy": "sentence",
+    "n_tokens": 32,
+    "tokens_seen": 5000,
+    "steps_committed": 446,
+    "marker_id_count": 15
+  },
+  "capture_stats": {
+    "captures": 5000,
+    "skipped": 0,
+    "every_n_steps": 1
+  }
+}

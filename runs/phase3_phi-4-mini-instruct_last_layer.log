@@ -1,0 +1,43 @@
+[..] importing torch + transformers + bitsandbytes ...
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:27,  7.06it/s]Loading weights:   8%|▊         | 16/194 [00:00<00:02, 77.64it/s]Loading weights:  18%|█▊        | 34/194 [00:00<00:01, 110.98it/s]Loading weights:  27%|██▋       | 52/194 [00:00<00:01, 127.11it/s]Loading weights:  36%|███▌      | 69/194 [00:00<00:00, 140.67it/s]Loading weights:  43%|████▎     | 84/194 [00:00<00:00, 142.36it/s]Loading weights:  52%|█████▏    | 100/194 [00:00<00:00, 141.64it/s]Loading weights:  61%|██████    | 118/194 [00:00<00:00, 144.95it/s]Loading weights:  70%|███████   | 136/194 [00:01<00:00, 147.76it/s]Loading weights:  79%|███████▉  | 154/194 [00:01<00:00, 149.69it/s]Loading weights:  92%|█████████▏| 178/194 [00:01<00:00, 167.92it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 144.51it/s]
+[ok] loaded in 3.24s | rss 1.014 GB | VRAM 8107 MB
+
+[factual] prompt_tokens=118 max_new=5000 boundary=sentence (stride=32) layer_mode=last_layer  capture_subset=[32]
+  [  factual] tok= 1000 steps=  28 wall=  23.8s  vram=   7468MB  eos@None
+  [  factual] tok= 2000 steps=  52 wall=  47.1s  vram=   7590MB  eos@None
+  [  factual] tok= 3000 steps=  77 wall=  68.8s  vram=   7715MB  eos@None
+  [  factual] tok= 4000 steps=  97 wall=  90.9s  vram=   7840MB  eos@None
+  [  factual] tok= 5000 steps= 148 wall= 114.2s  vram=   7965MB  eos@None
+[factual] done. 148 steps from 5000 tokens (mean 33.78 tok/step) | mean=43.79 tok/s | fire latent=112 realm=24 grip=7 random=48 (p=0.322) | peak_vram=7985.6 MB
+  wrote: runs/phase3_triggers_phi-4-mini-instruct_factual_sentence_last_layer.jsonl  (592 rows)
+         runs/phase3_triggers_phi-4-mini-instruct_factual_sentence_last_layer_steps.jsonl     (148 rows)
+         runs/phase3_triggers_phi-4-mini-instruct_factual_sentence_last_layer_summary.json
+
+[multi-hop] prompt_tokens=128 max_new=5000 boundary=sentence (stride=32) layer_mode=last_layer  capture_subset=[32]
+  [multi-hop] tok= 1000 steps=  22 wall=  22.5s  vram=   7467MB  eos@None
+  [multi-hop] tok= 2000 steps=  41 wall=  45.5s  vram=   7591MB  eos@None
+  [multi-hop] tok= 3000 steps=  64 wall=  68.6s  vram=   7716MB  eos@None
+  [multi-hop] tok= 4000 steps=  94 wall=  92.0s  vram=   7841MB  eos@None
+  [multi-hop] tok= 5000 steps= 531 wall= 115.7s  vram=   7966MB  eos@None
+[multi-hop] done. 531 steps from 5000 tokens (mean 9.42 tok/step) | mean=43.211 tok/s | fire latent=146 realm=206 grip=18 random=129 (p=0.232) | peak_vram=7986.5 MB
+  wrote: runs/phase3_triggers_phi-4-mini-instruct_multi-hop_sentence_last_layer.jsonl  (2124 rows)
+         runs/phase3_triggers_phi-4-mini-instruct_multi-hop_sentence_last_layer_steps.jsonl     (531 rows)
+         runs/phase3_triggers_phi-4-mini-instruct_multi-hop_sentence_last_layer_summary.json
+
+[ambiguous] prompt_tokens=77 max_new=5000 boundary=sentence (stride=32) layer_mode=last_layer  capture_subset=[32]
+  [ambiguous] tok= 1000 steps=  27 wall=  23.2s  vram=   7460MB  eos@None
+  [ambiguous] tok= 2000 steps=  46 wall=  46.6s  vram=   7585MB  eos@None
+  [ambiguous] tok= 3000 steps=  69 wall=  70.0s  vram=   7710MB  eos@None
+  [ambiguous] tok= 4000 steps=  88 wall=  93.5s  vram=   7835MB  eos@None
+  [ambiguous] tok= 5000 steps= 185 wall= 116.9s  vram=   7965MB  eos@None
+[ambiguous] done. 185 steps from 5000 tokens (mean 27.03 tok/step) | mean=42.765 tok/s | fire latent=62 realm=55 grip=4 random=46 (p=0.218) | peak_vram=7985.4 MB
+  wrote: runs/phase3_triggers_phi-4-mini-instruct_ambiguous_sentence_last_layer.jsonl  (740 rows)
+         runs/phase3_triggers_phi-4-mini-instruct_ambiguous_sentence_last_layer_steps.jsonl     (185 rows)
+         runs/phase3_triggers_phi-4-mini-instruct_ambiguous_sentence_last_layer_summary.json
+
+=== headline (Phase 3 per-trace summary) ===
+    factual: steps= 148  latent=75.68% realm=16.22% grip=4.73% random=32.21% | mean=43.79 tok/s peak_vram=7986 MB
+  multi-hop: steps= 531  latent=27.50% realm=38.79% grip=3.39% random=23.23% | mean=43.21 tok/s peak_vram=7986 MB
+  ambiguous: steps= 185  latent=33.51% realm=29.73% grip=2.16% random=21.80% | mean=42.77 tok/s peak_vram=7985 MB

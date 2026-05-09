@@ -19,7 +19,7 @@
 | 4 (reserve) | Gemma 4 31B Dense as Phase 4 ablation reserve (MoE-vs-dense within Gemma family) | downloaded, parked | `models/gemma-4-31b-it/` |
 | 2 | hidden-state hook + step boundary + CRV (all 3 arch classes, last-layer + mid-stack) | **DONE** — full matrix landed (last-layer in #8, mid-stack mitigation in #9); ≤3 % throughput overhead at steady state; **L1 confirmed AND mitigated**; sanity probe (2.5) deferred to Phase 4.1 by design | `scripts/crv/`, `scripts/02_crv_probe.py`, `scripts/plot_phase2.py`, `runs/phase2_crv_*.{jsonl,json,npz}`, `figs/phase2_*.png`, entries `2026-05-09 #7`/`#8`/`#9` |
 | draft | `_draft.tex` paper-prose corpus (superset for the 4-page final paper) | **first pass shipped** — 1736 lines, 5 tables, 9 figures referenced, full structure (intro / related / background / method / setup / phase 0/1/2 / phase 4 design / discussion / limitations / repro / future / conclusion / appendix); 60 placeholder citations marked `TODO:` for future fill-in | `_draft.tex`, entry `2026-05-09 #9` |
-| 3 | ReaLM-Retrieve sim + GRIP sim + random baseline | not started | `runs/phase3_triggers.jsonl` |
+| 3 | ReaLM-Retrieve sim + GRIP sim + random baseline | **DONE** — full 18-trace sweep (3 models × 2 layer modes × 3 prompt classes × 5 000 tokens) landed in 91 min on A800; all sessions OK; schema clean | `scripts/crv/baseline_gates.py`, `scripts/03_baselines.py`, `scripts/run_phase3_sweep.sh`, `runs/phase3_triggers_*.{jsonl,json}`, `runs/phase3_<model>_<layer>.log`, entry `2026-05-09 #10` |
 | 4 | earliness × trajectory-drift × cost showdown | not started | `figs/efficiency_pareto.png`, `runs/phase4_showdown.csv` |
 
 ### Hardware
@@ -140,6 +140,106 @@ echo "<sha256>  <snapshot>.tar.gz" | sha256sum -c
 - If the box dies or is reclaimed mid-phase, the latest snapshot is your recovery point. Take ad-hoc snapshots (`scripts/snapshot.sh wip-<note>`) when you've made progress you'd hate to lose.
 - The script is idempotent and side-effect-free outside the output dir; safe to re-run.
 - Tarball includes timestamps so multiple runs in the same day don't collide.
+
+---
+
+## 2026-05-09 #10 — Phase 3 baseline gates shipped (ReaLM sim, GRIP sim, random)
+
+Code-only landing: the three Phase 3 simulators are implemented, unit-checked, and end-to-end smoked on one Phi-4-mini × factual × 200-token trace. Full 18-trace sweep (3 models × 3 prompts × 2 layer modes) is held until the user wants to spend the GPU time — same shape as Phase 2 but ~10–15 % cheaper per trace (the entropy capture is one extra `log_softmax` per decode step; throughput came in at 40.5 tok/s on Phi, vs ~46 tok/s for Phase 2 on the same model — ~10 % overhead, entirely from the per-token entropy reduction over the vocab).
+
+### What landed
+
+- **`scripts/crv/baseline_gates.py`** — four classes implementing the unified `evaluate(step_record) -> dict` surface:
+  - `RealmRetrieveSimGate` — `(rsu_score > τ) OR (discourse marker matched)`. RSU is the per-step *mean next-token entropy* of the generator (no trained verifier — L3 simulation gap stamped on every row).
+  - `GripSimGate` — `(z(boundary_entropy) > τ_z AND marker matched) OR (z > τ_strong)`. Rolling-window z-score (default window=20); the stat update happens *after* scoring so a bursty stream doesn't suppress its own spikes.
+  - `RandomGate` — deterministic Bernoulli at a calibrated rate. Live `evaluate()` records placeholder rows; after the trace, `calibrate_rate(...)` sets $p = \text{mean}(p_\text{latent}, p_\text{realm}, p_\text{grip})$ over the same trace, then `finalize(...)` materializes seeded decisions. Default seed `20260509` written to summary.
+  - `LatentGateAdapter` — thin wrapper around the existing `CRVTrigger` so the dispatch surface is uniform.
+- **Discourse pattern set** — 14 case-insensitive regex patterns curated from ReaLM-Retrieve / GRIP qualitative examples (`let me verify`, `actually,`, `wait,`, `hmm,`, `i need to (verify|check|confirm|recheck)`, `not entirely sure`, ...). Curation provenance is itself stamped as a caveat: `discourse_pattern_set_is_curated_not_paper_exact`.
+- **`scripts/03_baselines.py`** — driver. Re-uses the Phase 2 manual decode loop unchanged, plus:
+  - per-token next-token entropy capture (`_entropy_nats(logits)` → fp32 log_softmax → $-\sum p \log p$, in nats);
+  - per-step text decode at boundary (`tokenizer.decode(step_token_ids)`);
+  - online evaluation of all four gates at every boundary;
+  - post-pass random-gate calibration + finalization.
+- **Output schema (Phase 3.4)** — `runs/phase3_triggers_<model>_<prompt>_<boundary>_<layermode>.jsonl`, one row per (step, gate). Each row carries `{run_id, model, prompt_class, step_idx, token_idx, gate_name, fired, score, reason, simulation_caveats}`. Per-step input record (`step_text`, `mean_token_entropy`, `boundary_token_entropy`, `drift_cosine`, `variance_l2_window`, `hidden_norm`) lands alongside in `..._steps.jsonl` so Phase 4 can re-derive gate decisions at new thresholds without re-running the generator. Per-trace summary (`fire_rates`, `fire_counts`, `gate_metadata` including the random seed and the calibration recipe) in `..._summary.json`.
+
+### Smoke result (Phi-4-mini × factual × 200 tokens × last-layer CRV)
+
+5 boundary steps committed → 20 trigger rows → schema conformant. Fire rates: latent 80 % (placeholder thresholds; uncalibrated; consistent with the Phase 2 #8 last-layer behavior on Phi), realm_sim 0 %, grip_sim 0 %, random 26.67 % = mean(0.80, 0.00, 0.00). On clean factual prose with no discourse markers and a stable entropy floor, both simulators correctly under-fire — the baseline isn't trivially saturated. L3 caveats land on every realm_sim and grip_sim row + in the summary's `gate_metadata`. Latent rows carry an empty `simulation_caveats` list as designed (the *latent* gate is the actual contribution, not a simulation), but its summary metadata flags `thresholds_uncalibrated_phase4_will_calibrate_on_labeled_traces` for honesty.
+
+### Things to watch (carried forward into Phase 3 sweep / Phase 4)
+
+- **Same-trace contract is enforced.** All four gates score the same physical decode trace; the random gate doesn't run a separate generation. This prevents the "we benchmarked a model swap, not a gate" failure mode listed under "Things to watch."
+- **Threshold calibration is still a Phase 4 job.** The $\tau_{\text{rsu}}=2.5$ nats / $\tau_z=1.5$ / $\tau_\text{strong}=2.5$ defaults are placeholders (matched to the same regime the latent gate's $\tau_\text{drift}=0.1$ / $\tau_\text{var}=1.0$ live in). Phase 4.1's labelled split is still where calibration happens.
+- **GRIP weak path needs a discourse marker.** On clean factual prose where markers are sparse, GRIP fires only via the strong-z path. This is *defensible* (GRIP's claim is that the trained classifier exploits context), but it means Phase 4 needs to log GRIP's per-rule fire breakdown so we don't accidentally claim the weak path is what's working. Already in `reason` (`spike+marker` vs `strong_spike` vs `below_thresholds`).
+- **Random rate-matching is "fair" but soft.** A random-rate baseline at `mean(p_gates)` matches the *frequency* but not the *intelligence* of any gate; the comparison is "given the same firing budget, does the latent gate fire on the right *steps*?" — that question only has a meaningful answer once Phase 4.1 labels are in.
+- **Entropy capture cost.** ~10 % throughput regression on the 200-tok Phi smoke; warmup-dominated (same shape as Phase 2's 11–14 % at 200 tokens dropping to ~3 % at 5 000 tokens). Will retest at full 5 000-token scale on the Phase 3 sweep.
+
+### Phase 3 status
+
+- Code: **done** (gates + driver + schema).
+- Unit smoke: **done** (all 4 gates pass synthetic-input checks).
+- End-to-end smoke: **done** (Phi × factual × 200 tok).
+- Full sweep (3 × 3 × 2 = 18 traces × 5 000 tokens): **not started** — held for the next compute spend. Phase 4.1 (labelled multi-hop dataset) is still the higher-leverage next move; the 18-trace sweep is mostly a "make sure the schema scales" exercise that Phase 4 will subsume anyway.
+
+---
+
+## 2026-05-09 #10 — Phase 3 baseline gates shipped (ReaLM sim, GRIP sim, random)
+
+Code-only landing: the three Phase 3 simulators are implemented, unit-checked, and end-to-end smoked on one Phi-4-mini x factual x 200-token trace. Full 18-trace sweep (3 models x 3 prompts x 2 layer modes) is held until the user wants to spend the GPU time. Throughput on the 200-tok Phi smoke came in at 40.5 tok/s vs ~46 tok/s for Phase 2 on the same model -- ~10 % overhead, entirely from the per-token entropy reduction over the vocab; warmup-dominated, expected to drop to ~3 % at 5 000-token scale (same shape as Phase 2 in #7/#8).
+
+### What landed
+
+- `scripts/crv/baseline_gates.py` -- four classes implementing a uniform `evaluate(step_record) -> dict` surface:
+  - `RealmRetrieveSimGate` -- `(rsu_score > tau) OR (discourse marker matched)`. RSU is the per-step *mean next-token entropy* of the generator (no trained verifier; L3 simulation gap stamped on every row).
+  - `GripSimGate` -- `(z(boundary_entropy) > tau_z AND marker matched) OR (z > tau_strong)`. Rolling-window z-score (default window=20); the rolling-stats update happens *after* scoring so a bursty stream doesn't suppress its own spikes.
+  - `RandomGate` -- deterministic Bernoulli at a calibrated rate. Live `evaluate()` records placeholder rows; after the trace, `calibrate_rate(...)` sets `p = mean(p_latent, p_realm, p_grip)` over the same trace, then `finalize(...)` materializes seeded decisions. Default seed `20260509`.
+  - `LatentGateAdapter` -- thin wrapper around the existing `CRVTrigger` so the dispatch surface is uniform.
+- Discourse pattern set -- 14 case-insensitive regexes curated from ReaLM-Retrieve / GRIP qualitative examples (`let me verify`, `actually,`, `wait,`, `hmm,`, `i need to (verify|check|confirm|recheck)`, `not entirely sure`, ...). Curation provenance is itself stamped as a caveat: `discourse_pattern_set_is_curated_not_paper_exact`.
+- `scripts/03_baselines.py` -- driver. Re-uses the Phase 2 manual decode loop unchanged, plus per-token next-token entropy capture (`_entropy_nats(logits)` -> fp32 log_softmax -> `-sum p log p`, in nats), per-step text decode at boundary, online evaluation of all four gates at every boundary, and post-pass random-gate calibration + finalization.
+- Output schema (Phase 3.4) -- `runs/phase3_triggers_<model>_<prompt>_<boundary>_<layermode>.jsonl`, one row per (step, gate) carrying `{run_id, model, prompt_class, step_idx, token_idx, gate_name, fired, score, reason, simulation_caveats}`. Per-step input record (`step_text`, `mean_token_entropy`, `boundary_token_entropy`, `drift_cosine`, `variance_l2_window`, `hidden_norm`) saved alongside in `..._steps.jsonl` so Phase 4 can re-derive gate decisions at new thresholds without re-running the generator. Per-trace summary (`fire_rates`, `fire_counts`, `gate_metadata` including the random seed and the calibration recipe) in `..._summary.json`.
+
+### Smoke result (Phi-4-mini x factual x 200 tokens x last-layer CRV)
+
+5 boundary steps committed -> 20 trigger rows -> schema conformant. Fire rates: latent 80 % (placeholder thresholds; uncalibrated; consistent with the Phase 2 #8 last-layer behavior on Phi), realm_sim 0 %, grip_sim 0 %, random 26.67 % = mean(0.80, 0.00, 0.00). On clean factual prose with no discourse markers and a stable entropy floor, both simulators correctly under-fire -- the baseline isn't trivially saturated. L3 caveats land on every realm_sim and grip_sim row + in the summary's `gate_metadata`. Latent rows carry an empty `simulation_caveats` list as designed (the *latent* gate is the actual contribution, not a simulation), but its summary metadata flags `thresholds_uncalibrated_phase4_will_calibrate_on_labeled_traces` for honesty.
+
+### Things to watch (carried forward into Phase 3 sweep / Phase 4)
+
+- Same-trace contract is enforced. All four gates score the same physical decode trace; the random gate doesn't run a separate generation. This forecloses the "we benchmarked a model swap, not a gate" failure mode in the watch-list.
+- Threshold calibration is still a Phase 4 job. The `tau_rsu=2.5` nats / `tau_z=1.5` / `tau_strong=2.5` defaults are placeholders, matched to the same regime the latent gate's `tau_drift=0.1` / `tau_var=1.0` live in.
+- GRIP weak path needs a discourse marker. On clean factual prose where markers are sparse, GRIP fires only via the strong-z path. This is defensible (GRIP's claim is that the trained classifier exploits context), but Phase 4 needs to log GRIP's per-rule fire breakdown so we don't accidentally claim the weak path is what's working. Already in `reason` (`spike+marker` vs `strong_spike` vs `below_thresholds`).
+- Random rate-matching is "fair" but soft. A random gate at `mean(p_gates)` matches the *frequency* but not the *intelligence* of any gate; the comparison is "given the same firing budget, does the latent gate fire on the right *steps*?" -- meaningful only once Phase 4.1 labels are in.
+
+### Full sweep results (18 traces, 91 min wall on A800)
+
+Driver: `bash scripts/run_phase3_sweep.sh` -- 6 sequential sessions, one per (model, layer_mode), each running all 3 prompt classes at 5 000 tokens. Per-session log in `runs/phase3_<model>_<layer_mode>.log`; sweep manifest in `runs/phase3_sweep.log`. Every session OK rc=0, no OOMs. Total 91 min: Phi 12 min, Gemma 26B-A4B 38 min, Qwen3.6 35B-A3B 41 min -- throughput essentially identical to Phase 2 (entropy capture cost is in the noise at 5 000-token scale, just as #7/#8 predicted; warmup-dominated overhead from the smoke #10 above is gone).
+
+#### Per-(model, layer_mode) mean fire rates (averaged over the 3 prompt classes)
+
+| model | layer | latent | realm_sim | grip_sim | random |
+| --- | --- | ---: | ---: | ---: | ---: |
+| phi-4-mini-instruct | last_layer | 45.6 % | 28.2 % | 3.4 % | 25.7 % |
+| phi-4-mini-instruct | mid_stack | 71.3 % | 28.2 % | 3.4 % | 34.3 % |
+| gemma-4-26b-a4b-it | last_layer | 99.1 % | 1.3 % | 6.2 % | 35.5 % |
+| gemma-4-26b-a4b-it | mid_stack | 99.1 % | 1.3 % | 6.2 % | 35.5 % |
+| qwen3.6-35b-a3b-instruct | last_layer | 99.7 % | 2.1 % | 6.0 % | 36.0 % |
+| qwen3.6-35b-a3b-instruct | mid_stack | 89.7 % | 2.1 % | 6.0 % | 32.6 % |
+
+Throughput / VRAM: Phi 42-46 tok/s @ 7.8 GB; Gemma 13.2 tok/s @ 49.7 GB; Qwen 12.6 tok/s @ 64.7 GB. Within noise of Phase 1.4 / Phase 2 numbers on the same prompts.
+
+#### Reads from the sweep
+
+- **Latent gate is saturated and uncalibrated, as expected.** The defaults (`tau_drift=0.1`, `tau_var=1.0`) were placeholders; the sweep confirms they over-fire. Calibration is a Phase 4 job; threshold sweeps are now offline-cheap because the per-step JSONL files (`runs/phase3_triggers_*_steps.jsonl`) carry the raw `drift_cosine` / `variance_l2_window` for every step. The ranking of saturation across architectures is interesting on its own: Gemma stays saturated on both layer modes (its drift signal is large *everywhere* in the stack), Qwen drops 99.7% -> 89.7% under the mid-stack mitigation (the same L1-disarm direction as Phase 2 #9), and Phi is the only architecture where the placeholder thresholds produce non-saturating fire rates (45-71 %).
+- **ReaLM-sim picks up Phi's per-token uncertainty correctly.** Phi multi-hop hits 38.8 %; the same prompt on Gemma and Qwen is at 6.1 % / 0.3 %. That's exactly what we'd want from a "small-dense-model is more entropy-y per token" diagnostic, and it's a free signal -- a good sign the entropy-as-RSU stand-in is at least directionally meaningful.
+- **GRIP-sim is architecture-flat by construction.** 3-7 % across all 18 traces because the z-score rolling normalization removes per-architecture entropy scale. That's the *correct* behavior for the spec ("classifier learns context-aware triggers"), and it gives the Phase 4 showdown a baseline whose firing budget doesn't trivially correlate with architecture -- exactly the comparison we want.
+- **Random gate's rate-match worked.** Every trace's random rate equals `mean(latent, realm_sim, grip_sim)` to numerical precision; seed `20260509` reproducible, captured in every summary.
+- **Layer mode is identity for non-latent gates.** ReaLM / GRIP / random fire rates are invariant across `last_layer` and `mid_stack` (they don't read hidden states). Useful sanity check that the driver is wiring the same trace into all four gates.
+
+### Phase 3 status
+
+- Code: done (gates + driver + schema).
+- Unit smoke: done (all 4 gates pass synthetic-input checks).
+- End-to-end smoke: done (Phi x factual x 200 tok).
+- Full 18-trace sweep at 5 000 tokens: **done** -- 18/18 OK, 91 min wall, no OOMs, schema clean across all rows. Artifacts: 18 x `runs/phase3_triggers_*.jsonl` + 18 x `..._steps.jsonl` + 18 x `..._summary.json`, plus 6 session logs and the sweep manifest. Phase 4.1 (labelled multi-hop dataset) is still the next thing the threshold calibration depends on; the sweep mostly de-risked the schema and produced the offline corpus Phase 4 will read.
 
 ---
 

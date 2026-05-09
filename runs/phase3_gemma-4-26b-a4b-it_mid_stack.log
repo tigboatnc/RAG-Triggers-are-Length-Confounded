@@ -1,0 +1,42 @@
+[..] importing torch + transformers + bitsandbytes ...
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 2/1013 [00:00<01:12, 13.88it/s]Loading weights:   0%|          | 4/1013 [00:00<01:13, 13.72it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:16, 61.18it/s]Loading weights:   5%|▍         | 47/1013 [00:00<00:09, 99.95it/s]Loading weights:   6%|▌         | 59/1013 [00:00<00:09, 95.75it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:12, 75.67it/s]Loading weights:   9%|▉         | 92/1013 [00:01<00:10, 84.25it/s]Loading weights:  11%|█         | 113/1013 [00:01<00:10, 85.04it/s]Loading weights:  13%|█▎        | 134/1013 [00:01<00:08, 106.65it/s]Loading weights:  15%|█▍        | 147/1013 [00:01<00:08, 100.32it/s]Loading weights:  16%|█▌        | 159/1013 [00:01<00:10, 81.44it/s] Loading weights:  18%|█▊        | 178/1013 [00:02<00:10, 82.30it/s]Loading weights:  20%|█▉        | 200/1013 [00:02<00:09, 85.08it/s]Loading weights:  22%|██▏       | 222/1013 [00:02<00:07, 107.02it/s]Loading weights:  23%|██▎       | 235/1013 [00:02<00:07, 101.77it/s]Loading weights:  24%|██▍       | 247/1013 [00:02<00:08, 85.81it/s] Loading weights:  26%|██▋       | 266/1013 [00:03<00:08, 85.38it/s]Loading weights:  28%|██▊       | 288/1013 [00:03<00:08, 87.81it/s]Loading weights:  31%|███       | 309/1013 [00:03<00:06, 108.23it/s]Loading weights:  32%|███▏      | 322/1013 [00:03<00:06, 100.69it/s]Loading weights:  33%|███▎      | 334/1013 [00:03<00:08, 84.20it/s] Loading weights:  35%|███▍      | 354/1013 [00:04<00:07, 87.00it/s]Loading weights:  37%|███▋      | 375/1013 [00:04<00:05, 108.86it/s]Loading weights:  38%|███▊      | 388/1013 [00:04<00:06, 101.66it/s]Loading weights:  39%|███▉      | 400/1013 [00:04<00:07, 82.63it/s] Loading weights:  41%|████▏     | 419/1013 [00:04<00:07, 82.62it/s]Loading weights:  43%|████▎     | 440/1013 [00:04<00:05, 104.94it/s]Loading weights:  45%|████▍     | 453/1013 [00:04<00:05, 102.86it/s]Loading weights:  46%|████▌     | 465/1013 [00:05<00:06, 84.27it/s] Loading weights:  48%|████▊     | 485/1013 [00:05<00:06, 82.71it/s]Loading weights:  50%|█████     | 507/1013 [00:05<00:05, 86.25it/s]Loading weights:  52%|█████▏    | 523/1013 [00:05<00:05, 97.30it/s]Loading weights:  53%|█████▎    | 534/1013 [00:05<00:05, 90.27it/s]Loading weights:  54%|█████▍    | 550/1013 [00:06<00:05, 82.62it/s]Loading weights:  56%|█████▋    | 571/1013 [00:06<00:04, 105.51it/s]Loading weights:  58%|█████▊    | 584/1013 [00:06<00:04, 101.04it/s]Loading weights:  59%|█████▉    | 596/1013 [00:06<00:04, 84.92it/s] Loading weights:  61%|██████    | 616/1013 [00:06<00:04, 85.38it/s]Loading weights:  63%|██████▎   | 638/1013 [00:07<00:04, 90.56it/s]Loading weights:  77%|███████▋  | 778/1013 [00:07<00:00, 321.60it/s]Loading weights:  93%|█████████▎| 941/1013 [00:07<00:00, 584.68it/s]Loading weights: 100%|██████████| 1013/1013 [00:07<00:00, 137.73it/s]
+[ok] loaded in 13.01s | rss 1.132 GB | VRAM 49883 MB
+
+[factual] prompt_tokens=136 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[15]
+  [  factual] tok= 1000 steps=  61 wall=  75.5s  vram=  49475MB  eos@None
+  [  factual] tok= 2000 steps= 132 wall= 151.0s  vram=  49691MB  eos@None
+  [  factual] tok= 3000 steps= 207 wall= 228.0s  vram=  49904MB  eos@None
+  [  factual] tok= 4000 steps= 271 wall= 303.9s  vram=  50118MB  eos@None
+  [  factual] tok= 5000 steps= 339 wall= 380.6s  vram=  50333MB  eos@None
+[factual] done. 339 steps from 5000 tokens (mean 14.75 tok/step) | mean=13.138 tok/s | fire latent=338 realm=1 grip=17 random=122 (p=0.350) | peak_vram=50855.1 MB
+  wrote: runs/phase3_triggers_gemma-4-26b-a4b-it_factual_sentence_mid_stack.jsonl  (1356 rows)
+         runs/phase3_triggers_gemma-4-26b-a4b-it_factual_sentence_mid_stack_steps.jsonl     (339 rows)
+         runs/phase3_triggers_gemma-4-26b-a4b-it_factual_sentence_mid_stack_summary.json
+
+[multi-hop] prompt_tokens=151 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[15]
+  [multi-hop] tok= 1000 steps=  50 wall=  73.1s  vram=  49478MB  eos@902
+  [multi-hop] tok= 2000 steps=  50 wall= 149.2s  vram=  49694MB  eos@902
+  [multi-hop] tok= 3000 steps=  50 wall= 224.9s  vram=  49907MB  eos@902
+  [multi-hop] tok= 4000 steps=  51 wall= 302.4s  vram=  50121MB  eos@902
+  [multi-hop] tok= 5000 steps=  51 wall= 380.0s  vram=  50336MB  eos@902
+[multi-hop] done. 51 steps from 5000 tokens (mean 98.04 tok/step) | mean=13.157 tok/s | fire latent=50 realm=1 grip=4 random=17 (p=0.359) | peak_vram=50859.8 MB
+  wrote: runs/phase3_triggers_gemma-4-26b-a4b-it_multi-hop_sentence_mid_stack.jsonl  (204 rows)
+         runs/phase3_triggers_gemma-4-26b-a4b-it_multi-hop_sentence_mid_stack_steps.jsonl     (51 rows)
+         runs/phase3_triggers_gemma-4-26b-a4b-it_multi-hop_sentence_mid_stack_summary.json
+
+[ambiguous] prompt_tokens=88 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[15]
+  [ambiguous] tok= 1000 steps=  44 wall=  75.3s  vram=  49467MB  eos@None
+  [ambiguous] tok= 2000 steps=  91 wall= 152.9s  vram=  49678MB  eos@None
+  [ambiguous] tok= 3000 steps= 137 wall= 228.8s  vram=  49893MB  eos@None
+  [ambiguous] tok= 4000 steps= 182 wall= 303.8s  vram=  50108MB  eos@3425
+  [ambiguous] tok= 5000 steps= 230 wall= 378.0s  vram=  50324MB  eos@3425
+[ambiguous] done. 230 steps from 5000 tokens (mean 21.74 tok/step) | mean=13.227 tok/s | fire latent=229 realm=4 grip=13 random=79 (p=0.357) | peak_vram=50841.6 MB
+  wrote: runs/phase3_triggers_gemma-4-26b-a4b-it_ambiguous_sentence_mid_stack.jsonl  (920 rows)
+         runs/phase3_triggers_gemma-4-26b-a4b-it_ambiguous_sentence_mid_stack_steps.jsonl     (230 rows)
+         runs/phase3_triggers_gemma-4-26b-a4b-it_ambiguous_sentence_mid_stack_summary.json
+
+=== headline (Phase 3 per-trace summary) ===
+    factual: steps= 339  latent=99.71% realm=0.29% grip=5.01% random=35.00% | mean=13.14 tok/s peak_vram=50855 MB
+  multi-hop: steps=  51  latent=98.04% realm=1.96% grip=7.84% random=35.95% | mean=13.16 tok/s peak_vram=50860 MB
+  ambiguous: steps= 230  latent=99.57% realm=1.74% grip=5.65% random=35.65% | mean=13.23 tok/s peak_vram=50842 MB

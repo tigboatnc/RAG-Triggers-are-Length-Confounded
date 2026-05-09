@@ -1,0 +1,43 @@
+[..] importing torch + transformers + bitsandbytes ...
+[..] loading models/qwen3.6-35b-a3b-instruct (bf16 native, device_map={'': 0})
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/693 [00:00<?, ?it/s]Loading weights:   2%|▏         | 13/693 [00:00<00:06, 105.75it/s]Loading weights:   3%|▎         | 24/693 [00:00<00:07, 89.70it/s] Loading weights:   5%|▍         | 34/693 [00:00<00:10, 62.15it/s]Loading weights:   7%|▋         | 49/693 [00:00<00:10, 62.92it/s]Loading weights:   9%|▊         | 59/693 [00:00<00:11, 56.51it/s]Loading weights:  12%|█▏        | 82/693 [00:01<00:06, 89.47it/s]Loading weights:  14%|█▎        | 94/693 [00:01<00:14, 40.84it/s]Loading weights:  15%|█▍        | 102/693 [00:02<00:28, 20.79it/s]Loading weights:  17%|█▋        | 118/693 [00:03<00:22, 25.05it/s]Loading weights:  18%|█▊        | 124/693 [00:03<00:28, 20.29it/s]Loading weights:  18%|█▊        | 128/693 [00:04<00:42, 13.18it/s]Loading weights:  22%|██▏       | 151/693 [00:05<00:25, 21.04it/s]Loading weights:  22%|██▏       | 155/693 [00:06<00:34, 15.81it/s]Loading weights:  24%|██▍       | 169/693 [00:07<00:36, 14.40it/s]Loading weights:  27%|██▋       | 187/693 [00:07<00:25, 19.47it/s]Loading weights:  27%|██▋       | 190/693 [00:08<00:34, 14.53it/s]Loading weights:  28%|██▊       | 196/693 [00:08<00:33, 14.91it/s]Loading weights:  29%|██▊       | 198/693 [00:09<00:46, 10.60it/s]Loading weights:  32%|███▏      | 219/693 [00:09<00:20, 22.83it/s]Loading weights:  33%|███▎      | 226/693 [00:10<00:31, 14.64it/s]Loading weights:  34%|███▍      | 238/693 [00:11<00:25, 17.69it/s]Loading weights:  35%|███▌      | 243/693 [00:11<00:32, 13.94it/s]Loading weights:  37%|███▋      | 256/693 [00:12<00:24, 17.50it/s]Loading weights:  38%|███▊      | 260/693 [00:12<00:31, 13.81it/s]Loading weights:  38%|███▊      | 265/693 [00:13<00:31, 13.76it/s]Loading weights:  39%|███▊      | 268/693 [00:14<00:41, 10.13it/s]Loading weights:  42%|████▏     | 288/693 [00:14<00:22, 18.04it/s]Loading weights:  42%|████▏     | 291/693 [00:15<00:31, 12.95it/s]Loading weights:  44%|████▍     | 307/693 [00:15<00:20, 18.41it/s]Loading weights:  45%|████▍     | 310/693 [00:16<00:27, 13.97it/s]Loading weights:  47%|████▋     | 325/693 [00:16<00:19, 18.60it/s]Loading weights:  47%|████▋     | 328/693 [00:17<00:27, 13.32it/s]Loading weights:  48%|████▊     | 334/693 [00:18<00:36,  9.72it/s]Loading weights:  52%|█████▏    | 357/693 [00:18<00:15, 21.25it/s]Loading weights:  53%|█████▎    | 365/693 [00:19<00:21, 15.29it/s]Loading weights:  54%|█████▍    | 376/693 [00:20<00:18, 17.41it/s]Loading weights:  55%|█████▍    | 381/693 [00:20<00:21, 14.41it/s]Loading weights:  57%|█████▋    | 394/693 [00:21<00:16, 18.49it/s]Loading weights:  57%|█████▋    | 398/693 [00:22<00:20, 14.52it/s]Loading weights:  58%|█████▊    | 403/693 [00:23<00:28, 10.18it/s]Loading weights:  61%|██████▏   | 426/693 [00:23<00:14, 18.44it/s]Loading weights:  62%|██████▏   | 429/693 [00:24<00:19, 13.68it/s]Loading weights:  64%|██████▍   | 445/693 [00:24<00:13, 18.58it/s]Loading weights:  65%|██████▍   | 448/693 [00:25<00:17, 13.71it/s]Loading weights:  67%|██████▋   | 463/693 [00:25<00:12, 18.37it/s]Loading weights:  67%|██████▋   | 466/693 [00:26<00:17, 13.22it/s]Loading weights:  68%|██████▊   | 472/693 [00:27<00:16, 13.65it/s]Loading weights:  68%|██████▊   | 474/693 [00:27<00:22,  9.80it/s]Loading weights:  71%|███████   | 493/693 [00:27<00:09, 21.59it/s]Loading weights:  72%|███████▏  | 500/693 [00:29<00:14, 13.26it/s]Loading weights:  74%|███████▍  | 514/693 [00:29<00:10, 17.32it/s]Loading weights:  75%|███████▍  | 519/693 [00:30<00:12, 13.59it/s]Loading weights:  77%|███████▋  | 532/693 [00:30<00:09, 16.97it/s]Loading weights:  77%|███████▋  | 536/693 [00:31<00:12, 12.89it/s]Loading weights:  78%|███████▊  | 541/693 [00:32<00:17,  8.83it/s]Loading weights:  81%|████████  | 561/693 [00:32<00:07, 18.15it/s]Loading weights:  82%|████████▏ | 568/693 [00:34<00:11, 10.42it/s]Loading weights:  84%|████████▍ | 583/693 [00:35<00:08, 13.61it/s]Loading weights:  85%|████████▍ | 588/693 [00:35<00:08, 12.06it/s]Loading weights:  87%|████████▋ | 602/693 [00:36<00:05, 17.38it/s]Loading weights:  88%|████████▊ | 611/693 [00:36<00:04, 20.28it/s]Loading weights:  91%|█████████▏| 634/693 [00:36<00:01, 36.35it/s]Loading weights:  93%|█████████▎| 643/693 [00:36<00:01, 39.29it/s]Loading weights:  94%|█████████▍| 652/693 [00:36<00:01, 38.35it/s]Loading weights:  97%|█████████▋| 669/693 [00:36<00:00, 54.80it/s]Loading weights:  98%|█████████▊| 679/693 [00:37<00:00, 52.91it/s]Loading weights:  99%|█████████▉| 688/693 [00:37<00:00, 51.54it/s]Loading weights: 100%|██████████| 693/693 [00:37<00:00, 18.56it/s]
+[ok] loaded in 42.47s | rss 1.028 GB | VRAM 68665 MB
+
+[factual] prompt_tokens=133 max_new=5000 boundary=sentence (stride=32) layer_mode=last_layer  capture_subset=[40]
+  [  factual] tok= 1000 steps=  85 wall=  79.7s  vram=  66173MB  eos@None
+  [  factual] tok= 2000 steps= 170 wall= 158.8s  vram=  66192MB  eos@None
+  [  factual] tok= 3000 steps= 251 wall= 238.7s  vram=  66212MB  eos@None
+  [  factual] tok= 4000 steps= 341 wall= 318.0s  vram=  66231MB  eos@None
+  [  factual] tok= 5000 steps= 418 wall= 396.9s  vram=  66251MB  eos@None
+[factual] done. 418 steps from 5000 tokens (mean 11.96 tok/step) | mean=12.597 tok/s | fire latent=417 realm=0 grip=23 random=152 (p=0.351) | peak_vram=66258.0 MB
+  wrote: runs/phase3_triggers_qwen3.6-35b-a3b-instruct_factual_sentence_last_layer.jsonl  (1672 rows)
+         runs/phase3_triggers_qwen3.6-35b-a3b-instruct_factual_sentence_last_layer_steps.jsonl     (418 rows)
+         runs/phase3_triggers_qwen3.6-35b-a3b-instruct_factual_sentence_last_layer_summary.json
+
+[multi-hop] prompt_tokens=142 max_new=5000 boundary=sentence (stride=32) layer_mode=last_layer  capture_subset=[40]
+  [multi-hop] tok= 1000 steps=  77 wall=  79.1s  vram=  66173MB  eos@None
+  [multi-hop] tok= 2000 steps= 165 wall= 158.2s  vram=  66192MB  eos@None
+  [multi-hop] tok= 3000 steps= 250 wall= 237.6s  vram=  66212MB  eos@None
+  [multi-hop] tok= 4000 steps= 344 wall= 316.4s  vram=  66231MB  eos@None
+  [multi-hop] tok= 5000 steps= 446 wall= 395.5s  vram=  66251MB  eos@None
+[multi-hop] done. 446 steps from 5000 tokens (mean 11.21 tok/step) | mean=12.643 tok/s | fire latent=445 realm=27 grip=28 random=171 (p=0.374) | peak_vram=66258.0 MB
+  wrote: runs/phase3_triggers_qwen3.6-35b-a3b-instruct_multi-hop_sentence_last_layer.jsonl  (1784 rows)
+         runs/phase3_triggers_qwen3.6-35b-a3b-instruct_multi-hop_sentence_last_layer_steps.jsonl     (446 rows)
+         runs/phase3_triggers_qwen3.6-35b-a3b-instruct_multi-hop_sentence_last_layer_summary.json
+
+[ambiguous] prompt_tokens=85 max_new=5000 boundary=sentence (stride=32) layer_mode=last_layer  capture_subset=[40]
+  [ambiguous] tok= 1000 steps=  76 wall=  79.2s  vram=  66174MB  eos@None
+  [ambiguous] tok= 2000 steps= 154 wall= 159.8s  vram=  66191MB  eos@None
+  [ambiguous] tok= 3000 steps= 247 wall= 238.7s  vram=  66211MB  eos@None
+  [ambiguous] tok= 4000 steps= 317 wall= 318.3s  vram=  66230MB  eos@None
+  [ambiguous] tok= 5000 steps= 346 wall= 396.9s  vram=  66250MB  eos@None
+[ambiguous] done. 346 steps from 5000 tokens (mean 14.45 tok/step) | mean=12.599 tok/s | fire latent=345 realm=1 grip=22 random=126 (p=0.355) | peak_vram=66258.1 MB
+  wrote: runs/phase3_triggers_qwen3.6-35b-a3b-instruct_ambiguous_sentence_last_layer.jsonl  (1384 rows)
+         runs/phase3_triggers_qwen3.6-35b-a3b-instruct_ambiguous_sentence_last_layer_steps.jsonl     (346 rows)
+         runs/phase3_triggers_qwen3.6-35b-a3b-instruct_ambiguous_sentence_last_layer_summary.json
+
+=== headline (Phase 3 per-trace summary) ===
+    factual: steps= 418  latent=99.76% realm=0.00% grip=5.50% random=35.09% | mean=12.60 tok/s peak_vram=66258 MB
+  multi-hop: steps= 446  latent=99.78% realm=6.05% grip=6.28% random=37.37% | mean=12.64 tok/s peak_vram=66258 MB
+  ambiguous: steps= 346  latent=99.71% realm=0.29% grip=6.36% random=35.45% | mean=12.60 tok/s peak_vram=66258 MB

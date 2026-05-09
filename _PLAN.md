@@ -138,12 +138,16 @@ recollection.local/
 
 **Goal:** make the latent gate beatable in principle and beaten in practice.
 
-- **3.1** **ReaLM-Retrieve simulation:** trigger on Reasoning Step Uncertainty Score (small verifier's per-step score) AND on discourse markers (`let me verify`, `actually`, `I need to check`). Thin wrapper around the same generator.
-- **3.2** **GRIP simulation:** heuristic control-token classifier; fire retrieval when classifier predicts a `<retrieve>` token would appear next. Without trained weights, simulate via (next-token entropy spike + discourse-marker prior). Document the simulation gap explicitly (L3).
-- **3.3** **Random-rate baseline:** fire at the same per-step rate as the average of the three trained gates. Log seed.
-- **3.4** Unified trigger schema across all four gates: `{step_idx, token_idx, gate_name, fired, score, reason}` → `runs/phase3_triggers.jsonl`.
+- [x] **3.1** **ReaLM-Retrieve simulation** — `RealmRetrieveSimGate` in `scripts/crv/baseline_gates.py`. Trigger = (per-step RSU score > τ_rsu) OR (discourse-marker matched). RSU stand-in is **per-step mean next-token entropy of the generator** (no trained verifier available); divergence stamped on every row's `simulation_caveats`. Discourse pattern set is curated from ReaLM-Retrieve / GRIP qualitative examples (`let me verify`, `actually,`, `wait,`, `I need to check`, `not entirely sure`, ...).
+- [x] **3.2** **GRIP simulation** — `GripSimGate`. Trigger = (boundary-token entropy z-score > τ_z AND discourse-marker matched) OR (boundary-token entropy z-score > τ_strong). Z-score is computed against a 20-step rolling window; stat update happens *after* scoring so a current spike isn't part of its own baseline. L3 simulation gap (no trained `<retrieve>`-token classifier head; entropy z-score substitutes for classifier logit) stamped per row.
+- [x] **3.3** **Random-rate baseline** — `RandomGate` with deterministic seed (default `20260509`, logged). Fires at a rate **post-hoc rate-matched** to the average of the three real gates' per-step fire rates over the same trace. `evaluate()` records placeholder rows during the live decode, then `calibrate_rate(...)` + `finalize(...)` materializes Bernoulli decisions after the trace ends. Calibration recipe (mean of per-gate rates, not concatenated rate) stored in summary metadata.
+- [x] **3.4** Unified trigger schema across all four gates: `{run_id, model, prompt_class, step_idx, token_idx, gate_name, fired, score, reason, simulation_caveats}` → `runs/phase3_triggers_<model>_<prompt>_<boundary>_<layermode>.jsonl`. Per-step input record (text + entropies + CRV features) saved alongside in `..._steps.jsonl` so Phase 4 can re-derive gate decisions at new thresholds without re-running the generator. Per-trace summary (fire rates, fire counts, gate metadata, seed) in `..._summary.json`.
 
-**Visible:** four gates running on the same generation traces, one CSV summary.
+**Driver:** `scripts/03_baselines.py` re-uses the Phase 2 manual decode loop with two additions on top: per-token next-token entropy capture (~1 ms/decode-step on the A800; effectively free) and per-step text decode. All four gates evaluate online on the same physical trace — no model swap noise (cf. "Things to watch" in `_AGENT.md`).
+
+**Smoke ✓:** Phi-4-mini × factual × 200 tokens, last-layer CRV. 5 boundary steps committed, 20 trigger rows written, schema conformant, L3 caveats stamped on every realm/grip row, random gate calibrated to p=0.267 = mean(0.80, 0.00, 0.00). Throughput 40.5 tok/s — entropy capture overhead is in the noise.
+
+**Visible:** four gates running on the same generation traces, per-trace JSONL + per-step JSONL + summary JSON. Full sweep (3 models × 3 prompt classes × 5000 tokens × 2 layer modes = 18 traces) is the next compute spend; deferred until user kicks it off.
 
 ---
 

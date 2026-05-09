@@ -1,10 +1,29 @@
-# Local-only docs (planning + experimental log)
-# draft_original.md
-# _PLAN.md
-# _AGENT.md
-.prompts.md
+# ============================================================================
+# .gitignore — recollection.local
+#
+# Policy:
+#   - Experiment results, logs, plots, lockfiles → TRACKED (small, science).
+#   - Model weights, raw datasets, env binaries  → IGNORED (huge, reproducible
+#     from scripts/download_models.sh and HF / dataset URLs).
+#   - Heavy regeneratable binaries inside runs/ (CRV .npz, parquet, etc.)
+#     → IGNORED in git, INCLUDED in scripts/snapshot.sh tarballs (so they
+#     ride locally between rented compute boxes without bloating git history).
+#
+# IMPORTANT: gitignore does NOT support trailing comments on a pattern line.
+# A line like `*.npz   # comment` will be parsed as the literal pattern
+# `*.npz   # comment`, which never matches anything. Keep all comments on
+# their own line.
+# ============================================================================
 
+# ----------------------------------------------------------------------------
+# Local-only docs / scratchpads
+# ----------------------------------------------------------------------------
+.prompts.md
+*.draft.md
+
+# ----------------------------------------------------------------------------
 # Python
+# ----------------------------------------------------------------------------
 __pycache__/
 *.pyc
 *.pyo
@@ -13,25 +32,165 @@ build/
 dist/
 .eggs/
 
+# ----------------------------------------------------------------------------
 # Tooling caches
+# ----------------------------------------------------------------------------
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .ipynb_checkpoints/
 
+# ----------------------------------------------------------------------------
 # Envs / local config
+# ----------------------------------------------------------------------------
 .venv/
 .env
 .env.*
 condaenv.*.requirements.txt
 
-# Project artifacts (built or downloaded; reproducible from scripts)
-models/
-data/
-runs/
-
+# ----------------------------------------------------------------------------
 # OS / editor
+# ----------------------------------------------------------------------------
 .DS_Store
 *.swp
 .vscode/
 .idea/
+
+# ----------------------------------------------------------------------------
+# LaTeX build artifacts
+# We track _draft.tex; PDFs and aux files are local-only.
+# These patterns are deliberately scoped to repo root — using bare *.log here
+# would also ignore runs/**/*.log experiment logs, which we DO want tracked.
+# ----------------------------------------------------------------------------
+/_draft.aux
+/_draft.bbl
+/_draft.bcf
+/_draft.blg
+/_draft.fdb_latexmk
+/_draft.fls
+/_draft.lof
+/_draft.log
+/_draft.lot
+/_draft.nav
+/_draft.out
+/_draft.snm
+/_draft.synctex.gz
+/_draft.toc
+/_draft.run.xml
+/_draft.vrb
+/_draft.idx
+/_draft.ilg
+/_draft.ind
+/draft.aux
+/draft.bbl
+/draft.blg
+/draft.log
+/draft.out
+/draft.synctex.gz
+/draft.toc
+/_draft.pdf
+/draft.pdf
+
+# ----------------------------------------------------------------------------
+# Project artifacts
+# ----------------------------------------------------------------------------
+
+# Model weights — re-pull via scripts/download_models.sh (SHAs pinned).
+models/
+
+# Raw datasets — re-pull from source. If a small CSV/JSONL slice belongs in
+# the repo, drop it under data/curated/ and explicitly un-ignore here.
+data/
+
+# runs/ → TRACKED at the directory level. Experiment outputs (JSONL, logs,
+# sysinfo, lockfiles, summaries) are part of the science and ride with the
+# repo. Heavy regeneratable binaries inside runs/ are ignored from git
+# but included in snapshot.sh tarballs. Each binary type is listed twice:
+#   `runs/*.X`     — files DIRECTLY in runs/ (where our outputs live)
+#   `runs/**/*.X`  — files in nested subdirectories under runs/
+# Both are needed because git's `**` does NOT match zero path segments.
+
+# Opt-in dump dir for >10 MB binaries / traces.
+runs/large/
+
+# Tensor binaries (heavy, regeneratable from the orchestrator scripts).
+runs/*.bin
+runs/**/*.bin
+runs/*.pt
+runs/**/*.pt
+runs/*.pth
+runs/**/*.pth
+runs/*.safetensors
+runs/**/*.safetensors
+
+# Phase 2 CRV vector dumps (~3 MB each at 5k-token traces).
+# Regeneratable from scripts/02_crv_probe.py + the prompts; included in
+# snapshot.sh tarballs so future analysis (PCA, separability tests) has
+# the raw vectors locally without re-running 90 minutes of GPU time.
+runs/*.npz
+runs/**/*.npz
+runs/*.npy
+runs/**/*.npy
+
+# Other heavy binary formats.
+runs/*.parquet
+runs/**/*.parquet
+runs/*.arrow
+runs/**/*.arrow
+runs/*.feather
+runs/**/*.feather
+runs/*.zst
+runs/**/*.zst
+runs/*.gz
+runs/**/*.gz
+runs/*.tar
+runs/**/*.tar
+runs/*.zip
+runs/**/*.zip
+
+# figs/ → TRACKED. Regenerable but small; commit so PRs / paper drafts can
+# diff plots cleanly. Same bloat exclusions as runs/.
+figs/*.svg.gz
+figs/**/*.svg.gz
+figs/*.tar
+figs/**/*.tar
+figs/*.zip
+figs/**/*.zip
+
+# ----------------------------------------------------------------------------
+# Secrets / keys / credentials — NEVER commit these
+# ----------------------------------------------------------------------------
+# SSH private keys
+*.pem
+*.key
+*.ppk
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+id_*
+# Common credential files
+secrets/
+.secrets/
+credentials.json
+.aws/
+.gcloud/
+*.crt
+
+# ----------------------------------------------------------------------------
+# Build / packaging artifacts + box-transition cruft
+# ----------------------------------------------------------------------------
+
+# Boot tarball from box-#1 → box-#2 transition. Lives in git history; not
+# expected in the working tree on later boxes.
+recollection-patch.tar.gz
+
+# pip install logs from scripts/setup.sh runs (verbose, noisy, not science).
+runs_setup.log
+runs_setup_a800.log
+
+# Phase snapshots themselves (the tar.gz outputs of scripts/snapshot.sh)
+# don't belong in their own snapshots. Default output dir is
+# /workspace/snapshots/ (outside the repo) so this is mostly defensive.
+snapshots/
+*-snapshot-*.tar.gz

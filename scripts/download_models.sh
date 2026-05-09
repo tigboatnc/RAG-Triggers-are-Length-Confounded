@@ -1,19 +1,24 @@
 #!/usr/bin/env bash
 # v3 model download. HF safetensors snapshots (NOT GGUF) — quantization
-# happens at load time via bitsandbytes.NF4. See _AGENT.md "Engine pivot"
-# for why we eat the ~70 GB fp16 download instead of pre-quantized AWQ/GPTQ.
+# happens at load time via bitsandbytes.NF4 OR runs at bf16 native. See
+# _AGENT.md 2026-05-09 #5 for the Phase 1.4 architectural-class generator
+# pool and why we pull all four.
 #
-# Models:
-#   - Qwen/Qwen3.6-35B-A3B-Instruct  (primary generator, MoE ~3B active/token)
-#   - microsoft/Phi-4-mini-instruct  (lightweight reflector / baseline)
+# Models (Phase 1.4 three-way + optional fourth):
+#   - microsoft/Phi-4-mini-instruct       (Dense SLM, 32 layers, ~7 GB bf16)
+#   - google/gemma-4-26B-A4B-it           (Standard MoE, sliding-window+global, ~52 GB bf16)
+#   - Qwen/Qwen3.6-35B-A3B                (Hybrid Linear MoE, 3:1 Gated DeltaNet : full, ~69 GB bf16)
+#   - google/gemma-4-31B-it    (optional) (Scale-matched Dense ablation, ~63 GB bf16)
 #
-# Revisions: not pinned by default. On first successful download we capture the
-# resolved commit SHA into models/<name>.revision. After verifying the run is
-# good, hardcode the SHA into the REV_QWEN / REV_PHI4MINI vars below and commit.
+# Revisions: pinned (SHAs captured 2026-05-09). Bump by clearing + rerunning
+# this script; resolved SHAs get re-written to models/<name>.revision on each
+# successful pull.
 #
 # Usage:
-#   bash scripts/download_models.sh         # phi-4-mini only (small, smoke first)
-#   bash scripts/download_models.sh all     # both models
+#   bash scripts/download_models.sh             # phi-4-mini only (small, smoke first)
+#   bash scripts/download_models.sh all         # phi + qwen3.6 (Phase 0/1 baseline pair)
+#   bash scripts/download_models.sh phase1.4    # phi + gemma-4-26B-A4B + qwen3.6 (canonical 3-way)
+#   bash scripts/download_models.sh phase1.4-full   # adds gemma-4-31B Dense (optional 4th row)
 
 set -euo pipefail
 
@@ -25,11 +30,19 @@ ENV_NAME="recollection"
 # Pinned SHAs captured 2026-05-09. Bump by clearing + rerunning.
 REV_QWEN="995ad96eacd98c81ed38be0c5b274b04031597b0"
 REV_PHI4MINI="cfbefacb99257ffa30c83adab238a50856ac3083"
+# Gemma 4 family (released ~2026-05-05, transformers 5.8.0 supports `gemma4`):
+REV_GEMMA4_26B_A4B="462a98a12e28e2cbcfccaf78fe41e3e50235e6ae"
+REV_GEMMA4_31B="ba74f5b6c647c0911554e50278d6f6f4477f9010"
 
 # The bare Qwen3.6-35B-A3B repo IS the instruct variant (chat_template.jinja
 # is bundled). There is no "-Instruct" suffix repo. Architecture tag: qwen3_5_moe.
 REPO_QWEN="Qwen/Qwen3.6-35B-A3B"
 REPO_PHI4MINI="microsoft/Phi-4-mini-instruct"
+# Gemma 4: `Gemma4ForConditionalGeneration` arch class, model_type=gemma4.
+# Multimodal head (Image-Text-to-Text) but text-only path works via
+# AutoModelForCausalLM. Sliding-window + sparse global attention; 256K context.
+REPO_GEMMA4_26B_A4B="google/gemma-4-26B-A4B-it"
+REPO_GEMMA4_31B="google/gemma-4-31B-it"
 
 green() { printf "\033[32m[ok]\033[0m %s\n" "$1"; }
 yellow() { printf "\033[33m[..]\033[0m %s\n" "$1"; }
@@ -94,12 +107,30 @@ PY
   [[ -f "$sha_file" ]] || true  # silence unused
 }
 
-# Default = small model only (fast smoke). `all` adds the 35B MoE.
+# Default = small model only (fast smoke). Subcommands add larger sets.
 fetch_snapshot "$REPO_PHI4MINI" "phi-4-mini-instruct" "$REV_PHI4MINI"
 
-if [[ "${1:-}" == "all" ]]; then
-  fetch_snapshot "$REPO_QWEN" "qwen3.6-35b-a3b-instruct" "$REV_QWEN"
-fi
+case "${1:-}" in
+  all)
+    fetch_snapshot "$REPO_QWEN" "qwen3.6-35b-a3b-instruct" "$REV_QWEN"
+    ;;
+  phase1.4)
+    fetch_snapshot "$REPO_GEMMA4_26B_A4B" "gemma-4-26b-a4b-it" "$REV_GEMMA4_26B_A4B"
+    fetch_snapshot "$REPO_QWEN" "qwen3.6-35b-a3b-instruct" "$REV_QWEN"
+    ;;
+  phase1.4-full)
+    fetch_snapshot "$REPO_GEMMA4_26B_A4B" "gemma-4-26b-a4b-it" "$REV_GEMMA4_26B_A4B"
+    fetch_snapshot "$REPO_GEMMA4_31B" "gemma-4-31b-it" "$REV_GEMMA4_31B"
+    fetch_snapshot "$REPO_QWEN" "qwen3.6-35b-a3b-instruct" "$REV_QWEN"
+    ;;
+  "")
+    : # phi-only default
+    ;;
+  *)
+    red "unknown subcommand '$1'. Try: '', all, phase1.4, phase1.4-full"
+    exit 1
+    ;;
+esac
 
 green "downloads complete"
 echo

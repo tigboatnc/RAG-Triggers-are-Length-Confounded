@@ -1,0 +1,39 @@
+{
+  "model_name": "gemma-4-26b-a4b-it",
+  "prompt_class": "multi-hop",
+  "boundary_strategy": "sentence",
+  "fixed_stride": null,
+  "layer_mode": "last_layer",
+  "capture_subset": [
+    30
+  ],
+  "n_layers_total": 30,
+  "prompt_tokens": 151,
+  "max_new_tokens": 5000,
+  "tokens_generated": 5000,
+  "logical_steps_committed": 52,
+  "tokens_per_step_mean": 96.15,
+  "total_wall_clock_s": 374.526,
+  "mean_tok_per_s": 13.351,
+  "vram_at_step0_mb": 49229.1,
+  "peak_vram_mb": 50859.8,
+  "eos_seen_at": 902,
+  "n_fired_default": 51,
+  "capture_stats": {
+    "captures": 5000,
+    "skipped": 0,
+    "every_n_steps": 1
+  },
+  "boundary_stats": {
+    "strategy": "sentence",
+    "n_tokens": 32,
+    "tokens_seen": 5000,
+    "steps_committed": 51,
+    "marker_id_count": 15
+  },
+  "trigger_thresholds": {
+    "drift": 0.1,
+    "variance": 1.0,
+    "mode": "or"
+  }
+}

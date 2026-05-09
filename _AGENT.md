@@ -13,22 +13,25 @@
 | 0 | conda probe + env (HF, bnb, torch cu124) | **done** | `scripts/setup.sh`, `environment.yml`, `runs/env_lockfile.txt` |
 | 0 | model download — Phi-4-mini + Qwen3.6-35B-A3B, revisions captured | **done** | `scripts/download_models.sh`, `models/<name>.revision` |
 | 0 | A40 baseline + L4 landmine probe (Phi dense + Qwen MoE) | **done** | entries below |
-| 0 | handover to A800 80 GB box (re-baseline pending) | **in flight** | entry `2026-05-09 #3` |
-| 1 | KV-pressure curve at 5k tokens × 3 prompt classes | not started | `runs/phase1_kv_pressure.jsonl`, `figs/kv_pressure_baseline.png` |
-| 2 | hidden-state hook + step boundary + CRV + sanity probe | not started | `scripts/crv/`, `runs/phase2_crv.jsonl` |
+| 0 | handover to A800 80 GB box (re-baseline) | **done** | entry `2026-05-09 #3b` |
+| 1 | KV-pressure curve at 5k tokens × 3 prompt classes | **done** (with surprise: flat curve on Qwen3.6 hybrid linear MoE) | `runs/phase1_kv_pressure.jsonl`, `figs/kv_pressure_baseline.png`, entry `2026-05-09 #4` |
+| 1.4 | three-way architectural-class baseline (Phi-4-mini + Gemma 4 26B A4B + Qwen3.6) | **done** — bracketing plot complete, sliding-window-≠-cache-eviction insight added | `runs/phase1_4_*.jsonl`, `figs/phase1_4_arch_comparison.png`, `figs/phase1_4_kv_growth.png`, entry `2026-05-09 #6` |
+| 4 (reserve) | Gemma 4 31B Dense as Phase 4 ablation reserve (MoE-vs-dense within Gemma family) | downloaded, parked | `models/gemma-4-31b-it/` |
+| 2 | hidden-state hook + step boundary + CRV (all 3 arch classes, last-layer + mid-stack) | **DONE** — full matrix landed (last-layer in #8, mid-stack mitigation in #9); ≤3 % throughput overhead at steady state; **L1 confirmed AND mitigated**; sanity probe (2.5) deferred to Phase 4.1 by design | `scripts/crv/`, `scripts/02_crv_probe.py`, `scripts/plot_phase2.py`, `runs/phase2_crv_*.{jsonl,json,npz}`, `figs/phase2_*.png`, entries `2026-05-09 #7`/`#8`/`#9` |
+| draft | `_draft.tex` paper-prose corpus (superset for the 4-page final paper) | **first pass shipped** — 1736 lines, 5 tables, 9 figures referenced, full structure (intro / related / background / method / setup / phase 0/1/2 / phase 4 design / discussion / limitations / repro / future / conclusion / appendix); 60 placeholder citations marked `TODO:` for future fill-in | `_draft.tex`, entry `2026-05-09 #9` |
 | 3 | ReaLM-Retrieve sim + GRIP sim + random baseline | not started | `runs/phase3_triggers.jsonl` |
 | 4 | earliness × trajectory-drift × cost showdown | not started | `figs/efficiency_pareto.png`, `runs/phase4_showdown.csv` |
 
 ### Hardware
 
-- **Next box (handover pending, 2026-05-09 #3):** NVIDIA **A800 PCIe 80 GB**, Idaho US (vast.ai #16761518). 1.52 TB/s HBM bw, **CUDA 12.4 driver (exact match for `torch==2.6.0+cu124`, zero forward-compat risk)**, 225 GB host RAM, 32 cores, 1.5 TB storage, 6-month max duration. A800 is the China-export A100 variant — same compute, same VRAM, same per-card bandwidth; only NVLink is reduced (irrelevant for single-GPU). 80 GB VRAM means **Qwen3.6-35B-A3B fits in bf16 natively** — no NF4 needed for Phase 1, sidesteps both upstream bnb blockers (#43032 streaming-load and grouped-MoE-experts gap).
-- Prior active box (2026-05-09 #2): NVIDIA A40, 46 GB VRAM (driver 535.230.02, CUDA 12.6); ~2 TB RAM, 40 cores; per-process VRAM ceiling ≈ 44.35 GiB (cgroup-limited). Phase 0 closed here; Qwen smoke ran in bf16 + CPU offload @ 0.3 tok/s.
+- **Active box (2026-05-09 #3b):** NVIDIA **A800 PCIe 80 GB**, driver 550.90.07 (CUDA 12.6 capable; torch 2.6.0+cu124 reports CUDA 12.4 runtime — forward-compat fine, same flavor as A40 box #1). 220 GiB host RAM, 32 cores, 362 GB overlay disk (was advertised 1.5 TB; vast container overlay smaller in practice — more than enough for Phi 7 GB + Qwen 69 GB + env). **Full 80 GB VRAM visible to torch** (81038 MB free), no cgroup limit. Qwen3.6-35B-A3B confirmed loadable in bf16 native fully on GPU — Phase 1 unblocked.
+- Prior box (2026-05-09 #2): NVIDIA A40, 46 GB VRAM (driver 535.230.02, CUDA 12.6); ~2 TB RAM, 40 cores; per-process VRAM ceiling ≈ 44.35 GiB (cgroup-limited). Phase 0 closed here; Qwen smoke ran in bf16 + CPU offload @ 0.3 tok/s.
 - Prior box (2026-05-09 #1): NVIDIA A40, driver 565.57.01 (CUDA 12.7), 503 GiB RAM.
 - `setup.sh` conda probe handles `/opt/miniforge3/bin/conda` (vast.ai-style boxes).
 
 ### Engine
 
-HF `transformers` + `accelerate` + `bitsandbytes` 4-bit NF4. Hidden states via `output_hidden_states=True` + forward hooks. torch installed from the cu124 wheel index inside `setup.sh`. Mac/Metal not supported.
+HF `transformers` + `accelerate` + `bitsandbytes`. **Generator pool (Phase 1.4 + downstream)** spans three architectural classes — Dense SLM (`microsoft/Phi-4-mini-instruct`, dense GQA full attention), Standard MoE (`google/gemma-4-26B-A4B-it`, MoE + sliding-window-+-sparse-global hybrid attention), Hybrid Linear MoE (`Qwen/Qwen3.6-35B-A3B`, MoE + 3:1 Gated DeltaNet : full attention). Optional 4th: `google/gemma-4-31B-it` (scale-matched dense ablation). **Canonical run mode on A800 80 GB: bf16 native fully on cuda:0 per model, sequentially.** NF4 still used for (a) Phi reflector smoke when speed isn't the deliverable and (b) the F1 Futures consumer-card validation arm via Unsloth pre-baked snapshots. Hidden states via `output_hidden_states=True` + forward hooks; the hook surface must be uniform across all three architectures (capture `hidden_states` outputs, not K/V tensors, since Gated DeltaNet's recurrent state geometry is incompatible with a K/V-tensor abstraction). torch installed from the cu124 wheel index inside `setup.sh`. Mac/Metal not supported.
 
 ### Models
 
@@ -39,17 +42,26 @@ HF `transformers` + `accelerate` + `bitsandbytes` 4-bit NF4. Hidden states via `
 
 | id | question | resolve in |
 | --- | --- | --- |
-| Q1 | Does `transformers.generate` with `output_hidden_states=True` cost > 5% throughput on the MoE generator at 4-bit? If yes, write a custom forward-hook path that captures only at step boundaries. | Phase 0.4 / 2.1 |
+| Q1 | Does `transformers.generate` with `output_hidden_states=True` cost > 5 % throughput on the MoE generator at bf16 native (A800 canonical path)? If yes, write a custom forward-hook path that captures only at step boundaries. | Phase 1 / 2.1 |
 | Q2 | Is "logical step boundary" best defined as sentence-end inside `<think>`, numbered-list item, or fixed-stride window? Sweep. | Phase 2.2 |
 | Q3 | Does CRV variance or drift carry more signal? Or do we need both? | Phase 2.3–2.5, 4.4 |
 | Q4 | Does the latent gate fire meaningfully earlier than ReaLM-Retrieve on real HotpotQA / MuSiQue traces? | Phase 4.2 |
 | Q5 | Without ReaLM-Retrieve and GRIP weights, how honest is the simulation? Log every divergence. | Phase 3.1–3.2 |
 | Q6 | Does MoE expert-switching noise dominate hidden-state variance for the predictable-vs-ambiguous probe? **L1 / L4 in `_PLAN.md`.** | Phase 0.5 |
+| Q7 | **(opened 2026-05-09 #4, redirected #5, ANSWERED #6.)** Bracketing holds, *with refinement*. Phi shows clean O(N) growth (128 KB/tok). Qwen3.6 shows near-flat (27 KB/tok). Gemma 4 26B A4B shows clean O(N) at **221 KB/tok** — *steeper* than Phi (not flatter as #5 predicted) because HF `DynamicCache` does not auto-evict sliding-window layers; sliding bounds *compute* but not memory in the reference impl. Two-axis bracketing (compute / memory) is now the paper's framing. | resolved |
+| Q8 | **(opened #5.)** Does the latent-state drift signal (Phase 2.5) separate correct vs hallucinated traces *on every Phase 1.4 architectural class*, including Qwen3.6 where memory pressure is essentially absent? If the signal disappears on the hybrid-linear class, the "architecture-agnostic" claim collapses and the paper has to retreat to "works on dense and sliding-window MoEs." | Phase 2.5 |
+| Q9 | **(opened #5.)** Does the optimal CRV layer-subset / trigger threshold *transfer* across architectural classes (one calibration fits all), or does each architecture need its own (Phase 4.4 ablation d)? Affects deployability claim. | Phase 4.4 |
 
 ### Things to watch
 
+- **Framing pivot history (current = third pivot):**
+  - Pivot 1 (pre-Phase 1, `#3b`): "edge / strict VRAM" → "KV-cache pressure under agentic long context."
+  - Pivot 2 (Phase 1 finding, `#4`): KV-pressure-as-headline-cost no longer holds (Qwen3.6 hybrid attention flattens the curve at 5 k); softer "corrective-retrieval cost + trajectory drift" reframe.
+  - **Pivot 3 (current, `#5`):** "cognitive efficiency / memory is being solved by architecture; reasoning-trajectory drift is the open frontier." Three-way Phase 1.4 architectural-class comparison (dense / sliding-window MoE / linear-attention hybrid MoE). Latent-state gating reframed as *hardware-native* and *architecture-agnostic*.
+  - **Stale framing locations:** `README.md` (still on Pivot 2 wording), `_findings.md` (Pivot 2 + the wrong 1:7 Gated-DeltaNet ratio in its Why section); `draft.md` (still on the original "6–20 GB SLM" framing, intentionally untouched until we draft for real). All three need a pass; `_findings.md` requires explicit user OK per its standing rule.
+  - Two `_PLAN.md` Futures still open from Pivot 2: F1 (consumer-GPU validation via Unsloth NF4 snapshot — SHOULD happen) and F2 (runtime monkey-patch for transformers#43032 — if time allows).
 - Pin model revisions after first clean download (`models/<name>.revision` SHAs go into `download_models.sh`'s `REV_*` vars).
-- Hidden-state extraction inflates VRAM (saved tensors). Verify the (4-bit weights + per-step capture) combo still fits 46 GB at 5k context.
+- Hidden-state extraction inflates VRAM (saved tensors). On A800 with bf16 Qwen sitting at ~68 GB, headroom is ~11 GB; verify the (bf16 weights + per-step capture + KV cache) combo still fits at 5 k context. Hooks must `.detach().to("cpu", float32)` immediately on capture (L2 mitigation).
 - Keep CRV / step-boundary / trigger code engine-agnostic via a small adapter so HF/bnb internals don't leak into trigger logic.
 - "Logical step boundary" is the most ambiguous primitive in the pipeline. Get it under tests early (Phase 2.2) before tuning anything downstream.
 - ReaLM-Retrieve and GRIP simulation honesty: log every place the sim diverges from the original paper. Reviewers will probe this.
@@ -59,8 +71,676 @@ HF `transformers` + `accelerate` + `bitsandbytes` 4-bit NF4. Hidden states via `
   1. *On-the-fly streaming-load OOM* (issue huggingface/transformers#43032). Cause: `core_model_loading.py:1382` ships bf16 shards to GPU before bnb can quantize. Fix: 2-line patch (`if mapping.quantization_operation is not None: param_device = "cpu"`). Applied to the installed `core_model_loading.py` on this box; should be re-applied as a runtime monkey-patch in `scripts/_compat.py` (or similar) so it survives env recreation. Upstream patch not yet merged.
   2. *No grouped-MoE-experts support in bnb integration.* `quantizer_bnb_4bit.param_needs_quantization` only flags `bnb.nn.Linear4bit` modules; the Qwen3.5/3.6 `Qwen3_5MoeExperts` module wraps experts as 3-D `nn.Parameter` (grouped-GEMM layout). Mxfp4 and fbgemm_fp8 quantizers have explicit grouped-expert patterns; bnb does not. Phase 1 picks one of: (a) pull `unsloth/Qwen3.6-...-bnb-4bit` pre-baked snapshot, (b) switch from bnb-NF4 to MXFP4 (first-class grouped-MoE support upstream), or (c) extend `tools/quantize_qwen.py` with a manual grouped-expert pass + custom forward.
 - Qwen ChatML template not threaded through `00_smoke.py`; raw-prompt generation produces gibberish even though forward-pass logits are sane. Use `tokenizer.apply_chat_template` in Phase 1 generation scripts.
-- Per-process VRAM ceiling on the **A40 box was 44.35 GiB** (cgroup-limited). On the incoming A800 80 GB PCIe box the expected ceiling is the full 80 GB; verify with `sysinfo.py` on first boot before re-doing VRAM math.
-- On the A800: drop `--no-quant` from the canonical Qwen smoke command. The flag remains in the script for portability but is no longer the default path.
+- Per-process VRAM ceiling on the **A40 box was 44.35 GiB** (cgroup-limited). On A800 the full 80 GB is visible (verified 2026-05-09 #3b: 81038 MB free pre-load).
+- **Canonical Qwen smoke command on A800: `python scripts/00_smoke.py --model qwen3.6-35b-a3b-instruct --no-quant --gpu-budget 76GiB`** (bf16 fully on GPU, 12.6 tok/s, ~68 GB VRAM). The `--no-quant` flag was originally an A40 fallback but turns out to also be the *fastest* canonical path on A800, because bnb can't quantize the grouped MoE expert tensors anyway and the dequant overhead on the small Linear fraction isn't worth it. NF4 hybrid (`--device-map single` without `--no-quant`) loads cleanly too at ~65 GB / 8.9 tok/s — useful as a fallback for smaller-VRAM cards.
+
+---
+
+## Phase snapshots — packaging state for offline preservation
+
+> **Cadence: end of every phase.** Because the compute box is rented, every phase ends with a single small tar.gz that captures the science (docs, scripts, runs/, figs/, .git/) and excludes the bulky-and-reproducible (models, datasets, env caches). Designed to be moved to a local machine, then either kept as a backup or extracted to continue work.
+
+### Make a snapshot
+
+```bash
+bash scripts/snapshot.sh phase1                       # phase tag goes into the filename
+bash scripts/snapshot.sh phase2 /custom/dir            # default out dir is /workspace/snapshots
+bash scripts/snapshot.sh wip-fix-hooks                 # ad-hoc mid-phase backup; any tag works
+bash scripts/snapshot.sh phase4 "" --no-heavy          # exclude runs/**/*.npz when traces get big
+```
+
+Output:
+
+- File: `/workspace/snapshots/recollection.local-<phase>[-noheavy]-<UTCstamp>.tar.gz`
+- Typical size: ~0.6 MB at end of Phase 1 (no .npz yet); ~50 MB at end of Phase 2 (18 CRV .npz files); will grow further at Phase 4 (per-question traces). Use `--no-heavy` once total approaches ~1 GB.
+- Script also prints the sha256 + a one-line restore recipe at the end, so you don't need to re-derive either on the destination.
+
+### What's in / what's out
+
+Included (the science):
+
+- `.git/` — full history; on the destination, `git status` will show any uncommitted phase-N work that was packed verbatim.
+- All markdown docs at root: `_PLAN.md`, `_AGENT.md`, `_findings.md`, `README.md`, `draft.md`, plus `_draft.tex` (paper-prose corpus).
+- `scripts/` (setup, download, smoke, kv_pressure, crv/, plotting scripts, snapshot itself) and `tools/`.
+- `extras/` (writing guideline).
+- `runs/` — every JSONL, log, sysinfo dump, summary, lockfile from every phase. **CRV `.npz` files are included by default** (gitignored, but heavy enough that re-generating costs an hour of GPU time; carry locally in snapshots). Pass `--no-heavy` to drop them at Phase 4 scale.
+- `figs/` — every plot. **Yes, PNG/SVG images are included — tar packs binary files normally.**
+- `environment.yml`, `.gitignore`.
+
+Excluded (re-buildable or noise):
+
+- `models/` — 100s of GB of weights. Re-pull on destination via `bash scripts/download_models.sh phase1.4` (SHAs pinned).
+- `data/` — datasets; re-pull from source.
+- `runs_setup*.log` — verbose pip install logs from `scripts/setup.sh`. Not science, just noisy output.
+- `.venv/`, `__pycache__/`, `*.pyc` — env caches.
+- The previous boot tarball `recollection-patch.tar.gz` from box-transition history (already represented in git history; skipping the working-tree copy avoids recursive nesting).
+- The snapshots dir itself if it's nested inside the repo (not by default; default is `/workspace/snapshots/` adjacent to the repo).
+
+### Restore on destination
+
+```bash
+mkdir -p /path/to/local/recollection.local
+cd /path/to/local/recollection.local
+tar -xzf <snapshot>.tar.gz                # extracts into current dir
+git status                                # see uncommitted phase-N work
+git log --oneline -5                      # confirm history matches the sha
+bash scripts/setup.sh                     # rebuild conda env (~3 min)
+bash scripts/download_models.sh phase1.4  # re-pull models (SHAs pinned)
+```
+
+Verify integrity (the snapshot script printed the sha256 at packaging time; re-check on the destination before trusting):
+
+```bash
+echo "<sha256>  <snapshot>.tar.gz" | sha256sum -c
+```
+
+### Operational notes
+
+- Run snapshots **before** you commit / push, so the tarball preserves the exact uncommitted state you might still want to edit. `git status` on the destination will reproduce that state precisely.
+- If the box dies or is reclaimed mid-phase, the latest snapshot is your recovery point. Take ad-hoc snapshots (`scripts/snapshot.sh wip-<note>`) when you've made progress you'd hate to lose.
+- The script is idempotent and side-effect-free outside the output dir; safe to re-run.
+- Tarball includes timestamps so multiple runs in the same day don't collide.
+
+---
+
+## 2026-05-09 #9 — Phase 2 mid-stack mitigation lands; L1 disarmed; first `_draft.tex` corpus written
+
+Mid-stack matrix (L1 mitigation) ran on the same three architectures × three prompt classes × 5 000-token traces as #8, this time with `--layer-mode mid_stack` (capture from layer $\lfloor L/2\rfloor$: layer 16 of 32 on Phi, layer 20 of 40 on Qwen3.6, layer 15 of 30 on Gemma 4). Wall-clock 44.9 minutes, throughput identical to last-layer run (~3 % overhead). Artifacts: nine `runs/phase2_crv_*_mid_stack.jsonl` + nine `*_summary.json` + nine `*_crv.npz`, plus three figures `figs/phase2_{drift,variance,signal_summary}_per_arch_midstack.png` (or `_midstack.png` suffix on the summary). All last-layer artifacts intact alongside; the `_last_layer` vs `_mid_stack` filename distinction held throughout.
+
+### Headline contrast — last-layer vs mid-stack
+
+| arch | drift\textsubscript{cosine} (last $\to$ mid) | $\Delta$ drift | Var(L2) (last $\to$ mid) | $\Delta$ var |
+| --- | --- | ---: | --- | ---: |
+| Phi-4-mini | $0.024 \to 0.033$ | $+38\%$ | $2.0 \to 4.4$ | $+120\%$ |
+| Gemma 4 26B A4B | $0.175 \to 0.106$ | $\mathbf{-39\%}$ | $476 \to 77$ | $\mathbf{-84\%}$ |
+| Qwen3.6-35B-A3B | $\mathbf{0.479 \to 0.235}$ | $\mathbf{-51\%}$ | $411 \to \mathbf{0.09}$ | $\mathbf{-99.98\%}$ |
+
+The headline:
+
+1. **Qwen3.6 drift recovered** out of saturation. $0.479 \to 0.235$ moves the signal from "near the cosine-distance ceiling, gating impossible" to "in a working regime, threshold-amenable." The mitigation is the L1 prescription from `_PLAN.md` Tentative landmines, executed.
+2. **Qwen3.6 variance collapses to ~0** ($411 \to 0.09$). At mid-stack the L2 norm of the recurrent Gated DeltaNet state is essentially constant — its spectral structure is preserved through the per-token $\alpha_t \cdot S_{t-1} + k_t \delta_t^\top$ update (with $\alpha_t \in [0,1]$, $\beta_t \in [0,1]$). The signal at mid-stack on Qwen3.6 lives entirely in **directional** change ($\drift$), not in **norm** change ($\Var$). This is a **per-architecture feature-selection finding** for Phase 4 trigger calibration: drift only on Qwen, drift+variance on Phi/Gemma.
+3. **Gemma 4 cleans up significantly** ($-39\%$ drift, $-84\%$ var). The mid-stack drift trace reveals two huge clean spikes (~1.0 and ~1.25) at $T \approx 1500$ and $T \approx 4700$ on the factual prompt — events that were buried under routing noise at last-layer.
+4. **Phi essentially unchanged.** Slight upward drift in both metrics (mid-stack hidden states are pre-final-RMSNorm, so naturally a bit less unit-normalised than last-layer). No L1 to mitigate; mitigation costs nothing.
+
+### Drift-magnitude convergence supports the architecture-agnostic claim
+
+The 20× spread of drift across architectures at last-layer ($0.024$ vs $0.479$) collapses to ~7× at mid-stack ($0.033$ vs $0.235$). Same order of magnitude across the three architectural classes. The "architecture-agnostic, with the right layer subset" claim now has empirical backing.
+
+### Plot files
+
+```
+figs/phase2_drift_per_arch_midstack.png      — per-arch drift trace, 3-panel (mid-stack)
+figs/phase2_variance_per_arch_midstack.png   — per-arch variance trace, 3-panel
+figs/phase2_signal_summary_midstack.png      — bar summary parallel to last-layer
+```
+
+### Companion deliverable: `_draft.tex` first-pass corpus
+
+Wrote `_draft.tex` (1736 lines, LaTeX `article` class, compile-ready modulo citation fills) as the *paper-prose corpus* — explicitly a superset that the final 4-page submission will be distilled from. Distinction:
+
+- `_PLAN.md` — the experimental plan (forward-looking)
+- `_AGENT.md` — the experimental log (this file; backward-looking, mechanics)
+- `_draft.tex` — the paper-prose corpus (sideways-looking, scientific writing voice)
+
+The three files together are the complete record. Adding to the canonical Status table above.
+
+Structure of `_draft.tex`:
+
+| section | source data |
+| --- | --- |
+| Abstract + Introduction + Related Work + Background | (prose only) |
+| Method (CRV + boundaries + trigger + adapter + Algo 1) | refs to `scripts/crv/*` |
+| Setup (Table 1: arch summary) | model `config.json` files |
+| Phase 0 / L4 probe (paragraph) | `runs/smoke_*_a800.log`, `_AGENT.md` #2/#3b |
+| Phase 1.3 (Fig + Table 2) | `runs/phase1_kv_pressure*.jsonl`, `figs/kv_pressure_baseline.png` |
+| Phase 1.4 (Fig + Table 3 + two-axis bracketing) | `runs/phase1_4_*.jsonl`, `figs/phase1_4_kv_growth.png`, `_AGENT.md` #6 |
+| Phase 2 last-layer (Table 4 + Fig 4/5/6) | `runs/phase2_crv_*_last_layer.*`, `figs/phase2_*.png`, `_AGENT.md` #8 |
+| Phase 2 mid-stack (Table 5 + Fig 7/8/9) | `runs/phase2_crv_*_mid_stack.*`, `figs/phase2_*_midstack.png`, this entry |
+| Phase 4 design (preregistered) | `_PLAN.md` Phase 3/4 |
+| Discussion + Limitations + Reproducibility + Future + Conclusion | (prose) |
+| Appendix A: prompt corpus | verbatim from `scripts/01_kv_pressure.py` |
+| Appendix B: per-cell Phase 2 detail | TODO; data in `runs/phase2_crv_*_summary.json` |
+| Appendix C: engineering notes from this log | curated from `_AGENT.md` |
+| Bibliography | 22 `\bibitem`s with `TODO:` keys for future fill |
+
+Maintenance protocol going forward: when a new phase produces data, write the experimental log here (`_AGENT.md` #N), update the plan checkboxes (`_PLAN.md`), then update the relevant section of `_draft.tex` to reflect the new numbers. The three files are deliberately decoupled so each can be edited without conflicting with the others.
+
+### Phase 2 status (final)
+
+| step | state |
+| --- | --- |
+| 2.1 hidden-state hook | done (last-layer + mid-stack, via `output_hidden_states=True` API) |
+| 2.1b engine + arch-agnostic adapter | done — verified end-to-end on all three architectural classes |
+| 2.2 step-boundary detector | done for `sentence`; `think_block` and `fixed` strategies implemented but unswept (see Future Work F3) |
+| 2.3 CRV + variance + drift | done for `last_layer` and `mid_stack` modes; **L1 fires at last, mitigated at mid** |
+| 2.4 trigger rule | implemented; thresholds NOT calibrated (Phase 4 task) |
+| 2.5 stop-gate sanity probe | **deferred** — needs Phase 4.1 labelled correct/hallucinated traces to execute meaningfully |
+
+Phase 2 closes here. Next is Phase 4.1 dataset assembly + Phase 3 baselines + the empirical showdown. The diagnostic infrastructure paper is essentially written; the empirical paper is the next phase block.
+
+---
+
+## 2026-05-09 #8 — Phase 2 full data: last-layer captures + L1 landmine fires (preserved as deliberate baseline)
+
+Ran `02_crv_probe.py` end-to-end on all three architectural classes from Phase 1.4 — Phi-4-mini, Gemma 4 26B A4B, Qwen3.6-35B-A3B — sequentially on the A800 in bf16 native, three prompt classes per model, sentence-boundary detector, **last-layer mean-pooled CRV**. Total wall-clock 45.6 min. Artifacts: 9 JSONLs + 9 summary JSONs + 9 CRV `.npz` files in `runs/phase2_crv_<model>_<prompt>_sentence_last_layer.*`, plus per-model logs and three figures (`figs/phase2_drift_per_arch.png`, `figs/phase2_variance_per_arch.png`, `figs/phase2_signal_summary.png`).
+
+### Headline numbers (last-layer CRV)
+
+Steps committed and throughput (mean tok/s in parens; ~3 % overhead vs Phase 1.4 baseline):
+
+|  | factual | multi-hop | ambiguous |
+| --- | --- | --- | --- |
+| Phi-4-mini-instruct (dense) | 149 (45.3) | 532 (45.9) | 186 (45.8) |
+| Gemma 4 26B A4B (sliding+global MoE) | 340 (13.1) | **52** (13.4) | 231 (13.3) |
+| Qwen3.6-35B-A3B (3:1 Gated DeltaNet) | 419 (12.5) | 447 (12.6) | 347 (12.6) |
+
+(The Gemma 4 multi-hop = 52 steps outlier reflects the model emitting long unbroken paragraphs through the chained reasoning prompt; sentence-boundary marker tokens just don't fire, mean ~96 tok/step. Worth following up with the `think_block` strategy on Gemma.)
+
+### Signal magnitude per architecture (last-layer, sentence-boundary)
+
+| model | mean drift_cosine | mean rolling-variance(L2 norm) | total steps in trace |
+| --- | ---: | ---: | ---: |
+| Phi-4-mini-instruct | **0.024** | 2.0 | 867 |
+| Gemma 4 26B A4B | 0.175 | 476 | 623 |
+| Qwen3.6-35B-A3B | **0.479** | 411 | 1213 |
+
+### The principal Phase 2 finding: **L1 landmine fires hard on Qwen3.6** (last-layer)
+
+The plan (`_PLAN.md` Tentative landmines L1) flagged this as a hypothesis to falsify: *"MoE routing variance ≠ uncertainty variance — the router selects different experts per token, so naive mean-pool of last-layer hidden states absorbs expert-switching noise unrelated to reasoning uncertainty."* The Phase 2 last-layer CRV traces confirm it — strongly:
+
+- **Phi (dense, no routing):** drift signal mostly under 0.05 with isolated event-driven spikes to ~0.2. The L2-norm variance is mostly flat with a sharp single spike around step 4000 in two of three prompt classes — *this is exactly the signature we want for hallucination detection.*
+- **Gemma 4 (MoE + sliding-window):** drift in the 0.0–0.5 range, much noisier baseline; rich structure but high noise floor. Sits between Phi and Qwen on the L1 noise axis.
+- **Qwen3.6 (MoE + 3:1 Gated DeltaNet):** drift consistently 0.3–0.8 across the entire 5 000-token trace, near-saturated near the cosine-distance ceiling — **the 256-expert × 8-active routing combined with the Gated DeltaNet recurrent state produces step-to-step hidden-state variability that washes the latent-state signal at the last layer.**
+
+The plan's prescribed mitigation: read CRV from a *pre-routing mid-stack layer* instead of the last layer. That's the next experiment (#9 below).
+
+### Preservation policy (this run is a deliberate baseline)
+
+The noisy last-layer Qwen3.6 trace is *not a failed experiment*. It is the empirical confirmation of L1 — the failure mode the paper has to motivate the mid-stack mitigation against. **Both the last-layer matrix (this run) and the mid-stack matrix (next run) are preserved; the contrast is the finding.** File naming carries the layer mode (`_last_layer` vs `_mid_stack`) so neither can overwrite the other; the orchestrator computes the path via `phase2_crv_<model>_<prompt>_<boundary>_<layer_mode>.{jsonl,json,npz}` deterministically.
+
+In the paper, both should show up:
+
+- **Last-layer figure** (this run, `figs/phase2_*_per_arch.png`): "naive last-layer CRV is dominated by routing noise on linear-attention MoE; signal exists but SNR is poor."
+- **Mid-stack figure** (the next run): "reading from a pre-routing mid-stack layer recovers a Phi-style clean signal across the MoE classes too — confirming the gating mechanism is architecture-agnostic *with the right layer subset*."
+
+If the mid-stack mitigation works, the story is "L1 was real, here's why it bites, here's the fix, the contribution holds." If it doesn't work, the paper has to retreat from "architecture-agnostic" and claim the gate works only on dense / sliding-window models.
+
+### Inspectable artifacts
+
+```
+runs/phase2_crv_phi-4-mini-instruct_{factual,multi-hop,ambiguous}_sentence_last_layer.jsonl       (per-step features)
+runs/phase2_crv_phi-4-mini-instruct_{factual,multi-hop,ambiguous}_sentence_last_layer_summary.json (per-trace summary)
+runs/phase2_crv_phi-4-mini-instruct_{factual,multi-hop,ambiguous}_sentence_last_layer_crv.npz     (CRV vectors, gitignored)
+runs/phase2_crv_qwen3.6-35b-a3b-instruct_*_sentence_last_layer.{jsonl,json,npz}
+runs/phase2_crv_gemma-4-26b-a4b-it_*_sentence_last_layer.{jsonl,json,npz}
+runs/phase2_full_{phi,qwen,gemma}.log                                                              (per-model run logs)
+figs/phase2_drift_per_arch.png        (3-panel facet, drift over trace, per architecture)
+figs/phase2_variance_per_arch.png     (same layout for variance)
+figs/phase2_signal_summary.png        (mean drift + mean variance bar chart, ±1σ across prompt classes)
+runs/phase2_qwen_midstack_factual.log (interrupted; preserved as evidence of the kill before re-launch)
+```
+
+### Throughput regression: **inside the budget after warmup**
+
+Phase 1.4 baseline = 47 / 13.1 / 12.85 tok/s for Phi / Gemma / Qwen. Phase 2 measured = 45.5 / 13.3 / 12.6 tok/s. Overhead **~3 % across the board** — well inside the ≤5 % budget set in `_PLAN.md` Phase 2.1. The 11–14 % I'd seen on the 200-token smokes was warmup-dominated; at 5k context the steady-state cost of `output_hidden_states=True` is small.
+
+### Phase 2 status (after #8)
+
+| step | state |
+| --- | --- |
+| 2.1 hidden-state hook | done (last-layer; mid-stack pending #9) |
+| 2.1b engine + arch-agnostic adapter | done (verified on all 3 architectures) |
+| 2.2 step-boundary detector | done — last-layer + sentence boundary traces shipped; `think_block` and `fixed` sweeps still pending |
+| 2.3 CRV vector + variance + drift | done (last-layer); **L1 confirmed on Qwen3.6, partial on Gemma 4, clean on Phi** |
+| 2.4 trigger rule | implemented; thresholds NOT calibrated (default `or` rule fires ≈100% on the MoE classes — calibration is Phase 4 work) |
+| 2.5 stop-gate sanity probe | deferred (needs Phase 4.1 labelled correct/hallucinated traces) |
+
+Next: **mid-stack layer mode across all three models × three prompts** (L1 mitigation experiment), same matrix scope as this run. Same 50-min compute budget. See #9 below.
+
+---
+
+## 2026-05-09 #7 — Phase 2 engineering: CRV adapter + orchestrator + first smokes
+
+Built the architecture-agnostic CRV machinery (Phase 2.1 / 2.1b / 2.2 / 2.3 / 2.4) + the per-prompt orchestrator (`scripts/02_crv_probe.py`). Smoked end-to-end on Qwen3.6 and Phi-4-mini at 200 tokens × `factual` × sentence-boundary × last-layer CRV. Both runs produced clean per-step JSONL + summary + side `.npz` of CRV vectors. Architecture-agnostic claim holds; the CRV pipeline ran on both with zero per-arch glue, just `output_hidden_states=True` and the boundary detector. Phase 2.5 sanity probe deferred until Phase 4.1 brings labelled correct/hallucinated traces.
+
+### Code shipped (engine + arch agnostic)
+
+- `scripts/crv/__init__.py` — re-exports
+- `scripts/crv/hooks.py` — `HiddenStateCapture`: consumes `output.hidden_states` from any HF causal-LM forward; extracts last-token vector per layer; detaches + moves to CPU fp32 immediately (L2 mitigation). Configurable layer subset and `every_n_steps` sub-sampling. **No `register_forward_hook` torch hooks** — using the public `output_hidden_states=True` API instead, which is uniform across dense / sliding-window / Gated-DeltaNet attention.
+- `scripts/crv/boundaries.py` — `StepBoundaryDetector` with three strategies: `sentence` (token-id matching against precomputed punctuation set), `think_block` (`\n\n`, `</think>`, `<think>`, section headers), `fixed` (every N tokens; calibration baseline). Tokenizer-aware marker-id precomputation at init.
+- `scripts/crv/vectors.py` — `CRVTracker`: buffers per-token captures between boundaries, mean-pools per layer at each boundary, concatenates selected layers into a single CRV vector. Tracks rolling-window L2-norm variance + cosine drift vs previous step's CRV. L2 drift mode also available as alternative metric. Drops the per-token buffer after each `commit_step` so memory stays flat.
+- `scripts/crv/triggers.py` — `CRVTrigger`: pure threshold rules over scalar features (`drift_cosine`, `variance_l2_window`). Modes `or` / `and` / `drift` / `variance` / `none`. No internal state — same trigger can be applied to multiple feature streams.
+- `scripts/02_crv_probe.py` — orchestrator: Phase 1's manual decode loop + KV cache + the CRV machinery wired in. Same prompts as Phase 1.3/1.4 so traces are directly comparable. Output:
+  - `runs/phase2_crv_<model>_<prompt>_<boundary>_<layer_mode>.jsonl` — per-step scalar features
+  - `runs/phase2_crv_..._summary.json` — per-trace summary
+  - `runs/phase2_crv_..._crv.npz` — CRV vectors keyed by step_idx (gitignored — regeneratable, several MB at full 5k runs)
+
+### Smoke results (200 tokens × `factual` × sentence-boundary × last-layer CRV)
+
+| model | steps committed | mean tok/step | mean tok/s (Phase 2) | mean tok/s (Phase 1.4 baseline) | overhead | first-step drift_cosine |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.6-35B-A3B | 16 | 12.5 | 11.47 | 12.85 | **~11 %** | 0.61 (jump from prompt-processing into answering) |
+| Phi-4-mini-instruct | 6 | 33.33 | 40.63 | 47.00 | **~14 %** | (similar magnitude) |
+
+**Both pipelines work end-to-end with no per-arch code changes.** The captured features look meaningful — first generated step shows a large drift jump in both models (the model transitioning from "ingesting the prompt" to "starting the answer"), then settles to lower values. CRV vectors are 2048-dim on Qwen (last-layer hidden_size=2048) and 3072-dim on Phi (hidden_size=3072), saved as fp32 numpy arrays.
+
+### Throughput regression: above the ≤5 % budget
+
+`_PLAN.md` Phase 2.1 set a ≤5 % throughput budget. Smokes exceeded it (~11–14 %). Three causes, ordered by suspected impact:
+
+1. **`output_hidden_states=True` causes HF to retain *all* layer outputs** in memory before we slice down to our chosen subset. We can't avoid this through the public API — the model materializes all 41 / 32 / 30 layer outputs; we only sub-select after the fact. To stay under budget on the full 5k run we'll either (a) bump `--every-n-steps` to 2 or 4 (capture half / quarter as many checkpoints), or (b) move to `register_forward_hook` on a single chosen layer to skip the all-layer materialization. (b) reintroduces per-arch concerns (layer naming differs); (a) is cheaper.
+2. **Per-step `torch.cuda.synchronize()`** for accurate latency measurement adds ~1-3 ms / step. We need this for the latency JSONL but it's a known cost.
+3. **CPU-side variance / cosine work** on the just-committed CRV. Negligible at single-layer subset; would matter if `layer_subset` is large.
+
+Phase 2 critical path is *not* a perf benchmark — what matters is the signal quality. Document the overhead, run with `--every-n-steps=1` for clean signals, and don't optimize until Phase 4 cost analysis demands it.
+
+### Inspectable artifacts
+
+```
+runs/phase2_crv_qwen3.6-35b-a3b-instruct_factual_sentence_last_layer.jsonl
+runs/phase2_crv_qwen3.6-35b-a3b-instruct_factual_sentence_last_layer_summary.json
+runs/phase2_crv_qwen3.6-35b-a3b-instruct_factual_sentence_last_layer_crv.npz       (gitignored)
+runs/phase2_crv_phi-4-mini-instruct_factual_sentence_last_layer.jsonl
+runs/phase2_crv_phi-4-mini-instruct_factual_sentence_last_layer_summary.json
+runs/phase2_crv_phi-4-mini-instruct_factual_sentence_last_layer_crv.npz             (gitignored)
+```
+
+Sample row (Qwen3.6 step 2 — the big drift jump from prompt to answer):
+
+```json
+{"step_idx": 2, "token_idx_end": 9, "boundary_token_id": 13, "n_tokens_in_step": 2,
+ "layer_indices": [40], "crv_dim": 2048, "hidden_norm": 91.92, "drift_cosine": 0.61,
+ "variance_l2_window": 324.82, "wall_clock_s": 1.635, "vram_allocated_mb": 66153.3,
+ "fired_default": true}
+```
+
+### What's deferred
+
+- **Full 5k × 3 prompts × 3 architectures CRV capture.** Estimated wall-clock ~50 min on this box. Run when ready to invest the time and produce Phase 2 plots. Not done in #7 because the smoke is enough to validate the engineering and the full run is straightforward (just `python scripts/02_crv_probe.py --model X` for each of the three).
+- **Boundary-strategy sweep.** Plan calls for sweeping `sentence` / `think_block` / `fixed=N` to compare which definition produces the most informative CRV signal. Code supports it via `--boundary` and `--fixed-stride`; just need to run the matrix.
+- **Layer-mode sweep (`last_layer` vs `mid_stack` per L1 mitigation).** Same — code supports it via `--layer-mode mid_stack`.
+- **Plotting** — `scripts/plot_phase2.py` will follow once we have full data. Plots: variance + drift over the trace per (model, prompt, boundary), 3-up grid by architecture for direct comparison.
+- **Phase 2.5 stop-gate sanity probe.** Per `_PLAN.md`, requires correct-vs-hallucinated traces from Phase 4.1's HotpotQA / MuSiQue split. Cannot start until Phase 4.1 lands the labelled dataset.
+
+### Phase 2 status
+
+| step | state |
+| --- | --- |
+| 2.1 hidden-state hook | done (uses `output_hidden_states=True` not `register_forward_hook`) |
+| 2.1b engine + arch-agnostic adapter | done (`scripts/crv/` package; smoked on Qwen3.6 + Phi) |
+| 2.2 step-boundary detector | done (3 strategies; sweep pending) |
+| 2.3 CRV vector + variance + drift | done (mean-pool, cosine drift, rolling variance) |
+| 2.4 trigger rule | done (threshold rules; calibration deferred to Phase 4) |
+| 2.5 stop-gate sanity probe | **deferred** (needs Phase 4.1 labelled dataset) |
+| Full data run (5k × 3 × 3) | pending |
+| Plotting + writeup | pending (`scripts/plot_phase2.py` + figs) |
+
+---
+
+## 2026-05-09 #6 — Phase 1.4 closed: three-way bracketing plot, plus the sliding-window-≠-cache-eviction finding
+
+Ran `01_kv_pressure.py` end-to-end on the three architectural classes per #5's spec, on the same A800 80 GB box, in bf16 native fully on cuda:0, sequentially. Three prompt classes per model (factual / multi-hop / ambiguous), 5 000 tokens uninterrupted, 500-token checkpoints. Total wall-clock: Phi 5.5 min, Gemma 4 26B A4B 19.2 min, Qwen3.6 (re-used Phase 1.3 data, would've been ~20 min). Artifacts: `runs/phase1_4_phi.jsonl`, `runs/phase1_4_gemma4_26b.jsonl` (each 30 checkpoint rows), `runs/phase1_4_*_summary.jsonl`, plus `figs/phase1_4_arch_comparison.png` (raw VRAM panels) and `figs/phase1_4_kv_growth.png` (the headline plot — KV growth normalised to step 500).
+
+### Headline numbers (mean across 3 prompt classes, at step 5000)
+
+| model | mean tok/s | KV growth (MB) | KV growth slope (KB/tok) | peak VRAM (MB) | decode step1→stepN slowdown |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| **Phi-4-mini-instruct** (Dense, full GQA, 32 layers) | **47.0** | **643** | **128** | 7 985 | **1.01–1.07×** (visible) |
+| **Gemma 4 26B A4B** (MoE, 5 sliding + 1 global × 5, 30 layers) | **13.2** | **1 105** | **221** | 50 852 | **0.99–1.11×** (slight) |
+| **Qwen3.6-35B-A3B** (MoE, 3 linear + 1 full × 10, 40 layers) | **13.0** | **135** | **27** | 66 258 | **0.96–0.98×** (none / slight speedup) |
+
+### What the bracketing actually looks like (and the surprise)
+
+The Phase 1.4 plan, written in #5, predicted Gemma 4 26B A4B's curve would show a **knee at 1024 tokens** (sliding cache cap) followed by a flatter regime determined only by the 5 global layers. That prediction was wrong in an instructive way.
+
+**Observation:** Gemma 4 26B A4B's KV-growth slope is **constant at ~215 KB/token across the entire 5 000-token run** — no knee, no eviction. Per-checkpoint deltas: 107 / 108 / 107 / 106 / 107 / 109 / 105 / 109 / 106 MB per 500 tokens, all within ~3 %.
+
+**Why:** in HF transformers' `DynamicCache`, sliding-window attention bounds the *attention computation* (only the last `sliding_window=1024` tokens are attended to in sliding layers), but the cache *itself does not auto-evict tokens past the window*. The cache stores everything, attention just ignores the older entries. So memory grows linearly forever; only compute is bounded.
+
+Per-layer math reconciles cleanly:
+- 5 global layers × `num_global_key_value_heads=2` × `global_head_dim=512` × 2 (K+V) × 2 bytes (bf16) = **20 KB/tok** unbounded
+- 25 sliding layers × `num_key_value_heads=8` × `head_dim=256` × 2 (K+V) × 2 bytes = **200 KB/tok** stored-not-evicted
+- Total: **220 KB/tok** ≈ observed 215 KB/tok ✓
+
+The 5 KB/tok gap (220 predicted vs 215 observed) is consistent with measurement granularity (allocator rounding to 2 MB blocks). Match within 3 %.
+
+**Implication for the bracketing argument (and the paper):** the cleaner story is in **two dimensions**, not one. The 2026 attention-design space optimises *compute pressure* and *memory pressure* separately. Sliding-window architectures bound compute but in standard reference implementations do not bound memory. Linear-attention hybrids bound both. Vanilla full attention bounds neither.
+
+| | bounds compute? | bounds memory? |
+| --- | --- | --- |
+| Phi-4-mini (vanilla full GQA) | no — visible 1.01–1.07× slowdown over 5 000 tok | no — 128 KB/tok linear |
+| Gemma 4 26B A4B (sliding+global, HF reference impl) | **yes** — flat decode latency | **no** — 215 KB/tok linear (steeper than Phi!) |
+| Qwen3.6-35B-A3B (3:1 Gated DeltaNet:full) | **yes** — flat or slightly faster | **mostly yes** — 27 KB/tok (only the 10 full-attn layers contribute) |
+
+That's a tighter and more EMNLP-friendly framing of the bracketing argument than "memory is being solved." More precisely: **memory is being solved unevenly. The sliding-window class trades cache for compute; the linear-attention class trades cache for state. Latent-state gating's value is decoupled from which trade was made — it works at the layer-output level on all three.**
+
+### Plot files
+
+- `figs/phase1_4_arch_comparison.png` — raw VRAM panels, dominated by weight footprint (~8, ~50, ~65 GiB respectively); KV-growth signal invisible at this scale. Useful only for showing that the *baseline* sits in different places per architecture.
+- `figs/phase1_4_kv_growth.png` — **the headline figure.** KV growth from step-500 baseline, mean ±1σ across 3 prompt classes. Three clean slopes: Gemma 4 ~960 MB, Phi ~545 MB, Qwen3.6 ~85 MB at step 5000. The bracket the paper wants.
+
+### Per-prompt-class invariance holds (still)
+
+Within each model, the three prompt classes (factual / multi-hop / ambiguous) produced essentially identical KV-growth slopes and tok/s, confirming Phase 1.3's finding that **the cost-per-token signature is prompt-class-invariant** at this context length. The shaded ±1σ bands in the figure are visually thin. EOS fired on Gemma 4 multi-hop @ step 902 and ambiguous @ step 3425, but the run continued past EOS as designed; KV cost continued growing identically, confirming the post-EOS measurement validity.
+
+### Decode latency footnote (the Gemma 4 multi-hop spike)
+
+Gemma 4 multi-hop showed a **1.11× decode slowdown** (0.0712 → 0.0789 s/step) — visibly larger than the other two classes (0.99× / 1.04×). Possible cause: multi-hop reasoning routes more often through compute-heavy expert paths; or a subset of decode steps engaged the global-attention layers more (e.g. when the model is doing the chain-step transitions). Worth a follow-up in Phase 4.4 ablations once we're routing per-step.
+
+### Mechanics that worked (Phase 1.4-specific)
+
+- `01_kv_pressure.py` worked first try on Gemma 4 (`Gemma4ForConditionalGeneration` arch class, multimodal head). `apply_chat_template(messages, add_generation_prompt=True)` produced clean text prompts via `AutoTokenizer`; no `AutoProcessor` needed for text-only mode. `DynamicCache` machinery (manual `past_key_values=` loop) handled both Gemma 4 and Phi-4-mini without code changes.
+- The `00_smoke.py` raw-prompt path produced "...." dots on Gemma 4 (smoke entry above this in `runs/smoke_gemma4_26b_bf16_a800.log`); `01_kv_pressure.py`'s chat-templated path produced sane content. **Confirms that for Phase 2.5+ the L4 / sanity probe must use `apply_chat_template`** to be uniform across architectures. Carry into Phase 2.1b (uniform hook surface requirement).
+- Decode latency measurement under `torch.cuda.synchronize()` per step works cleanly across all three architectures. No per-arch workarounds needed.
+- Sequential model load is fine: Phi loaded 8.5 s (post-Gemma run, slight cache hit), Gemma 4 41 s (down from 24 s standalone — disk contention with the parallel 31B download gone, but still slower than expected; possibly the 1013-shard count vs Qwen's 693 vs Phi's 194 plays in).
+
+### Phase 1 status (final)
+
+| step | state |
+| --- | --- |
+| 1.1 generator/reflector wiring + chat template | done (1.3 + 1.4) |
+| 1.2 `01_kv_pressure.py` | done |
+| 1.3 three prompt classes on Qwen3.6 | done (`figs/kv_pressure_baseline.png`) |
+| 1.4 three-way architectural-class baseline | **done** (`figs/phase1_4_kv_growth.png`) |
+
+Phase 1 closed. **Q7 from #5 answered:** the three architectures bracket the cost-curve design space cleanly enough to tell the EMNLP story; updated picture is in the table above. **Q8 (drift signal across all 3 classes — Phase 2.5) and Q9 (CRV calibration transferability — Phase 4.4) remain open as designed.**
+
+### Gemma 4 31B Dense status
+
+Downloaded (62.6 GB at `models/gemma-4-31b-it/`, sha `ba74f5b6...`) but **parked as Phase 4 ablation reserve**, not part of the canonical Phase 1.4 bracketing plot. Reasoning (clarified after the user's question): 31B Dense uses the *same* sliding-window+sparse-global attention pattern as 26B A4B, so it would be a fourth line on the bracketing plot that mostly traces the Gemma-2-class curve — adds visual noise without a new architectural-class point. Where 31B Dense *does* add value is the narrow **MoE-vs-dense ablation within the Gemma family** for Phase 4.4: same training, same tokenizer, same attention design, MoE structure on/off. That's the question we'll answer with it later, not now. Reframe applied to `_PLAN.md` Phase 1.4 (the "(optional row 4)" was a misframing) and to the Futures section.
+
+---
+
+## 2026-05-09 #5 — Cognitive-efficiency pivot, Phase 1.4 spec, Gated DeltaNet ratio correction
+
+User brought in an external EMNLP-2026-era framing recommendation in response to the Phase 1 surprise (#4): pivot the paper from a *hardware-resource* ("memory pressure") frame to a *cognitive-efficiency* ("memory is being solved by architecture; reasoning-trajectory drift is the open frontier") frame, and bracket the architectural design space with three concrete generators rather than one. After verifying the model availability and Gated DeltaNet citations (Raschka), agreed and incorporated.
+
+This entry is the canonical record of the third framing pivot in this project (edge-VRAM → KV-pressure → cognitive-efficiency). Earlier two framings preserved verbatim in #3b ("Things to watch") and #4 (above).
+
+### The pivot in one sentence
+
+**From** *"agentic LLM reasoning under KV-cache pressure"* **to** *"latent-state gating is a hardware-native, architecture-agnostic earlier-than-text-parsing trigger for corrective retrieval — and we prove it on three points along the 2026 attention-design spectrum (dense full attention, sliding-window+global hybrid, linear-attention hybrid) where memory pressure ranges from steep to negligible."*
+
+### Why this framing and not a fourth-time tightening of "memory pressure"
+
+Phase 1.3 measured 80 MB total KV growth across 5 000 tokens on Qwen3.6 (`_findings.md` Phase 1, `runs/phase1_kv_pressure.jsonl`, `figs/kv_pressure_baseline.png`). The hybrid Gated-DeltaNet architecture flattens the curve we wanted to study by construction. The honest read is that the hardware bottleneck the original "edge VRAM" framing assumed is being fixed by architecture choices that are already shipping in late-2025 / 2026 models. Pretending otherwise to defend the framing would be brittle as more linear-attention hybrids ship through 2026 (Kimi Linear, Qwen3-Coder-Next, future Mamba-3 hybrids). The cognitive-efficiency frame ages better: it asserts that even when architecture removes the memory cost, the *reasoning-trajectory drift* that produces hallucinations during long `<think>` blocks is unchanged, and a latent-state hook is the cheapest way to detect it.
+
+### Three-way architectural-class baseline (Phase 1.4 spec) — verified configs
+
+All four candidates verified via HF API + `AutoConfig.from_pretrained` smoke (run captured to `runs/phase1_4_pre_run_checks.log`). Configs read from each model's `config.json` (Phi + Qwen already on disk; Gemma values from `AutoConfig` introspection).
+
+| row | role | repo (HF) | sha (pinned) | layers | n_attn / n_kv heads | head_dim | hidden | sliding_window | MoE: total / active expert | bf16 GB | KV per token (full-attn layers) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Dense SLM (control) | `microsoft/Phi-4-mini-instruct` | `cfbefacb...` | 32 | 24 / 8 | 128 | 3072 | (262 144 = effectively unbounded) | dense | 7.7 | **128 KB/tok** (8 KV × 128 dim × 2 (K+V) × 2 bytes × 32 layers) |
+| 2 | Standard MoE (industry baseline) | `google/gemma-4-26B-A4B-it` | `462a98a1...` | 30 | 16 / 8 | 256 | 2816 | **1024** (local layers cap; some global) | 128 total / `num_experts_per_tok` TBD from layer config | 51.6 | per global layer: 8 × 256 × 2 × 2 = **8 KB/tok**; per local layer: bounded at sliding_window (1024 tokens) |
+| 3 | Hybrid Linear MoE (SOTA) | `Qwen/Qwen3.6-35B-A3B` | `995ad96e...` | **40** *(not 41 — corrected from #4)* | 16 / **2** *(not 4 — same product, wrong attribution)* | **256** *(not 128)* | 2048 | n/a | 256 total / 8 active per token + 1 shared (`moe_intermediate_size=512`) | 69 | only on the 10 full-attn layers (indices 3,7,...,39): 2 × 256 × 2 × 2 × 10 = **20 KB/tok**, exactly matches Phase 1.3 measurement |
+| 4 *(optional ablation)* | Scale-matched Dense | `google/gemma-4-31B-it` | `ba74f5b6...` | 60 | 32 / 16 | 256 | 5376 | 1024 (same Gemma 4 pattern) | dense | 62.6 | per global layer: 16 × 256 × 2 × 2 = **16 KB/tok**; local layers bounded |
+
+Pre-run checks (all green; see `runs/phase1_4_pre_run_checks.log`):
+
+1. ✅ **Gemma 4 transformers 5.8.0 compatibility.** `model_type="gemma4"` is registered in `transformers.AutoModelForCausalLM._model_mapping` (alongside `gemma4_text` and `gemma4_assistant`). Architecture class is `Gemma4ForConditionalGeneration` — multimodal head pattern, same as Qwen3.6. **No version bump needed.** `AutoConfig.from_pretrained("google/gemma-4-26B-A4B-it")` and the 31B variant both load cleanly without `trust_remote_code`. Gemma 4 was released ~2026-05-05; transformers 5.8.0 already supports it.
+2. ✅ **Configs introspected.** All architectural facts in the table above came from the actual configs (Qwen + Phi from local `models/<name>/config.json`; Gemma from `AutoConfig`).
+3. ✅ **Qwen3.6 layer-types literally enumerated.** `models/qwen3.6-35b-a3b-instruct/config.json` has a `layer_types: [...]` array of length 40. Pattern: three `linear_attention` then one `full_attention`, repeating. Full-attn at indices 3, 7, 11, 15, 19, 23, 27, 31, 35, 39 → **exactly 10 full-attention layers**. Config also lists `full_attention_interval: 4`. **3:1 ratio confirmed at the source.** The earlier 1:7 guess (in #4) and the secondary "4 KV × 128 dim" guess (in this entry's previous draft) are both wrong; corrected here.
+4. ⏳ **Chat-template parity** — not yet smoked end-to-end on Gemma 4. Will run after weight pull. Gemma 4 model card shows `AutoTokenizer` works for text-only mode (note: card uses `AutoProcessor` for multimodal, but text path uses tokenizer); thinking control via `<|think|>` in the system prompt.
+5. ⏳ **Thinking mode** — Qwen3.6 default-on, Gemma 4 controllable via system token, Phi-4-mini has no built-in thinking. Plan: enable thinking where available (realistic agentic mode); document the Phi asymmetry in Phase 1.4 results.
+
+Execution: bf16 native fully on cuda:0, sequential per model, three prompt classes per model (factual / multi-hop / ambiguous from `01_kv_pressure.py`), 5 000 tokens uninterrupted with 500-token checkpoints. Wall-clock budget ~20 min per model, 60–80 min total. Output: extended JSONL (`runs/phase1_4_arch_comparison.jsonl` to keep #4 data separate) + new figure overlaying all classes (3-4 lines per panel × 2 panels for VRAM and tok/s). NF4 path is *not* on the Phase 1.4 critical path; the consumer-card validation arm stays in **F1 (Futures)**.
+
+Predicted KV-pressure curves at 5k tokens (to be measured in 1.4):
+
+| model | KV @ 5k tokens (predicted) | curve shape |
+| --- | --- | --- |
+| Phi-4-mini | **128 KB/tok × 5000 = ~625 MB** | clean linear O(N) — the steep reference |
+| Gemma 4 26B A4B | global layers grow linearly; local layers cap at 1024 → **knee-shaped curve** (steep then flat) | bounded local + sparse global |
+| Qwen3.6-35B-A3B | already measured — **~100 MB at 5k**, near-flat | hybrid linear, near-O(1) |
+
+That's the bracketing plot the EMNLP 2026 framing asks for.
+
+### Why `gemma-4-26B-A4B-it` is the right "Standard MoE" pick for row 2
+
+The user's first proposal cited "Gemma 4 (26B)" with `~16 GB`. That maps to either the **26B A4B MoE** (~14 GB at NF4 / ~52 GB at bf16) or the **31B Dense** (~16 GB at NF4 / ~62 GB at bf16). Picked the **26B A4B MoE** for row 2 because:
+
+1. **Same MoE structure as Qwen3.6 (row 3).** Isolates the *attention-mechanism* variable: row 2 (sliding-window + sparse global) and row 3 (3:1 linear + full) share MoE structure but differ in how attention scales with context. Row 2 vs row 1 (dense) then isolates MoE-vs-dense.
+2. **Matched active-parameter scale.** Gemma 4 26B A4B has 3.8 B active vs Qwen3.6's 3 B active. Per-token compute envelope is comparable, so tok/s differences will primarily reflect attention-mechanism cost.
+3. **Has thinking mode.** Native `<|think|>` control matches Qwen3.6's behavior; Phi-4-mini's lack of thinking mode is the asymmetry we'll have to document, not Gemma's.
+4. **Fits sequentially on the A800.** ~52 GB bf16 + ~14 GB headroom fits easily; we don't need NF4 to run it.
+
+Gemma 4 31B Dense is queued as the optional row 4 — same Gemma-4 sliding-window architecture but no MoE — to isolate "MoE structure vs dense" within the Gemma family. Adds one ~20-min run.
+
+### Gated DeltaNet — corrected technical record (replaces the wrong 1:7 in earlier #4)
+
+The Qwen3-Next family (Qwen3-Next, Qwen3.5, Qwen3.6, Qwen3-Coder-Next) and Kimi Linear use a **3:1 ratio of Gated DeltaNet linear-attention layers to full-attention layers** — three linear blocks, then one full-attention block, repeating. Sources:
+
+- Sebastian Raschka, [*Gated DeltaNet*](https://sebastianraschka.com/llms-from-scratch/ch04/08_deltanet/) (Beyond Standard LLMs, ch. 4 / bonus 8): *"That is why these models often use a 3:1 ratio: three linear-attention style layers, one full-attention layer, then repeat."*
+- The companion [`LLMs-from-scratch` ch. 4/08 README](https://github.com/rasbt/LLMs-from-scratch/blob/main/ch04/08_deltanet/README.md): *"Both Qwen3-Next and Kimi Linear use a 3:1 ratio, meaning for every three transformer blocks employing the linear Gated DeltaNet variant, there's one block that uses full attention."*
+- Original implementation: Yang et al., [*Gated Delta Networks: Improving Mamba2 with Delta Rule*](https://arxiv.org/abs/2412.06464), Dec 2024.
+- Qwen team's reference impl: [`modular_qwen3_next.py` line ~835](https://github.com/huggingface/transformers/blob/0ed6d51ae8ed3f4fafca67a983b8d75bc76cd51b/src/transformers/models/qwen3_next/modular_qwen3_next.py#L835).
+
+What Gated DeltaNet actually does (compressed): sequentially processes tokens and maintains a fixed-size recurrent state matrix `S` of shape `(b, n_heads, head_dim, head_dim)`. The state is updated per token via a delta-rule update (`δ = (v - S k) · β`, `S ← α · S + k δᵀ`), with two gates: `α` (scalar per-head decay; controls how fast the state forgets) and `β` (per-head update; controls how strongly each new token modifies the state). An output gate (SiLU-activated) follows. Memory cost per layer is `n_heads × head_dim²` — *no* dependency on context length, in contrast to full attention's `n_kv_heads × head_dim × n_tokens`. The downside: prior tokens have to be compressed through the fixed-size state bottleneck, so global context modeling is weaker — which is why these architectures keep ~25 % of layers as full attention for periodic global mixing.
+
+**Reconciling against our Phase 1.3 data (corrected with the actual `config.json`):**
+
+Qwen3.6-A3B has **40 layers** (not 41 as I earlier wrote — `num_hidden_layers: 40`). The config's `layer_types` array literally enumerates the pattern: three `linear_attention` blocks then one `full_attention` block, repeating; full-attn indices are 3, 7, 11, 15, 19, 23, 27, 31, 35, 39 → **exactly 10 full-attention layers + 30 Gated DeltaNet layers**. Observed KV slope from Phase 1.3: ~20 KB/token. Per full-attn layer per token: `20 480 ÷ 10 ÷ 2 (K+V) ÷ 2 (bf16 bytes) = 512` elements per K (and per V). The actual config has `num_key_value_heads: 2` and `head_dim: 256` → 2 × 256 = 512 elements per K. **Math matches exactly.** Earlier drafts of this entry guessed "4 KV × 128 dim" — same product (1024 bytes per K), but wrong attribution. The Qwen3.6-MoE config uses an unusual asymmetric head geometry (`num_attention_heads: 16`, `head_dim: 256` → query projection 16 × 256 = 4096 *up* from hidden_size 2048; KV projection 2 × 256 = 512 down from hidden_size, the GQA compression).
+
+**`_findings.md` carries the same wrong ratio** in its "Why" section ("1:7 full-to-linear ratio" / "5 of 41 full-attention layers"). Per the user's standing rule that `_findings.md` is updated only on explicit instruction, the correction is *not* applied there yet — flagged to the user for sign-off. The error doesn't change the *qualitative* finding (most layers are linear, KV growth is small, model is engineered to flatten the curve) but the layer count and per-layer KV math are off by a factor of 2.
+
+### Implications for downstream phases (what changed in `_PLAN.md`)
+
+Updated in this commit:
+
+- **Thesis** rewritten to the cognitive-efficiency framing (memory is being solved; trajectory drift is the frontier).
+- **Engine** line widened to "three-class generator pool" with bf16-native vs NF4 guidance.
+- **Phase 1.4** replaced the pinned A/B/C decision with the three-way (optional four-way) spec table + pre-execution checklist + execution plan. Wall-clock budget is now real.
+- **Phase 2 / 2.5** sharpened: the sanity probe now must show CRV separation on **all three architectural classes** — that's the test of "architecture-agnostic" in the new thesis. Phase 2.1b got an explicit "engine-architecture-agnostic" requirement (same hook surface across Phi-4-mini, Gemma 4, Qwen3.6).
+- **Phase 4 / 4.2 / 4.5** sharpened to the "hardware-native earliness" framing. Earliness is now defined relative to the eventual hallucinated token, faceted by architecture class. Cost framing now reports avoided corrective-retrieval round-trips and avoided wasted thinking, not just KV memory.
+
+Not yet updated (need user sign-off):
+
+- `README.md` still carries the prior "KV-cache pressure" framing. Stale; needs a small rewrite to lead with "memory is being solved by architecture; trajectory drift is the open frontier; latent-state gating is the trigger."
+- `_findings.md` carries the wrong 1:7 ratio in its Phase 1 "Why" section. Two-paragraph fix; needs user OK to touch the file.
+
+### Things to verify before pulling Gemma 4 weights
+
+1. `huggingface.co/google/gemma-4-26B-A4B-it` exists and is downloadable (the model card we read was for `gemma-4-31B-it`; the 26B A4B variant is referenced in the same family table but we haven't confirmed its repo path).
+2. transformers 5.8.0 supports the Gemma 4 architecture (load test: `AutoConfig.from_pretrained("google/gemma-4-26B-A4B-it")` should work without a remote-code requirement).
+3. Disk space: 4 models adds ~120 GB to `models/`. Currently ~76 GB used; we have 362 GB overlay headroom — fine.
+4. `pip` may need `transformers @ git+` for Gemma 4; if so, regenerate `runs/env_lockfile.txt` and document the bump in this entry.
+
+---
+
+## 2026-05-09 #4 — Phase 1 KV-pressure baseline (and the framing surprise)
+
+Built `scripts/01_kv_pressure.py` and ran 5,000-token uninterrupted greedy generation on Qwen3.6-35B-A3B (bf16 native fully on cuda:0, canonical A800 path) over three prompt classes: factual (long-form historical exposition), multi-hop (chained reasoning with confidence checks), ambiguous (open-ended creative continuation). Manual generation loop with explicit `past_key_values` so we can checkpoint VRAM + per-step latency at every 500 tokens. Total wall-clock: 19.8 min for the full 3 × 5k run. Artifacts: `runs/phase1_kv_pressure.jsonl` (30 checkpoint rows), `runs/phase1_kv_pressure_summary.jsonl` (3 summary rows), `figs/kv_pressure_baseline.png`.
+
+### Headline numbers
+
+| prompt class | mean tok/s | prefill (s) | decode step1 (s) | decode step5000 (s) | step1→stepN slowdown | total KV growth (MB) | peak VRAM (MB) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| factual | **12.85** | 0.798 | 0.0816 | 0.0798 | **0.98×** | 141 | 66258 |
+| multi-hop | 12.80 | 0.414 | 0.0800 | 0.0782 | 0.98× | 132 | 66258 |
+| ambiguous | 12.89 | 0.388 | 0.0796 | 0.0761 | 0.96× | 132 | 66258 |
+
+Three numbers per `_PLAN.md` Phase 1.3 deliverable: **peak VRAM = 66 258 MB (~64.7 GiB)**, **tok/s @ 500 = 12.6–12.8 (rolling)**, **tok/s @ 5000 = 13.0–13.1 (rolling)**.
+
+### The surprise: there is no KV-pressure curve up to 5 k tokens
+
+Top panel of the figure shows three perfectly overlapping VRAM-vs-tokens lines, going from ~64.62 GiB at 500 tokens to ~64.70 GiB at 5000 tokens. **Total VRAM growth across the entire 5 000-token generation is ~80 MB, prompt-class invariant.** Per-token KV slope is ~20 KB/token. Per-token decode latency is *flat or slightly decreasing* across all three classes — step 5000 is ~2 % faster than step 1.
+
+For comparison, a naive standard-transformer estimate (41 layers × 6 KV heads × 128 dim × 2 (K+V) × 2 bytes/bf16 = ~240 KB/token) would have predicted ~1.2 GB of KV growth at 5 000 tokens *and* substantial per-step slowdown from O(N) attention. We observed ~12 % of that.
+
+### Why: Qwen3.6-A3B is a hybrid linear-attention MoE
+
+The "fast path is not available — install fla / causal-conv1d" warning at load (already noted in #3b but now load-bearing) is the giveaway. The Qwen3-Next / Qwen3.5 / Qwen3.6 / Qwen3-Coder-Next family uses a **3 : 1 ratio of Gated-DeltaNet (linear-attention) layers to full-attention layers** — three linear blocks, then one full-attention block, repeating. The same 3:1 hybrid pattern is used by Kimi Linear (with MLA in place of full attention).
+
+> *Sources (added 2026-05-09 #5):* Sebastian Raschka, [Gated DeltaNet (Beyond Standard LLMs ch. 4)](https://sebastianraschka.com/llms-from-scratch/ch04/08_deltanet/) and the [`LLMs-from-scratch` ch. 4/08 README](https://github.com/rasbt/LLMs-from-scratch/blob/main/ch04/08_deltanet/README.md): "Both Qwen3-Next and Kimi Linear use a 3:1 ratio, meaning for every three transformer blocks employing the linear Gated DeltaNet variant, there's one block that uses full attention." Original implementations: Yang et al., [Gated Delta Networks: Improving Mamba2 with Delta Rule](https://arxiv.org/abs/2412.06464) (Dec 2024); Qwen team's [`modular_qwen3_next.py`](https://github.com/huggingface/transformers/blob/0ed6d51ae8ed3f4fafca67a983b8d75bc76cd51b/src/transformers/models/qwen3_next/modular_qwen3_next.py#L835).
+
+On a **40-layer Qwen3.6-A3B** (`num_hidden_layers=40` in `config.json`; the `layer_types` array enumerates the pattern explicitly), 3:1 → **exactly 10 full-attention layers (indices 3, 7, 11, 15, 19, 23, 27, 31, 35, 39) + 30 Gated DeltaNet layers**. Reconciling against observed slope: 20 KB/token ÷ 10 full-attn layers ÷ 2 (K+V) ÷ 2 bytes (bf16) = **1024 bytes per layer per K**, which matches the configured `num_key_value_heads=2` × `head_dim=256` = 512 elements per K = 1024 bytes per K (and same for V) per layer per token. The 3:1 hypothesis matches our data exactly; an earlier draft of this entry guessed 1:7 ratio and an even earlier draft of #5 guessed "4 × 128" head geometry — both have been corrected against the literal config above.
+
+Net: **at 5 k context this model is engineered to make KV memory and per-step compute effectively constant.** Gated DeltaNet's recurrent state has size `n_heads × head_dim²` per layer (constant in context length), with α (decay) and β (update) gates regulating how the state forgets and absorbs new tokens. The full-attention layers — every fourth layer plus the first/last — provide periodic global mixing. The linear-attention layers run on a torch fallback (no `fla` / `causal-conv1d` installed) and still outperform standard-attention scaling at this length.
+
+### What this means for the project framing
+
+This is a real problem for the **"agentic reasoning under KV-cache pressure"** thesis we just adopted in `README.md` + `_PLAN.md` (commit pre-#4). On the canonical generator we picked, that pressure simply doesn't exist at 5 k. Three honest options:
+
+1. **Add a standard-attention generator as a comparison baseline (recommended, 1–2 hr).** Re-run `01_kv_pressure.py` on Llama-3.1-8B-Instruct (or Qwen2.5-14B-Instruct) at bf16 — both have plain MHA / GQA full-attention, both fit in <20 GB VRAM. Get the *real* O(N) KV curve we expected. The paper then has the correct comparison: "this is what KV pressure looks like on a vanilla transformer; here's what hybrid-attention models like Qwen3.6 already buy you for free; here's what our gating adds *on top* of that for trajectory drift / corrective-retrieval cost."
+2. **Push context further out on Qwen3.6 (also recommended, 1 hr).** Run a single 32 k-token uninterrupted generation. The flat regime will eventually end — finding the knee is itself a result and bounds the regime where Qwen3.6's architecture handles long context "for free."
+3. **Tighten the framing once more (free).** The thesis as written claims KV pressure is the binding cost; on this model it is not. Pivot the headline contribution to **"corrective-retrieval cost + trajectory drift over long agentic context"** rather than KV memory specifically. Latent-state gating still saves: it lets us avoid wasted retrieval/reasoning passes whose cost is real (each adds ~80 ms × N tokens of regenerated content, plus an embedding+search round-trip) regardless of whether the *baseline* KV grows.
+
+The methodology is fine — Phase 2 hidden-state hooks, step-boundary detection, CRV variance/drift, and Phase 4's earliness × drift × cost showdown all work without a steep KV curve. We just don't get to lean on KV memory as the headline cost.
+
+### Mechanics that worked
+
+- **Manual generation loop with explicit `DynamicCache`**: works first try on transformers 5.8 + Qwen3-MoE. Pass `past_key_values=None` on step 0, then the returned `out.past_key_values` on every subsequent step; pass `attention_mask` only on step 0 (later steps don't need it because the cache contains the full attention context). Greedy via `argmax`; no `do_sample=False` plumbing needed in the manual loop.
+- **`tokenizer.apply_chat_template(..., add_generation_prompt=True)`**: produces a clean prompt with proper chat-template wrapping. Qwen3.6 emits `<think>...</think>` then real content as expected. The thinking-mode default is on (Qwen3 convention); we did not pass `enable_thinking=False`.
+- **`torch.cuda.synchronize()` after every step**: required for accurate per-step latency; CUDA's async kernel queueing made earlier non-synced timing useless. Cost is small (single sync per ~80 ms step).
+- **Forcing past EOS**: in all three classes, EOS never fired at all in 5 000 tokens. The model genuinely produces 5k+ tokens for these prompts. No artificial "ignore EOS" logic was needed.
+- **VRAM measurement**: `torch.cuda.memory_allocated()` returns the live allocation; `torch.cuda.max_memory_allocated()` tracks peak since `reset_peak_memory_stats()`. Both update synchronously (CPU-side counters).
+
+### Mechanics worth noting for Phase 2
+
+- The naming choice in the summary metric was nontrivial: step 0 is the prefill (full prompt forward), which is an outlier. The KV-pressure curve we care about is single-token-decode step 1 vs step N. Renamed `step0_to_stepN_slowdown` → `decode_slowdown_step1_to_stepN` mid-run.
+- KV cache of `132–141 MB at 5 k` extrapolates to ~900 MB at 32 k tokens (linear in the 10 full-attention layers' contribution; the 31 Gated DeltaNet layers' state is bounded). Easily fits the 15 GiB headroom even out to 64 k context.
+- Phase 2.1's hidden-state hooks will inflate VRAM by capturing per-layer outputs. Per-step capture of all 41 layers at last-token only = `41 × 2048 × 2 bytes = 168 KB`, kept on GPU per step before `.detach().to('cpu', float32)`. Negligible. **Layer-subset variance experiments are unconstrained by VRAM at this generator config.**
+
+### Phase 1 status
+
+| step | state |
+| --- | --- |
+| 1.1 generator/reflector wiring + chat template | done (chat template threaded inside `01_kv_pressure.py`; reflector deliberately not loaded — Phase 2.5+ task) |
+| 1.2 `01_kv_pressure.py`: 5k uninterrupted gen + 500-tok checkpoints | done |
+| 1.3 three prompt classes + JSONL + plot | done |
+
+**Visible artifact ✓**: `figs/kv_pressure_baseline.png` + the three numbers above.
+
+Next: triage the framing surprise with the user. **Resolved in 2026-05-09 #5** below — third pivot to "cognitive efficiency / trajectory drift" framing with a three-way architectural-class comparison spec for Phase 1.4.
+
+---
+
+## 2026-05-09 #3b — Phase 0 re-baseline closed on A800 80 GB
+
+Followed the boot plan from #3 end-to-end on the new vast.ai A800 box. Setup, sysinfo, downloads, and both smokes ran clean. **Phase 0 reproducible on A800; Phase 1 unblocked.** All artifacts in `runs/`: `sysinfo_a800_box3.json`, `download_a800.log`, `smoke_phi_a800.log`, `smoke_qwen_nf4_single_a800.log`, `smoke_qwen_bf16_a800.log`, plus the regenerated `env_lockfile.txt`.
+
+### Stack as installed (this box)
+
+Identical to box #2 lockfile (101 packages):
+
+| dep | version |
+| --- | --- |
+| python | 3.11.15 |
+| torch | 2.6.0+cu124 |
+| transformers | 5.8.0 |
+| accelerate | 1.13.0 |
+| bitsandbytes | 0.49.2 |
+| huggingface_hub | 1.14.0 |
+| numpy | 2.4.4 |
+
+`sysinfo` reports: A800 80 GB PCIe, **memory_free_mb=81038** (full 80 GB visible, no cgroup ceiling — vs 44.35 GiB on A40 #2). Driver 550.90.07; torch reports CUDA runtime 12.4. bf16 supported. RAM 220 GiB total, 183 GiB available. **No transformers `core_model_loading.py` patch applied on this box** (deliberately — wanted to test the unpatched path on a card with headroom).
+
+### Models (re-downloaded fresh, SHAs match pins)
+
+- `microsoft/Phi-4-mini-instruct` @ `cfbefacb99257ffa30c83adab238a50856ac3083` — 7.2 GB
+- `Qwen/Qwen3.6-35B-A3B` @ `995ad96eacd98c81ed38be0c5b274b04031597b0` — 69 GB
+
+Total download wall-clock: ~10 min for the pair (Phi <10 s, Qwen ~10 min on this network). SHAs in `download_models.sh` survive re-resolution; pins are good.
+
+### Phi-4-mini smoke (replication of the A40 #2 result)
+
+`python scripts/00_smoke.py --model phi-4-mini-instruct`
+
+| metric | A800 (this) | A40 #2 |
+| --- | --- | --- |
+| load (s) | 2.87 | 4.52 |
+| 32-tok gen tok/s | **22.3** | 19.4 |
+| peak VRAM (MB) | 2868 | 2868 |
+| hidden_states | 32 × 33 layers, (1,1,3072) bf16 | identical |
+| L2 pred / amb (Δ) | 54.198 / 54.821 (0.623) | 54.204 / 54.813 (0.609) |
+| H(next) pred / amb (Δ nats) | 1.139 / 3.956 (2.816) | 1.177 / 3.998 (2.821) |
+| top tok pred | ` Paris` p=0.826 | ` Paris` p=0.820 |
+
+Within tok/s noise; hidden-state numbers replicate. Phi NF4 path = good.
+
+### Qwen3.6-35B-A3B smoke — **the NF4 question**
+
+User asked: "does the NF4 issue arise again on 80 GB?" Ran two configurations to answer.
+
+#### (a) NF4 hybrid: `--device-map single` (no `--no-quant`)
+
+`python scripts/00_smoke.py --model qwen3.6-35b-a3b-instruct --device-map single`
+
+| metric | value |
+| --- | --- |
+| load (s) | 12.96 |
+| RSS after load (GB) | 1.07 |
+| **VRAM after load (MB)** | **66675** (~65 GiB) |
+| 32-tok gen tok/s | **8.9** |
+| VRAM peak gen (MB) | 64213 |
+| hidden_states | 32 × **41 layers**, last `(1, 1, 2048)` bf16 |
+| L2 pred / amb (Δ) | 112.163 / 111.173 (Δ 0.990, ~0.9 %) |
+| H(next) pred / amb (Δ nats) | 2.189 / 3.734 (Δ 1.545) |
+| top tok pred | ` Paris` p=0.571 |
+
+**Loaded successfully — no OOM.** 693 weight shards in 13 s. Confirms what #2c predicted: with 80 GB headroom, neither upstream blocker (transformers#43032 streaming-load OOM, bnb's missing grouped-MoE-experts support) actually bites. But the model is **NOT fully NF4** — it's a hybrid:
+
+- Standard `nn.Linear` modules (~5 GB worth: q/k/v/o, gates, shared-expert linears, lm_head) → NF4
+- Grouped expert tensors (`Qwen3_5MoeExperts.gate_up_proj`, `down_proj`, ~60 GB) → still bf16 (bnb's integration leaves 3-D `nn.Parameter`s untouched, exactly as #2b/#2c diagnosed)
+- Embeddings, norms → bf16
+
+Net: ~65 GB on GPU, ~14 GB headroom for KV / activations.
+
+#### (b) bf16 native: `--no-quant --gpu-budget 76GiB`
+
+`python scripts/00_smoke.py --model qwen3.6-35b-a3b-instruct --no-quant --gpu-budget 76GiB`
+
+| metric | value |
+| --- | --- |
+| load (s) | 17.74 |
+| RSS after load (GB) | 1.03 |
+| **VRAM after load (MB)** | **68665** (~67 GiB) |
+| 32-tok gen tok/s | **12.6** |
+| VRAM peak gen (MB) | 66206 |
+| hidden_states | 32 × 41 layers, (1, 1, 2048) bf16 |
+| L2 pred / amb (Δ) | 111.696 / 111.133 (Δ 0.563) |
+| H(next) pred / amb (Δ nats) | 2.394 / 4.113 (Δ 1.719) |
+| top tok pred | ` Paris` p=0.554 |
+
+#### Comparison + decision
+
+| | NF4 hybrid | **bf16 native** | A40 #2 (bf16+CPU) |
+| --- | --- | --- | --- |
+| VRAM after load | 66 675 MB | 68 665 MB (+2 GB) | mostly CPU |
+| 32-tok tok/s | 8.9 | **12.6 (+42 %)** | 0.3 |
+| L4 L2 Δ (pred vs amb) | 0.990 | **0.563** | 0.649 |
+| L4 H Δ (nats) | 1.545 | **1.719** | 1.734 |
+| top tok pred prob | 0.571 | **0.554** | 0.568 |
+
+**bf16 native is the canonical Phase 1 path.** Three reasons:
+1. **42 % faster** at the same VRAM cost. NF4 mode was paying dequant overhead on the small fraction of Linears it could actually quantize, with the bulk of weights (the experts) bf16 in *both* paths anyway. No throughput win, just overhead.
+2. **L4 probe matches the A40 #2 bf16+CPU baseline almost exactly** (L2 Δ 0.563 vs 0.649, entropy Δ 1.719 vs 1.734, ` Paris` p=0.554 vs 0.568). NF4 mode added ~50 % extra L2 noise (Δ 0.99 vs 0.56 / 0.65) — quantization noise on the non-expert Linears that we don't need to pay. **L1 finding fully replicated** with full precision: MoE noise still degrades L2 separation to ~0.5 % (Phi dense was ~1.1 %).
+3. **VRAM headroom is 80 − 68.7 ≈ 11 GB**, comfortably enough for the Phase 1 5 k-token KV cache (~1–7 GB depending on KV-head count). Single-GPU, no offload, no accelerate planner.
+
+### So: did the NF4 issue arise again?
+
+**Technically yes; practically no.** transformers#43032 (the bf16-shards-staged-on-GPU-before-quant regression) is still in the install — `core_model_loading.py:1382` was *not* patched on this box. bnb's grouped-MoE-experts gap is also still there. Both bugs are intact. They just don't OOM at 80 GB the way they did at 44 GiB. We sidestep them by going bf16 instead of fighting them.
+
+The patch text from #2c stays preserved there (in case Phase 4 ever wants to also report numbers on a smaller-VRAM card). `tools/quantize_qwen.py` stays as a scaffold for the same reason. Neither is on the Phase 1 critical path.
+
+### Notes worth keeping
+
+- **Generation text quality.** On the A40 `--no-quant` run we got "gibberish" with a raw prompt (no ChatML). On A800 the same path emits sane English (e.g. `<think></think>Retrieval-augmented generation (RAG) is an AI framework…`). The Qwen3.6 thinking model emits an empty `<think></think>` block then answers when given a simple question. Threading `tokenizer.apply_chat_template` is still a Phase 1 task (`01_kv_pressure.py`); the smoke script's raw prompt happens to work well enough for shape + L4 deliverables.
+- **No `_compat.py` shim needed yet.** The bnb 0.49.2 `Params4bit.__new__` private-kwarg patch in `00_smoke.py` was ported from box #2; it's harmless on the A800 path (we don't hit the accelerate dispatch hook) but stays in for portability.
+- **`flash-linear-attention` / `causal-conv1d` "fast path not available" warning** — Qwen3.6 has a linear-attention fallback for some heads that wants these libs. Not installed, falls back to torch impl; no functional impact, possibly a small tok/s headroom we could claw back later. Defer to Phase 1 if it matters.
+
+### Phase 0 status (re-affirmed on A800)
+
+| step | state |
+| --- | --- |
+| 0.1 conda probe + env | done |
+| 0.2 environment.yml | done (lockfile re-written, identical to box #2) |
+| 0.3 sysinfo extended | done; **80 GB visible**, no cgroup limit |
+| 0.4 download_models.sh + revs | done (SHAs verified on re-pull) |
+| 0.5 00_smoke.py on Qwen MoE | **done at full bf16 native — 12.6 tok/s, ~68 GB VRAM, L4 numbers match A40 baseline** |
+
+Phase 0 closed (again, properly). On to Phase 1: `01_kv_pressure.py` with bf16-native Qwen as the canonical generator.
 
 ---
 

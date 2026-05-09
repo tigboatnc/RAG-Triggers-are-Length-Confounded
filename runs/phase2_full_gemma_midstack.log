@@ -1,0 +1,57 @@
+[..] importing torch + transformers + bitsandbytes ...
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:48, 20.81it/s]Loading weights:   1%|          | 6/1013 [00:00<00:48, 20.74it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:17, 57.04it/s]Loading weights:   5%|▍         | 47/1013 [00:00<00:10, 96.06it/s]Loading weights:   6%|▌         | 59/1013 [00:00<00:10, 89.28it/s]Loading weights:   7%|▋         | 70/1013 [00:01<00:13, 71.38it/s]Loading weights:   9%|▉         | 92/1013 [00:01<00:11, 81.54it/s]Loading weights:  11%|█▏        | 114/1013 [00:01<00:09, 90.20it/s]Loading weights:  13%|█▎        | 134/1013 [00:01<00:08, 109.30it/s]Loading weights:  15%|█▍        | 147/1013 [00:02<00:13, 63.25it/s] Loading weights:  15%|█▌        | 157/1013 [00:02<00:21, 40.48it/s]Loading weights:  17%|█▋        | 177/1013 [00:02<00:14, 57.27it/s]Loading weights:  19%|█▊        | 188/1013 [00:03<00:25, 32.73it/s]Loading weights:  20%|█▉        | 200/1013 [00:03<00:24, 32.90it/s]Loading weights:  20%|██        | 207/1013 [00:04<00:37, 21.35it/s]Loading weights:  22%|██▏       | 222/1013 [00:05<00:31, 25.13it/s]Loading weights:  22%|██▏       | 227/1013 [00:05<00:36, 21.45it/s]Loading weights:  24%|██▍       | 242/1013 [00:05<00:24, 31.82it/s]Loading weights:  25%|██▍       | 249/1013 [00:06<00:32, 23.57it/s]Loading weights:  26%|██▌       | 265/1013 [00:09<01:10, 10.57it/s]Loading weights:  28%|██▊       | 286/1013 [00:09<00:42, 17.01it/s]Loading weights:  29%|██▉       | 292/1013 [00:10<00:48, 14.77it/s]Loading weights:  31%|███       | 309/1013 [00:10<00:35, 19.56it/s]Loading weights:  31%|███       | 314/1013 [00:10<00:39, 17.91it/s]Loading weights:  33%|███▎      | 331/1013 [00:11<00:34, 19.98it/s]Loading weights:  35%|███▍      | 353/1013 [00:11<00:23, 28.37it/s]Loading weights:  35%|███▌      | 358/1013 [00:12<00:27, 23.70it/s]Loading weights:  37%|███▋      | 375/1013 [00:12<00:18, 34.55it/s]Loading weights:  38%|███▊      | 382/1013 [00:12<00:21, 29.15it/s]Loading weights:  39%|███▉      | 396/1013 [00:13<00:22, 27.40it/s]Loading weights:  41%|████▏     | 418/1013 [00:13<00:17, 34.90it/s]Loading weights:  44%|████▎     | 441/1013 [00:14<00:12, 47.02it/s]Loading weights:  46%|████▌     | 463/1013 [00:14<00:09, 56.64it/s]Loading weights:  48%|████▊     | 485/1013 [00:14<00:08, 65.66it/s]Loading weights:  50%|█████     | 507/1013 [00:14<00:07, 71.51it/s]Loading weights:  52%|█████▏    | 528/1013 [00:15<00:06, 75.89it/s]Loading weights:  54%|█████▍    | 550/1013 [00:15<00:05, 81.08it/s]Loading weights:  56%|█████▋    | 572/1013 [00:15<00:05, 84.79it/s]Loading weights:  59%|█████▊    | 594/1013 [00:15<00:04, 90.68it/s]Loading weights:  61%|██████    | 615/1013 [00:15<00:03, 108.84it/s]Loading weights:  62%|██████▏   | 628/1013 [00:16<00:07, 53.71it/s] Loading weights:  63%|██████▎   | 638/1013 [00:18<00:16, 22.91it/s]Loading weights:  65%|██████▍   | 657/1013 [00:18<00:11, 32.32it/s]Loading weights:  68%|██████▊   | 684/1013 [00:18<00:06, 50.08it/s]Loading weights:  69%|██████▉   | 701/1013 [00:18<00:05, 61.22it/s]Loading weights:  72%|███████▏  | 726/1013 [00:18<00:03, 82.43it/s]Loading weights:  74%|███████▍  | 753/1013 [00:18<00:02, 108.65it/s]Loading weights:  78%|███████▊  | 790/1013 [00:18<00:01, 152.07it/s]Loading weights:  81%|████████  | 818/1013 [00:18<00:01, 173.60it/s]Loading weights:  83%|████████▎ | 844/1013 [00:18<00:00, 190.81it/s]Loading weights:  86%|████████▌ | 870/1013 [00:19<00:00, 206.01it/s]Loading weights:  89%|████████▉ | 903/1013 [00:19<00:00, 236.47it/s]Loading weights:  92%|█████████▏| 933/1013 [00:19<00:00, 251.62it/s]Loading weights:  95%|█████████▍| 961/1013 [00:19<00:00, 236.23it/s]Loading weights:  97%|█████████▋| 987/1013 [00:19<00:00, 228.62it/s]Loading weights: 100%|█████████▉| 1012/1013 [00:19<00:00, 213.93it/s]Loading weights: 100%|██████████| 1013/1013 [00:19<00:00, 51.67it/s] 
+[ok] loaded in 25.34s | rss 1.131 GB | VRAM 49883 MB
+
+[factual] prompt_tokens=136 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[15]
+  [  factual] tok=  500 steps=  26 wall=  36.5s  vram=  49368MB  eos@None
+  [  factual] tok= 1000 steps=  61 wall=  73.7s  vram=  49475MB  eos@None
+  [  factual] tok= 1500 steps= 102 wall= 111.4s  vram=  49584MB  eos@None
+  [  factual] tok= 2000 steps= 132 wall= 148.6s  vram=  49691MB  eos@None
+  [  factual] tok= 2500 steps= 168 wall= 186.2s  vram=  49798MB  eos@None
+  [  factual] tok= 3000 steps= 207 wall= 224.0s  vram=  49904MB  eos@None
+  [  factual] tok= 3500 steps= 237 wall= 261.9s  vram=  50013MB  eos@None
+  [  factual] tok= 4000 steps= 271 wall= 300.3s  vram=  50118MB  eos@None
+  [  factual] tok= 4500 steps= 308 wall= 338.0s  vram=  50227MB  eos@None
+  [  factual] tok= 5000 steps= 339 wall= 375.8s  vram=  50333MB  eos@None
+[factual] done. 340 steps from 5000 tokens (mean 14.71 tok/step) | mean=13.305 tok/s | fired_default=339/340 | peak_vram=50855.1 MB
+  wrote: runs/phase2_crv_gemma-4-26b-a4b-it_factual_sentence_mid_stack.jsonl  (340 rows)
+         runs/phase2_crv_gemma-4-26b-a4b-it_factual_sentence_mid_stack_summary.json
+         runs/phase2_crv_gemma-4-26b-a4b-it_factual_sentence_mid_stack_crv.npz  (3.65 MB)
+
+[multi-hop] prompt_tokens=151 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[15]
+  [multi-hop] tok=  500 steps=  27 wall=  35.5s  vram=  49372MB  eos@None
+  [multi-hop] tok= 1000 steps=  50 wall=  71.6s  vram=  49478MB  eos@902
+  [multi-hop] tok= 1500 steps=  50 wall= 108.9s  vram=  49587MB  eos@902
+  [multi-hop] tok= 2000 steps=  50 wall= 146.6s  vram=  49694MB  eos@902
+  [multi-hop] tok= 2500 steps=  50 wall= 184.2s  vram=  49800MB  eos@902
+  [multi-hop] tok= 3000 steps=  50 wall= 222.0s  vram=  49907MB  eos@902
+  [multi-hop] tok= 3500 steps=  50 wall= 259.8s  vram=  50017MB  eos@902
+  [multi-hop] tok= 4000 steps=  51 wall= 297.3s  vram=  50121MB  eos@902
+  [multi-hop] tok= 4500 steps=  51 wall= 335.4s  vram=  50230MB  eos@902
+  [multi-hop] tok= 5000 steps=  51 wall= 373.3s  vram=  50336MB  eos@902
+[multi-hop] done. 52 steps from 5000 tokens (mean 96.15 tok/step) | mean=13.394 tok/s | fired_default=51/52 | peak_vram=50859.8 MB
+  wrote: runs/phase2_crv_gemma-4-26b-a4b-it_multi-hop_sentence_mid_stack.jsonl  (52 rows)
+         runs/phase2_crv_gemma-4-26b-a4b-it_multi-hop_sentence_mid_stack_summary.json
+         runs/phase2_crv_gemma-4-26b-a4b-it_multi-hop_sentence_mid_stack_crv.npz  (0.56 MB)
+
+[ambiguous] prompt_tokens=88 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[15]
+  [ambiguous] tok=  500 steps=  20 wall=  35.8s  vram=  49359MB  eos@None
+  [ambiguous] tok= 1000 steps=  44 wall=  72.2s  vram=  49467MB  eos@None
+  [ambiguous] tok= 1500 steps=  66 wall= 109.9s  vram=  49573MB  eos@None
+  [ambiguous] tok= 2000 steps=  91 wall= 147.7s  vram=  49678MB  eos@None
+  [ambiguous] tok= 2500 steps= 117 wall= 185.3s  vram=  49790MB  eos@None
+  [ambiguous] tok= 3000 steps= 137 wall= 223.0s  vram=  49893MB  eos@None
+  [ambiguous] tok= 3500 steps= 162 wall= 260.8s  vram=  50003MB  eos@3425
+  [ambiguous] tok= 4000 steps= 182 wall= 298.4s  vram=  50108MB  eos@3425
+  [ambiguous] tok= 4500 steps= 207 wall= 336.1s  vram=  50216MB  eos@3425
+  [ambiguous] tok= 5000 steps= 230 wall= 374.0s  vram=  50324MB  eos@3425
+[ambiguous] done. 231 steps from 5000 tokens (mean 21.65 tok/step) | mean=13.37 tok/s | fired_default=230/231 | peak_vram=50841.6 MB
+  wrote: runs/phase2_crv_gemma-4-26b-a4b-it_ambiguous_sentence_mid_stack.jsonl  (231 rows)
+         runs/phase2_crv_gemma-4-26b-a4b-it_ambiguous_sentence_mid_stack_summary.json
+         runs/phase2_crv_gemma-4-26b-a4b-it_ambiguous_sentence_mid_stack_crv.npz  (2.48 MB)
+
+=== headline (Phase 2 per-trace summary) ===
+    factual: steps= 340 (~14.71 tok/step) mean=13.30 tok/s fired=339 peak_vram=50855 MB eos@None
+  multi-hop: steps=  52 (~96.15 tok/step) mean=13.39 tok/s fired= 51 peak_vram=50860 MB eos@902
+  ambiguous: steps= 231 (~21.65 tok/step) mean=13.37 tok/s fired=230 peak_vram=50842 MB eos@3425

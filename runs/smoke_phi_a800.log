@@ -1,0 +1,76 @@
+============================================================
+SYSINFO
+============================================================
+{
+  "os": "Linux",
+  "release": "5.15.0-122-generic",
+  "arch": "x86_64",
+  "python": "3.11.15",
+  "executable": "/venv/recollection/bin/python",
+  "ram": {
+    "total_gb": 220.01,
+    "available_gb": 183.22,
+    "used_gb": 36.79,
+    "percent": 16.7
+  },
+  "gpu": {
+    "backend": "cuda",
+    "details": [
+      {
+        "name": "NVIDIA A800 80GB PCIe",
+        "memory_total_mb": 81920,
+        "memory_used_mb": 1,
+        "memory_free_mb": 81038,
+        "driver": "550.90.07"
+      }
+    ]
+  },
+  "torch_cuda": {
+    "torch_version": "2.6.0+cu124",
+    "available": true,
+    "device_count": 1,
+    "device_name": "NVIDIA A800 80GB PCIe",
+    "cuda_version": "12.4",
+    "bf16_supported": true
+  },
+  "process_rss_gb": 0.393,
+  "packages": {
+    "torch": "2.6.0+cu124",
+    "transformers": "5.8.0",
+    "accelerate": "1.13.0",
+    "bitsandbytes": "0.49.2",
+    "safetensors": "0.7.0",
+    "huggingface_hub": "1.14.0",
+    "sentence_transformers": "5.4.1",
+    "lancedb": "0.30.2",
+    "datasets": "4.8.5",
+    "psutil": "7.2.2",
+    "numpy": "2.4.4"
+  }
+}
+============================================================
+
+[..] importing torch + transformers + bitsandbytes ...
+[ok] import: rss 0.394 -> 0.704 GB
+[..] loading models/phi-4-mini-instruct (4-bit NF4, bf16 compute)
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:28,  6.70it/s]Loading weights:   8%|▊         | 15/194 [00:00<00:02, 70.17it/s]Loading weights:  18%|█▊        | 34/194 [00:00<00:01, 118.32it/s]Loading weights:  29%|██▉       | 57/194 [00:00<00:00, 156.36it/s]Loading weights:  39%|███▉      | 76/194 [00:00<00:00, 167.51it/s]Loading weights:  51%|█████     | 99/194 [00:00<00:00, 186.30it/s]Loading weights:  61%|██████▏   | 119/194 [00:00<00:00, 189.45it/s]Loading weights:  73%|███████▎  | 141/194 [00:00<00:00, 197.31it/s]Loading weights:  83%|████████▎ | 161/194 [00:00<00:00, 198.12it/s]Loading weights:  94%|█████████▍| 183/194 [00:01<00:00, 202.49it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 172.71it/s]
+[ok] loaded in 2.87s | rss 0.704 -> 1.018 GB | VRAM 4 MB -> 3479 MB
+
+[..] prompt: 'In one sentence, what is retrieval-augmented generation?'
+
+============================================================
+ANSWER
+============================================================
+ Retrieval-augmented generation (RAG) is a method that combines the retrieval of relevant information from a database with the generation of human-like text, enhancing the
+============================================================
+[ok] 32 tokens in 1.43s = 22.3 tok/s | rss 1.018 -> 1.485 GB | VRAM peak=2868 MB (live=3513 MB)
+[ok] hidden_states: 32 steps x 33 layers; last-layer-last-step shape=(1, 1, 3072) dtype=torch.bfloat16
+
+[..] L4 landmine probe (predictable vs ambiguous prefix)
+  [predictable] hidden_L2=54.198  H(next)=1.139 nats  top=' Paris' p=0.826
+  [  ambiguous] hidden_L2=54.821  H(next)=3.956 nats  top=':' p=0.184
+  [diff] hidden_L2 |delta|=0.623  entropy delta (amb-pred)=2.816 nats
+  Read: hidden-state L2 alone tells us little; the *ratio* of (L2 variance across prompts) to (entropy variance across prompts) is the L4 signal. Track it across more prompt pairs in Phase 2.5 before committing to mean-pool CRV.
+
+[summary] device=[{'name': 'NVIDIA A800 80GB PCIe', 'memory_total_mb': 81920, 'memory_used_mb': 1, 'memory_free_mb': 81038, 'driver': '550.90.07'}] final_rss=1.485 GB peak_vram=2868 MB hs_shape=(1, 1, 3072)

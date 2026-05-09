@@ -1,0 +1,58 @@
+[..] importing torch + transformers + bitsandbytes ...
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:25,  7.67it/s]Loading weights:   1%|          | 2/194 [00:00<00:30,  6.21it/s]Loading weights:   9%|▉         | 18/194 [00:00<00:03, 58.31it/s]Loading weights:  18%|█▊        | 34/194 [00:00<00:01, 89.09it/s]Loading weights:  27%|██▋       | 52/194 [00:00<00:01, 114.31it/s]Loading weights:  36%|███▌      | 70/194 [00:00<00:00, 129.79it/s]Loading weights:  45%|████▌     | 88/194 [00:00<00:00, 144.43it/s]Loading weights:  56%|█████▌    | 108/194 [00:00<00:00, 160.13it/s]Loading weights:  64%|██████▍   | 125/194 [00:01<00:00, 159.25it/s]Loading weights:  73%|███████▎  | 142/194 [00:01<00:00, 157.39it/s]Loading weights:  82%|████████▏ | 160/194 [00:01<00:00, 158.58it/s]Loading weights:  92%|█████████▏| 178/194 [00:01<00:00, 161.37it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 132.41it/s]
+[ok] loaded in 3.26s | rss 1.013 GB | VRAM 8107 MB
+
+[factual] prompt_tokens=118 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[16]
+  [  factual] tok=  500 steps=  12 wall=  11.1s  vram=   7422MB  eos@None
+  [  factual] tok= 1000 steps=  28 wall=  22.1s  vram=   7468MB  eos@None
+  [  factual] tok= 1500 steps=  36 wall=  32.9s  vram=   7527MB  eos@None
+  [  factual] tok= 2000 steps=  52 wall=  43.8s  vram=   7590MB  eos@None
+  [  factual] tok= 2500 steps=  62 wall=  54.6s  vram=   7652MB  eos@None
+  [  factual] tok= 3000 steps=  77 wall=  65.3s  vram=   7715MB  eos@None
+  [  factual] tok= 3500 steps=  87 wall=  76.0s  vram=   7777MB  eos@None
+  [  factual] tok= 4000 steps=  97 wall=  86.7s  vram=   7840MB  eos@None
+  [  factual] tok= 4500 steps= 117 wall=  97.3s  vram=   7903MB  eos@None
+  [  factual] tok= 5000 steps= 148 wall= 107.8s  vram=   7965MB  eos@None
+[factual] done. 149 steps from 5000 tokens (mean 33.56 tok/step) | mean=46.364 tok/s | fired_default=125/149 | peak_vram=7985.6 MB
+  wrote: runs/phase2_crv_phi-4-mini-instruct_factual_sentence_mid_stack.jsonl  (149 rows)
+         runs/phase2_crv_phi-4-mini-instruct_factual_sentence_mid_stack_summary.json
+         runs/phase2_crv_phi-4-mini-instruct_factual_sentence_mid_stack_crv.npz  (1.75 MB)
+
+[multi-hop] prompt_tokens=128 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[16]
+  [multi-hop] tok=  500 steps=   8 wall=  10.8s  vram=   7425MB  eos@None
+  [multi-hop] tok= 1000 steps=  22 wall=  21.3s  vram=   7468MB  eos@None
+  [multi-hop] tok= 1500 steps=  31 wall=  31.7s  vram=   7536MB  eos@None
+  [multi-hop] tok= 2000 steps=  41 wall=  42.2s  vram=   7591MB  eos@None
+  [multi-hop] tok= 2500 steps=  52 wall=  52.7s  vram=   7654MB  eos@None
+  [multi-hop] tok= 3000 steps=  64 wall=  63.3s  vram=   7716MB  eos@None
+  [multi-hop] tok= 3500 steps=  75 wall=  74.2s  vram=   7779MB  eos@None
+  [multi-hop] tok= 4000 steps=  94 wall=  84.8s  vram=   7841MB  eos@None
+  [multi-hop] tok= 4500 steps= 299 wall=  95.4s  vram=   7904MB  eos@None
+  [multi-hop] tok= 5000 steps= 531 wall= 106.6s  vram=   7966MB  eos@None
+[multi-hop] done. 532 steps from 5000 tokens (mean 9.4 tok/step) | mean=46.926 tok/s | fired_default=342/532 | peak_vram=7986.5 MB
+  wrote: runs/phase2_crv_phi-4-mini-instruct_multi-hop_sentence_mid_stack.jsonl  (532 rows)
+         runs/phase2_crv_phi-4-mini-instruct_multi-hop_sentence_mid_stack_summary.json
+         runs/phase2_crv_phi-4-mini-instruct_multi-hop_sentence_mid_stack_crv.npz  (6.24 MB)
+
+[ambiguous] prompt_tokens=77 max_new=5000 boundary=sentence (stride=32) layer_mode=mid_stack  capture_subset=[16]
+  [ambiguous] tok=  500 steps=  12 wall=  10.9s  vram=   7414MB  eos@None
+  [ambiguous] tok= 1000 steps=  27 wall=  22.0s  vram=   7460MB  eos@None
+  [ambiguous] tok= 1500 steps=  37 wall=  33.3s  vram=   7522MB  eos@None
+  [ambiguous] tok= 2000 steps=  46 wall=  44.3s  vram=   7585MB  eos@None
+  [ambiguous] tok= 2500 steps=  58 wall=  54.9s  vram=   7647MB  eos@None
+  [ambiguous] tok= 3000 steps=  69 wall=  65.5s  vram=   7710MB  eos@None
+  [ambiguous] tok= 3500 steps=  78 wall=  76.1s  vram=   7772MB  eos@None
+  [ambiguous] tok= 4000 steps=  88 wall=  86.8s  vram=   7835MB  eos@None
+  [ambiguous] tok= 4500 steps= 110 wall=  97.6s  vram=   7897MB  eos@None
+  [ambiguous] tok= 5000 steps= 185 wall= 108.6s  vram=   7965MB  eos@None
+[ambiguous] done. 186 steps from 5000 tokens (mean 26.88 tok/step) | mean=46.048 tok/s | fired_default=122/186 | peak_vram=7985.4 MB
+  wrote: runs/phase2_crv_phi-4-mini-instruct_ambiguous_sentence_mid_stack.jsonl  (186 rows)
+         runs/phase2_crv_phi-4-mini-instruct_ambiguous_sentence_mid_stack_summary.json
+         runs/phase2_crv_phi-4-mini-instruct_ambiguous_sentence_mid_stack_crv.npz  (2.18 MB)
+
+=== headline (Phase 2 per-trace summary) ===
+    factual: steps= 149 (~33.56 tok/step) mean=46.36 tok/s fired=125 peak_vram=7986 MB eos@None
+  multi-hop: steps= 532 (~9.4 tok/step) mean=46.93 tok/s fired=342 peak_vram=7986 MB eos@None
+  ambiguous: steps= 186 (~26.88 tok/step) mean=46.05 tok/s fired=122 peak_vram=7985 MB eos@None

@@ -1,0 +1,108 @@
+============================================================
+SYSINFO
+============================================================
+{
+  "os": "Linux",
+  "release": "5.15.0-122-generic",
+  "arch": "x86_64",
+  "python": "3.11.15",
+  "executable": "/venv/recollection/bin/python",
+  "ram": {
+    "total_gb": 220.01,
+    "available_gb": 183.4,
+    "used_gb": 36.61,
+    "percent": 16.6
+  },
+  "gpu": {
+    "backend": "cuda",
+    "details": [
+      {
+        "name": "NVIDIA A800 80GB PCIe",
+        "memory_total_mb": 81920,
+        "memory_used_mb": 1,
+        "memory_free_mb": 81038,
+        "driver": "550.90.07"
+      }
+    ]
+  },
+  "torch_cuda": {
+    "torch_version": "2.6.0+cu124",
+    "available": true,
+    "device_count": 1,
+    "device_name": "NVIDIA A800 80GB PCIe",
+    "cuda_version": "12.4",
+    "bf16_supported": true
+  },
+  "process_rss_gb": 0.394,
+  "packages": {
+    "torch": "2.6.0+cu124",
+    "transformers": "5.8.0",
+    "accelerate": "1.13.0",
+    "bitsandbytes": "0.49.2",
+    "safetensors": "0.7.0",
+    "huggingface_hub": "1.14.0",
+    "sentence_transformers": "5.4.1",
+    "lancedb": "0.30.2",
+    "datasets": "4.8.5",
+    "psutil": "7.2.2",
+    "numpy": "2.4.4"
+  }
+}
+============================================================
+
+[..] importing torch + transformers + bitsandbytes ...
+[ok] import: rss 0.395 -> 0.710 GB
+[..] loading models/gemma-4-26b-a4b-it (bf16 (no bnb))
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 2/1013 [00:00<07:14,  2.33it/s]Loading weights:   0%|          | 3/1013 [00:01<06:40,  2.52it/s]Loading weights:   0%|          | 4/1013 [00:01<08:35,  1.96it/s]Loading weights:   2%|▏         | 25/1013 [00:02<00:59, 16.71it/s]Loading weights:   3%|▎         | 28/1013 [00:02<01:24, 11.70it/s]Loading weights:   5%|▍         | 47/1013 [00:03<00:38, 25.19it/s]Loading weights:   5%|▌         | 53/1013 [00:03<00:35, 27.19it/s]Loading weights:   7%|▋         | 70/1013 [00:03<00:24, 38.07it/s]Loading weights:   9%|▉         | 91/1013 [00:03<00:15, 59.96it/s]Loading weights:  10%|█         | 102/1013 [00:03<00:14, 63.71it/s]Loading weights:  11%|█▏        | 114/1013 [00:04<00:15, 59.20it/s]Loading weights:  13%|█▎        | 134/1013 [00:04<00:11, 79.69it/s]Loading weights:  14%|█▍        | 145/1013 [00:04<00:11, 78.08it/s]Loading weights:  15%|█▌        | 157/1013 [00:04<00:12, 68.16it/s]Loading weights:  18%|█▊        | 179/1013 [00:04<00:11, 75.78it/s]Loading weights:  20%|█▉        | 201/1013 [00:04<00:09, 81.94it/s]Loading weights:  22%|██▏       | 222/1013 [00:05<00:09, 82.91it/s]Loading weights:  23%|██▎       | 231/1013 [00:05<00:17, 44.52it/s]Loading weights:  24%|██▍       | 244/1013 [00:06<00:16, 46.22it/s]Loading weights:  25%|██▍       | 251/1013 [00:06<00:26, 29.07it/s]Loading weights:  26%|██▌       | 265/1013 [00:07<00:24, 30.68it/s]Loading weights:  27%|██▋       | 270/1013 [00:07<00:35, 21.18it/s]Loading weights:  28%|██▊       | 287/1013 [00:08<00:26, 27.16it/s]Loading weights:  29%|██▊       | 291/1013 [00:09<00:39, 18.41it/s]Loading weights:  31%|███       | 309/1013 [00:10<00:39, 17.72it/s]Loading weights:  33%|███▎      | 331/1013 [00:10<00:27, 24.55it/s]Loading weights:  33%|███▎      | 335/1013 [00:11<00:36, 18.67it/s]Loading weights:  35%|███▍      | 353/1013 [00:11<00:27, 23.93it/s]Loading weights:  35%|███▌      | 356/1013 [00:12<00:36, 17.79it/s]Loading weights:  37%|███▋      | 375/1013 [00:13<00:36, 17.67it/s]Loading weights:  39%|███▉      | 395/1013 [00:13<00:22, 27.64it/s]Loading weights:  40%|███▉      | 403/1013 [00:14<00:32, 19.04it/s]Loading weights:  41%|████▏     | 418/1013 [00:14<00:26, 22.67it/s]Loading weights:  42%|████▏     | 423/1013 [00:15<00:29, 20.12it/s]Loading weights:  44%|████▎     | 441/1013 [00:15<00:19, 29.10it/s]Loading weights:  46%|████▌     | 463/1013 [00:15<00:13, 40.56it/s]Loading weights:  48%|████▊     | 485/1013 [00:15<00:10, 51.92it/s]Loading weights:  50%|████▉     | 506/1013 [00:16<00:09, 54.95it/s]Loading weights:  51%|█████     | 513/1013 [00:16<00:09, 52.04it/s]Loading weights:  52%|█████▏    | 527/1013 [00:16<00:09, 53.99it/s]Loading weights:  54%|█████▍    | 550/1013 [00:16<00:07, 65.34it/s]Loading weights:  56%|█████▋    | 572/1013 [00:17<00:06, 72.59it/s]Loading weights:  59%|█████▊    | 594/1013 [00:17<00:05, 78.13it/s]Loading weights:  61%|██████    | 616/1013 [00:17<00:04, 82.24it/s]Loading weights:  63%|██████▎   | 637/1013 [00:18<00:06, 62.35it/s]Loading weights:  72%|███████▏  | 732/1013 [00:18<00:01, 164.43it/s]Loading weights:  87%|████████▋ | 882/1013 [00:18<00:00, 352.22it/s]Loading weights: 100%|██████████| 1013/1013 [00:18<00:00, 54.83it/s]
+[ok] loaded in 24.14s | rss 0.710 -> 1.134 GB | VRAM 4 MB -> 49883 MB
+
+[..] prompt: 'In one sentence, what is retrieval-augmented generation?'
+
+============================================================
+ANSWER
+============================================================
+
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+
+...
+============================================================
+[ok] 32 tokens in 2.44s = 13.1 tok/s | rss 1.134 -> 1.866 GB | VRAM peak=49336 MB (live=49917 MB)
+[ok] hidden_states: 32 steps x 31 layers; last-layer-last-step shape=(1, 1, 2816) dtype=torch.bfloat16
+
+[..] L4 landmine probe (predictable vs ambiguous prefix)
+  [predictable] hidden_L2=161.071  H(next)=3.448 nats  top=' is' p=0.187
+  [  ambiguous] hidden_L2=185.227  H(next)=1.884 nats  top=' random' p=0.460
+  [diff] hidden_L2 |delta|=24.155  entropy delta (amb-pred)=-1.563 nats
+  [!!] entropy ordering inverted (ambiguous <= predictable). Either the ambiguous prompt isn't actually ambiguous to the model, or something is very wrong upstream. Investigate before trusting the L2 numbers.
+  Read: hidden-state L2 alone tells us little; the *ratio* of (L2 variance across prompts) to (entropy variance across prompts) is the L4 signal. Track it across more prompt pairs in Phase 2.5 before committing to mean-pool CRV.
+
+[summary] device=[{'name': 'NVIDIA A800 80GB PCIe', 'memory_total_mb': 81920, 'memory_used_mb': 1, 'memory_free_mb': 81038, 'driver': '550.90.07'}] final_rss=1.866 GB peak_vram=49336 MB hs_shape=(1, 1, 2816)

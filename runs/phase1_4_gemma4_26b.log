@@ -1,0 +1,49 @@
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:55, 18.30it/s]Loading weights:   0%|          | 5/1013 [00:00<01:03, 15.82it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:17, 56.51it/s]Loading weights:   5%|▍         | 47/1013 [00:00<00:13, 69.18it/s]Loading weights:   7%|▋         | 69/1013 [00:01<00:11, 79.46it/s]Loading weights:   9%|▉         | 91/1013 [00:01<00:08, 106.11it/s]Loading weights:  10%|█         | 104/1013 [00:01<00:09, 100.52it/s]Loading weights:  11%|█▏        | 116/1013 [00:01<00:10, 83.64it/s] Loading weights:  13%|█▎        | 135/1013 [00:01<00:10, 82.44it/s]Loading weights:  15%|█▌        | 156/1013 [00:01<00:08, 105.52it/s]Loading weights:  17%|█▋        | 169/1013 [00:01<00:08, 103.83it/s]Loading weights:  18%|█▊        | 181/1013 [00:02<00:10, 83.11it/s] Loading weights:  20%|█▉        | 201/1013 [00:02<00:09, 82.00it/s]Loading weights:  22%|██▏       | 223/1013 [00:02<00:09, 87.23it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:08, 88.07it/s]Loading weights:  26%|██▌       | 265/1013 [00:03<00:08, 85.35it/s]Loading weights:  28%|██▊       | 288/1013 [00:03<00:08, 87.79it/s]Loading weights:  31%|███       | 309/1013 [00:03<00:08, 87.33it/s]Loading weights:  33%|███▎      | 332/1013 [00:03<00:07, 91.19it/s]Loading weights:  35%|███▍      | 354/1013 [00:04<00:06, 94.29it/s]Loading weights:  37%|███▋      | 374/1013 [00:04<00:05, 110.38it/s]Loading weights:  38%|███▊      | 387/1013 [00:04<00:06, 103.73it/s]Loading weights:  39%|███▉      | 399/1013 [00:04<00:07, 85.01it/s] Loading weights:  41%|████▏     | 419/1013 [00:04<00:06, 85.09it/s]Loading weights:  43%|████▎     | 438/1013 [00:04<00:05, 102.51it/s]Loading weights:  44%|████▍     | 450/1013 [00:05<00:05, 99.42it/s] Loading weights:  46%|████▌     | 463/1013 [00:05<00:06, 84.66it/s]Loading weights:  48%|████▊     | 485/1013 [00:05<00:06, 86.15it/s]Loading weights:  50%|████▉     | 506/1013 [00:05<00:05, 86.68it/s]Loading weights:  52%|█████▏    | 528/1013 [00:05<00:05, 91.21it/s]Loading weights:  54%|█████▍    | 550/1013 [00:06<00:05, 92.28it/s]Loading weights:  56%|█████▋    | 571/1013 [00:06<00:04, 89.64it/s]Loading weights:  59%|█████▊    | 594/1013 [00:06<00:04, 91.35it/s]Loading weights:  61%|██████    | 615/1013 [00:06<00:03, 109.44it/s]Loading weights:  62%|██████▏   | 628/1013 [00:06<00:03, 105.39it/s]Loading weights:  63%|██████▎   | 640/1013 [00:07<00:04, 84.62it/s] Loading weights:  76%|███████▌  | 770/1013 [00:07<00:00, 301.28it/s]Loading weights:  91%|█████████ | 922/1013 [00:07<00:00, 547.14it/s]Loading weights: 100%|██████████| 1013/1013 [00:07<00:00, 135.74it/s]
+[ok] loaded in 12.94s | rss 1.132 GB | VRAM 49883 MB
+
+[factual] prompt_tokens=136 max_new=5000 chk_every=500
+  [  factual] step= 500  wall=  36.6s  rolling=13.66 tok/s  instant=14.18 tok/s  vram=  49368MB  peak=  49433MB  kv_growth=  147MB  eos@None
+  [  factual] step=1000  wall=  73.7s  rolling=13.47 tok/s  instant=13.87 tok/s  vram=  49476MB  peak=  49592MB  kv_growth=  255MB  eos@None
+  [  factual] step=1500  wall= 111.3s  rolling=13.31 tok/s  instant=12.68 tok/s  vram=  49583MB  peak=  49751MB  kv_growth=  362MB  eos@None
+  [  factual] step=2000  wall= 148.0s  rolling=13.63 tok/s  instant=13.82 tok/s  vram=  49691MB  peak=  49909MB  kv_growth=  470MB  eos@None
+  [  factual] step=2500  wall= 184.7s  rolling=13.62 tok/s  instant=13.54 tok/s  vram=  49797MB  peak=  50065MB  kv_growth=  576MB  eos@None
+  [  factual] step=3000  wall= 221.6s  rolling=13.56 tok/s  instant=13.07 tok/s  vram=  49904MB  peak=  50223MB  kv_growth=  683MB  eos@None
+  [  factual] step=3500  wall= 260.4s  rolling=12.89 tok/s  instant=13.65 tok/s  vram=  50013MB  peak=  50384MB  kv_growth=  792MB  eos@None
+  [  factual] step=4000  wall= 297.7s  rolling=13.40 tok/s  instant=13.65 tok/s  vram=  50118MB  peak=  50541MB  kv_growth=  897MB  eos@None
+  [  factual] step=4500  wall= 335.3s  rolling=13.30 tok/s  instant=12.94 tok/s  vram=  50227MB  peak=  50699MB  kv_growth= 1006MB  eos@None
+  [  factual] step=5000  wall= 372.2s  rolling=13.58 tok/s  instant=13.56 tok/s  vram=  50333MB  peak=  50855MB  kv_growth= 1112MB  eos@None
+[factual] done. mean=13.438 tok/s | prefill=0.5429s | decode step1->stepN: 0.0748s -> 0.0738s (0.99x) | peak_vram=50854.8 MB | eos@None
+
+[multi-hop] prompt_tokens=151 max_new=5000 chk_every=500
+  [multi-hop] step= 500  wall=  35.6s  rolling=14.06 tok/s  instant=14.12 tok/s  vram=  49372MB  peak=  49438MB  kv_growth=  142MB  eos@None
+  [multi-hop] step=1000  wall=  71.4s  rolling=13.96 tok/s  instant=13.63 tok/s  vram=  49478MB  peak=  49595MB  kv_growth=  249MB  eos@902
+  [multi-hop] step=1500  wall= 108.8s  rolling=13.36 tok/s  instant=13.16 tok/s  vram=  49587MB  peak=  49756MB  kv_growth=  358MB  eos@902
+  [multi-hop] step=2000  wall= 146.3s  rolling=13.37 tok/s  instant=13.55 tok/s  vram=  49694MB  peak=  49914MB  kv_growth=  464MB  eos@902
+  [multi-hop] step=2500  wall= 184.2s  rolling=13.20 tok/s  instant=13.63 tok/s  vram=  49801MB  peak=  50070MB  kv_growth=  572MB  eos@902
+  [multi-hop] step=3000  wall= 222.5s  rolling=13.04 tok/s  instant=13.15 tok/s  vram=  49909MB  peak=  50229MB  kv_growth=  680MB  eos@902
+  [multi-hop] step=3500  wall= 261.0s  rolling=13.01 tok/s  instant=13.56 tok/s  vram=  50017MB  peak=  50388MB  kv_growth=  788MB  eos@902
+  [multi-hop] step=4000  wall= 298.5s  rolling=13.32 tok/s  instant=13.60 tok/s  vram=  50121MB  peak=  50544MB  kv_growth=  892MB  eos@902
+  [multi-hop] step=4500  wall= 336.1s  rolling=13.32 tok/s  instant=13.44 tok/s  vram=  50230MB  peak=  50705MB  kv_growth= 1001MB  eos@902
+  [multi-hop] step=5000  wall= 374.2s  rolling=13.12 tok/s  instant=12.68 tok/s  vram=  50336MB  peak=  50860MB  kv_growth= 1107MB  eos@902
+[multi-hop] done. mean=13.366 tok/s | prefill=0.1698s | decode step1->stepN: 0.0712s -> 0.0789s (1.11x) | peak_vram=50859.5 MB | eos@902
+
+[ambiguous] prompt_tokens=88 max_new=5000 chk_every=500
+  [ambiguous] step= 500  wall=  37.2s  rolling=13.44 tok/s  instant=13.84 tok/s  vram=  49359MB  peak=  49419MB  kv_growth=  130MB  eos@None
+  [ambiguous] step=1000  wall=  74.4s  rolling=13.44 tok/s  instant=12.65 tok/s  vram=  49467MB  peak=  49579MB  kv_growth=  238MB  eos@None
+  [ambiguous] step=1500  wall= 114.2s  rolling=12.56 tok/s  instant=11.96 tok/s  vram=  49572MB  peak=  49735MB  kv_growth=  343MB  eos@None
+  [ambiguous] step=2000  wall= 152.4s  rolling=13.10 tok/s  instant=12.76 tok/s  vram=  49678MB  peak=  49893MB  kv_growth=  449MB  eos@None
+  [ambiguous] step=2500  wall= 191.3s  rolling=12.87 tok/s  instant=11.98 tok/s  vram=  49790MB  peak=  50053MB  kv_growth=  560MB  eos@None
+  [ambiguous] step=3000  wall= 229.6s  rolling=13.05 tok/s  instant=12.68 tok/s  vram=  49893MB  peak=  50207MB  kv_growth=  664MB  eos@None
+  [ambiguous] step=3500  wall= 268.8s  rolling=12.77 tok/s  instant=12.82 tok/s  vram=  50003MB  peak=  50369MB  kv_growth=  774MB  eos@3425
+  [ambiguous] step=4000  wall= 306.9s  rolling=13.13 tok/s  instant=12.86 tok/s  vram=  50108MB  peak=  50525MB  kv_growth=  879MB  eos@3425
+  [ambiguous] step=4500  wall= 345.0s  rolling=13.10 tok/s  instant=12.87 tok/s  vram=  50216MB  peak=  50684MB  kv_growth=  987MB  eos@3425
+  [ambiguous] step=5000  wall= 383.5s  rolling=13.02 tok/s  instant=13.31 tok/s  vram=  50324MB  peak=  50841MB  kv_growth= 1095MB  eos@3425
+[ambiguous] done. mean=13.043 tok/s | prefill=0.1565s | decode step1->stepN: 0.0723s -> 0.0751s (1.04x) | peak_vram=50841.2 MB | eos@3425
+[ok] 30 checkpoint rows -> runs/phase1_4_gemma4_26b.jsonl
+[ok] 3 summary rows -> runs/phase1_4_gemma4_26b_summary.jsonl
+
+=== headline numbers ===
+    factual: mean=13.44 tok/s  prefill=0.5429s  decode_step1=0.0748s  decode_stepN=0.0738s  slowdown=0.99x  peak_vram=50855 MB  eos@None
+  multi-hop: mean=13.37 tok/s  prefill=0.1698s  decode_step1=0.0712s  decode_stepN=0.0789s  slowdown=1.11x  peak_vram=50860 MB  eos@902
+  ambiguous: mean=13.04 tok/s  prefill=0.1565s  decode_step1=0.0723s  decode_stepN=0.0751s  slowdown=1.04x  peak_vram=50841 MB  eos@3425

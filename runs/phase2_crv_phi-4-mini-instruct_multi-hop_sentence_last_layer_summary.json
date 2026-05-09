@@ -1,0 +1,39 @@
+{
+  "model_name": "phi-4-mini-instruct",
+  "prompt_class": "multi-hop",
+  "boundary_strategy": "sentence",
+  "fixed_stride": null,
+  "layer_mode": "last_layer",
+  "capture_subset": [
+    32
+  ],
+  "n_layers_total": 32,
+  "prompt_tokens": 128,
+  "max_new_tokens": 5000,
+  "tokens_generated": 5000,
+  "logical_steps_committed": 532,
+  "tokens_per_step_mean": 9.4,
+  "total_wall_clock_s": 108.837,
+  "mean_tok_per_s": 45.943,
+  "vram_at_step0_mb": 7324.8,
+  "peak_vram_mb": 7986.5,
+  "eos_seen_at": null,
+  "n_fired_default": 146,
+  "capture_stats": {
+    "captures": 5000,
+    "skipped": 0,
+    "every_n_steps": 1
+  },
+  "boundary_stats": {
+    "strategy": "sentence",
+    "n_tokens": 32,
+    "tokens_seen": 5000,
+    "steps_committed": 531,
+    "marker_id_count": 21
+  },
+  "trigger_thresholds": {
+    "drift": 0.1,
+    "variance": 1.0,
+    "mode": "or"
+  }
+}

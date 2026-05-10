@@ -1,0 +1,36 @@
+[..] dataset data/hotpotqa_distractor_200.jsonl -> 200 questions (split filter: all)
+[..] importing torch + transformers + bitsandbytes ...
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 2/1013 [00:00<02:31,  6.68it/s]Loading weights:   2%|▏         | 25/1013 [00:00<00:18, 53.81it/s]Loading weights:   5%|▍         | 48/1013 [00:00<00:13, 71.39it/s]Loading weights:   7%|▋         | 69/1013 [00:01<00:15, 62.85it/s]Loading weights:   8%|▊         | 76/1013 [00:01<00:28, 33.05it/s]Loading weights:   9%|▉         | 91/1013 [00:02<00:40, 22.90it/s]Loading weights:  11%|█         | 112/1013 [00:03<00:31, 29.04it/s]Loading weights:  11%|█▏        | 116/1013 [00:04<00:42, 20.98it/s]Loading weights:  13%|█▎        | 134/1013 [00:04<00:33, 26.18it/s]Loading weights:  14%|█▎        | 138/1013 [00:05<00:46, 18.66it/s]Loading weights:  15%|█▌        | 156/1013 [00:05<00:35, 24.19it/s]Loading weights:  16%|█▌        | 159/1013 [00:06<00:51, 16.54it/s]Loading weights:  17%|█▋        | 176/1013 [00:06<00:31, 26.48it/s]Loading weights:  18%|█▊        | 183/1013 [00:07<00:58, 14.29it/s]Loading weights:  20%|█▉        | 199/1013 [00:08<00:42, 19.34it/s]Loading weights:  20%|██        | 204/1013 [00:09<00:59, 13.54it/s]Loading weights:  22%|██▏       | 220/1013 [00:09<00:44, 17.63it/s]Loading weights:  22%|██▏       | 224/1013 [00:10<00:51, 15.19it/s]Loading weights:  24%|██▍       | 244/1013 [00:10<00:28, 27.06it/s]Loading weights:  25%|██▍       | 252/1013 [00:10<00:29, 25.59it/s]Loading weights:  26%|██▌       | 264/1013 [00:10<00:23, 32.51it/s]Loading weights:  28%|██▊       | 287/1013 [00:11<00:14, 49.41it/s]Loading weights:  29%|██▉       | 296/1013 [00:11<00:13, 51.42it/s]Loading weights:  31%|███       | 310/1013 [00:11<00:12, 54.18it/s]Loading weights:  33%|███▎      | 332/1013 [00:11<00:11, 61.82it/s]Loading weights:  35%|███▍      | 354/1013 [00:11<00:09, 70.85it/s]Loading weights:  37%|███▋      | 375/1013 [00:12<00:10, 58.30it/s]Loading weights:  38%|███▊      | 382/1013 [00:12<00:11, 53.27it/s]Loading weights:  39%|███▉      | 397/1013 [00:12<00:10, 56.37it/s]Loading weights:  41%|████▏     | 418/1013 [00:13<00:09, 64.29it/s]Loading weights:  44%|████▎     | 441/1013 [00:13<00:07, 72.24it/s]Loading weights:  46%|████▌     | 463/1013 [00:13<00:06, 79.10it/s]Loading weights:  48%|████▊     | 484/1013 [00:13<00:05, 97.71it/s]Loading weights:  49%|████▉     | 496/1013 [00:13<00:06, 85.65it/s]Loading weights:  50%|████▉     | 506/1013 [00:14<00:09, 51.34it/s]Loading weights:  51%|█████     | 514/1013 [00:14<00:10, 49.28it/s]Loading weights:  52%|█████▏    | 528/1013 [00:14<00:09, 52.35it/s]Loading weights:  54%|█████▍    | 550/1013 [00:15<00:07, 64.15it/s]Loading weights:  56%|█████▋    | 571/1013 [00:15<00:06, 71.92it/s]Loading weights:  59%|█████▊    | 594/1013 [00:15<00:05, 79.74it/s]Loading weights:  61%|██████    | 615/1013 [00:15<00:04, 99.01it/s]Loading weights:  62%|██████▏   | 628/1013 [00:15<00:04, 94.72it/s]Loading weights:  63%|██████▎   | 639/1013 [00:16<00:04, 76.55it/s]Loading weights:  76%|███████▌  | 766/1013 [00:16<00:00, 282.83it/s]Loading weights:  92%|█████████▏| 930/1013 [00:16<00:00, 551.19it/s]Loading weights: 100%|██████████| 1013/1013 [00:16<00:00, 62.02it/s]
+[ok] loaded in 21.84s | rss 1.140 GB | VRAM 49883 MB
+[..] layer_mode=mid_stack  capture_subset=[15]
+[..] writing to runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_v2_inlinesys.jsonl
+  [ 10/200] 5ab7bae95542993667793ff4 split=calibration  em=1 f1=1.0 tok= 153 steps= 13 strategy=answer_marker  | avg/q= 12.6s  eta= 40.0m
+  [ 20/200] 5ae48e7e55429913cc20449d split=validation   em=1 f1=1.0 tok= 139 steps=  8 strategy=answer_marker  | avg/q= 14.4s  eta= 43.1m
+  [ 30/200] 5a73bcf055429978a71e909c split=calibration  em=0 f1=0.8 tok= 178 steps= 12 strategy=answer_marker  | avg/q= 15.5s  eta= 43.9m
+  [ 40/200] 5a7b1d3b5542992d025e677a split=calibration  em=0 f1=0.8 tok= 307 steps= 28 strategy=answer_marker  | avg/q= 15.9s  eta= 42.4m
+  [ 50/200] 5ac538025542996feb3fea41 split=test         em=0 f1=0.6667 tok= 203 steps= 14 strategy=answer_marker  | avg/q= 15.8s  eta= 39.4m
+  [ 60/200] 5ae4aba25542995ad6573e12 split=calibration  em=0 f1=0.4 tok= 246 steps= 11 strategy=answer_marker  | avg/q= 15.7s  eta= 36.7m
+  [ 70/200] 5adf75e35542993344016c98 split=test         em=1 f1=1.0 tok= 235 steps= 23 strategy=answer_marker  | avg/q= 15.2s  eta= 33.0m
+  [ 80/200] 5ab42d6055429942dd415eb0 split=test         em=1 f1=1.0 tok= 189 steps= 14 strategy=answer_marker  | avg/q= 15.2s  eta= 30.4m
+  [ 90/200] 5adc020e55429947ff1738b4 split=validation   em=1 f1=1.0 tok= 164 steps= 12 strategy=answer_marker  | avg/q= 15.3s  eta= 28.1m
+  [100/200] 5ae552bb55429908b63265d9 split=calibration  em=1 f1=1.0 tok= 425 steps= 32 strategy=answer_marker  | avg/q= 15.4s  eta= 25.6m
+  [110/200] 5a8257fa55429940e5e1a866 split=test         em=1 f1=1.0 tok= 214 steps= 13 strategy=answer_marker  | avg/q= 15.4s  eta= 23.1m
+  [120/200] 5ab8764155429919ba4e22fe split=calibration  em=1 f1=1.0 tok= 329 steps= 20 strategy=answer_marker  | avg/q= 15.6s  eta= 20.8m
+  [130/200] 5a722a6855429971e9dc9320 split=validation   em=0 f1=0.6667 tok= 174 steps= 10 strategy=answer_marker  | avg/q= 15.6s  eta= 18.2m
+  [140/200] 5a7ef49a5542994959419a91 split=calibration  em=1 f1=1.0 tok= 423 steps= 30 strategy=answer_marker  | avg/q= 15.7s  eta= 15.7m
+  [150/200] 5a8b5c8155429949d91db56d split=test         em=1 f1=1.0 tok= 272 steps= 16 strategy=answer_marker  | avg/q= 16.1s  eta= 13.4m
+  [160/200] 5ac3891f554299741d48a284 split=calibration  em=0 f1=0.0 tok= 302 steps= 15 strategy=answer_marker  | avg/q= 16.3s  eta= 10.8m
+  [170/200] 5ae7cb9b5542994a481bbde2 split=calibration  em=1 f1=1.0 tok= 164 steps= 11 strategy=answer_marker  | avg/q= 16.1s  eta=  8.0m
+  [180/200] 5ac029655542992a796decb3 split=calibration  em=1 f1=1.0 tok= 129 steps= 10 strategy=answer_marker  | avg/q= 15.9s  eta=  5.3m
+  [190/200] 5a871e265542991e771816d1 split=validation   em=1 f1=1.0 tok= 176 steps= 12 strategy=answer_marker  | avg/q= 15.9s  eta=  2.7m
+  [200/200] 5adc872b5542994d58a2f62f split=test         em=0 f1=0.8 tok= 160 steps= 12 strategy=answer_marker  | avg/q= 15.8s  eta=  0.0m
+
+=== headline (Phase 4.1 -- gemma-4-26b-a4b-it / mid_stack) ===
+  n_ok           = 200  (n_err = 0)
+  EM             = 0.5700  (114/200)
+  token-F1       = 0.7520
+  mean tok/q     = 210.6
+  mean wall/q    = 15.75 s
+  extract strat. = {'answer_marker': 199, 'last_line': 1}
+  out            = runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_v2_inlinesys.jsonl

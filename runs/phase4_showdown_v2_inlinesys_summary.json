@@ -1,0 +1,353 @@
+{
+  "args": {
+    "models": [
+      "gemma-4-26b-a4b-it"
+    ],
+    "layer_mode": "mid_stack",
+    "suffix": "_v2_inlinesys",
+    "target_fire_rate": 0.3,
+    "min_steps": 3,
+    "include_test": false,
+    "include_ablation": true,
+    "out_dir": "runs",
+    "fig_dir": "figs",
+    "auto_latent_mode": true,
+    "latent_mode": "drift"
+  },
+  "models": [
+    "gemma-4-26b-a4b-it"
+  ],
+  "per_arch": {
+    "gemma-4-26b-a4b-it": {
+      "thresholds": {
+        "latent": {
+          "tau_drift": 0.14783339999999998,
+          "tau_var": 155.48374039999996,
+          "_n_steps_calib": 1693,
+          "_quantile_q": 0.7
+        },
+        "realm_sim": {
+          "tau_rsu_nats": 0.18899939999999998,
+          "_n_steps_calib": 1693
+        },
+        "grip_sim": {
+          "tau_z": -0.11055650420759026,
+          "tau_strong_z": -0.18426084034598378,
+          "window_size": 20,
+          "_n_steps_calib": 99
+        },
+        "random": {
+          "p": 0.3,
+          "seed": 20260509
+        }
+      },
+      "latent_mode_chosen": "variance",
+      "latent_mode_calib_scores": {
+        "drift": -0.003229984851904455,
+        "variance": -0.0007746023747980946,
+        "or": -0.003619544001196684
+      },
+      "earliness": [
+        {
+          "gate": "latent",
+          "n_eligible_traces": 40,
+          "n_correct": 25,
+          "n_incorrect": 15,
+          "fire_rate_overall": 0.675,
+          "mean_first_fire_correct": 4.055555555555555,
+          "mean_first_fire_incorrect": 5.0,
+          "earliness_delta_steps": -0.9444444444444446,
+          "mean_first_fire_frac_correct": 0.41403476697594344,
+          "mean_first_fire_frac_incorrect": 0.34439695024490347,
+          "earliness_delta_frac": 0.06963781673103997,
+          "n_fired_correct": 18,
+          "n_fired_incorrect": 9
+        },
+        {
+          "gate": "realm_sim",
+          "n_eligible_traces": 40,
+          "n_correct": 25,
+          "n_incorrect": 15,
+          "fire_rate_overall": 0.95,
+          "mean_first_fire_correct": 1.826086956521739,
+          "mean_first_fire_incorrect": 2.6666666666666665,
+          "earliness_delta_steps": -0.8405797101449275,
+          "mean_first_fire_frac_correct": 0.1629828833459435,
+          "mean_first_fire_frac_incorrect": 0.22000041903741374,
+          "earliness_delta_frac": -0.05701753569147025,
+          "n_fired_correct": 23,
+          "n_fired_incorrect": 15
+        },
+        {
+          "gate": "grip_sim",
+          "n_eligible_traces": 40,
+          "n_correct": 25,
+          "n_incorrect": 15,
+          "fire_rate_overall": 1.0,
+          "mean_first_fire_correct": 1.0,
+          "mean_first_fire_incorrect": 1.0,
+          "earliness_delta_steps": 0.0,
+          "mean_first_fire_frac_correct": 0.0939754823181933,
+          "mean_first_fire_frac_incorrect": 0.07645526853574143,
+          "earliness_delta_frac": 0.017520213782451874,
+          "n_fired_correct": 25,
+          "n_fired_incorrect": 15
+        },
+        {
+          "gate": "random",
+          "n_eligible_traces": 40,
+          "n_correct": 25,
+          "n_incorrect": 15,
+          "fire_rate_overall": 0.975,
+          "mean_first_fire_correct": 3.2083333333333335,
+          "mean_first_fire_incorrect": 3.0,
+          "earliness_delta_steps": 0.20833333333333348,
+          "mean_first_fire_frac_correct": 0.2863093549554547,
+          "mean_first_fire_frac_incorrect": 0.20253622623950615,
+          "earliness_delta_frac": 0.08377312871594852,
+          "n_fired_correct": 24,
+          "n_fired_incorrect": 15
+        }
+      ],
+      "drift_latent": [
+        {
+          "bin": "q1",
+          "n": 6,
+          "mean_first_fire_frac": 0.12592404155871648,
+          "mean_em": 0.6666666666666666,
+          "mean_f1": 0.8611166666666668
+        },
+        {
+          "bin": "q2",
+          "n": 5,
+          "mean_first_fire_frac": 0.18852163087457205,
+          "mean_em": 0.4,
+          "mean_f1": 0.61334
+        },
+        {
+          "bin": "q3",
+          "n": 6,
+          "mean_first_fire_frac": 0.2694573944573944,
+          "mean_em": 0.8333333333333334,
+          "mean_f1": 0.8333333333333334
+        },
+        {
+          "bin": "q4",
+          "n": 5,
+          "mean_first_fire_frac": 0.4974603174603175,
+          "mean_em": 0.6,
+          "mean_f1": 0.89334
+        },
+        {
+          "bin": "q5",
+          "n": 5,
+          "mean_first_fire_frac": 0.95,
+          "mean_em": 0.8,
+          "mean_f1": 0.8666599999999999
+        },
+        {
+          "bin": "never_fired",
+          "n": 13,
+          "mean_first_fire_frac": null,
+          "mean_em": 0.5384615384615384,
+          "mean_f1": 0.6410230769230769
+        }
+      ],
+      "ablation_4_4a": {
+        "drift": [
+          {
+            "gate": "latent",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 1.0,
+            "mean_first_fire_correct": 2.44,
+            "mean_first_fire_incorrect": 2.2666666666666666,
+            "earliness_delta_steps": 0.17333333333333334,
+            "mean_first_fire_frac_correct": 0.22813551864447007,
+            "mean_first_fire_frac_incorrect": 0.16861494961800066,
+            "earliness_delta_frac": 0.059520569026469405,
+            "n_fired_correct": 25,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "realm_sim",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 0.95,
+            "mean_first_fire_correct": 1.826086956521739,
+            "mean_first_fire_incorrect": 2.6666666666666665,
+            "earliness_delta_steps": -0.8405797101449275,
+            "mean_first_fire_frac_correct": 0.1629828833459435,
+            "mean_first_fire_frac_incorrect": 0.22000041903741374,
+            "earliness_delta_frac": -0.05701753569147025,
+            "n_fired_correct": 23,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "grip_sim",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 1.0,
+            "mean_first_fire_correct": 1.0,
+            "mean_first_fire_incorrect": 1.0,
+            "earliness_delta_steps": 0.0,
+            "mean_first_fire_frac_correct": 0.0939754823181933,
+            "mean_first_fire_frac_incorrect": 0.07645526853574143,
+            "earliness_delta_frac": 0.017520213782451874,
+            "n_fired_correct": 25,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "random",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 0.975,
+            "mean_first_fire_correct": 3.2083333333333335,
+            "mean_first_fire_incorrect": 3.0,
+            "earliness_delta_steps": 0.20833333333333348,
+            "mean_first_fire_frac_correct": 0.2863093549554547,
+            "mean_first_fire_frac_incorrect": 0.20253622623950615,
+            "earliness_delta_frac": 0.08377312871594852,
+            "n_fired_correct": 24,
+            "n_fired_incorrect": 15
+          }
+        ],
+        "variance": [
+          {
+            "gate": "latent",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 0.675,
+            "mean_first_fire_correct": 4.055555555555555,
+            "mean_first_fire_incorrect": 5.0,
+            "earliness_delta_steps": -0.9444444444444446,
+            "mean_first_fire_frac_correct": 0.41403476697594344,
+            "mean_first_fire_frac_incorrect": 0.34439695024490347,
+            "earliness_delta_frac": 0.06963781673103997,
+            "n_fired_correct": 18,
+            "n_fired_incorrect": 9
+          },
+          {
+            "gate": "realm_sim",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 0.95,
+            "mean_first_fire_correct": 1.826086956521739,
+            "mean_first_fire_incorrect": 2.6666666666666665,
+            "earliness_delta_steps": -0.8405797101449275,
+            "mean_first_fire_frac_correct": 0.1629828833459435,
+            "mean_first_fire_frac_incorrect": 0.22000041903741374,
+            "earliness_delta_frac": -0.05701753569147025,
+            "n_fired_correct": 23,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "grip_sim",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 1.0,
+            "mean_first_fire_correct": 1.0,
+            "mean_first_fire_incorrect": 1.0,
+            "earliness_delta_steps": 0.0,
+            "mean_first_fire_frac_correct": 0.0939754823181933,
+            "mean_first_fire_frac_incorrect": 0.07645526853574143,
+            "earliness_delta_frac": 0.017520213782451874,
+            "n_fired_correct": 25,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "random",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 0.975,
+            "mean_first_fire_correct": 3.2083333333333335,
+            "mean_first_fire_incorrect": 3.0,
+            "earliness_delta_steps": 0.20833333333333348,
+            "mean_first_fire_frac_correct": 0.2863093549554547,
+            "mean_first_fire_frac_incorrect": 0.20253622623950615,
+            "earliness_delta_frac": 0.08377312871594852,
+            "n_fired_correct": 24,
+            "n_fired_incorrect": 15
+          }
+        ],
+        "or": [
+          {
+            "gate": "latent",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 1.0,
+            "mean_first_fire_correct": 2.24,
+            "mean_first_fire_incorrect": 2.066666666666667,
+            "earliness_delta_steps": 0.17333333333333334,
+            "mean_first_fire_frac_correct": 0.21212930263825405,
+            "mean_first_fire_frac_incorrect": 0.15493073909168492,
+            "earliness_delta_frac": 0.05719856354656913,
+            "n_fired_correct": 25,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "realm_sim",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 0.95,
+            "mean_first_fire_correct": 1.826086956521739,
+            "mean_first_fire_incorrect": 2.6666666666666665,
+            "earliness_delta_steps": -0.8405797101449275,
+            "mean_first_fire_frac_correct": 0.1629828833459435,
+            "mean_first_fire_frac_incorrect": 0.22000041903741374,
+            "earliness_delta_frac": -0.05701753569147025,
+            "n_fired_correct": 23,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "grip_sim",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 1.0,
+            "mean_first_fire_correct": 1.0,
+            "mean_first_fire_incorrect": 1.0,
+            "earliness_delta_steps": 0.0,
+            "mean_first_fire_frac_correct": 0.0939754823181933,
+            "mean_first_fire_frac_incorrect": 0.07645526853574143,
+            "earliness_delta_frac": 0.017520213782451874,
+            "n_fired_correct": 25,
+            "n_fired_incorrect": 15
+          },
+          {
+            "gate": "random",
+            "n_eligible_traces": 40,
+            "n_correct": 25,
+            "n_incorrect": 15,
+            "fire_rate_overall": 0.975,
+            "mean_first_fire_correct": 3.2083333333333335,
+            "mean_first_fire_incorrect": 3.0,
+            "earliness_delta_steps": 0.20833333333333348,
+            "mean_first_fire_frac_correct": 0.2863093549554547,
+            "mean_first_fire_frac_incorrect": 0.20253622623950615,
+            "earliness_delta_frac": 0.08377312871594852,
+            "n_fired_correct": 24,
+            "n_fired_incorrect": 15
+          }
+        ]
+      },
+      "cost": {
+        "n_eligible": 40,
+        "mean_em": 0.625,
+        "mean_f1": 0.7591675,
+        "mean_wall_per_q_s": 15.018225000000001,
+        "mean_tokens_per_q": 200.95
+      }
+    }
+  }
+}

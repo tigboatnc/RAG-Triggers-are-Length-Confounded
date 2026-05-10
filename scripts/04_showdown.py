@@ -502,6 +502,18 @@ def main() -> int:
                         help="Run 4.4(a) latent drift/variance/or ablation.")
     parser.add_argument("--out-dir", default="runs")
     parser.add_argument("--fig-dir", default="figs")
+    parser.add_argument(
+        "--auto-latent-mode", action="store_true",
+        help="Per-arch geometry-aware latent mode selection. For each architecture, "
+             "evaluate {drift, variance, or} on the *calibration* split (no leakage) "
+             "and pick the mode with the highest earliness_delta_frac on calibration. "
+             "Then evaluate on validation under the chosen mode. Logs the per-arch "
+             "selection to the summary JSON.",
+    )
+    parser.add_argument(
+        "--latent-mode", default="drift", choices=["drift", "variance", "or"],
+        help="Override the latent gate's combine mode (ignored if --auto-latent-mode).",
+    )
     args = parser.parse_args()
 
     # Discover available files
@@ -555,8 +567,24 @@ def main() -> int:
         print(f"           grip.tau_strong  = {thresholds['grip_sim']['tau_strong_z']:.4f}")
         print(f"           random.p         = {thresholds['random']['p']:.4f}")
 
-        # 2. Earliness on validation split.
-        per_trace = _firsts_per_trace(valid, thresholds, latent_mode="drift")
+        # 2a. Pick the latent mode. Either fixed (--latent-mode) or selected
+        #     per-architecture from CALIBRATION (no leakage on validation).
+        if args.auto_latent_mode:
+            calib_mode_scores: dict[str, float] = {}
+            for mode in ("drift", "variance", "or"):
+                pt_calib = _firsts_per_trace(calib, thresholds, latent_mode=mode)
+                rows = earliness_table(pt_calib, min_steps=args.min_steps)
+                lat = next(r for r in rows if r["gate"] == "latent")
+                calib_mode_scores[mode] = lat["earliness_delta_frac"] if lat["earliness_delta_frac"] is not None else float("-inf")
+            chosen_mode = max(calib_mode_scores, key=calib_mode_scores.get)
+            print(f"  [auto-latent-mode] calibration Δfrac per mode: "
+                  f"{ {k: round(v, 4) for k, v in calib_mode_scores.items()} }  -> chose '{chosen_mode}'")
+        else:
+            chosen_mode = args.latent_mode
+            calib_mode_scores = {chosen_mode: None}
+
+        # 2b. Earliness on validation split with the chosen mode.
+        per_trace = _firsts_per_trace(valid, thresholds, latent_mode=chosen_mode)
         e_rows = earliness_table(per_trace, min_steps=args.min_steps)
         per_arch_earliness[m] = e_rows
 
@@ -632,6 +660,8 @@ def main() -> int:
 
         headline_summary["per_arch"][m] = {
             "thresholds": thresholds,
+            "latent_mode_chosen": chosen_mode,
+            "latent_mode_calib_scores": calib_mode_scores,
             "earliness": e_rows,
             "drift_latent": d_rows,
             "ablation_4_4a": per_arch_ablation.get(m, {}),
@@ -682,18 +712,16 @@ def main() -> int:
 
     # Headline reduction: latent-vs-baseline earliness delta per arch.
     print(f"\n{'='*72}\n[HEADLINE] latent-vs-baseline earliness delta (frac, validation)\n{'='*72}")
-    print(f"  {'arch':32}  latent  realm   grip    random  | latent_wins?")
+    print(f"  {'arch':32}  mode      latent  realm   grip    random  | wins(realm,grip,random)")
     for m, rows in per_arch_earliness.items():
         d = {r["gate"]: r["earliness_delta_frac"] for r in rows}
         latent = d.get("latent")
-        baselines = [d.get("realm_sim"), d.get("grip_sim")]
-        latent_wins = (
-            latent is not None
-            and all((b is not None and latent > b) for b in baselines)
-        )
+        baselines = {"realm": d.get("realm_sim"), "grip": d.get("grip_sim"), "random": d.get("random")}
+        won = [name for name, b in baselines.items() if b is not None and latent is not None and latent > b]
+        mode = headline_summary["per_arch"].get(m, {}).get("latent_mode_chosen", "?")
         cells = [d.get(g) for g in GATE_ORDER]
         cell_strs = "  ".join(_fmt(x, "{:+6.3f}") for x in cells)
-        print(f"  {m:32}  {cell_strs}  | {'YES' if latent_wins else 'no '}")
+        print(f"  {m:32}  {mode:8}  {cell_strs}  | {','.join(won) if won else 'NONE'}")
     print(
         "\n  (positive delta_frac = gate fires earlier in the trace on incorrect"
         "\n   answers than on correct ones. The latent gate winning on every arch"

@@ -107,20 +107,25 @@ def _format_paragraphs(paragraphs: list[dict[str, Any]]) -> str:
     return "\n\n".join(parts)
 
 
-def _build_user_payload(question: str, paragraphs: list[dict[str, Any]]) -> str:
-    """Option A: user payload no longer contains the system instruction."""
+def _build_user_payload(question: str, paragraphs: list[dict[str, Any]], inline_system: bool = False) -> str:
+    """Option A: user payload no longer contains the system instruction.
+    `inline_system=True` is the 4.5c ablation: stuff SYSTEM_INSTRUCTION into the
+    user message instead of using a system role, to test whether the EM dip on
+    Gemma between 4.1 (system-in-user, accidental) and 4.1b (system role) is
+    protocol-induced."""
+    head = f"{SYSTEM_INSTRUCTION}\n\n" if inline_system else ""
     return (
-        f"Paragraphs:\n\n{_format_paragraphs(paragraphs)}\n\n"
+        f"{head}Paragraphs:\n\n{_format_paragraphs(paragraphs)}\n\n"
         f"Question: {question}\n\n"
         f"Reason step by step, then end with 'Answer: ...'."
     )
 
 
-def _build_messages(question: str, paragraphs: list[dict[str, Any]]) -> list[dict]:
-    return [
-        {"role": "system", "content": SYSTEM_INSTRUCTION},
-        {"role": "user", "content": _build_user_payload(question, paragraphs)},
-    ]
+def _build_messages(question: str, paragraphs: list[dict[str, Any]], inline_system: bool = False) -> list[dict]:
+    user = {"role": "user", "content": _build_user_payload(question, paragraphs, inline_system=inline_system)}
+    if inline_system:
+        return [user]
+    return [{"role": "system", "content": SYSTEM_INSTRUCTION}, user]
 
 
 def _apply_repetition_penalty(logits, generated_ids: list[int], penalty: float):
@@ -224,7 +229,9 @@ def run_one_question(
     chat_template_kwargs = proto["chat_template_kwargs"]
     repetition_penalty = float(proto["repetition_penalty"])
 
-    messages = _build_messages(record["question"], record["paragraphs"])
+    messages = _build_messages(
+        record["question"], record["paragraphs"], inline_system=getattr(args, "inline_system", False)
+    )
     try:
         chat_text = tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True, **chat_template_kwargs
@@ -425,6 +432,7 @@ def run_one_question(
         "early_stop_reason": early_stop_reason,
         "chat_template_kwargs_used": chat_template_kwargs,
         "repetition_penalty_used": repetition_penalty,
+        "inline_system": bool(getattr(args, "inline_system", False)),
         "n_steps": len(step_records),
         "model_answer_extracted": extracted,
         "model_answer_extract_strategy": extract_strategy,
@@ -484,6 +492,12 @@ def main() -> None:
         help="Append to output filename (e.g. '_smoke') for multiple parallel runs.",
     )
     parser.add_argument("--progress-every", type=int, default=10)
+    parser.add_argument(
+        "--inline-system", action="store_true",
+        help="4.5c ablation: stuff SYSTEM_INSTRUCTION into the user message instead "
+             "of using a system role. Replicates the 4.1 (rejected) Gemma protocol "
+             "but with everything else from 4.1b held constant.",
+    )
     args = parser.parse_args()
 
     model_dir = Path("models") / args.model

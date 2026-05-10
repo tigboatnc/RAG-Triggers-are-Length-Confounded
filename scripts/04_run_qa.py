@@ -64,6 +64,35 @@ SYSTEM_INSTRUCTION = (
 )
 
 
+# Phase 4.1b "Option A" per-model protocol. Keep in lockstep with PROTOCOL in
+# scripts/04b_protocol_smoke.py. See _AGENT.md 2026-05-10 #11 for derivation.
+#   - Qwen3.6-35B-A3B operates in thinking mode by default (chat template
+#     prefills `<think>\n`). enable_thinking=False prefills empty `<think></think>`.
+#   - Gemma 4 26B A4B is no-thinking by default (template emits empty thought
+#     channel). Thinking would require enable_thinking=True AND <|think|> in
+#     the system prompt -- we do neither.
+#   - Phi-4-mini has no thinking mode. Greedy degenerates into repetition loops
+#     on long multi-paragraph contexts; rep_penalty=1.05 is a degeneration guard.
+MODEL_PROTOCOL: dict[str, dict[str, Any]] = {
+    "phi-4-mini-instruct": {
+        "chat_template_kwargs": {},
+        "repetition_penalty": 1.05,
+    },
+    "gemma-4-26b-a4b-it": {
+        "chat_template_kwargs": {},
+        "repetition_penalty": 1.0,
+    },
+    "qwen3.6-35b-a3b-instruct": {
+        "chat_template_kwargs": {"enable_thinking": False},
+        "repetition_penalty": 1.0,
+    },
+}
+
+import re as _re  # noqa: E402
+
+_ANSWER_MARKER_RE = _re.compile(r"\bAnswer\s*:\s*([^\n]+)\n", _re.IGNORECASE)
+
+
 def _format_paragraphs(paragraphs: list[dict[str, Any]]) -> str:
     """Render the 10 paragraphs into a model-readable block.
 
@@ -78,13 +107,35 @@ def _format_paragraphs(paragraphs: list[dict[str, Any]]) -> str:
     return "\n\n".join(parts)
 
 
-def _build_prompt(question: str, paragraphs: list[dict[str, Any]]) -> str:
+def _build_user_payload(question: str, paragraphs: list[dict[str, Any]]) -> str:
+    """Option A: user payload no longer contains the system instruction."""
     return (
-        f"{SYSTEM_INSTRUCTION}\n\n"
         f"Paragraphs:\n\n{_format_paragraphs(paragraphs)}\n\n"
         f"Question: {question}\n\n"
         f"Reason step by step, then end with 'Answer: ...'."
     )
+
+
+def _build_messages(question: str, paragraphs: list[dict[str, Any]]) -> list[dict]:
+    return [
+        {"role": "system", "content": SYSTEM_INSTRUCTION},
+        {"role": "user", "content": _build_user_payload(question, paragraphs)},
+    ]
+
+
+def _apply_repetition_penalty(logits, generated_ids: list[int], penalty: float):
+    """HF-standard CTRL repetition penalty applied in-place to a single-step row.
+
+    No-op when penalty == 1.0 or no tokens have been generated yet.
+    """
+    if penalty == 1.0 or not generated_ids:
+        return logits
+    import torch
+    ids = torch.tensor(list(set(generated_ids)), device=logits.device, dtype=torch.long)
+    selected = logits[0, ids]
+    selected = torch.where(selected > 0, selected / penalty, selected * penalty)
+    logits[0, ids] = selected
+    return logits
 
 
 def _format_mb(mb: int | None) -> str:
@@ -169,11 +220,23 @@ def run_one_question(
     """Generate one trace + grade it. Returns the per-question record to JSONL."""
     import torch
 
-    prompt = _build_prompt(record["question"], record["paragraphs"])
-    messages = [{"role": "user", "content": prompt}]
-    chat_text = tokenizer.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
-    )
+    proto = MODEL_PROTOCOL.get(args.model, {"chat_template_kwargs": {}, "repetition_penalty": 1.0})
+    chat_template_kwargs = proto["chat_template_kwargs"]
+    repetition_penalty = float(proto["repetition_penalty"])
+
+    messages = _build_messages(record["question"], record["paragraphs"])
+    try:
+        chat_text = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True, **chat_template_kwargs
+        )
+    except TypeError:
+        # Tokenizer's chat template does not accept the kwarg(s); fall back to
+        # default render. Logged in the per-question record so the trace is
+        # honest about whether enable_thinking actually took effect.
+        chat_text = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        chat_template_kwargs = {"_unsupported": dict(chat_template_kwargs)}
     encoded = tokenizer(chat_text, return_tensors="pt").to(model.device)
     prompt_tokens = int(encoded.input_ids.shape[-1])
 
@@ -214,6 +277,9 @@ def run_one_question(
     step_records: list[dict] = []
     trigger_rows: list[dict] = []
 
+    early_stop_reason = "max_tokens"
+    answer_marker_seen_at: int | None = None
+
     t_start = time.perf_counter()
 
     for step in range(args.max_new_tokens):
@@ -225,9 +291,10 @@ def run_one_question(
                 use_cache=True,
                 output_hidden_states=True,
             )
-        next_logits = out.logits[:, -1, :]
+        next_logits = out.logits[:, -1, :].clone()  # clone so we can mutate for rep_penalty
         token_entropy = _entropy_nats(next_logits)
 
+        next_logits = _apply_repetition_penalty(next_logits, generated_token_ids, repetition_penalty)
         next_token = next_logits.argmax(dim=-1, keepdim=True)
         cache = out.past_key_values
         token_id = int(next_token.item())
@@ -241,6 +308,23 @@ def run_one_question(
 
         if eos_id is not None and token_id == eos_id:
             eos_seen_at = step + 1
+            early_stop_reason = "eos"
+
+        # Cheap periodic answer-marker check on the running decoded text.
+        # Catches models that emit a turn-end token we don't recognize as EOS
+        # (e.g. Phi prefers <|end|>). Decode is O(step) per call so only run
+        # every 16 steps -- amortized cost is negligible vs the forward pass.
+        if (
+            answer_marker_seen_at is None
+            and (step + 1) % 16 == 0
+            and len(generated_token_ids) >= 16
+        ):
+            tail_text = tokenizer.decode(generated_token_ids[-256:], skip_special_tokens=True)
+            m = _ANSWER_MARKER_RE.search(tail_text)
+            if m:
+                answer_marker_seen_at = step + 1
+                if early_stop_reason == "max_tokens":
+                    early_stop_reason = "answer_marker"
 
         if boundaries.is_boundary(token_id):
             feature = tracker.commit_step(
@@ -288,6 +372,8 @@ def run_one_question(
 
         if eos_seen_at is not None:
             break  # Stop on EOS so the trace doesn't run past the answer.
+        if answer_marker_seen_at is not None:
+            break  # Option A: also stop on a clean Answer:<text>\n line.
 
     wall = time.perf_counter() - t_start
     tokens_generated = len(generated_token_ids)
@@ -335,6 +421,10 @@ def run_one_question(
         "wall_clock_s": round(wall, 3),
         "tok_per_s": round(tokens_generated / wall, 3) if wall > 0 else 0.0,
         "eos_seen_at": eos_seen_at,
+        "answer_marker_seen_at": answer_marker_seen_at,
+        "early_stop_reason": early_stop_reason,
+        "chat_template_kwargs_used": chat_template_kwargs,
+        "repetition_penalty_used": repetition_penalty,
         "n_steps": len(step_records),
         "model_answer_extracted": extracted,
         "model_answer_extract_strategy": extract_strategy,
@@ -373,7 +463,10 @@ def main() -> None:
         "--limit", type=int, default=None,
         help="Cap question count for smoke runs.",
     )
-    parser.add_argument("--max-new-tokens", type=int, default=512)
+    parser.add_argument(
+        "--max-new-tokens", type=int, default=1024,
+        help="Default raised from 512 to 1024 in Phase 4.1b (Option A re-run).",
+    )
     parser.add_argument(
         "--layer-mode", default="mid_stack",
         choices=["last_layer", "mid_stack"],

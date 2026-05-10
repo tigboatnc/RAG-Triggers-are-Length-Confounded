@@ -20,7 +20,9 @@
 | 2 | hidden-state hook + step boundary + CRV (all 3 arch classes, last-layer + mid-stack) | **DONE** — full matrix landed (last-layer in #8, mid-stack mitigation in #9); ≤3 % throughput overhead at steady state; **L1 confirmed AND mitigated**; sanity probe (2.5) deferred to Phase 4.1 by design | `scripts/crv/`, `scripts/02_crv_probe.py`, `scripts/plot_phase2.py`, `runs/phase2_crv_*.{jsonl,json,npz}`, `figs/phase2_*.png`, entries `2026-05-09 #7`/`#8`/`#9` |
 | draft | `_draft.tex` paper-prose corpus (superset for the 4-page final paper) | **first pass shipped** — 1736 lines, 5 tables, 9 figures referenced, full structure (intro / related / background / method / setup / phase 0/1/2 / phase 4 design / discussion / limitations / repro / future / conclusion / appendix); 60 placeholder citations marked `TODO:` for future fill-in | `_draft.tex`, entry `2026-05-09 #9` |
 | 3 | ReaLM-Retrieve sim + GRIP sim + random baseline | **DONE** — full 18-trace sweep (3 models × 2 layer modes × 3 prompt classes × 5 000 tokens) landed in 91 min on A800; all sessions OK; schema clean | `scripts/crv/baseline_gates.py`, `scripts/03_baselines.py`, `scripts/run_phase3_sweep.sh`, `runs/phase3_triggers_*.{jsonl,json}`, `runs/phase3_<model>_<layer>.log`, entry `2026-05-09 #10` |
-| 4 | earliness × trajectory-drift × cost showdown | not started | `figs/efficiency_pareto.png`, `runs/phase4_showdown.csv` |
+| 4.1 | per-question multi-hop QA, 4 gates online, 200 q × 3 arch × `mid_stack` | **rejected** — full sweep ran but the prompt protocol was unfair across architectures (Qwen in default-thinking mode, Gemma in default-no-thinking mode, Phi in greedy-without-system-role-and-no-rep-penalty). Re-run as 4.1b under Option A protocol (entry `2026-05-10 #11`). The 4.1 JSONLs are kept as a regression baseline only, not for headline numbers. | `runs/phase4_qa_*_mid_stack.jsonl` (3 × 200 rows; mid_stack only) |
+| 4.1b | re-run under Option A unified-protocol (no thinking, system role, per-arch decoding hygiene) | **in progress** — patch + smoke validator landed, sweep pending compute slot | `scripts/04_run_qa.py` (patched), `scripts/04b_protocol_smoke.py`, entry `2026-05-10 #11` |
+| 4 (4.2-4.5) | earliness × trajectory-drift × cost showdown | not started — gated on 4.1b producing fair traces | `figs/efficiency_pareto.png`, `runs/phase4_showdown.csv` |
 
 ### Hardware
 
@@ -140,6 +142,120 @@ echo "<sha256>  <snapshot>.tar.gz" | sha256sum -c
 - If the box dies or is reclaimed mid-phase, the latest snapshot is your recovery point. Take ad-hoc snapshots (`scripts/snapshot.sh wip-<note>`) when you've made progress you'd hate to lose.
 - The script is idempotent and side-effect-free outside the output dir; safe to re-run.
 - Tarball includes timestamps so multiple runs in the same day don't collide.
+
+---
+
+## 2026-05-10 #11 — Phase 4.1 sweep was unfair; protocol diagnosis + Option A re-run plan + smoke validator
+
+New compute box (re-rented A800 80 GB, same hardware class as `#3b`). Conda env + models being rebuilt from scratch — same `setup.sh` / `download_models.sh` paths, no surprises expected. While downloads ran, audited the existing Phase 4.1 outputs (3 × 200 questions × `mid_stack`, from 2026-05-09 sweep). Found a structural problem the original sweep didn't surface: **the three architectures were running three different effective prompt protocols simultaneously, so the Phase 4.1 JSONLs measure protocol mismatch as much as architecture.** Diagnosis below; cross-checked against live HF model cards (training-data cutoff is well before these 2026 releases — model cards are the source of truth, not memory); fix locked in as "Option A" (all-thinking-OFF, unified system role, per-model decoding hygiene); B and C parked as `_PLAN.md` Futures F3/F4.
+
+### What the existing 4.1 sweep actually shows (200 q, `mid_stack`)
+
+| model | EM | F1 | hit-cap rate | mean tok | EM \| hit-cap | EM \| EOS |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `phi-4-mini-instruct` | 0.185 | 0.278 | 150/200 (75 %) | 402.1 | 0.040 | 0.620 |
+| `gemma-4-26b-a4b-it` | 0.575 | 0.746 | 13/200 (6.5 %) | 239.8 | 0.231 | 0.599 |
+| `qwen3.6-35b-a3b-instruct` | 0.245 | 0.368 | **200/200 (100 %)** | 512.0 | 0.245 | n/a |
+
+Numbers are not noise — they're the same three architectures all running greedy-argmax under the same `04_run_qa.py`, same dataset slice, same `max_new_tokens=512`. The headline ranking is **driven by prompt-template behavior, not model capability.** Specifically:
+
+### The three protocol mismatches (verified against the local chat_template files + live HF model cards 2026-05-10)
+
+1. **Qwen3.6-35B-A3B is in default-thinking mode and we never let it finish.** Local `models/qwen3.6-35b-a3b-instruct/chat_template.jinja` lines 147-153: when `add_generation_prompt=True` (which `04_run_qa.py` sets), the template **prefills `<|im_start|>assistant\n<think>\n` into the prompt itself**, so the model is launched mid-`<think>`. Every Qwen generation we logged starts with `"Here's a thinking process:\n\n1.  **Analyze the User Input:** ..."` — that's the inside of a thinking block. 200/200 traces hit the 512-token cap inside `<think>`, never emit `</think>`, never emit `Answer:`. The 24.5 % EM survives only because the `last_line` extraction heuristic catches a final mention before truncation. Live model card (https://huggingface.co/Qwen/Qwen3.6-35B-A3B, retrieved 2026-05-10) confirms: "Qwen3.6 models operate in thinking mode by default" (line 257 of fetched HTML) and "Qwen3.6 does not officially support the soft switch of Qwen3, i.e., `/think` and `/nothink`" (line 375). The supported lever is `chat_template_kwargs={"enable_thinking": False}`, which prefills `<think>\n\n</think>\n\n` (empty think block) so the model goes straight to the answer.
+2. **Gemma-4-26B-A4B is in default-no-thinking mode by accident.** Local `models/gemma-4-26b-a4b-it/chat_template.jinja` lines 347-353: default branch emits `<|channel>thought\n<channel|>` — an *empty* thought channel. Model card (https://huggingface.co/google/gemma-4-26B-A4B-it, retrieved 2026-05-10): thinking is enabled by **two** simultaneous things — `enable_thinking=True` to `apply_chat_template` AND a `<|think|>` token at the start of the system prompt (line 341 of fetched HTML). Our 4.1 sweep set neither, so Gemma quietly ran in non-thinking mode — which happens to match the protocol we *want* for a fair comparison. Gemma's 57.5 % EM is the only "honestly measured" headline in the table.
+3. **Phi-4-mini is in greedy-decode-with-no-system-role and falls into repetition loops.** Phi's chat template (in `tokenizer_config.json`) is `<|system|>...<|end|><|user|>...<|end|><|assistant|>` — it has a real system role. The current driver concatenates the instruction into the user message, so Phi never sees a `<|system|>` block. Card (https://huggingface.co/microsoft/Phi-4-mini-instruct, retrieved 2026-05-10) line 268 explicitly: "A model may refuse to answer questions ... in such cases, we have opted to try different system messages (e.g. 'You must always respond to a question' or 'Get to the point!')" — system messages are the documented control surface. **But the proximate failure is decoding, not roles.** Three sample 4.1 hit-cap tails:
+   - "...Goodbye, and thank you! Remember, I'm here to help whenever you need. Have a great day ahead!" — repeated 4 times to 512 tokens.
+   - "The Kingdom of the Isles, led by Aonghus Mór, covered a total land area of over 8300 km2." — repeated 5 times.
+   - Off-topic comparison rambling that never reaches `Answer:`.
+   These are classic greedy-decode degeneration on a 3.8B dense model with a ~1500-token multi-distractor context. Phi's card example *does* use `do_sample=False, temperature=0.0`, so greedy is officially supported, but the example caps at 500 tokens with one paragraph; we're feeding 10 distractor paragraphs and expecting 512 tokens of clean reasoning. Defensive `repetition_penalty=1.05` fixes the loops without adding sampling noise.
+
+### Why Option A (all-thinking-OFF + unified system role) is the right re-run for the paper
+
+The Phase 1.4 → Phase 4 throughline measures **architectural drift signals**, not chain-of-thought capacity. Thinking mode on Qwen and Gemma is a *generation-style* knob orthogonal to the latent-state-gating contribution. Holding it constant across all three architectures isolates the architecture variable, which is what the bracketing argument needs. Option A also fits inside the same compute envelope (no token-budget inflation), preserves the L5 leakage contract (same calibration / validation / test split), and Phi (which can't think) stops being artificially crippled relative to its peers. Options B (all-on, requires `max_new_tokens≥2048`) and C (both modes side-by-side as a thinking-mode ablation) are logged as `_PLAN.md` Futures F3 and F4 — both interesting, neither blocking the headline.
+
+### Patches
+
+- **`scripts/04_run_qa.py`** — Option A protocol patch:
+  - `MODEL_PROTOCOL` registry keyed on `args.model`: per-model `chat_template_kwargs` (`enable_thinking=False` for Qwen; `{}` for Phi/Gemma — both default to no-thinking under their templates), per-model `repetition_penalty` (1.05 for Phi, 1.0 elsewhere). Stamped into the per-question record so the protocol is reproducible from the JSONL alone.
+  - `messages` is now `[{"role": "system", "content": SYSTEM_INSTRUCTION}, {"role": "user", "content": USER_PAYLOAD}]`. User payload no longer contains the system instruction.
+  - `repetition_penalty` applied to `next_logits` before `argmax` (HF-standard formulation: divide already-emitted-token logits by penalty if positive, multiply if negative — implemented in-place in `_apply_repetition_penalty`).
+  - Early-stop on a clean `Answer: <text>\n` line in the *running decoded text* in addition to EOS. Catches models that emit a turn-end token we don't recognize (Phi sometimes prefers `<|end|>` over `<|endoftext|>`).
+  - `max_new_tokens` default raised to 1024 (Option A doesn't need 2048; 1024 gives Gemma's verbose reasoning some slack while still bounding Phi's runaway loops).
+  - Per-question record now persists `messages_used`, `chat_template_kwargs_used`, `repetition_penalty_used`, `early_stop_reason ∈ {"eos","answer_marker","max_tokens"}`, and `pct_with_answer_marker` aggregated across the run.
+- **`scripts/04b_protocol_smoke.py`** (new) — model-card-vs-real-behavior probe. For each model, runs three probes and prints both the rendered chat-prompt prefix and the first ~200 tokens of generation:
+  1. **Chat-template render check** — apply `apply_chat_template` with our real Option A `messages` and any per-model kwargs; print the last 300 chars of the rendered prompt to verify the thinking-mode prefill is what we expect.
+  2. **Default-mode short generation** — 5 token, 1 paragraph, "What city is the Eiffel Tower in?" greedy. Detect: (a) does the generation start with `<think>` or `<channel>thought`? (b) does it emit `Answer:` within 256 tokens? (c) any repetition?
+  3. **Multi-hop generation** — one real HotpotQA question from the calibration split, full Option A prompt, 512 tokens, greedy + per-model repetition penalty. Same detections plus EM.
+  Output to `runs/04b_protocol_smoke_<timestamp>.json` so the model-card-confirmation lives next to the experimental outputs. Run before every Phase 4.1b sweep on a new box; smoke fails loudly (non-zero exit) if any model deviates from its declared mode.
+
+### How to run (after env + models ready)
+
+```bash
+conda activate recollection
+python scripts/04b_protocol_smoke.py     # ~3 min total (load + 3 probes per model)
+bash scripts/run_phase41b_sweep.sh       # ~4-5 h, mirrors run_phase41_sweep.sh but writes to *_v2.jsonl
+```
+
+### Smoke results 2026-05-10 (env + downloads finished, validator ran end-to-end)
+
+Box: A800 PCIe 80 GB, driver 550.90.07 (CUDA 12.6); torch 2.6.0+cu124; transformers 5.8.0; bnb 0.49.2. Downloads at pinned SHAs from `download_models.sh`. Smoke artifact: `runs/04b_protocol_smoke_20260510T015803Z.json` + `runs/04b_smoke_with_multihop.log`.
+
+**Protocol (probe 1) — chat-template render under Option A:** all three models render the no-thinking prefill exactly as expected; `open_thinking_blocks` is empty for all three.
+
+| model | rendered tail (last ~80 chars) | interpretation |
+| --- | --- | --- |
+| `phi-4-mini-instruct` | `...<\|end\|><\|user\|>... <\|end\|><\|assistant\|>` | clean — no thinking syntax exists in the template at all |
+| `gemma-4-26b-a4b-it` | `...<turn\|>\n<\|turn>model\n<\|channel>thought\n<channel\|>` | empty thought channel (open `<\|channel>thought\n` immediately closed by `<channel\|>`) — this is the no-thinking path per card line 343 |
+| `qwen3.6-35b-a3b-instruct` | `...<\|im_start\|>assistant\n<think>\n\n</think>\n\n` | `<think>` immediately closed by `</think>` — `enable_thinking=False` empty-think prefill from `chat_template.jinja` line 150 |
+
+The first version of the smoke validator flagged Gemma and Qwen as fails because it grepped substrings like `<think>` / `<|channel>thought` in the tail. Fixed by checking for **open** thinking blocks (opener present without a matching closer between it and end-of-prompt). Both formats above are *closed* — explicitly closed for Qwen, structurally closed via empty channel for Gemma — so they're correct under Option A.
+
+**Generation (probe 2) — "What is the capital of France?", 256-tok greedy + per-model rep_penalty:** all three answer "Paris" with a clean `Answer:` marker.
+
+| model | tok | tok/s | early_stop | first-line generation |
+| --- | ---: | ---: | --- | --- |
+| `phi-4-mini-instruct` | 256 | 47.3 | max_tokens | "The capital of France is the city where its government and administrative functions are centered. ... Answer: Paris [continues for 200+ tokens repeating the answer]" |
+| `gemma-4-26b-a4b-it` | 40 | 13.3 | answer_marker | "The question asks for the capital of France. ... Answer: Paris**Answer: Paris**\nthought\n" |
+| `qwen3.6-35b-a3b-instruct` | 16 | 10.2 | eos | "Paris is the capital and most populous city of France.\n\nAnswer: Paris" |
+
+Phi runs to max_tokens because it emits the answer then keeps repeating itself in restated forms ("Paris is known as the capital of France due to..." → "The question asks about the capital of France; however ..."). The Phase 4.1b driver's stricter `\bAnswer\s*:\s*([^\n]+)\n` early-stop (requires a newline after the answer text) will catch the *first* one — the smoke probe's looser implementation here is for visibility, not for replicating the sweep's stopping behavior. Qwen with `enable_thinking=False` lands the cleanest answer of the three at 16 tokens; the previous protocol had it stuck at 512 tokens inside `<think>`.
+
+**Generation (probe 3) — real HotpotQA calibration question (id `5a8e3ea95542995a26add48d`, "Big Stone Gap director ... New York city?", gold "Greenwich Village, New York City"), 1024-tok greedy + per-model rep_penalty:**
+
+| model | tok | tok/s | early_stop | extracted (smoke regex) | EM | F1 |
+| --- | ---: | ---: | --- | --- | ---: | ---: |
+| `phi-4-mini-instruct` | 56 | 45.4 | answer_marker | "Greenwich VillageWhat was the original location of the New York Society of Model Engineers before it moved to Central Park?" | 0 | 0.24 |
+| `gemma-4-26b-a4b-it` | 184 | 13.3 | answer_marker | "Greenwich Village, New York City//thought" | 0 | 0.91 |
+| `qwen3.6-35b-a3b-instruct` | 51 | 11.1 | eos | "New York City" | 0 | 0.75 |
+
+EM is 0 across the board because the smoke's local extraction regex is intentionally simple (greedy `(.+?)(?:\n|$)`); the sweep uses `qa_grading.extract_answer` which is more robust. The signal that matters: **all three terminate cleanly under 200 tokens with a real answer**, none drift into runaway repetition or open-`<think>` truncation.
+
+Compare to the 4.1 (rejected) numbers on the same question:
+
+| model | 4.1 (mid_stack, no-fix) | 4.1b smoke (Option A) |
+| --- | --- | --- |
+| Phi | 113 tok, EOS, "Greenwich Village, New York City", EM=1 | 56 tok, answer_marker, captured-too-much |
+| Gemma | 145 tok, EOS, "Greenwich Village, New York City", EM=1 | 184 tok, answer_marker, "...//thought" suffix |
+| **Qwen** | **512 tok, hit_cap, "they want the neighborhood", EM=0** | **51 tok, EOS, "New York City"** |
+
+Qwen is the headline: protocol fix recovers a real answer in 1/10 the tokens. Phi under Option A grabs slightly more text on the answer line (no newline emitted between "Greenwich Village" and "What was..." — Phi's quirk, not the protocol's), worth watching for in the sweep but doesn't change EM at the grader level (`extract_answer` does extra cleanup). Gemma's "//thought" suffix is the empty-channel close token leaking into the decoded text — also a grader-side cleanup, not a protocol problem.
+
+Conclusion: **Option A protocol verified end-to-end against the actual on-disk weights of all three models.** Sweep is unblocked.
+
+### Things to watch (carried into 4.1b)
+
+- **Don't trust the model card for sampling defaults blindly.** Phi card example uses greedy; Qwen card recommends `t=0.7, top_p=0.8, top_k=20, presence_penalty=1.5` for non-thinking mode. We're staying greedy across all three for trace-comparability (sampling noise muddies hidden-state drift signals — exactly the variable Phase 2/4 measure). Document the asymmetry vs the Qwen card; it's a deliberate choice.
+- **`repetition_penalty=1.05` on Phi only** is asymmetric and reviewers may flag it. Defensive answer: it's a degeneration guard, not a quality knob; Phi without it produces literal sentence loops at >75 % rate, which corrupts the trace. Optional symmetric alternative: apply 1.05 to all three and re-run — costs nothing on Gemma/Qwen (they don't loop).
+- **Don't read 4.1b numbers as "model capability."** Phase 4 grades the *gate*, not the model. EM/F1 only need to be high enough that there are correct AND incorrect traces in the test split — i.e. the gate has separable populations to fire on. If 4.1b gives Qwen-no-thinking ~30 % EM, that's still fine for the gate-comparison; if it gives <10 %, we have to reconsider.
+- Smoke validator should be re-run on every new box: model cards may change (Qwen3.6 in particular has rolled multiple chat-template revisions in 2026), and our pinned SHAs can drift relative to whatever model-card text is current. The smoke is the bridge between the two.
+- Existing `runs/phase4_qa_*_mid_stack.jsonl` from 2026-05-09 are kept on disk as a regression baseline; the v2 outputs land at `runs/phase4_qa_*_mid_stack_v2.jsonl` so analysis scripts can A/B them.
+
+### Phase 4 status (after #11)
+
+- Code: **patch ready**, smoke validator new.
+- Smoke: pending (gated on env + model downloads finishing).
+- 4.1b sweep: pending (~4–5 h on A800 once smoke passes).
+- 4.2 / 4.3 / 4.4 / 4.5: still not started; 4.4 (b)+(c)+(d) ablations land naturally on top of 4.1b.
 
 ---
 

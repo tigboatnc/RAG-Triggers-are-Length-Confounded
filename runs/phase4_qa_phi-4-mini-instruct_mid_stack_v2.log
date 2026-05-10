@@ -1,0 +1,27 @@
+[..] dataset data/hotpotqa_distractor_200.jsonl -> 200 questions (split filter: all)
+[..] importing torch + transformers + bitsandbytes ...
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<03:04,  1.05it/s]Loading weights:   2%|▏         | 4/194 [00:01<00:42,  4.47it/s]Loading weights:   5%|▍         | 9/194 [00:01<00:16, 11.11it/s]Loading weights:   6%|▌         | 12/194 [00:01<00:13, 13.45it/s]Loading weights:  11%|█▏        | 22/194 [00:01<00:06, 28.14it/s]Loading weights:  14%|█▍        | 27/194 [00:01<00:05, 30.93it/s]Loading weights:  18%|█▊        | 34/194 [00:01<00:04, 38.35it/s]Loading weights:  21%|██        | 40/194 [00:01<00:04, 37.71it/s]Loading weights:  23%|██▎       | 45/194 [00:01<00:03, 39.71it/s]Loading weights:  26%|██▌       | 50/194 [00:02<00:03, 36.14it/s]Loading weights:  28%|██▊       | 55/194 [00:02<00:04, 31.38it/s]Loading weights:  30%|███       | 59/194 [00:02<00:04, 29.73it/s]Loading weights:  32%|███▏      | 63/194 [00:02<00:04, 31.17it/s]Loading weights:  35%|███▍      | 67/194 [00:02<00:04, 29.72it/s]Loading weights:  37%|███▋      | 71/194 [00:02<00:04, 27.27it/s]Loading weights:  39%|███▊      | 75/194 [00:03<00:04, 29.67it/s]Loading weights:  41%|████      | 79/194 [00:03<00:04, 28.74it/s]Loading weights:  43%|████▎     | 83/194 [00:03<00:04, 27.25it/s]Loading weights:  45%|████▌     | 88/194 [00:03<00:03, 27.59it/s]Loading weights:  48%|████▊     | 93/194 [00:03<00:03, 31.04it/s]Loading weights:  50%|█████     | 97/194 [00:03<00:03, 29.41it/s]Loading weights:  52%|█████▏    | 101/194 [00:04<00:03, 28.39it/s]Loading weights:  55%|█████▍    | 106/194 [00:04<00:03, 27.34it/s]Loading weights:  57%|█████▋    | 111/194 [00:04<00:02, 31.91it/s]Loading weights:  59%|█████▉    | 115/194 [00:04<00:02, 29.71it/s]Loading weights:  61%|██████▏   | 119/194 [00:04<00:02, 28.11it/s]Loading weights:  63%|██████▎   | 123/194 [00:04<00:02, 29.46it/s]Loading weights:  65%|██████▌   | 127/194 [00:04<00:02, 27.93it/s]Loading weights:  67%|██████▋   | 130/194 [00:05<00:02, 24.68it/s]Loading weights:  70%|███████   | 136/194 [00:05<00:02, 25.77it/s]Loading weights:  73%|███████▎  | 141/194 [00:05<00:01, 30.54it/s]Loading weights:  75%|███████▍  | 145/194 [00:05<00:01, 28.44it/s]Loading weights:  77%|███████▋  | 149/194 [00:05<00:01, 27.90it/s]Loading weights:  79%|███████▉  | 153/194 [00:05<00:01, 29.89it/s]Loading weights:  81%|████████  | 157/194 [00:05<00:01, 28.27it/s]Loading weights:  82%|████████▏ | 160/194 [00:06<00:01, 24.88it/s]Loading weights:  85%|████████▌ | 165/194 [00:06<00:01, 28.97it/s]Loading weights:  87%|████████▋ | 169/194 [00:06<00:00, 26.69it/s]Loading weights:  89%|████████▊ | 172/194 [00:06<00:00, 22.82it/s]Loading weights:  91%|█████████ | 177/194 [00:06<00:00, 27.18it/s]Loading weights:  93%|█████████▎| 180/194 [00:06<00:00, 25.73it/s]Loading weights:  95%|█████████▍| 184/194 [00:07<00:00, 24.78it/s]Loading weights:  98%|█████████▊| 190/194 [00:07<00:00, 26.85it/s]Loading weights: 100%|██████████| 194/194 [00:07<00:00, 26.51it/s]
+[ok] loaded in 9.09s | rss 1.016 GB | VRAM 8107 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] writing to runs/phase4_qa_phi-4-mini-instruct_mid_stack_v2.jsonl
+  [ 20/200] 5ae48e7e55429913cc20449d split=validation   em=1 f1=1.0 tok=  29 steps=  0 strategy=answer_marker  | avg/q=  1.7s  eta=  5.0m
+  [ 40/200] 5a7b1d3b5542992d025e677a split=calibration  em=0 f1=0.4 tok=  96 steps=  4 strategy=answer_marker  | avg/q=  1.7s  eta=  4.5m
+  [ 60/200] 5ae4aba25542995ad6573e12 split=calibration  em=1 f1=1.0 tok=  80 steps=  0 strategy=answer_marker  | avg/q=  1.9s  eta=  4.4m
+  [ 80/200] 5ab42d6055429942dd415eb0 split=test         em=1 f1=1.0 tok=  48 steps=  1 strategy=answer_marker  | avg/q=  1.8s  eta=  3.6m
+  [100/200] 5ae552bb55429908b63265d9 split=calibration  em=0 f1=0.0 tok= 144 steps=  8 strategy=answer_marker  | avg/q=  1.8s  eta=  3.0m
+  [120/200] 5ab8764155429919ba4e22fe split=calibration  em=0 f1=0.0 tok=  20 steps=  0 strategy=answer_marker  | avg/q=  1.8s  eta=  2.4m
+  [140/200] 5a7ef49a5542994959419a91 split=calibration  em=0 f1=0.0 tok=  80 steps=  1 strategy=answer_marker  | avg/q=  1.8s  eta=  1.8m
+  [160/200] 5ac3891f554299741d48a284 split=calibration  em=0 f1=0.0 tok= 128 steps=  3 strategy=answer_marker  | avg/q=  1.8s  eta=  1.2m
+  [180/200] 5ac029655542992a796decb3 split=calibration  em=0 f1=0.0 tok=  80 steps=  3 strategy=answer_marker  | avg/q=  1.8s  eta=  0.6m
+  [200/200] 5adc872b5542994d58a2f62f split=test         em=0 f1=0.0 tok=  74 steps=  1 strategy=answer_marker  | avg/q=  1.8s  eta=  0.0m
+
+=== headline (Phase 4.1 -- phi-4-mini-instruct / mid_stack) ===
+  n_ok           = 200  (n_err = 0)
+  EM             = 0.4350  (87/200)
+  token-F1       = 0.5714
+  mean tok/q     = 84.0
+  mean wall/q    = 1.84 s
+  extract strat. = {'answer_marker': 200}
+  out            = runs/phase4_qa_phi-4-mini-instruct_mid_stack_v2.jsonl

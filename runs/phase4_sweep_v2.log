@@ -1,0 +1,7 @@
+[sweep-v2] start 2026-05-10T02:03:58+00:00
+[sweep-v2] using existing smoke artifact: runs/04b_protocol_smoke_20260510T015803Z.json
+
+[sweep-v2] === phi-4-mini-instruct_mid_stack_v2 === start 2026-05-10T02:03:58+00:00
+[sweep-v2] phi-4-mini-instruct_mid_stack_v2 OK in 383s -> runs/phase4_qa_phi-4-mini-instruct_mid_stack_v2.log
+
+[sweep-v2] === gemma-4-26b-a4b-it_mid_stack_v2 === start 2026-05-10T02:10:21+00:00

@@ -1,0 +1,86 @@
+
+========================================================================
+[probe] phi-4-mini-instruct (card: https://huggingface.co/microsoft/Phi-4-mini-instruct)
+========================================================================
+  [..] loading models/phi-4-mini-instruct (bf16, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:29,  6.63it/s]Loading weights:   8%|▊         | 16/194 [00:00<00:02, 74.64it/s]Loading weights:  14%|█▍        | 27/194 [00:00<00:01, 86.55it/s]Loading weights:  20%|██        | 39/194 [00:00<00:01, 91.11it/s]Loading weights:  29%|██▉       | 57/194 [00:00<00:01, 118.07it/s]Loading weights:  36%|███▌      | 70/194 [00:00<00:01, 108.41it/s]Loading weights:  42%|████▏     | 82/194 [00:00<00:01, 104.49it/s]Loading weights:  51%|█████     | 98/194 [00:00<00:00, 113.93it/s]Loading weights:  57%|█████▋    | 110/194 [00:01<00:00, 112.70it/s]Loading weights:  64%|██████▍   | 124/194 [00:01<00:00, 117.94it/s]Loading weights:  73%|███████▎  | 141/194 [00:01<00:00, 131.31it/s]Loading weights:  81%|████████  | 157/194 [00:01<00:00, 136.84it/s]Loading weights:  88%|████████▊ | 171/194 [00:01<00:00, 133.12it/s]Loading weights:  95%|█████████▌| 185/194 [00:01<00:00, 118.97it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 113.15it/s]
+  [ok] loaded in 3.8s
+
+--- probe 1: chat-template render ---
+  rendered_len=383 chars; tail (last 300):
+  "tep, and answer the question concisely. End your response with a single line of the form 'Answer: <your answer>' where <your answer> is as short as possible (typically 1-5 words).<|end|><|user|>Question: What is the capital of France?\n\nReason briefly, then end with 'Answer: ...'.<|end|><|assistant|>"
+  open_thinking_blocks=[]  expected_off=True
+
+--- probe 2: short factual generation (256 tok greedy) ---
+  tok=256  early_stop=max_tokens  tok/s=44.67
+  thinking_opener_first200chars=None
+  repetition_substring=None
+  contains 'Paris'=True  answer_marker=True
+  generation (first 500 chars): "The capital of France is the city where its government and administrative functions are centered. It has historical significance, being a hub for culture, politics, and economy in Europe.\n\nAnswer: ParisParis is known as the capital of France due to its role as the center of French government, history, and cultural influence within Europe. The city's prominence in these areas justifies it being recognized as the nation's capital. Answer: ParisThe question asks about the capital of France; however"
+
+--- probe 3: real HotpotQA multi-hop (1024 tok) ---
+  prompt tokens (decoded len): 6280 chars; question: 'The director of the romantic comedy "Big Stone Gap" is based in what New York ci'
+  tok=56  early_stop=answer_marker  tok/s=45.37
+  gold='Greenwich Village, New York City'  pred='Greenwich VillageWhat was the original location of the New York Society of Model Engineers before it moved to Central Park?'  EM=0  F1=0.240
+  thinking_opener=None  repetition=None
+
+========================================================================
+[probe] gemma-4-26b-a4b-it (card: https://huggingface.co/google/gemma-4-26B-A4B-it)
+========================================================================
+  [..] loading models/gemma-4-26b-a4b-it (bf16, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:55, 18.34it/s]Loading weights:   0%|          | 5/1013 [00:00<01:54,  8.82it/s]Loading weights:   2%|▏         | 25/1013 [00:00<00:24, 40.09it/s]Loading weights:   5%|▍         | 47/1013 [00:01<00:16, 57.54it/s]Loading weights:   7%|▋         | 69/1013 [00:01<00:10, 85.91it/s]Loading weights:   8%|▊         | 81/1013 [00:01<00:11, 83.85it/s]Loading weights:   9%|▉         | 92/1013 [00:01<00:13, 70.61it/s]Loading weights:  11%|█         | 113/1013 [00:01<00:09, 96.97it/s]Loading weights:  12%|█▏        | 126/1013 [00:01<00:09, 95.03it/s]Loading weights:  14%|█▎        | 138/1013 [00:01<00:11, 75.78it/s]Loading weights:  15%|█▌        | 157/1013 [00:02<00:10, 78.38it/s]Loading weights:  18%|█▊        | 179/1013 [00:02<00:09, 84.38it/s]Loading weights:  20%|█▉        | 201/1013 [00:02<00:09, 86.34it/s]Loading weights:  22%|██▏       | 222/1013 [00:02<00:08, 98.57it/s]Loading weights:  23%|██▎       | 233/1013 [00:03<00:10, 72.91it/s]Loading weights:  24%|██▍       | 244/1013 [00:03<00:09, 78.58it/s]Loading weights:  25%|██▌       | 254/1013 [00:03<00:12, 59.94it/s]Loading weights:  26%|██▋       | 266/1013 [00:03<00:12, 57.94it/s]Loading weights:  28%|██▊       | 287/1013 [00:03<00:09, 80.62it/s]Loading weights:  29%|██▉       | 298/1013 [00:04<00:08, 81.80it/s]Loading weights:  31%|███       | 310/1013 [00:04<00:10, 70.19it/s]Loading weights:  33%|███▎      | 330/1013 [00:04<00:07, 91.97it/s]Loading weights:  34%|███▍      | 342/1013 [00:05<00:14, 47.38it/s]Loading weights:  35%|███▍      | 353/1013 [00:06<00:32, 20.61it/s]Loading weights:  37%|███▋      | 370/1013 [00:06<00:21, 29.57it/s]Loading weights:  37%|███▋      | 379/1013 [00:08<00:50, 12.47it/s]Loading weights:  39%|███▉      | 395/1013 [00:09<00:34, 18.10it/s]Loading weights:  40%|███▉      | 403/1013 [00:10<00:48, 12.49it/s]Loading weights:  41%|████      | 417/1013 [00:10<00:33, 17.89it/s]Loading weights:  42%|████▏     | 426/1013 [00:10<00:29, 19.71it/s]Loading weights:  44%|████▎     | 441/1013 [00:11<00:21, 26.09it/s]Loading weights:  46%|████▌     | 462/1013 [00:11<00:14, 37.31it/s]Loading weights:  48%|████▊     | 485/1013 [00:11<00:10, 49.58it/s]Loading weights:  50%|████▉     | 506/1013 [00:11<00:07, 64.57it/s]Loading weights:  51%|█████     | 517/1013 [00:11<00:07, 65.31it/s]Loading weights:  52%|█████▏    | 528/1013 [00:12<00:08, 59.70it/s]Loading weights:  54%|█████▍    | 549/1013 [00:12<00:05, 81.53it/s]Loading weights:  55%|█████▌    | 561/1013 [00:12<00:05, 83.50it/s]Loading weights:  56%|█████▋    | 572/1013 [00:12<00:06, 71.90it/s]Loading weights:  59%|█████▊    | 594/1013 [00:12<00:05, 78.85it/s]Loading weights:  61%|██████    | 616/1013 [00:13<00:04, 83.71it/s]Loading weights:  63%|██████▎   | 637/1013 [00:13<00:03, 95.25it/s]Loading weights:  64%|██████▍   | 648/1013 [00:13<00:04, 88.37it/s]Loading weights:  77%|███████▋  | 784/1013 [00:13<00:00, 324.97it/s]Loading weights:  93%|█████████▎| 943/1013 [00:13<00:00, 590.58it/s]Loading weights: 100%|██████████| 1013/1013 [00:13<00:00, 74.58it/s]
+  [ok] loaded in 19.1s
+
+--- probe 1: chat-template render ---
+  rendered_len=426 chars; tail (last 300):
+  "sely. End your response with a single line of the form 'Answer: <your answer>' where <your answer> is as short as possible (typically 1-5 words).<turn|>\n<|turn>user\nQuestion: What is the capital of France?\n\nReason briefly, then end with 'Answer: ...'.<turn|>\n<|turn>model\n<|channel>thought\n<channel|>"
+  open_thinking_blocks=[]  expected_off=True
+
+--- probe 2: short factual generation (256 tok greedy) ---
+  tok=40  early_stop=answer_marker  tok/s=12.38
+  thinking_opener_first200chars=None
+  repetition_substring=None
+  contains 'Paris'=True  answer_marker=True
+  generation (first 500 chars): 'The question asks for the capital of France. Based on general knowledge, Paris is the capital and largest city of France.\n\nAnswer: Paris**Answer: Paris**\nthought\n'
+
+--- probe 3: real HotpotQA multi-hop (1024 tok) ---
+  prompt tokens (decoded len): 6323 chars; question: 'The director of the romantic comedy "Big Stone Gap" is based in what New York ci'
+  tok=184  early_stop=answer_marker  tok/s=13.34
+  gold='Greenwich Village, New York City'  pred='Greenwich Village, New York City//thought'  EM=0  F1=0.909
+  thinking_opener=None  repetition=None
+
+========================================================================
+[probe] qwen3.6-35b-a3b-instruct (card: https://huggingface.co/Qwen/Qwen3.6-35B-A3B)
+========================================================================
+  [..] loading models/qwen3.6-35b-a3b-instruct (bf16, device_map={'': 0})
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/693 [00:00<?, ?it/s]Loading weights:   2%|▏         | 13/693 [00:00<00:14, 45.65it/s]Loading weights:   3%|▎         | 18/693 [00:00<00:16, 41.94it/s]Loading weights:   4%|▍         | 31/693 [00:00<00:18, 35.48it/s]Loading weights:   5%|▌         | 35/693 [00:01<00:47, 13.94it/s]Loading weights:   7%|▋         | 50/693 [00:02<00:27, 23.07it/s]Loading weights:   9%|▊         | 59/693 [00:02<00:24, 25.37it/s]Loading weights:  12%|█▏        | 81/693 [00:02<00:13, 43.87it/s]Loading weights:  13%|█▎        | 88/693 [00:02<00:13, 43.43it/s]Loading weights:  14%|█▍        | 100/693 [00:02<00:13, 45.37it/s]Loading weights:  17%|█▋        | 118/693 [00:03<00:09, 63.58it/s]Loading weights:  18%|█▊        | 127/693 [00:03<00:17, 32.64it/s]Loading weights:  22%|██▏       | 151/693 [00:03<00:11, 49.21it/s]Loading weights:  23%|██▎       | 160/693 [00:04<00:11, 47.67it/s]Loading weights:  24%|██▍       | 169/693 [00:04<00:09, 52.62it/s]Loading weights:  26%|██▌       | 177/693 [00:04<00:15, 32.41it/s]Loading weights:  27%|██▋       | 187/693 [00:04<00:12, 39.60it/s]Loading weights:  28%|██▊       | 194/693 [00:05<00:12, 39.16it/s]Loading weights:  29%|██▉       | 200/693 [00:05<00:22, 21.93it/s]Loading weights:  32%|███▏      | 220/693 [00:06<00:17, 27.17it/s]Loading weights:  32%|███▏      | 225/693 [00:06<00:18, 25.99it/s]Loading weights:  34%|███▍      | 238/693 [00:06<00:12, 35.46it/s]Loading weights:  35%|███▌      | 244/693 [00:07<00:15, 29.82it/s]Loading weights:  37%|███▋      | 256/693 [00:07<00:11, 38.27it/s]Loading weights:  38%|███▊      | 262/693 [00:08<00:23, 18.74it/s]Loading weights:  38%|███▊      | 266/693 [00:09<00:40, 10.47it/s]Loading weights:  41%|████      | 284/693 [00:09<00:20, 19.57it/s]Loading weights:  42%|████▏     | 290/693 [00:11<00:36, 11.00it/s]Loading weights:  44%|████▍     | 307/693 [00:11<00:24, 15.55it/s]Loading weights:  45%|████▍     | 311/693 [00:12<00:33, 11.45it/s]Loading weights:  47%|████▋     | 325/693 [00:13<00:25, 14.51it/s]Loading weights:  47%|████▋     | 328/693 [00:14<00:35, 10.29it/s]Loading weights:  48%|████▊     | 334/693 [00:15<00:48,  7.45it/s]Loading weights:  51%|█████     | 354/693 [00:15<00:22, 15.11it/s]Loading weights:  52%|█████▏    | 361/693 [00:17<00:29, 11.11it/s]Loading weights:  54%|█████▍    | 376/693 [00:17<00:22, 14.28it/s]Loading weights:  55%|█████▍    | 381/693 [00:18<00:26, 11.89it/s]Loading weights:  57%|█████▋    | 394/693 [00:18<00:17, 17.38it/s]Loading weights:  58%|█████▊    | 399/693 [00:19<00:23, 12.60it/s]Loading weights:  58%|█████▊    | 403/693 [00:20<00:24, 11.90it/s]Loading weights:  59%|█████▊    | 406/693 [00:21<00:34,  8.42it/s]Loading weights:  61%|██████    | 423/693 [00:21<00:20, 13.26it/s]Loading weights:  62%|██████▏   | 428/693 [00:22<00:25, 10.37it/s]Loading weights:  64%|██████▍   | 445/693 [00:23<00:16, 14.80it/s]Loading weights:  65%|██████▍   | 448/693 [00:24<00:23, 10.46it/s]Loading weights:  66%|██████▌   | 459/693 [00:24<00:16, 13.86it/s]Loading weights:  67%|██████▋   | 464/693 [00:25<00:21, 10.47it/s]Loading weights:  68%|██████▊   | 473/693 [00:26<00:22,  9.88it/s]Loading weights:  71%|███████   | 492/693 [00:26<00:11, 18.23it/s]Loading weights:  72%|███████▏  | 497/693 [00:28<00:17, 11.00it/s]Loading weights:  74%|███████▍  | 514/693 [00:28<00:12, 14.76it/s]Loading weights:  77%|███████▋  | 533/693 [00:28<00:07, 22.15it/s]Loading weights:  78%|███████▊  | 542/693 [00:29<00:06, 24.51it/s]Loading weights:  81%|████████▏ | 564/693 [00:29<00:03, 39.29it/s]Loading weights:  83%|████████▎ | 573/693 [00:30<00:05, 22.37it/s]Loading weights:  84%|████████▍ | 584/693 [00:30<00:04, 25.77it/s]Loading weights:  87%|████████▋ | 601/693 [00:30<00:02, 33.69it/s]Loading weights:  88%|████████▊ | 608/693 [00:31<00:02, 35.16it/s]Loading weights:  89%|████████▊ | 614/693 [00:31<00:02, 33.32it/s]Loading weights:  91%|█████████▏| 634/693 [00:31<00:01, 38.26it/s]Loading weights:  92%|█████████▏| 639/693 [00:31<00:01, 35.24it/s]Loading weights:  94%|█████████▍| 653/693 [00:32<00:00, 41.62it/s]Loading weights:  97%|█████████▋| 670/693 [00:32<00:00, 57.96it/s]Loading weights:  98%|█████████▊| 678/693 [00:32<00:00, 56.35it/s]Loading weights:  99%|█████████▉| 686/693 [00:32<00:00, 51.02it/s]Loading weights: 100%|██████████| 693/693 [00:32<00:00, 21.23it/s]
+  [ok] loaded in 37.5s
+
+--- probe 1: chat-template render ---
+  rendered_len=437 chars; tail (last 300):
+  "our response with a single line of the form 'Answer: <your answer>' where <your answer> is as short as possible (typically 1-5 words).<|im_end|>\n<|im_start|>user\nQuestion: What is the capital of France?\n\nReason briefly, then end with 'Answer: ...'.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+  open_thinking_blocks=[]  expected_off=True
+
+--- probe 2: short factual generation (256 tok greedy) ---
+  tok=16  early_stop=eos  tok/s=10.22
+  thinking_opener_first200chars=None
+  repetition_substring=None
+  contains 'Paris'=True  answer_marker=True
+  generation (first 500 chars): 'Paris is the capital and most populous city of France.\n\nAnswer: Paris'
+
+--- probe 3: real HotpotQA multi-hop (1024 tok) ---
+  prompt tokens (decoded len): 6334 chars; question: 'The director of the romantic comedy "Big Stone Gap" is based in what New York ci'
+  tok=51  early_stop=eos  tok/s=11.13
+  gold='Greenwich Village, New York City'  pred='New York City'  EM=0  F1=0.750
+  thinking_opener=None  repetition=None
+
+========================================================================
+[summary] wrote runs/04b_protocol_smoke_20260510T015803Z.json
+========================================================================
+  [OK ] phi-4-mini-instruct               fail_reasons=[]
+  [OK ] gemma-4-26b-a4b-it                fail_reasons=[]
+  [OK ] qwen3.6-35b-a3b-instruct          fail_reasons=[]
+
+[ok] all 3 models pass Option A protocol smoke. Safe to run 4.1b sweep.

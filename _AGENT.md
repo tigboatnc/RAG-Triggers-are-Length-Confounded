@@ -21,8 +21,8 @@
 | draft | `_draft.tex` paper-prose corpus (superset for the 4-page final paper) | **first pass shipped** — 1736 lines, 5 tables, 9 figures referenced, full structure (intro / related / background / method / setup / phase 0/1/2 / phase 4 design / discussion / limitations / repro / future / conclusion / appendix); 60 placeholder citations marked `TODO:` for future fill-in | `_draft.tex`, entry `2026-05-09 #9` |
 | 3 | ReaLM-Retrieve sim + GRIP sim + random baseline | **DONE** — full 18-trace sweep (3 models × 2 layer modes × 3 prompt classes × 5 000 tokens) landed in 91 min on A800; all sessions OK; schema clean | `scripts/crv/baseline_gates.py`, `scripts/03_baselines.py`, `scripts/run_phase3_sweep.sh`, `runs/phase3_triggers_*.{jsonl,json}`, `runs/phase3_<model>_<layer>.log`, entry `2026-05-09 #10` |
 | 4.1 | per-question multi-hop QA, 4 gates online, 200 q × 3 arch × `mid_stack` | **rejected** — full sweep ran but the prompt protocol was unfair across architectures (Qwen in default-thinking mode, Gemma in default-no-thinking mode, Phi in greedy-without-system-role-and-no-rep-penalty). Re-run as 4.1b under Option A protocol (entry `2026-05-10 #11`). The 4.1 JSONLs are kept as a regression baseline only, not for headline numbers. | `runs/phase4_qa_*_mid_stack.jsonl` (3 × 200 rows; mid_stack only) |
-| 4.1b | re-run under Option A unified-protocol (no thinking, system role, per-arch decoding hygiene) | **in progress** — patch + smoke validator landed, sweep pending compute slot | `scripts/04_run_qa.py` (patched), `scripts/04b_protocol_smoke.py`, entry `2026-05-10 #11` |
-| 4 (4.2-4.5) | earliness × trajectory-drift × cost showdown | not started — gated on 4.1b producing fair traces | `figs/efficiency_pareto.png`, `runs/phase4_showdown.csv` |
+| 4.1b | re-run under Option A unified-protocol (no thinking, system role, per-arch decoding hygiene) | **DONE** — 200 q × 3 arch landed; protocol fix recovered Qwen (EM 0.18 → 0.62) and Phi (0.27 → 0.44); Gemma roughly flat (0.58 → 0.50). Smoke validator green on all 3. | `runs/phase4_qa_*_mid_stack_v2.jsonl`, `runs/phase4_qa_*_v2.log`, entry `2026-05-10 #11` and `#12` |
+| 4 (4.2-4.5) | earliness × trajectory-drift × cost showdown | **DONE (first pass) — MIXED RESULT.** Drift-only latent gate does NOT sweep all 3 architectures at fr=0.30. Wins on Gemma vs ReaLM/GRIP (loses to random by 1pp), loses to ReaLM on Qwen, inconclusive on Phi (n=11 eligible). Lower fire rates (0.10/0.05) do not help. The latent-OR ablation (drift OR variance) flips Qwen back to a latent win. Headline-paper claim of "architecture-agnostic earliness" must be **retreated or rebuilt** — see entry `2026-05-10 #12`. | `runs/phase4_showdown_v2.csv`, `runs/phase4_showdown_v2_summary.json`, `figs/phase4_*.png`, `notebooks/phase4_showdown_walkthrough.ipynb`, entry `2026-05-10 #12` |
 
 ### Hardware
 
@@ -256,6 +256,74 @@ Conclusion: **Option A protocol verified end-to-end against the actual on-disk w
 - Smoke: pending (gated on env + model downloads finishing).
 - 4.1b sweep: pending (~4–5 h on A800 once smoke passes).
 - 4.2 / 4.3 / 4.4 / 4.5: still not started; 4.4 (b)+(c)+(d) ablations land naturally on top of 4.1b.
+
+---
+
+## 2026-05-10 #12 — Phase 4.1b sweep landed; first showdown is mixed; headline claim must retreat
+
+The 4.1b sweep finished cleanly (200 q × 3 models × `mid_stack` under Option A). Smoke validator green on all three. Sweep wall-time: Phi ~7 min, Gemma ~22 min, Qwen ~44 min on the A800. JSONLs at `runs/phase4_qa_<model>_mid_stack_v2.jsonl`. The 4.2-4.5 showdown ran in ~3 s on the resulting traces (`scripts/04_showdown.py` + `runs/phase4_showdown_v2_summary.json`). A non-technical walkthrough notebook now lives at `notebooks/phase4_showdown_walkthrough.ipynb` and re-executes end-to-end against the saved JSONLs / summary.
+
+### Protocol fix worked — but only on Phi and Qwen
+
+| model | EM old (4.1) | EM new (4.1b) | tokens old | tokens new | comment |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `phi-4-mini-instruct`     | 0.265 | **0.435** | 402.6 | 84.0  | repetition penalty + system role killed loops; tokens-per-answer collapsed 5×. |
+| `gemma-4-26b-a4b-it`      | 0.575 | 0.500 | 240.4 | 211.4 | small regression; could be noise on n=200 or a side effect of the explicit `system` role. Worth a 200-q ablation later. |
+| `qwen3.6-35b-a3b-instruct`| 0.180 | **0.620** | 512.0 | 156.0 | `enable_thinking=False` recovered the model entirely. Now the strongest of the three. |
+
+This is a clean win for the `_AGENT.md #11` diagnosis — Qwen and Phi were structurally hobbled in the 4.1 sweep, not bad models for the task. Gemma's small regression is a mild concern; it's the only model that already had the right protocol by accident in 4.1, and the `system`-role move may have shifted its behavior slightly. Calling it within-noise for now; rerun-as-ablation if it bites later.
+
+### Showdown headline (target fire rate = 0.30, validation split, n=40 per model)
+
+| arch | n_eligible | latent Δfrac | ReaLM Δfrac | GRIP Δfrac | random Δfrac | latent best? |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `phi-4-mini-instruct`      | **11** | −0.060 | −0.009 | +0.224 | +0.180 | no — INCONCLUSIVE (11 traces ≥3 steps; Phi answers in 1-2 steps under the new protocol, so `min_steps=3` filter throws away ~73% of validation traces). |
+| `gemma-4-26b-a4b-it`       | 40 | +0.036 | −0.130 | +0.015 | **+0.041** | beats ReaLM and GRIP, **loses to random by 1pp**. |
+| `qwen3.6-35b-a3b-instruct` | 34 | +0.213 | **+0.260** | +0.179 | +0.118 | beats GRIP and random, **loses to ReaLM by ~5pp**. |
+
+`Δfrac` = `mean_first_fire_frac_incorrect − mean_first_fire_frac_correct` — positive means the gate flags wrong answers earlier in the trace than right answers (which is the directly-paper-relevant earliness signal).
+
+**Sanity-fork at lower fire rates does not rescue the claim.**
+
+| fire rate | Phi latent vs best baseline | Gemma latent vs best | Qwen latent vs best |
+| --- | --- | --- | --- |
+| 0.30 | latent −0.06, GRIP +0.22 (loses) | latent +0.036, random +0.041 (loses by 1pp) | latent +0.213, ReaLM +0.260 (loses) |
+| 0.10 | latent +0.076, ReaLM +0.241 (loses) | latent +0.061, random +0.154 (loses badly) | latent +0.066, GRIP +0.152 (loses badly) |
+| 0.05 | latent +0.024, GRIP +0.224 (loses) | latent −0.084, ReaLM +0.219 (loses badly) | latent +0.018, GRIP +0.190 (loses badly) |
+
+Lower fire rates **make the latent gate look worse**, not better — the opposite of what we'd hoped. So "tighten the threshold and the latent advantage emerges" is not on the table.
+
+### What *did* survive the showdown
+
+1. **Trajectory drift on Qwen.** Sorting the 34 Qwen validation traces into 5 quintiles by *when* the latent gate first fires, the **latest** quintile (gate fires only at end-of-trace) has **EM=1.0**, the **earliest** quintile has **EM=0.667** — a 33pp gap. The `never_fired` bucket also has EM=0.8. So the latent signal *does* track question difficulty: easy questions never trip the gate; hard ones trip it earlier. This is consistent with "drift before commitment is a real internal-state event," even if the head-to-head earliness loss says ReaLM's *"Hmm, wait"* phrase detector lands sooner on those same questions.
+2. **The OR ablation flips Qwen back to a latent win.** The 4.4(a) ablation tests three latent variants: drift-only, variance-only, drift-OR-variance. On Qwen, drift-OR-variance posts Δfrac = **+0.272**, which beats ReaLM's +0.260. On Gemma, OR posts +0.045 vs drift-only +0.036 — also a small win. **The headline gate of the paper should be the OR variant, not drift-only.** This was on the docket as Phase 4.4(a) anyway; it just becomes load-bearing earlier than expected.
+3. **EM-vs-cost is a separate Pareto story.** Qwen is now the most accurate of the three (EM=0.706 on the validation split) at the lowest token cost (145.1 tokens/q) — so the architecture-bracketing plot has a real winner. That's an ablation-of-architectures finding even before any gate analysis.
+
+### Headline retreat — three options, pick one for the writeup
+
+| option | claim | evidence | risk |
+| --- | --- | --- | --- |
+| **A — narrow:** "On the largest hybrid-MoE in our pool (Qwen3.6), the latent-OR gate fires earlier on incorrect answers than ReaLM-Retrieve and GRIP simulators, with a 33pp drift-vs-EM gap supporting that the signal is real." | drift-OR latent +0.272 vs ReaLM +0.260 on Qwen; quintile EM gap 0.667 → 1.0. | strong on n=34 traces. | sample-size sceptic ("n=34 validation, 1 architecture"). |
+| **B — honest negative:** "On HotpotQA-distractor under unified Option-A protocol, the drift-only latent gate does not consistently outperform text-based simulators (ReaLM, GRIP) or a same-rate random baseline; the OR-variant rescues the result on Qwen but not on Gemma. We report this as a negative-with-mechanism finding and pivot to Phase 4.6 (intervention) as the real test." | full table above. | most defensible. paper becomes a negative-results paper, which is unusual for a workshop submission but increasingly accepted. |
+| **C — methodological:** "We retire ReaLM-Retrieve simulator as a fair baseline. Its hesitation-phrase trigger is so aggressive on instruct-tuned 2026 models that it fires within the first 1-3 generated tokens of nearly every trace; this collapses the earliness comparison. We propose a new baseline {…} and rerun." | ReaLM `mean_first_fire_correct` = 1.0–1.6 across all three models in the table — it's firing at step 1 essentially always. | requires designing a new baseline; pushes the paper a phase. |
+
+**No decision yet.** Logging all three so we can come back. The user's prior call was "do A as headline; B and C as future work" for the *protocol* choice (Option A vs B vs C in entry #11) — *that* call is independent and stands. The new A/B/C above is the *writeup-framing* fork.
+
+### Sanity check (what I actually checked before logging)
+
+- `wc -l runs/phase4_qa_*_mid_stack_v2.jsonl` → all three at 200. Splits 120/40/40 in each. ✓
+- Smoke validator (`scripts/04b_protocol_smoke.py`) re-ran today: green on all 3. ✓
+- 4.1b headline EMs match the per-question records (mean over 200) and not just the 40-question validation cost row from the showdown summary. ✓ (ran a separate `pd` aggregation in the notebook.)
+- The OR ablation's flip on Qwen is real and not a fire-rate artefact: at fr=0.30, drift-only latent fires at 85.3% of traces, OR fires at 88.2%, ReaLM at 79.4% — comparable rates, not OR firing-on-everything. ✓
+- The GRIP threshold calibration bug from the first-pass showdown (`tau_z=0.0` because rolling-stats warmup steps polluted the calibration distribution) is patched and the patched run is what the table above reports. ✓
+- Phi's `n_eligible=11` is not a script bug — Phi traces have median 1 step under Option A (the early-stop on `Answer:` fires immediately), which makes any earliness analysis structurally unfair to Phi. **Action:** Phi-only rerun with `min_steps=2` is on the docket; for now Phi's row is marked INCONCLUSIVE in the showdown table.
+
+### Concrete next steps (gate the writeup decision)
+
+1. **Phi-only rerun with `min_steps=2`** in `04_showdown.py` (~1 min of compute). Will tell us whether Phi is actually informative or whether short traces are an honest dead end.
+2. **Ablate the system-role change on Gemma** by re-running 200 q with Gemma's system instruction *back* in the user message (only differential test). Resolves whether Gemma's EM dip 0.575 → 0.500 is protocol-induced or noise.
+3. **Decide A/B/C** above. Until then, no paper-text edits past Phase 3.
+4. (futures) Phase 4.6 *intervention* — pause-and-correct on gate fire, measure EM lift. If latent gate gives EM lift even when its earliness Δfrac is tied with random, the *intervention* utility may be the real headline.
 
 ---
 

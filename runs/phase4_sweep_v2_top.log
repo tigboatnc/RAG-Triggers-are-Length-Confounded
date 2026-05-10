@@ -5,3 +5,9 @@
 [sweep-v2] phi-4-mini-instruct_mid_stack_v2 OK in 383s -> runs/phase4_qa_phi-4-mini-instruct_mid_stack_v2.log
 
 [sweep-v2] === gemma-4-26b-a4b-it_mid_stack_v2 === start 2026-05-10T02:10:21+00:00
+[sweep-v2] gemma-4-26b-a4b-it_mid_stack_v2 OK in 3193s -> runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_v2.log
+
+[sweep-v2] === qwen3.6-35b-a3b-instruct_mid_stack_v2 === start 2026-05-10T03:03:34+00:00
+[sweep-v2] qwen3.6-35b-a3b-instruct_mid_stack_v2 OK in 2637s -> runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_v2.log
+
+[sweep-v2] all done in 6213s

@@ -12,3 +12,15 @@
   [100/200] 5ae552bb55429908b63265d9 split=calibration  em=0 f1=0.4444 tok= 400 steps= 32 strategy=answer_marker  | avg/q= 15.5s  eta= 25.8m
   [120/200] 5ab8764155429919ba4e22fe split=calibration  em=1 f1=1.0 tok= 298 steps= 22 strategy=answer_marker  | avg/q= 15.7s  eta= 20.9m
   [140/200] 5a7ef49a5542994959419a91 split=calibration  em=1 f1=1.0 tok= 306 steps= 19 strategy=answer_marker  | avg/q= 15.7s  eta= 15.7m
+  [160/200] 5ac3891f554299741d48a284 split=calibration  em=0 f1=0.0 tok= 307 steps= 24 strategy=answer_marker  | avg/q= 16.2s  eta= 10.8m
+  [180/200] 5ac029655542992a796decb3 split=calibration  em=1 f1=1.0 tok= 128 steps= 10 strategy=answer_marker  | avg/q= 15.9s  eta=  5.3m
+  [200/200] 5adc872b5542994d58a2f62f split=test         em=0 f1=0.8 tok= 285 steps= 21 strategy=answer_marker  | avg/q= 15.8s  eta=  0.0m
+
+=== headline (Phase 4.1 -- gemma-4-26b-a4b-it / mid_stack) ===
+  n_ok           = 200  (n_err = 0)
+  EM             = 0.5000  (100/200)
+  token-F1       = 0.7275
+  mean tok/q     = 211.4
+  mean wall/q    = 15.79 s
+  extract strat. = {'answer_marker': 200}
+  out            = runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_v2.jsonl

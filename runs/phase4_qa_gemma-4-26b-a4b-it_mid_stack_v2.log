@@ -5,3 +5,10 @@
 [ok] loaded in 26.88s | rss 1.137 GB | VRAM 49883 MB
 [..] layer_mode=mid_stack  capture_subset=[15]
 [..] writing to runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_v2.jsonl
+  [ 20/200] 5ae48e7e55429913cc20449d split=validation   em=1 f1=1.0 tok= 128 steps=  8 strategy=answer_marker  | avg/q= 14.3s  eta= 42.9m
+  [ 40/200] 5a7b1d3b5542992d025e677a split=calibration  em=0 f1=0.8 tok= 265 steps= 30 strategy=answer_marker  | avg/q= 16.0s  eta= 42.8m
+  [ 60/200] 5ae4aba25542995ad6573e12 split=calibration  em=0 f1=0.4 tok= 270 steps= 12 strategy=answer_marker  | avg/q= 15.6s  eta= 36.5m
+  [ 80/200] 5ab42d6055429942dd415eb0 split=test         em=0 f1=0.8 tok= 144 steps= 11 strategy=answer_marker  | avg/q= 15.2s  eta= 30.5m
+  [100/200] 5ae552bb55429908b63265d9 split=calibration  em=0 f1=0.4444 tok= 400 steps= 32 strategy=answer_marker  | avg/q= 15.5s  eta= 25.8m
+  [120/200] 5ab8764155429919ba4e22fe split=calibration  em=1 f1=1.0 tok= 298 steps= 22 strategy=answer_marker  | avg/q= 15.7s  eta= 20.9m
+  [140/200] 5a7ef49a5542994959419a91 split=calibration  em=1 f1=1.0 tok= 306 steps= 19 strategy=answer_marker  | avg/q= 15.7s  eta= 15.7m

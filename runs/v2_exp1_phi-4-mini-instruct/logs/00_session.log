@@ -134,3 +134,9 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..] 110/500  em=50/110  steps=  5  tok= 160  wall=26.8s  elapsed=25.4min
 [..] 125/500  em=42/125  steps=  1  tok=  80  wall=6.9s  elapsed=25.6min
 [..] 115/500  em=51/115  steps=  1  tok=  96  wall=7.3s  elapsed=26.2min
+[..] 120/500  em=53/120  steps=  2  tok=  48  wall=10.1s  elapsed=26.9min
+[..] 130/500  em=45/130  steps=  0  tok=  64  wall=2.6s  elapsed=27.2min
+[..] 125/500  em=55/125  steps=  0  tok=  45  wall=1.6s  elapsed=27.9min
+[..] 135/500  em=47/135  steps=  3  tok= 112  wall=16.2s  elapsed=28.1min
+[..] 130/500  em=58/130  steps=  3  tok= 128  wall=16.0s  elapsed=28.7min
+[..] 140/500  em=50/140  steps=  0  tok=  22  wall=0.9s  elapsed=28.9min

@@ -178,6 +178,17 @@ def main() -> None:
         "--split-seed", type=int, default=None,
         help="Separate seed for the train/val/test partition. Defaults to --seed.",
     )
+    parser.add_argument(
+        "--exclude-ids-from", action="append", default=[],
+        help="Path to another slice JSONL whose `id`s should be excluded "
+             "from this sample. May be passed multiple times. Used to build "
+             "disjoint slices for v2 (e.g. exclude the v1 200-q calibration set).",
+    )
+    parser.add_argument(
+        "--all-test", action="store_true",
+        help="Override the 60/20/20 split: tag every row split='test'. Use when "
+             "this slice is purely a test set and calibration came from a prior slice.",
+    )
     args = parser.parse_args()
     if args.split_seed is None:
         args.split_seed = args.seed
@@ -209,9 +220,22 @@ def main() -> None:
         print(f"[!!] requested n={args.n} > {n_total}; clamping")
         args.n = n_total
 
+    excluded_ids: set[str] = set()
+    for excl_path in args.exclude_ids_from:
+        with open(excl_path) as ef:
+            for line in ef:
+                line = line.strip()
+                if not line:
+                    continue
+                excluded_ids.add(str(json.loads(line)["id"]))
+    if excluded_ids:
+        print(f"[..] excluding {len(excluded_ids)} ids from {args.exclude_ids_from}")
+
     rng = random.Random(args.seed)
     indices = list(range(n_total))
     rng.shuffle(indices)
+    if excluded_ids:
+        indices = [i for i in indices if str(ds[i]["id"]) not in excluded_ids]
     selected = sorted(indices[: args.n])
 
     # Materialize the records first so we can stratify on (level, type)
@@ -231,12 +255,15 @@ def main() -> None:
             "supporting_facts": _normalize_supporting_facts(item),
         })
 
-    split_assignment = _stratified_split(
-        records,
-        calib_frac=args.calibration_frac,
-        val_frac=args.validation_frac,
-        seed=args.split_seed,
-    )
+    if args.all_test:
+        split_assignment = ["test"] * len(records)
+    else:
+        split_assignment = _stratified_split(
+            records,
+            calib_frac=args.calibration_frac,
+            val_frac=args.validation_frac,
+            seed=args.split_seed,
+        )
 
     split_counts: dict[str, int] = {"calibration": 0, "validation": 0, "test": 0}
     cell_split_counts: dict[str, dict[str, int]] = {}

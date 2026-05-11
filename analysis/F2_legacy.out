@@ -1,78 +1,78 @@
-[..] phi_wiki500_ood: built 23 rows  (closed=500, oracle=104, thresholds_mode=variance, B=10000)
+[..] phi_wiki500_ood: built 136 rows  (closed=500, oracle=500, thresholds_mode=variance, B=10000)
 
 ====================================================================================================
-== phi_wiki500_ood :: all (n=23)  (n=23)
+== phi_wiki500_ood :: all (n=136)  (n=136)
 ====================================================================================================
-  lift_em:  helpful(+1)=2  neutral(0)=15  harmful(-1)=6  base_rate_helpful=8.7%
-  closed-book EM = 56.5%  F1 = 60.1%
-  oracle      EM = 39.1%  F1 = 44.3%  (Δ=-17.4 EM, -15.8 F1)
+  lift_em:  helpful(+1)=23  neutral(0)=95  harmful(-1)=18  base_rate_helpful=16.9%
+  closed-book EM = 35.3%  F1 = 42.0%
+  oracle      EM = 39.0%  F1 = 47.1%  (Δ=+3.7 EM, +5.2 F1)
 
   gate            fire%  rec_em  prec_em  fpr_em  harm   Δlift_em(point  [95% CI])         Δlift_f1(point  [95% CI])         prec(point [95% CI])
-  latent           4.3    0.0    0.0     4.8    0.0   +18.18 [ -5.00,+40.91]    +16.49 [ -5.74,+38.46]     +0.00 [ +0.00, +0.00]
-  etc             17.4    0.0    0.0    19.0   25.0    -9.21 [-76.19,+35.00]    -20.73 [-80.52,+22.85]     +0.00 [ +0.00, +0.00]
-  selfdoubt_t1     4.3    0.0    0.0     4.8  100.0   -86.36 [-109.52,-63.64]    -88.06 [-109.63,-67.56]     +0.00 [ +0.00, +0.00]
-  dragin          52.2    0.0    0.0    57.1   25.0   -15.91 [-63.08,+30.40]    -33.51 [-76.03, +6.99]     +0.00 [ +0.00, +0.00]
-  random          87.0    0.0    0.0    95.2   30.0   -96.67 [-145.00,-23.81]    -94.80 [-141.00,-23.39]     +0.00 [ +0.00, +0.00]
+  latent           8.8    4.3    8.3     9.7   16.7   -13.17 [-45.32,+16.83]    -13.88 [-41.38,+14.39]     +8.33 [ +0.00,+28.57]
+  etc             10.3   13.0   21.4     9.7   14.3    +3.86 [-29.63,+37.16]     -6.35 [-39.45,+27.34]    +21.43 [ +0.00,+45.45]
+  selfdoubt_t1     4.4   13.0   50.0     2.7   16.7   +31.03 [-43.82,+96.99]    +15.36 [-64.24,+90.22]    +50.00 [ +0.00,+100.00]
+  dragin          35.3   43.5   20.8    33.6   18.8    -2.46 [-23.12,+18.67]     -7.58 [-27.95,+12.89]    +20.83 [+10.00,+33.33]
+  random          79.4   65.2   13.9    82.3   15.7   -26.85 [-48.82, -5.28]    -28.10 [-49.51, -6.50]    +13.89 [ +7.62,+20.56]
 
   Paired margins (latent − baseline). 2-sided p, Bonferroni @ α=0.05/4=0.0125.
     -- lift_em --
-      latent − etc             Δ=+27.39  [ -4.31, +73.48]  p2-sided=0.5329  P(>0)=0.661  
-      latent − selfdoubt_t1    Δ=+104.55  [+104.55, +115.00]  p2-sided=0.0000  P(>0)=1.000  ***bonf
-      latent − dragin          Δ=+34.09  [ -8.10, +76.70]  p2-sided=0.1258  P(>0)=0.931  
-      latent − random          Δ=+114.85  [+46.54, +177.27]  p2-sided=0.0000  P(>0)=1.000  ***bonf
+      latent − etc             Δ=-17.04  [-65.83, +30.11]  p2-sided=0.4724  P(>0)=0.236  
+      latent − selfdoubt_t1    Δ=-44.20  [-115.14, +40.20]  p2-sided=0.2521  P(>0)=0.126  
+      latent − dragin          Δ=-10.71  [-47.64, +23.91]  p2-sided=0.5524  P(>0)=0.276  
+      latent − random          Δ=+13.68  [-22.49, +49.15]  p2-sided=0.4454  P(>0)=0.777  
     -- lift_f1 --
-      latent − etc             Δ=+37.22  [ -1.22, +75.01]  p2-sided=0.1421  P(>0)=0.883  
-      latent − selfdoubt_t1    Δ=+104.55  [+104.55, +115.00]  p2-sided=0.0000  P(>0)=1.000  ***bonf
-      latent − dragin          Δ=+50.00  [ +8.86, +90.10]  p2-sided=0.0126  P(>0)=0.994  *uncorr
-      latent − random          Δ=+111.29  [+43.07, +168.89]  p2-sided=0.0000  P(>0)=1.000  ***bonf
+      latent − etc             Δ= -7.53  [-53.46, +37.87]  p2-sided=0.7396  P(>0)=0.370  
+      latent − selfdoubt_t1    Δ=-29.24  [-107.92, +58.05]  p2-sided=0.4683  P(>0)=0.234  
+      latent − dragin          Δ= -6.30  [-40.16, +26.94]  p2-sided=0.7088  P(>0)=0.354  
+      latent − random          Δ=+14.22  [-19.14, +48.03]  p2-sided=0.4004  P(>0)=0.800  
     -- precision --
-      latent − etc             Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
-      latent − selfdoubt_t1    Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
-      latent − dragin          Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
-      latent − random          Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
+      latent − etc             Δ=-13.10  [-40.00, +14.29]  p2-sided=0.3174  P(>0)=0.159  
+      latent − selfdoubt_t1    Δ=-41.67  [-91.67,  +8.33]  p2-sided=0.0828  P(>0)=0.041  
+      latent − dragin          Δ=-12.50  [-28.26,  +6.12]  p2-sided=0.1560  P(>0)=0.078  
+      latent − random          Δ= -5.56  [-18.10, +13.11]  p2-sided=0.4516  P(>0)=0.226  
 
   McNemar on lift_em=+1 (helpful cohort only). Continuity-corrected χ², approx p.
-    latent vs etc             zero discordant pairs (a_only=0, b_only=0)
-    latent vs selfdoubt_t1    zero discordant pairs (a_only=0, b_only=0)
-    latent vs dragin          zero discordant pairs (a_only=0, b_only=0)
-    latent vs random          zero discordant pairs (a_only=0, b_only=0)
+    latent vs etc             a_only=  1  b_only=  3  both=  0  neither= 19  χ²=0.250  p_approx=0.8825
+    latent vs selfdoubt_t1    a_only=  1  b_only=  3  both=  0  neither= 19  χ²=0.250  p_approx=0.8825
+    latent vs dragin          a_only=  0  b_only=  9  both=  1  neither= 13  χ²=7.111  p_approx=0.0286
+    latent vs random          a_only=  0  b_only= 14  both=  1  neither=  8  χ²=12.071  p_approx=0.0024
 
 
 ====================================================================================================
-== phi_wiki500_ood :: split=ood_test (n=23)  (n=23)
+== phi_wiki500_ood :: split=ood_test (n=136)  (n=136)
 ====================================================================================================
-  lift_em:  helpful(+1)=2  neutral(0)=15  harmful(-1)=6  base_rate_helpful=8.7%
-  closed-book EM = 56.5%  F1 = 60.1%
-  oracle      EM = 39.1%  F1 = 44.3%  (Δ=-17.4 EM, -15.8 F1)
+  lift_em:  helpful(+1)=23  neutral(0)=95  harmful(-1)=18  base_rate_helpful=16.9%
+  closed-book EM = 35.3%  F1 = 42.0%
+  oracle      EM = 39.0%  F1 = 47.1%  (Δ=+3.7 EM, +5.2 F1)
 
   gate            fire%  rec_em  prec_em  fpr_em  harm   Δlift_em(point  [95% CI])         Δlift_f1(point  [95% CI])         prec(point [95% CI])
-  latent           4.3    0.0    0.0     4.8    0.0   +18.18 [ -5.00,+42.86]    +16.49 [ -6.92,+39.23]     +0.00 [ +0.00, +0.00]
-  etc             17.4    0.0    0.0    19.0   25.0    -9.21 [-75.00,+36.36]    -20.73 [-81.03,+24.11]     +0.00 [ +0.00, +0.00]
-  selfdoubt_t1     4.3    0.0    0.0     4.8  100.0   -86.36 [-109.09,-63.64]    -88.06 [-109.85,-67.05]     +0.00 [ +0.00, +0.00]
-  dragin          52.2    0.0    0.0    57.1   25.0   -15.91 [-63.08,+31.25]    -33.51 [-76.17, +6.67]     +0.00 [ +0.00, +0.00]
-  random          87.0    0.0    0.0    95.2   30.0   -96.67 [-145.45,-25.00]    -94.80 [-141.11,-24.07]     +0.00 [ +0.00, +0.00]
+  latent           8.8    4.3    8.3     9.7   16.7   -13.17 [-44.37,+16.67]    -13.88 [-41.02,+13.90]     +8.33 [ +0.00,+27.27]
+  etc             10.3   13.0   21.4     9.7   14.3    +3.86 [-30.32,+37.35]     -6.35 [-40.30,+27.70]    +21.43 [ +0.00,+45.47]
+  selfdoubt_t1     4.4   13.0   50.0     2.7   16.7   +31.03 [-41.03,+97.04]    +15.36 [-62.24,+90.88]    +50.00 [ +0.00,+100.00]
+  dragin          35.3   43.5   20.8    33.6   18.8    -2.46 [-22.92,+18.13]     -7.58 [-27.81,+13.01]    +20.83 [+10.00,+32.69]
+  random          79.4   65.2   13.9    82.3   15.7   -26.85 [-48.51, -5.57]    -28.10 [-49.51, -7.31]    +13.89 [ +7.69,+20.75]
 
   Paired margins (latent − baseline). 2-sided p, Bonferroni @ α=0.05/4=0.0125.
     -- lift_em --
-      latent − etc             Δ=+27.39  [ -4.48, +73.49]  p2-sided=0.5559  P(>0)=0.658  
-      latent − selfdoubt_t1    Δ=+104.55  [+104.55, +115.00]  p2-sided=0.0000  P(>0)=1.000  ***bonf
-      latent − dragin          Δ=+34.09  [ -7.13, +78.48]  p2-sided=0.1190  P(>0)=0.934  
-      latent − random          Δ=+114.85  [+46.54, +177.27]  p2-sided=0.0000  P(>0)=1.000  ***bonf
+      latent − etc             Δ=-17.04  [-65.02, +30.33]  p2-sided=0.4754  P(>0)=0.238  
+      latent − selfdoubt_t1    Δ=-44.20  [-116.72, +34.46]  p2-sided=0.2256  P(>0)=0.113  
+      latent − dragin          Δ=-10.71  [-47.05, +23.57]  p2-sided=0.5438  P(>0)=0.272  
+      latent − random          Δ=+13.68  [-21.83, +48.86]  p2-sided=0.4392  P(>0)=0.780  
     -- lift_f1 --
-      latent − etc             Δ=+37.22  [ -1.25, +75.04]  p2-sided=0.1487  P(>0)=0.884  
-      latent − selfdoubt_t1    Δ=+104.55  [+104.55, +115.00]  p2-sided=0.0000  P(>0)=1.000  ***bonf
-      latent − dragin          Δ=+50.00  [+10.32, +91.83]  p2-sided=0.0085  P(>0)=0.996  ***bonf
-      latent − random          Δ=+111.29  [+44.50, +169.65]  p2-sided=0.0000  P(>0)=1.000  ***bonf
+      latent − etc             Δ= -7.53  [-52.31, +37.54]  p2-sided=0.7462  P(>0)=0.373  
+      latent − selfdoubt_t1    Δ=-29.24  [-107.94, +54.51]  p2-sided=0.4598  P(>0)=0.230  
+      latent − dragin          Δ= -6.30  [-40.06, +26.00]  p2-sided=0.7032  P(>0)=0.352  
+      latent − random          Δ=+14.22  [-17.90, +46.86]  p2-sided=0.3912  P(>0)=0.804  
     -- precision --
-      latent − etc             Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
-      latent − selfdoubt_t1    Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
-      latent − dragin          Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
-      latent − random          Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
+      latent − etc             Δ=-13.10  [-40.00, +14.29]  p2-sided=0.3142  P(>0)=0.157  
+      latent − selfdoubt_t1    Δ=-41.67  [-91.67,  +7.69]  p2-sided=0.0811  P(>0)=0.041  
+      latent − dragin          Δ=-12.50  [-28.57,  +5.84]  p2-sided=0.1512  P(>0)=0.076  
+      latent − random          Δ= -5.56  [-18.02, +12.65]  p2-sided=0.4508  P(>0)=0.225  
 
   McNemar on lift_em=+1 (helpful cohort only). Continuity-corrected χ², approx p.
-    latent vs etc             zero discordant pairs (a_only=0, b_only=0)
-    latent vs selfdoubt_t1    zero discordant pairs (a_only=0, b_only=0)
-    latent vs dragin          zero discordant pairs (a_only=0, b_only=0)
-    latent vs random          zero discordant pairs (a_only=0, b_only=0)
+    latent vs etc             a_only=  1  b_only=  3  both=  0  neither= 19  χ²=0.250  p_approx=0.8825
+    latent vs selfdoubt_t1    a_only=  1  b_only=  3  both=  0  neither= 19  χ²=0.250  p_approx=0.8825
+    latent vs dragin          a_only=  0  b_only=  9  both=  1  neither= 13  χ²=7.111  p_approx=0.0286
+    latent vs random          a_only=  0  b_only= 14  both=  1  neither=  8  χ²=12.071  p_approx=0.0024
 
 [ok] wrote runs/v2_exp1_phi-4-mini-instruct/F2_analysis_wiki.json

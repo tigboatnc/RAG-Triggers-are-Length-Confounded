@@ -1,0 +1,74 @@
+{
+  "thresholds": {
+    "drift": 0.0,
+    "variance": 0.0,
+    "etc": 0.0,
+    "selfdoubt_t1": 0.0,
+    "dragin": 0.0
+  },
+  "latent_mode_chosen": "drift",
+  "random_p": 0.3,
+  "calibration_cohort_n": 61,
+  "splits_used": [
+    "calibration",
+    "validation",
+    "test"
+  ],
+  "target_trace_fire_rate": 0.3,
+  "observed_trace_fire_rates": {
+    "latent": 1.0,
+    "etc": 1.0,
+    "selfdoubt_t1": 0.01639344262295082,
+    "dragin": 1.0,
+    "random": 0.8852459016393442
+  },
+  "cv_details": {
+    "per_fold_deltafrac": {
+      "drift": [
+        0.0716269841269841,
+        0.17763347763347764,
+        0.025595238095238115,
+        0.10137987012987015,
+        -0.00471781305114638
+      ],
+      "variance": [
+        0.0716269841269841,
+        0.17763347763347764,
+        0.025595238095238115,
+        0.10137987012987015,
+        -0.00471781305114638
+      ],
+      "or": [
+        0.0716269841269841,
+        0.17763347763347764,
+        0.025595238095238115,
+        0.10137987012987015,
+        -0.00471781305114638
+      ]
+    },
+    "mean_deltafrac": {
+      "drift": 0.07430355138688473,
+      "variance": 0.07430355138688473,
+      "or": 0.07430355138688473
+    },
+    "min_deltafrac": {
+      "drift": -0.00471781305114638,
+      "variance": -0.00471781305114638,
+      "or": -0.00471781305114638
+    },
+    "kfold": 5
+  },
+  "args": {
+    "closed_book": "runs/phase4_qa_phi-4-mini-instruct_mid_stack_dragin.jsonl",
+    "splits": [
+      "calibration",
+      "validation",
+      "test"
+    ],
+    "target_trace_fire_rate": 0.3,
+    "kfold": 5,
+    "seed": 20260511,
+    "min_steps": 3,
+    "out": "runs/v2_exp1_phi-4-mini-instruct/C2_calibration.json"
+  }
+}

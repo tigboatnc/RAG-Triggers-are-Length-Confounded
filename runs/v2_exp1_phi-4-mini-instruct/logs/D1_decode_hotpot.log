@@ -1,0 +1,20 @@
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 500 questions (split filter: all)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:55,  3.47it/s]Loading weights:   8%|▊         | 16/194 [00:00<00:03, 48.83it/s]Loading weights:  14%|█▍        | 28/194 [00:00<00:02, 69.67it/s]Loading weights:  21%|██        | 40/194 [00:00<00:01, 82.50it/s]Loading weights:  27%|██▋       | 52/194 [00:00<00:01, 91.98it/s]Loading weights:  33%|███▎      | 64/194 [00:00<00:01, 97.11it/s]Loading weights:  39%|███▉      | 76/194 [00:00<00:01, 102.05it/s]Loading weights:  45%|████▌     | 88/194 [00:01<00:01, 105.56it/s]Loading weights:  52%|█████▏    | 100/194 [00:01<00:00, 108.11it/s]Loading weights:  58%|█████▊    | 112/194 [00:01<00:00, 108.55it/s]Loading weights:  64%|██████▍   | 124/194 [00:01<00:00, 108.06it/s]Loading weights:  70%|███████   | 136/194 [00:01<00:00, 107.98it/s]Loading weights:  76%|███████▋  | 148/194 [00:01<00:00, 108.32it/s]Loading weights:  82%|████████▏ | 160/194 [00:01<00:00, 109.54it/s]Loading weights:  89%|████████▊ | 172/194 [00:01<00:00, 110.64it/s]Loading weights:  96%|█████████▋| 187/194 [00:01<00:00, 119.77it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 98.57it/s] 
+[ok] loaded in 3.83s | rss 1.032 GB | VRAM 16219 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=3, T=0.6, top_p=0.9)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_exp1_phi-4-mini-instruct/D1_closed_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8651.86it/s]
+[..]   5/500  em=2/5  steps=  4  tok=  80  wall=22.6s  elapsed=2.9min
+[..]  10/500  em=2/10  steps=  4  tok= 112  wall=21.4s  elapsed=4.1min
+[..]  15/500  em=4/15  steps=  0  tok=  48  wall=1.7s  elapsed=4.9min
+[..]  20/500  em=4/20  steps=  0  tok=  48  wall=1.9s  elapsed=5.7min
+[..]  25/500  em=6/25  steps=  1  tok=  80  wall=7.3s  elapsed=6.2min
+[..]  30/500  em=9/30  steps=  0  tok=  22  wall=1.0s  elapsed=7.6min
+[..]  35/500  em=10/35  steps=  3  tok=  80  wall=15.6s  elapsed=8.6min

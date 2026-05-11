@@ -1,8 +1,8 @@
 [..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 5 questions (split filter: all; limit 5)
 [..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
 [transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
-Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:38,  5.04it/s]Loading weights:   8%|▊         | 16/194 [00:00<00:02, 62.74it/s]Loading weights:  18%|█▊        | 34/194 [00:00<00:01, 98.75it/s]Loading weights:  26%|██▌       | 50/194 [00:00<00:01, 118.25it/s]Loading weights:  33%|███▎      | 64/194 [00:00<00:01, 124.25it/s]Loading weights:  41%|████      | 80/194 [00:00<00:00, 135.20it/s]Loading weights:  49%|████▉     | 95/194 [00:00<00:00, 136.64it/s]Loading weights:  57%|█████▋    | 111/194 [00:00<00:00, 140.98it/s]Loading weights:  65%|██████▍   | 126/194 [00:01<00:00, 133.27it/s]Loading weights:  72%|███████▏  | 140/194 [00:01<00:00, 134.35it/s]Loading weights:  79%|███████▉  | 154/194 [00:01<00:00, 124.85it/s]Loading weights:  86%|████████▌ | 167/194 [00:01<00:00, 125.88it/s]Loading weights:  93%|█████████▎| 180/194 [00:01<00:00, 125.25it/s]Loading weights:  99%|█████████▉| 193/194 [00:01<00:00, 125.35it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 120.08it/s]
-[ok] loaded in 3.83s | rss 1.023 GB | VRAM 8105 MB
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:47,  4.08it/s]Loading weights:   8%|▊         | 16/194 [00:00<00:03, 54.16it/s]Loading weights:  16%|█▌        | 31/194 [00:00<00:01, 84.83it/s]Loading weights:  22%|██▏       | 43/194 [00:00<00:01, 93.78it/s]Loading weights:  29%|██▉       | 57/194 [00:00<00:01, 105.61it/s]Loading weights:  36%|███▌      | 69/194 [00:00<00:01, 109.05it/s]Loading weights:  42%|████▏     | 81/194 [00:00<00:01, 111.58it/s]Loading weights:  48%|████▊     | 94/194 [00:00<00:00, 113.38it/s]Loading weights:  56%|█████▌    | 109/194 [00:01<00:00, 121.36it/s]Loading weights:  63%|██████▎   | 122/194 [00:01<00:00, 121.08it/s]Loading weights:  70%|██████▉   | 135/194 [00:01<00:00, 118.79it/s]Loading weights:  76%|███████▋  | 148/194 [00:01<00:00, 109.64it/s]Loading weights:  85%|████████▌ | 165/194 [00:01<00:00, 123.02it/s]Loading weights:  92%|█████████▏| 178/194 [00:01<00:00, 119.99it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 108.70it/s]
+[ok] loaded in 3.65s | rss 1.023 GB | VRAM 8105 MB
 [..] layer_mode=mid_stack  capture_subset=[16]
 [..] dragin_attn_layer_idx=31 (override=None)
 [..] verbalized confidence probe ready (max_probe_tokens=12)
@@ -10,4 +10,10 @@
 [!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
 [..] writing runs/v2_exp1_phi-4-mini-instruct/B_smoke_hotpot.jsonl
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 9186.50it/s]
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8187.19it/s]
+[..]   5/5  em=2/5  steps=  4  tok=  80  wall=16.6s  elapsed=2.3min
+[ok] wrote 5 rows to runs/v2_exp1_phi-4-mini-instruct/B_smoke_hotpot.jsonl
+[ok] em rate: 2/5 = 0.400
+[B-check] n_traces=5  n_steps=[3, 0, 4, 20, 4]  ans_len=[16, 4, 3, 21, 18]
+[B-check] n_usable=4/5
+[B-check] PASS

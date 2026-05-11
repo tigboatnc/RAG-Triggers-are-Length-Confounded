@@ -1,15 +1,23 @@
-[2026-05-11T14:53:21Z] exp1 starting
-[2026-05-11T14:53:21Z] MODEL_NAME=phi-4-mini-instruct
-[2026-05-11T14:53:21Z] MODEL_DIR=models/phi-4-mini-instruct
-[2026-05-11T14:53:21Z] V1_SLICE=data/hotpotqa_distractor_200.jsonl
-[2026-05-11T14:53:21Z] HOTPOT_TEST_SLICE=data/hotpotqa_distractor_500_v2test.jsonl
-[2026-05-11T14:53:21Z] WIKI_TEST_SLICE=data/2wikimultihop_distractor_500_v2test.jsonl
-[2026-05-11T14:53:21Z] RUN_DIR=runs/v2_exp1_phi-4-mini-instruct
-[2026-05-11T14:53:21Z] git rev: 28db418
-[2026-05-11T14:53:21Z] python:  Python 3.11.15
-[2026-05-11T14:53:21Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
-[2026-05-11T14:53:21Z] ==== STEP A.1: HotpotQA-500 test slice (disjoint from v1, all rows tagged split=test) ====
-[2026-05-11T14:53:21Z] A.1: slice already exists, skipping
-[2026-05-11T14:53:21Z] ==== STEP A.2: 2WikiMHQA-500 test slice (OOD) ====
-[2026-05-11T14:53:21Z] A.2: slice already exists, skipping
-[2026-05-11T14:53:21Z] ==== STEP B: smoke decode (Phi on 5 HotpotQA v2-test questions) ====
+[2026-05-11T14:59:04Z] exp1 starting
+[2026-05-11T14:59:04Z] MODEL_NAME=phi-4-mini-instruct
+[2026-05-11T14:59:04Z] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-11T14:59:04Z] V1_SLICE=data/hotpotqa_distractor_200.jsonl
+[2026-05-11T14:59:04Z] HOTPOT_TEST_SLICE=data/hotpotqa_distractor_500_v2test.jsonl
+[2026-05-11T14:59:04Z] WIKI_TEST_SLICE=data/2wikimultihop_distractor_500_v2test.jsonl
+[2026-05-11T14:59:04Z] RUN_DIR=runs/v2_exp1_phi-4-mini-instruct
+[2026-05-11T14:59:04Z] git rev: 1ee8776
+[2026-05-11T14:59:04Z] python:  Python 3.11.15
+[2026-05-11T14:59:04Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-11T14:59:04Z] ==== STEP A.1: HotpotQA-500 test slice (disjoint from v1, all rows tagged split=test) ====
+[2026-05-11T14:59:04Z] A.1: slice already exists, skipping
+[2026-05-11T14:59:04Z] ==== STEP A.2: 2WikiMHQA-500 test slice (OOD) ====
+[2026-05-11T14:59:04Z] A.2: slice already exists, skipping
+[2026-05-11T14:59:04Z] ==== STEP B: smoke decode (Phi on 5 HotpotQA v2-test questions) ====
+[2026-05-11T15:01:34Z] ==== STEP C.1: ensure v1 calibration traces exist at runs/phase4_qa_phi-4-mini-instruct_mid_stack_dragin.jsonl ====
+[2026-05-11T15:01:34Z] C.1: v1 trace file present, skipping
+[2026-05-11T15:01:34Z] ==== STEP C.2: calibrate (5-fold CV on all 200 v1 rows, trace-level iso-0.30) ====
+[2026-05-11T15:01:34Z] ==== STEP D.1 + D.2: closed-book decodes in PARALLEL (HotpotQA-500 + 2WikiMHQA-500) ====
+[2026-05-11T15:01:34Z] D.1 + D.2 share GPU; Phi-4-mini @ bf16 ~8 GB/proc; expect ~15-30 GB total VRAM
+[2026-05-11T15:01:34Z] D.1 launched as pid=24873
+[2026-05-11T15:01:34Z] D.2 launched as pid=24880
+[2026-05-11T15:01:34Z] waiting for D.1 (pid=24873) and D.2 (pid=24880)...

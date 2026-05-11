@@ -95,11 +95,12 @@ python scripts/04f_run_qa_sota.py \
 # Sanity check: at least 4/5 should have n_steps >= 3 and a non-empty answer.
 python - <<EOF | tee -a "${LOG_DIR}/B_smoke.log"
 import json
-rows = [json.loads(l) for l in open("${RUN_DIR}/B_smoke.jsonl".replace("B_smoke.jsonl","B_smoke_hotpot.jsonl")) if l.strip()]
+rows = [json.loads(l) for l in open("${RUN_DIR}/B_smoke_hotpot.jsonl") if l.strip()]
 nsteps = [r.get("n_steps", 0) for r in rows]
-ans_lens = [len(r.get("answer", "") or "") for r in rows]
+# trace schema uses model_answer_extracted, not "answer" (which was a v1-era alias)
+ans_lens = [len((r.get("model_answer_extracted") or "")) for r in rows]
 print(f"[B-check] n_traces={len(rows)}  n_steps={nsteps}  ans_len={ans_lens}")
-ok = sum(1 for r in rows if r.get("n_steps", 0) >= 3 and (r.get("answer") or "").strip())
+ok = sum(1 for r in rows if r.get("n_steps", 0) >= 3 and (r.get("model_answer_extracted") or "").strip())
 print(f"[B-check] n_usable={ok}/{len(rows)}")
 if ok < 3:
     raise SystemExit("smoke test FAILED: < 3/5 usable traces; investigate before launching long decode")
@@ -138,40 +139,65 @@ python scripts/04p_calibrate.py \
 # ---------------------------------------------------------------------
 # Phase D — Closed-book decode on both test slices
 # ---------------------------------------------------------------------
-step "D.1: closed-book decode on HotpotQA-500 v2-test"
-python scripts/04f_run_qa_sota.py \
-  --model "${MODEL_NAME}" \
-  --model-dir "${MODEL_DIR}" \
-  --dataset "${HOTPOT_TEST_SLICE}" \
-  --layer-mode mid_stack \
-  --output "${RUN_DIR}/D1_closed_hotpot.jsonl" \
-  2>&1 | tee "${LOG_DIR}/D1_decode_hotpot.log"
-
-step "D.2: closed-book decode on 2WikiMHQA-500 v2-test (OOD)"
-python scripts/04f_run_qa_sota.py \
-  --model "${MODEL_NAME}" \
-  --model-dir "${MODEL_DIR}" \
-  --dataset "${WIKI_TEST_SLICE}" \
-  --layer-mode mid_stack \
-  --output "${RUN_DIR}/D2_closed_wiki.jsonl" \
-  2>&1 | tee "${LOG_DIR}/D2_decode_wiki.log"
+step "D.1 + D.2: closed-book decodes in PARALLEL (HotpotQA-500 + 2WikiMHQA-500)"
+log "D.1 + D.2 share GPU; Phi-4-mini @ bf16 ~8 GB/proc; expect ~15-30 GB total VRAM"
+(
+  python scripts/04f_run_qa_sota.py \
+    --model "${MODEL_NAME}" \
+    --model-dir "${MODEL_DIR}" \
+    --dataset "${HOTPOT_TEST_SLICE}" \
+    --layer-mode mid_stack \
+    --output "${RUN_DIR}/D1_closed_hotpot.jsonl" \
+    2>&1 | tee "${LOG_DIR}/D1_decode_hotpot.log"
+) &
+PID_D1=$!
+log "D.1 launched as pid=${PID_D1}"
+(
+  python scripts/04f_run_qa_sota.py \
+    --model "${MODEL_NAME}" \
+    --model-dir "${MODEL_DIR}" \
+    --dataset "${WIKI_TEST_SLICE}" \
+    --layer-mode mid_stack \
+    --output "${RUN_DIR}/D2_closed_wiki.jsonl" \
+    2>&1 | tee "${LOG_DIR}/D2_decode_wiki.log"
+) &
+PID_D2=$!
+log "D.2 launched as pid=${PID_D2}"
+log "waiting for D.1 (pid=${PID_D1}) and D.2 (pid=${PID_D2})..."
+D_FAIL=0
+wait "${PID_D1}" || { log "D.1 FAILED (pid=${PID_D1}, exit=$?)"; D_FAIL=1; }
+wait "${PID_D2}" || { log "D.2 FAILED (pid=${PID_D2}, exit=$?)"; D_FAIL=1; }
+[[ ${D_FAIL} -eq 0 ]] || { log "ABORT after D parallel block: one or both decodes failed"; exit 1; }
+log "D.1 + D.2 done"
 
 # ---------------------------------------------------------------------
 # Phase E — Oracle-retrieve decode on both test slices
 # ---------------------------------------------------------------------
-step "E.1: oracle-retrieve decode on HotpotQA-500 v2-test"
-python scripts/04l_oracle_retrieve_decode.py \
-  --model "${MODEL_NAME}" \
-  --dataset "${HOTPOT_TEST_SLICE}" \
-  --output "${RUN_DIR}/E1_oracle_hotpot.jsonl" \
-  2>&1 | tee "${LOG_DIR}/E1_oracle_hotpot.log"
-
-step "E.2: oracle-retrieve decode on 2WikiMHQA-500 v2-test (OOD)"
-python scripts/04l_oracle_retrieve_decode.py \
-  --model "${MODEL_NAME}" \
-  --dataset "${WIKI_TEST_SLICE}" \
-  --output "${RUN_DIR}/E2_oracle_wiki.jsonl" \
-  2>&1 | tee "${LOG_DIR}/E2_oracle_wiki.log"
+step "E.1 + E.2: oracle-retrieve decodes in PARALLEL"
+(
+  python scripts/04l_oracle_retrieve_decode.py \
+    --model "${MODEL_NAME}" \
+    --dataset "${HOTPOT_TEST_SLICE}" \
+    --output "${RUN_DIR}/E1_oracle_hotpot.jsonl" \
+    2>&1 | tee "${LOG_DIR}/E1_oracle_hotpot.log"
+) &
+PID_E1=$!
+log "E.1 launched as pid=${PID_E1}"
+(
+  python scripts/04l_oracle_retrieve_decode.py \
+    --model "${MODEL_NAME}" \
+    --dataset "${WIKI_TEST_SLICE}" \
+    --output "${RUN_DIR}/E2_oracle_wiki.jsonl" \
+    2>&1 | tee "${LOG_DIR}/E2_oracle_wiki.log"
+) &
+PID_E2=$!
+log "E.2 launched as pid=${PID_E2}"
+log "waiting for E.1 (pid=${PID_E1}) and E.2 (pid=${PID_E2})..."
+E_FAIL=0
+wait "${PID_E1}" || { log "E.1 FAILED (pid=${PID_E1}, exit=$?)"; E_FAIL=1; }
+wait "${PID_E2}" || { log "E.2 FAILED (pid=${PID_E2}, exit=$?)"; E_FAIL=1; }
+[[ ${E_FAIL} -eq 0 ]] || { log "ABORT after E parallel block: one or both oracles failed"; exit 1; }
+log "E.1 + E.2 done"
 
 # ---------------------------------------------------------------------
 # Phase F — Analysis (frozen thresholds from Phase C)

@@ -25,11 +25,21 @@ from .vectors import CRVTracker
 from .triggers import CRVTrigger
 from .baseline_gates import (
     DISCOURSE_PATTERNS,
+    DraginGate,
+    EtcGate,
     GripSimGate,
+    HEDGE_PATTERNS,
     LatentGateAdapter,
     RandomGate,
     RealmRetrieveSimGate,
+    RealmRsusGate,
+    RSUS_THRESHOLD_DEFAULT,
+    RSUS_WEIGHTS_DEFAULT,
+    SelfDoubtFullGate,
+    SelfDoubtTier1Gate,
+    VERIFY_PATTERNS,
     discourse_marker_match,
+    hedge_verify_counts,
 )
 
 __all__ = [
@@ -38,9 +48,19 @@ __all__ = [
     "CRVTracker",
     "CRVTrigger",
     "DISCOURSE_PATTERNS",
+    "DraginGate",
+    "EtcGate",
     "GripSimGate",
+    "HEDGE_PATTERNS",
     "LatentGateAdapter",
     "RandomGate",
     "RealmRetrieveSimGate",
+    "RealmRsusGate",
+    "RSUS_THRESHOLD_DEFAULT",
+    "RSUS_WEIGHTS_DEFAULT",
+    "SelfDoubtFullGate",
+    "SelfDoubtTier1Gate",
+    "VERIFY_PATTERNS",
     "discourse_marker_match",
+    "hedge_verify_counts",
 ]

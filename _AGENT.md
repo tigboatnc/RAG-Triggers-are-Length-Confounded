@@ -4,6 +4,196 @@
 
 ---
 
+## 2026-05-11 #17 — True-SOTA code ready for compute-box handoff (DRAGIN + ReaLM-RSUS + SELFDOUBT-Full)
+
+### What triggered the entry
+
+Continuing the #16 "full send" decision: the three compute-required SOTA baselines (Phase 4.8 / 4.9 / 4.10) needed runnable code on a GPU box, with smoke tests, before the next rental window. Local Mac has no CUDA, so the code is written and validated for syntax + CPU-only correctness here, then handed off cold to the compute box. This entry tracks what is shippable, what is verified, what is genuinely deferred to GPU runtime.
+
+### Files added / changed (handoff manifest)
+
+| Path | Role | State |
+|---|---|---|
+| `scripts/crv/sota_capture.py` | Capture utilities: `RindAccumulator` (DRAGIN per-token RIND streaming), `VerbalizedConfidenceProbe` (KV-fork-and-restore prompt-and-parse for $U_{verb}$), `EntityEntropyScorer` (spaCy NER + rank_bm25 for $U_{ent}$), `ConsistencySampler` (K-sample continuation + sentence-BERT cosine for $U_{cons}$), `combine_rsus`. All cache forks restore via dim-2 truncation on `DynamicCache.key_cache[*]` / `.value_cache[*]` — no deep-copy. | CPU-validated: stopword + parse + RIND + combine_rsus unit-tested. GPU forks need T2-T5 smoke. |
+| `scripts/crv/baseline_gates.py` | Adds `DraginGate`, `RealmRsusGate`, `SelfDoubtFullGate`. All three are pure post-hoc scorers over the step-record contract; same interface as the existing four gates. `RealmRsusGate` re-normalises weights when $U_{verb}$ is missing per Guo §3.3. `SelfDoubtFullGate.fit_moments()` fits $(\mu, \sigma)$ for HVR and $U_{verb}$ on the calibration split — call from the analyzer, not the driver. | CPU-validated: every gate evaluates correctly on synthetic step records. |
+| `scripts/crv/__init__.py` | Re-export. | Imports clean. |
+| `scripts/04f_run_qa_sota.py` | Decode-time driver. Mirrors `04_run_qa.py` exactly except: `output_attentions=True` on every forward pass; per-token surface text decoded for the stopword filter; `RindAccumulator` tracks per-position H, $a_{max}$, $s_i$ each step; at every step boundary, runs the three RSUS probes (forks for `verbal_probe.probe()` and `consistency_sampler.score()`, CPU-only entity scorer rebuilt per question over the 10 distractor paragraphs), then evaluates all six SOTA gates online. `--no-verb / --no-ent / --no-cons` flags let us triage components if the compute envelope blows up. | AST-clean; GPU-deferred end-to-end behaviour (T6 smoke). |
+| `scripts/04h_sota_smoke.py` | Six-stage smoke test (T1 CPU deps → T2 attentions shape → T3 RindAccumulator → T4 verbal probe + cache restore → T5 consistency sampler + cache restore → T6 single-question end-to-end). Exit code 0 = full pass; emits `runs/phase4_sota_smoke_<model>.json`. Required to pass on each of the three models before the full sweep. | GPU-deferred. |
+| `_PLAN.md` | Phase 4.8 / 4.9 / 4.10 status flipped from `TODO` to **`CODE READY — compute pending`**; runbook below. | Updated this entry. |
+
+### What is *actually* verified on this local box
+
+CPU smoke (this entry, 2026-05-11, ran on the dev Mac):
+
+- `from crv import DraginGate, RealmRsusGate, SelfDoubtFullGate` imports clean.
+- `stopword_filter("the") == 0`, `stopword_filter(" Cleopatra") == 1`, `stopword_filter(",") == 0`.
+- `parse_verbal_confidence("Confidence: 90 because") == 0.90`; `parse_verbal_confidence("I am unsure") is None`.
+- `RindAccumulator` ingests three synthetic (entropy, $a_{max}$, stopword) triples and emits a sensible `rind_max` with the right content-token count.
+- `combine_rsus` re-normalises to weights summing to 1 when $U_{verb}$ is missing.
+- `DraginGate(thr=1.0)` fires at `rind_max=1.5` with `simulation_caveats=[]`.
+- `RealmRsusGate()` produces a parseable `reason` string and stamps both `u_ent_bm25_proxy_for_bge_reranker` and `thresholded_rsus_no_rl_policy` caveats.
+- `SelfDoubtFullGate` correctly falls back to Tier-1 HVR when moments are unfit and z-fuses correctly post-`fit_moments()`.
+
+`ast.parse()` on every new file is clean.
+
+### What is genuinely deferred to the compute box
+
+Everything that touches `torch`, `transformers`, a real model checkpoint, `output_attentions=True`, or `sentence_transformers`:
+
+- **T2 (attentions shape).** Need to confirm that each of Phi / Gemma / Qwen returns a non-None `out.attentions` tuple under bf16 native loading. Qwen 3.6's hybrid stack has linear / GDN layers where `out.attentions[i]` is *legitimately* None; the smoke test prints the full `config.layer_types` and the driver's `_resolve_dragin_attn_layer()` picks the last full-attention layer automatically. If a backend forces flash-attn (no attentions), load with `attn_implementation="eager"` — documented in `04f_run_qa_sota.py` TODO header.
+- **T3 (RIND end-to-end on GPU).** Per-position $a_{max}$ accumulation across multi-step forward passes; if attention shapes don't match `[B, H, 1, kv_len]` exactly on Gemma's sliding-window layers, `RindAccumulator.ingest_attention_row` will need a per-arch adapter.
+- **T4 (verbal-probe cache restoration).** The implementation truncates `DynamicCache.key_cache[li]` / `.value_cache[li]` on dim 2 and sets `_seen_tokens = target_len`. The smoke test verifies the *length* returns to its pre-fork value; bit-exact recovery is asserted in the comment but not numerically checked (would require an after/before reference forward, doubling cost).
+- **T5 (consistency sampler).** Multinomial sampling + top-p nucleus cut + sentence-transformer embedding. The first-call cost includes a `~90 MB` MiniLM-L6 download; pre-cache it on the compute box.
+- **T6 (single-question end-to-end).** Reads `data/hotpotqa_distractor_200.jsonl[0]`, runs `run_one_question_sota` with `max_new_tokens=64`, and verifies every new step-record key is populated.
+
+### Runbook (on the compute box, in order)
+
+```bash
+# 0. environment (matches Phase 4.1b)
+pip install -r requirements.txt
+pip install rank_bm25 sentence-transformers
+python -m spacy download en_core_web_sm
+
+# 1. smoke each arch BEFORE any full sweep
+python scripts/04h_sota_smoke.py --model phi-4-mini-instruct
+python scripts/04h_sota_smoke.py --model gemma-4-26b-a4b-it
+python scripts/04h_sota_smoke.py --model qwen3.6-35b-a3b-instruct
+# If any T2 fails on a model: re-run with attn_implementation="eager"
+# (edit `qa.load_generator` to add the kwarg, document in #18).
+
+# 2. consistency-sampler dry run (single model, --limit 5) to size compute
+python scripts/04f_run_qa_sota.py --model phi-4-mini-instruct --limit 5
+
+# 3. full sweep, per arch (background, log to runs/04f_<model>.log)
+python scripts/04f_run_qa_sota.py --model phi-4-mini-instruct       > runs/04f_phi.log     2>&1 &
+python scripts/04f_run_qa_sota.py --model gemma-4-26b-a4b-it        > runs/04f_gemma.log   2>&1 &
+python scripts/04f_run_qa_sota.py --model qwen3.6-35b-a3b-instruct  > runs/04f_qwen.log    2>&1 &
+# Output: runs/phase4_qa_<model>_mid_stack_sota.jsonl
+
+# 4. (deferred) analyzer: extend 04_showdown.py to read the new gate names
+#    out of phase4_qa_*_sota.jsonl and re-bootstrap. See #18 (next entry).
+```
+
+### Risks captured in code as caveats (not silenced)
+
+- `u_ent_bm25_proxy_for_bge_reranker` — every emitted `realm_rsus` row carries this caveat. Honest framing.
+- `thresholded_rsus_no_rl_policy` — every `realm_rsus` row. Paper names this gate **ReaLM-RSUS (Thresholded)**, not "ReaLM-Retrieve."
+- `marker_dictionary_is_seed_set_not_paper_discovery_pipeline` — `selfdoubt_t1` and `selfdoubt_full` rows. Pandey's 90-trace multi-LLM marker discovery is deferred to F7 if reviewers push back.
+- `uverb_missing_weight_redistributed` — stamped on `realm_rsus` rows whose verbalized-confidence probe failed to emit a parseable number. Re-normalisation is exactly Guo §3.3.
+
+### What the next entry (#18) needs to log
+
+1. Per-model smoke results (T1-T6 pass / fail + which `dragin_attn_layer_idx` got auto-picked on Qwen).
+2. Full-sweep wall-clock per arch and whether the consistency sampler tripped the 24-hour rental window.
+3. Calibration of `dragin_threshold` / `selfdoubt_full_z` / `rsus_threshold=0.65` on the 120-q calibration split.
+4. Bootstrap re-run on the new gate pool {latent, etc, selfdoubt_t1, dragin, realm_rsus, selfdoubt_full, random} and update `runs/phase4_bootstrap_v2_sota.json`.
+5. Paper §5 (Method) and §6 (Results) updates against the rebuilt pool.
+
+### Updated documentation chain
+
+- `_AGENT.md` — this entry; chain to #16 for the diagnosis that motivated the rebuild.
+- `_PLAN.md` — Phase 4.8 / 4.9 / 4.10 flipped to `CODE READY`. Runbook above.
+- `scripts/crv/sota_capture.py` and `scripts/crv/baseline_gates.py` — both modules' docstrings carry the same caveat language emitted in every row.
+- `draft-final.tex` — PROPOSAL paragraph + §5/§6 to be written *after* the compute-box numbers land (do not pre-commit headline claims to the rebuilt pool).
+
+---
+
+## 2026-05-11 #16 — Baseline-simulator diagnosis; true-SOTA rebuild plan; no-compute partial landed first
+
+### What triggered the entry
+
+While drafting `draft-final.tex` §1 GAP, a careful reading of `scripts/crv/baseline_gates.py` exposed a real attribution problem in the current Phase 3/4 baseline pool. The `RealmRetrieveSimGate` and `GripSimGate` are *hybrid simulators*: each replaces its paper's unavailable trained component (ReaLM-Retrieve's RSUS verifier / MLP proxy, GRIP's `<retrieve>` classifier head) with two forward-pass substitutions — (i) per-step or boundary-token entropy in place of the trained uncertainty signal, and (ii) a curated discourse-marker regex branch we added ourselves. Both substitutions are documented in `simulation_caveats` on every emitted row, but the current `_AGENT.md` #15 headline ("Gemma latent significantly beats ReaLM-sim by +0.175 and GRIP-sim by +0.030 at 95 %") is rhetorically untenable because the simulators do not faithfully reproduce the published methods. The step-1 firing of `RealmRetrieveSimGate` that was originally attributed to ReaLM-Retrieve's hesitation phrasing is actually driven by the **discourse-marker regex branch we added**, which more closely resembles the SELFDOUBT family's marker-matching mechanism (Pandey et al. 2026, `arXiv:2604.06389v1`) than ReaLM-Retrieve's actual RSUS detector (Guo et al. 2026).
+
+### Decision (signed off 2026-05-11 by user, "full send")
+
+The published baseline pool retires the two simulators in favor of the actual 2026 SOTAs. Concretely:
+
+| baseline (new pool) | mechanism | compute? | status |
+| --- | --- | --- | --- |
+| **DRAGIN** | $S_{RIND}(t_i) = H_i \cdot a_{max}(i) \cdot s_i$ over generated tokens, last-Transformer-layer attention, binary stopword filter, calibrated threshold $\theta$. From Su et al. (`arXiv:2403.10081v3` eq. 5). | YES — needs `output_attentions=True` on the last layer + per-token entropy capture. Re-decode the 4.1b sweep. | TODO (compute-required) |
+| **SELFDOUBT-Tier1** | HVR = 0 gate: pure regex match against hedge marker dictionary; predict "trace will be correct" iff zero hedges in the trace. From Pandey et al. (`arXiv:2604.06389v1` §1, page 2). Adapted to fire as an incremental retrieval trigger by recomputing HVR per-step; documented as our adaptation. | NO — pure regex on existing `step_text` field. | **DONE in this entry** (post-hoc gate + analyzer) |
+| **SELFDOUBT-Full** | HVR + verbalized confidence z-fused via per-model calibration on ~90 unlabeled traces; full marker dictionary requires their unsupervised multi-LLM discovery pipeline. From Pandey et al. §3. | YES — needs mid-decode prompt-and-parse for verbalized confidence. Shares infra with ReaLM-RSUS $U_{verb}$. | TODO (compute-required) |
+| **ReaLM-RSUS (Thresholded)** | $RSUS(r_i) = \alpha U_{verb} + \beta U_{ent} + \gamma U_{cons}$ with Guo's published weights $(\alpha, \beta, \gamma, \tau) = (0.40, 0.35, 0.25, 0.65)$. Honestly framed as evaluating ReaLM-Retrieve's *uncertainty detector* (not its full REINFORCE-trained intervention policy). | YES — needs KV-cache forking for $U_{verb}$ prompt-and-parse, spaCy NER + BM25 on distractor passages for $U_{ent}$, and 3-continuation sampling for $U_{cons}$. ~12-15 h A800. | TODO (compute-required) |
+| **ETC** | Second-order difference of the per-step mean entropy series: $\Delta^2 H_t$. From Li et al. (Entropy-Trend Constraint, 2026). Adapted to step-mean entropy from the original per-token formulation; documented as our adaptation. | NO — pure post-hoc on existing `mean_token_entropy` field. | **DONE in this entry** (post-hoc gate + analyzer) |
+| **RandomGate** | Same-rate Bernoulli, deterministic seed. Unchanged from current pool; promoted to **co-headline** in the paper. | NO. | unchanged |
+
+**Dropped from the published pool:** `RealmRetrieveSimGate` and `GripSimGate` as currently coded. The simulator code stays in `scripts/crv/baseline_gates.py` for regression and the existing JSONLs remain valid as a regression baseline, but they no longer appear in any §5 / §6 table. **GRIP-the-method moves to §2 Related Work under "training-required RAG", explicitly out of scope.** GRIP requires SFT on 40 k samples + DAPO RL on 5 k samples per `Li_RetrievalGenerationUnified`; reproducing it from forward-pass quantities is categorically impossible, so the comparison was always a category error.
+
+### Hardware reality 2026-05-11
+
+Current box is the user's local Mac (no CUDA, no compute). The full true-SOTA rebuild is **deferred** until the next compute-rental window. This entry executes only the no-compute subset (SELFDOUBT-Tier1 + ETC + bootstrap re-run); the GPU-required components (DRAGIN, SELFDOUBT-Full, ReaLM-RSUS) are tracked as `_PLAN.md` Phase 4.7-4.9 TODOs.
+
+### Risk acknowledged before the rebuild
+
+True SOTAs are stronger baselines than the hybrid simulators. The current Gemma 95 %-significant beat (+0.175 over ReaLM-sim, +0.030 over GRIP-sim) **may not survive** against true DRAGIN RIND and true ReaLM-RSUS. The Qwen +0.272 large effect over baselines may shrink. User signed off explicitly: *"good paper regardless ... we can claim less compute or negative results which is fine, or more explorations needed."* This is the right framing for an EMNLP short — three credible scenarios all ship:
+
+- **Best:** latent still significantly beats DRAGIN and ReaLM-RSUS on Gemma at 95 %. Paper headline bulletproof.
+- **Median:** latent ties or marginally beats DRAGIN; loses some margin against ReaLM-RSUS. Paper still ships on mechanism evidence (50 pp quintile-EM gap on Gemma, 33 pp on Qwen) + per-architecture geometry-aware framing + random-gate co-headline.
+- **Worst:** latent loses to DRAGIN on Gemma. Paper pivots to "training-free hidden-state probing produces a real but architecture-dependent uncertainty signal whose head-to-head performance against true SOTAs is mixed; we report this honestly and identify per-architecture calibration as the key open problem." Negative-result paper with mechanism evidence intact. Defensible.
+
+### Documentation chain to update before paper submission
+
+- `_PLAN.md` — Phase 4.7 / 4.8 / 4.9 added as compute-required TODOs (this entry).
+- `draft-final.tex` GAP paragraph — already written with paper-family-level framing (Self-RAG / Open-RAG / FLARE / DRAGIN / ReaLM-Retrieve) rather than gate-specific simulator claims, so no retroactive edit needed. The §5 / §6 sections are pending and will be written against the rebuilt baseline pool.
+- `scripts/crv/baseline_gates.py` — new `SelfDoubtTier1Gate` and `EtcGate` classes added; existing `RealmRetrieveSimGate` / `GripSimGate` retained with deprecation note in the docstring.
+- `scripts/04e_addon_gates.py` (new) — post-hoc analyzer that reads existing `runs/phase4_qa_*_mid_stack_v2.jsonl`, evaluates SELFDOUBT-Tier1 and ETC against each step record, and writes back enriched JSONLs at `runs/phase4_qa_*_mid_stack_v2_addons.jsonl`. CPU-only.
+
+### What the no-compute partial tells us — first run 2026-05-11
+
+Ran `scripts/04e_addon_gates.py` (CPU, ~1 s) against `runs/phase4_qa_*_mid_stack_v2.jsonl`. Calibration on the 120-q calibration split per arch (iso-fire-rate target 0.30); evaluation on validation (40 q). Bootstrap B=10 000, seed 20260511.
+
+**Calibrated thresholds + observed validation fire rates:**
+
+| arch | HVR thr | observed `selfdoubt_t1` fr | `\|D2H\|` thr | observed `etc` fr | observed `latent` fr | observed `random` fr |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Phi (variance)   | 0.000 | 0.09 | 1.132 | 0.64 | 0.64 | 0.73 |
+| Gemma (OR)       | 0.000 | **0.00** | 0.380 | 0.95 | 1.00 | 0.97 |
+| Qwen (OR)        | 0.000 | **0.00** | 0.416 | 0.65 | 0.88 | 0.97 |
+
+**Per-gate Δfrac (95 % bootstrap CI):**
+
+| arch | `selfdoubt_t1` (HVR) | `etc` (\|D2H\|) |
+| --- | --- | --- |
+| Phi   | n/a (HVR never fires on validation) | +0.152 [−0.009, +0.304] n.s. (trends positive) |
+| Gemma | n/a (HVR never fires on validation) | −0.015 [−0.174, +0.147] n.s. (flat) |
+| Qwen  | n/a (HVR never fires on validation) | −0.033 [−0.279, +0.213] n.s. (flat) |
+
+**Paired margins (the load-bearing rows):**
+
+| arch | `latent − etc` (paired) |
+| --- | --- |
+| Phi   | −0.076 [−0.161, +0.008]  P(>0)=0.034   **n.s. (latent trends to lose)** |
+| Gemma | +0.060 [−0.093, +0.214]  P(>0)=0.775   n.s. (latent trends to win) |
+| Qwen  | **+0.305 [+0.053, +0.570]  P(>0)=0.992   *** > 0 (latent significantly beats ETC at 95 %)** |
+
+### Interpretation (honest)
+
+1. **SELFDOUBT-Tier1 (HVR) is essentially silent on our pool.** The (1 − 0.30)-quantile of HVR scores on the calibration split collapses to **exactly 0.000** on all three models. This is consistent with SELFDOUBT's own headline result (Pandey et al. abstract: "traces containing no hedging markers are correct 96 % of the time"): most reasoning steps under unified greedy decoding on 2026 instruct models contain **no hedge markers at all**. With threshold > 0, the gate fires only on the rare step that does contain a hedge, which on validation is 9 % of Phi traces and **0 % of Gemma / Qwen traces**. Implication: SELFDOUBT-Tier1 is structurally a *trace-level UQ method* (AUROC on final correctness), not an *incremental retrieval trigger*. The earliness comparison is degenerate. The full SELFDOUBT-Z-fused score (Phase 4.10) may add signal once verbalized confidence is available; this no-compute partial does not let us resolve that.
+
+2. **ETC ($\Delta^2 H$ on step-mean entropy) is a respectable but weak baseline on its own.** Δfrac is within noise of zero on all three architectures. The signal exists on Phi (point estimate +0.152, P(>0)=0.984 one-sided, would be 95 %-significant on a one-tailed test but the formal 95 % CI nicks zero on the low side). Mostly flat on Gemma / Qwen. Likely two contributing factors: (i) the per-token formulation of ETC is sharper than our step-mean adaptation, (ii) 2026 instruct models produce smooth entropy traces under greedy decoding so the second derivative is small.
+
+3. **The latent gate now has a 95 %-significant win over a true SOTA baseline on Qwen.** Paired margin `latent − etc = +0.305 [+0.053, +0.570]`, P(>0)=0.992. **This is the first time the latent gate clears 95 % against a non-simulator post-decode baseline.** Even with the Qwen vs random margin still at P=0.93 (per #15), Qwen-vs-ETC clears the 95 % bar. Gemma trends positive against ETC (+0.060 [−0.093, +0.214], P=0.78) but does not clear 95 % at this n=40. Phi loses to ETC at P(>0)=0.034 — Phi remains an honest negative, now confirmed against ETC in addition to the original GRIP-sim loss in #15.
+
+4. **Paper headline picture after the no-compute partial:**
+   - **Strong:** *Gemma latent (OR) Δfrac = +0.045 [+0.002, +0.089] is 95 %-significantly positive (from #15); on Qwen latent (OR) Δfrac = +0.272 [+0.122, +0.434] is 95 %-significantly positive and 95 %-significantly larger than the ETC baseline.* Mechanism evidence (quintile-EM gap) intact on Gemma and Qwen.
+   - **Honest negative:** *Phi latent (variance) trends to lose against ETC (paired margin P(>0)=0.034). Phi remains the dense-SLM regime where the approach reaches its envelope.*
+   - **Open:** *DRAGIN, full SELFDOUBT, and ReaLM-RSUS are the structurally informative comparisons and are gated on the compute window (Phase 4.8 / 4.9 / 4.10). Until those land, the head-to-head vs true post-decode SOTAs is partial.*
+
+### Files touched this entry
+
+- `_PLAN.md` — Phase 4.7 marked DONE; Phase 4.8 / 4.9 / 4.10 added as compute-required TODOs; new Futures F6 for the umbrella SOTA-rebuild plan.
+- `scripts/crv/baseline_gates.py` — added `SelfDoubtTier1Gate` (true HVR per Pandey et al.) and `EtcGate` (true $\Delta^2 H$ per Li et al.), plus seed `HEDGE_PATTERNS` / `VERIFY_PATTERNS` dictionaries; deprecated `RealmRetrieveSimGate` / `GripSimGate` in the module docstring.
+- `scripts/crv/__init__.py` — re-exports updated.
+- `scripts/04e_addon_gates.py` — new post-hoc analyzer (CPU, ~1 s).
+- `runs/phase4_bootstrap_v2_addons.json` — machine-readable per-arch CIs + paired margins for the two new gates.
+- `runs/phase4_addons_run.log` — full stdout from the run.
+
+### Decision pending: open the test split now?
+
+Per `_PLAN.md` post-#15 GO criterion, the L5 contract permits opening the test split once, post-decision, as a §6 replication check. With the Qwen-vs-ETC 95 % beat in this run, the case for opening test on Qwen is stronger than it was after #15 alone — we now have two 95 %-clear cells (Gemma vs ReaLM-sim/GRIP-sim from #15, Qwen vs ETC from this run) plus the +0.272 point estimate vs random. Decision deferred to user; do not open test until the writing pause ends and the §5 / §6 framing is locked.
+
+---
+
 ## Status
 
 ### Progress

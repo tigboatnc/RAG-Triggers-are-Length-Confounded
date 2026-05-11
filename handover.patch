@@ -1,0 +1,3230 @@
+diff --git a/_AGENT.md b/_AGENT.md
+index d4f0353..f23173d 100644
+--- a/_AGENT.md
++++ b/_AGENT.md
+@@ -10,9 +10,10 @@
+ 
+ | phase | step | state | artifact |
+ | --- | --- | --- | --- |
+-| 0 | conda probe + env (HF, bnb, torch cu124) | **in progress** | `scripts/setup.sh`, `environment.yml`, `runs/env_lockfile.txt` |
+-| 0 | model download — Phi-4-mini + Qwen3.6-35B-A3B, revisions captured | not started | `scripts/download_models.sh`, `models/<name>.revision` |
+-| 0 | A40 baseline + L4 landmine probe | not started | new entry below + `_AGENT.md` baseline section |
++| 0 | conda probe + env (HF, bnb, torch cu124) | **done** | `scripts/setup.sh`, `environment.yml`, `runs/env_lockfile.txt` |
++| 0 | model download — Phi-4-mini + Qwen3.6-35B-A3B, revisions captured | **done** | `scripts/download_models.sh`, `models/<name>.revision` |
++| 0 | A40 baseline + L4 landmine probe (Phi dense + Qwen MoE) | **done** | entries below |
++| 0 | handover to A800 80 GB box (re-baseline pending) | **in flight** | entry `2026-05-09 #3` |
+ | 1 | KV-pressure curve at 5k tokens × 3 prompt classes | not started | `runs/phase1_kv_pressure.jsonl`, `figs/kv_pressure_baseline.png` |
+ | 2 | hidden-state hook + step boundary + CRV + sanity probe | not started | `scripts/crv/`, `runs/phase2_crv.jsonl` |
+ | 3 | ReaLM-Retrieve sim + GRIP sim + random baseline | not started | `runs/phase3_triggers.jsonl` |
+@@ -20,8 +21,10 @@
+ 
+ ### Hardware
+ 
+-- NVIDIA A40, 46 GB VRAM (CUDA 12.7, driver 565.57.01); 503 GiB RAM, 40 cores; Ubuntu 24.04 in container `b62fd22e2b17`.
+-- Conda at `/opt/miniforge3/bin/conda` (vast.ai-style, not on PATH); `setup.sh` probe handles it.
++- **Next box (handover pending, 2026-05-09 #3):** NVIDIA **A800 PCIe 80 GB**, Idaho US (vast.ai #16761518). 1.52 TB/s HBM bw, **CUDA 12.4 driver (exact match for `torch==2.6.0+cu124`, zero forward-compat risk)**, 225 GB host RAM, 32 cores, 1.5 TB storage, 6-month max duration. A800 is the China-export A100 variant — same compute, same VRAM, same per-card bandwidth; only NVLink is reduced (irrelevant for single-GPU). 80 GB VRAM means **Qwen3.6-35B-A3B fits in bf16 natively** — no NF4 needed for Phase 1, sidesteps both upstream bnb blockers (#43032 streaming-load and grouped-MoE-experts gap).
++- Prior active box (2026-05-09 #2): NVIDIA A40, 46 GB VRAM (driver 535.230.02, CUDA 12.6); ~2 TB RAM, 40 cores; per-process VRAM ceiling ≈ 44.35 GiB (cgroup-limited). Phase 0 closed here; Qwen smoke ran in bf16 + CPU offload @ 0.3 tok/s.
++- Prior box (2026-05-09 #1): NVIDIA A40, driver 565.57.01 (CUDA 12.7), 503 GiB RAM.
++- `setup.sh` conda probe handles `/opt/miniforge3/bin/conda` (vast.ai-style boxes).
+ 
+ ### Engine
+ 
+@@ -52,10 +55,232 @@ HF `transformers` + `accelerate` + `bitsandbytes` 4-bit NF4. Hidden states via `
+ - ReaLM-Retrieve and GRIP simulation honesty: log every place the sim diverges from the original paper. Reviewers will probe this.
+ - Random-baseline seed: log it.
+ - Corrective / retrieval pass during the showdown must use the **same generator** that produced the trace, otherwise we benchmark a model swap, not a gate.
++- **Two distinct bnb-NF4 problems on transformers 5.8 + Qwen3.6-MoE** (see Phase 0 #2, #2b, and #2c entries):
++  1. *On-the-fly streaming-load OOM* (issue huggingface/transformers#43032). Cause: `core_model_loading.py:1382` ships bf16 shards to GPU before bnb can quantize. Fix: 2-line patch (`if mapping.quantization_operation is not None: param_device = "cpu"`). Applied to the installed `core_model_loading.py` on this box; should be re-applied as a runtime monkey-patch in `scripts/_compat.py` (or similar) so it survives env recreation. Upstream patch not yet merged.
++  2. *No grouped-MoE-experts support in bnb integration.* `quantizer_bnb_4bit.param_needs_quantization` only flags `bnb.nn.Linear4bit` modules; the Qwen3.5/3.6 `Qwen3_5MoeExperts` module wraps experts as 3-D `nn.Parameter` (grouped-GEMM layout). Mxfp4 and fbgemm_fp8 quantizers have explicit grouped-expert patterns; bnb does not. Phase 1 picks one of: (a) pull `unsloth/Qwen3.6-...-bnb-4bit` pre-baked snapshot, (b) switch from bnb-NF4 to MXFP4 (first-class grouped-MoE support upstream), or (c) extend `tools/quantize_qwen.py` with a manual grouped-expert pass + custom forward.
++- Qwen ChatML template not threaded through `00_smoke.py`; raw-prompt generation produces gibberish even though forward-pass logits are sane. Use `tokenizer.apply_chat_template` in Phase 1 generation scripts.
++- Per-process VRAM ceiling on the **A40 box was 44.35 GiB** (cgroup-limited). On the incoming A800 80 GB PCIe box the expected ceiling is the full 80 GB; verify with `sysinfo.py` on first boot before re-doing VRAM math.
++- On the A800: drop `--no-quant` from the canonical Qwen smoke command. The flag remains in the script for portability but is no longer the default path.
+ 
+ ---
+ 
+-## 2026-05-09 — Phase 0 baseline (A40)
++## 2026-05-09 #3 — Handover to A800 80 GB box (incoming)
++
++**Why moving:** Phase 0 closed on the A40 with one open structural problem: Qwen3.6-35B-A3B at NF4 is blocked by two upstream bugs (transformers 5.x streaming-load regression + bnb's missing grouped-MoE-experts support; see #2c). On A40's 44.35 GiB cgroup ceiling, the only working Qwen path was bf16 + CPU offload at 0.3 tok/s — unusable for Phase 1's 5k-token generation, much less Phase 4's 200-question showdown. Rather than chase an upstream-broken NF4 path, took the GPU upgrade.
++
++**New box:** A800 PCIe 80 GB, Idaho US (vast.ai #16761518), CUDA 12.4 driver (matches `torch==2.6.0+cu124` exactly), 225 GB host RAM, 32 cores, 1.5 TB storage. A800 is electrically identical to A100 PCIe 80 GB for single-GPU workloads; cheaper because of NVLink restrictions we don't use.
++
++**Why this unblocks Phase 1:** Qwen3.6-35B-A3B in bf16 is ~70 GB — fits comfortably in 80 GB with ~8-10 GB of headroom for KV-cache at 5k tokens. **No quantization needed.** Both upstream bnb blockers become moot. We can drop `--no-quant` from the smoke script (its purpose was the A40 fallback) and run Qwen at native bf16 throughput, expected ~25-40 tok/s.
++
++**What survives the move (this tarball):** all scripts, tools, markdown logs, runs/ artifacts (lockfile, sysinfo, smoke logs, quantize log), env spec, README, draft, `.git/` history. Models are *not* included — re-download via `scripts/download_models.sh all` on the new box (~92 s on prior network; pinned SHAs in script).
++
++**What does *not* carry over:**
++- The local 2-line patch to `transformers/core_model_loading.py` (issue #43032). Not needed on the A800 because we're going bf16 path. Re-apply only if we revisit NF4 in Phase 1+. The patch text is preserved in #2c below.
++- `--no-quant` flag in `00_smoke.py`. The flag stays in the script for portability; for the A800 box the canonical command drops it.
++
++**Boot plan on new box (in order):**
++
++1. `scripts/setup.sh` (conda probe + cu124 torch + pinned env). Verify `runs/env_lockfile.txt` matches the one in this tarball (modulo build hashes).
++2. `python scripts/sysinfo.py | tee runs/sysinfo_a800_box3.json` — capture VRAM (~80 GB visible, no cgroup limit expected on PCIe vast box), driver string, torch CUDA reported as 12.4.
++3. `scripts/download_models.sh all` — Phi + Qwen3.6, verify SHAs match `models/<name>.revision` pins.
++4. `python scripts/00_smoke.py --model phi-4-mini-instruct` — sanity-check NF4 path on a small model.
++5. `python scripts/00_smoke.py --model qwen3.6-35b-a3b-instruct` — **drop `--no-quant`**; expect bf16 native load, ~70 GB VRAM, ~25-40 tok/s, identical L4 probe numbers to the A40 CPU-offload run (since the underlying weights and prompts are unchanged — different precision/placement, same logits).
++6. Append a `2026-05-? #3b` entry to this file with the new tok/s, peak VRAM, and L4 probe numbers. Confirm L1 finding survives (it should — same model).
++7. Update Phase 0.4 line in `_PLAN.md` once the bf16 native path replaces the `--no-quant` fallback as the canonical Qwen path.
++
++**Things to revisit (not blocking Phase 1):**
++- Whether to also benchmark `unsloth/Qwen3-30B-A3B-bnb-4bit` on the A800 to *also* report edge-tier numbers — useful for the paper's framing ("works on consumer GPU too"). Defer until Phase 4 unless cheap to run alongside.
++- The transformers #43032 patch + grouped-MoE-experts work in `tools/quantize_qwen.py` is preserved for future "ship a quantized release" needs but is *not* on the Phase 1 critical path.
++
++---
++
++## 2026-05-09 #2 — Phase 0 closed on the larger-disk A40 box
++
++Re-ran Phase 0 end-to-end on a fresh A40 box (193 GB free disk; same GPU, more RAM, slightly older driver). Same `scripts/setup.sh`, `scripts/download_models.sh all`, `scripts/00_smoke.py` flow. New box is now the active box; prior box is archived in the entry below.
++
++### Stack as installed (this box)
++
++Same versions as box #1 (lockfile in `runs/env_lockfile.txt`, 101 packages):
++
++| dep | version |
++| --- | --- |
++| python | 3.11.15 |
++| torch | 2.6.0+cu124 |
++| transformers | 5.8.0 |
++| accelerate | 1.13.0 |
++| bitsandbytes | 0.49.2 |
++| huggingface_hub | 1.14.0 |
++| numpy | 2.4.4 |
++
++Driver 535.230.02 here vs 565.57.01 on box #1 — torch 2.6.0+cu124 still works fine (CUDA forward-compat). Note the per-process VRAM ceiling is **~44.35 GiB**, not the full 46 GiB the card advertises; the container is cgroup-limited. This matters for Phase 0.5's 4-bit fit math.
++
++### Models (downloaded fresh, SHAs match the pins)
++
++- `microsoft/Phi-4-mini-instruct` @ `cfbefacb99257ffa30c83adab238a50856ac3083` — 7.2 GB on disk.
++- `Qwen/Qwen3.6-35B-A3B` @ `995ad96eacd98c81ed38be0c5b274b04031597b0` — 67 GB on disk (fp16 safetensors). Architecture `qwen3_5_moe`, 41 layers, hidden_size 2048.
++
++Both downloads completed in ~92 s on this box's network — no longer the rate-limiting step. SHAs in `download_models.sh` survived re-resolution; pins are good.
++
++### Phi-4-mini smoke (replication)
++
++`python scripts/00_smoke.py --model phi-4-mini-instruct`
++
++| metric | this box | box #1 |
++| --- | --- | --- |
++| load (s) | 4.52 | 5.28 |
++| RSS after load (GB) | 1.01 | 1.01 |
++| VRAM after load (MB) | 3290 | 3291 |
++| 32-tok gen tok/s | **19.4** | 21.5 |
++| peak VRAM (MB) | 2868 | 2868 |
++| hidden_states | 32 steps × 33 layers, last `(1,1,3072)` bf16 | same |
++| L2(predictable) / L2(ambiguous) | 54.204 / 54.813 (Δ 0.609) | identical |
++| H(next) predictable / ambiguous (nats) | 1.177 / 3.998 (Δ 2.821) | identical |
++| top token predictable | ` Paris` p=0.820 | identical |
++
++Replicates box #1 baseline within tok/s noise. Phi smoke = good.
++
++### Qwen3.6-35B-A3B smoke (Phase 0.5 deliverable)
++
++`python scripts/00_smoke.py --model qwen3.6-35b-a3b-instruct --no-quant`
++
++The bnb-NF4 path on this stack is broken (see "compat finding" below). Loaded the model in **bf16 with accelerate auto + CPU offload** (`{0: 40GiB, "cpu": 200GiB}`). 2 TB RAM means the 67 GB fp16 weights fit in CPU trivially.
++
++| metric | value |
++| --- | --- |
++| load (s) | 18.44 |
++| RSS after gen (GB) | 29.29 (fraction of weights stay in CPU pageable) |
++| peak VRAM (MB) | 39509 |
++| 32-tok gen tok/s | 0.3 (CPU-bound; expected, not the deliverable) |
++| hidden_states | 32 steps × **41 layers**, last `(1, 1, 2048)` bf16 |
++| L2(predictable) / L2(ambiguous) | **111.744 / 111.095** (Δ 0.649, ~0.6%) |
++| H(next) predictable / ambiguous (nats) | **2.374 / 4.109** (Δ 1.734) |
++| top token predictable | ` Paris` p=**0.568** |
++| top token ambiguous | ` "` p=0.165 |
++
++**Findings on the MoE generator:**
++
++1. **L1 confirmed.** Raw last-layer mean-pool L2 norm separates predictable vs ambiguous prompts by ~0.6% on Qwen MoE — *less* signal than the ~1% on dense Phi-4-mini. Entropy gap is 1.73 nats vs 2.82 nats on Phi (still a clean ordering, ~1.7×). Q6 in the open-questions table now has its first data point: **MoE noise does degrade the L2 signal further, exactly as predicted.** Cosine drift between consecutive CRVs and layer-subset variance remain the load-bearing candidates for Phase 2.3 — do not start with L2-of-mean-pool.
++2. **Hidden-state extraction works on Qwen3-MoE.** 41 layers × 32 generation steps, last layer at last step `(1, 1, 2048)`. Same `output_hidden_states=True` path used for Phi. Hook surface is uniform across both models. Phase 2.1 design holds.
++3. **Generation text was gibberish** — the raw-prompt path without Qwen ChatML template emits noise tokens. This is a chat-template oversight in `00_smoke.py`, not a model load issue (the L4 forward pass over a single prefix returned a sane ` Paris` top token at p=0.568). Fix is a Phase 1 task: thread the tokenizer's `apply_chat_template` into the generation script.
++
++### Compat finding: transformers 5.8 + bitsandbytes 0.49.2 NF4 streaming-load is broken
++
++On this stack, bnb-NF4 loading of Qwen3.6-35B-A3B fails three different ways depending on the layout:
++
++- **`device_map={"": 0}`** (force whole model on GPU) → OOM at 68 % load, ~44 GiB allocated. transformers 5.8's new `core_model_loading._materialize_copy` does `tensor.to(device=device, dtype=dtype)` *before* bnb gets a chance to quantize. So bf16 shards accumulate on GPU and run out at ~45 GB long before reaching the ~18 GB NF4 final size. **The streaming-quant path that worked in transformers 4.x for bnb-4bit appears to have regressed in 5.x.**
++- **`device_map="auto"`, no CPU fallback in `max_memory`** → `validate_environment` rejects with "Some modules are dispatched on the CPU or the disk" because accelerate's auto planner *still* believes the model is bigger than the budget even with bnb's `adjust_target_dtype` claiming INT4. Looks like a planner-vs-quantizer size mismatch.
++- **`device_map="auto"` + `llm_int8_enable_fp32_cpu_offload=True` + max_memory split** → load completes (60 s, 693 shards) but the dispatch step crashes twice over: first with `Params4bit.__new__() got an unexpected keyword argument '_is_hf_initialized'` (accelerate 1.10–1.13 sends that private kwarg into bnb's narrow constructor; bnb 0.49.2 doesn't accept it); after monkey-patching the kwarg, then `Tensor.item() cannot be called on meta tensors` because accelerate's hook attachment calls `state_dict()` on a CPU-offloaded `Params4bit` whose `quant_state.offset` is still on `meta`.
++
++Tried downgrading accelerate (1.13 → 1.10.1), and downgrading transformers (5.8 → 4.51.3): 4.51 doesn't recognize `qwen3_5_moe` (`KeyError: qwen3_5_moe` in `CONFIG_MAPPING`), so we're locked to 5.x for this model. bnb 0.49.2 is the latest published.
++
++**Decision for Phase 0:** ship `--no-quant` (bf16 + CPU offload) as the documented MoE smoke path. We have 2 TB RAM, the L4 deliverable is shape + L2/entropy (no quantization-fidelity dependency), and the bnb path is a Phase 1 / 2.1 task: revisit when the streaming-quant regression is fixed upstream OR by pre-quantizing offline (e.g. saving NF4 shards to disk via a tiny `tools/quantize_qwen.py`) so `from_pretrained` loads already-4-bit weights and never needs to materialize bf16 on GPU. Adding to "things to watch."
++
++### Phase 0 status
++
++| step | state |
++| --- | --- |
++| 0.1 conda probe + env | done |
++| 0.2 environment.yml | done (floor pins; lockfile written) |
++| 0.3 sysinfo extended | done (same script as box #1) |
++| 0.4 download_models.sh + revs | done (SHAs verified on re-pull) |
++| 0.5 00_smoke.py on Qwen MoE | **done via `--no-quant` fallback**; bnb-NF4 path deferred to Phase 1 (compat finding above) |
++
++Phase 0 closed. Move to Phase 1.
++
++---
++
++## 2026-05-09 #2b — Pre-quantize-to-disk attempt (`tools/quantize_qwen.py`)
++
++Followed up on the Phase 0 compat finding by trying the pre-quantize-on-disk workaround. Wrote `tools/quantize_qwen.py` to dodge the broken streaming-load pathway: load the source on CPU in bf16 (cheap with 2 TB RAM), surgically replace each `nn.Linear` with a fresh `bnb.nn.Linear4bit` whose weight is initialized from the bf16 source, move that single Linear4bit to GPU (`Params4bit.cuda()` is what actually invokes `bnb.functional.quantize_4bit`), splice it into the parent module, and drop the original. The grouped-quant-on-copy approach kept peak VRAM bounded by *one* Linear's bf16 plus the accumulating 4-bit pack.
++
++**Two earlier dead ends, both in this script's history (kept here so future-me doesn't repeat them):**
++
++1. *`replace_with_bnb_linear` then `module.to(cuda)`.* `replace_with_bnb_linear` initialises Linear4bit modules with **meta-tensor** weights — the original bf16 weights are dropped, not migrated. `.to('cuda')` then raises `Cannot copy out of meta tensor; no data!`. The helper is a graph-rewrite, not a data-mover.
++2. *`init_empty_weights() + replace_with_bnb_linear + accelerate.load_checkpoint_in_model`.* Loaded fast (~21 s) and quantized cleanly to peak 3.7 GiB on the GPU, but **692 parameters stayed on `meta`** because the source checkpoint namespaces its tensors as `model.language_model.layers.X.…` (this snapshot is shared with a multimodal sibling that contains `model.visual.*` and `mtp.*` heads). `accelerate.load_checkpoint_in_model` does *not* apply transformers' key-renaming logic, so most of the LM weights couldn't bind to our text-only `Qwen3_5MoeForCausalLM`. transformers' own `from_pretrained` *does* apply that mapping (we'd already seen it work in the `--no-quant` smoke), so step 1 of the final script uses `from_pretrained` for ingestion instead.
++
++**The third (current) approach got further but exposed a deeper design issue:**
++
++```
++[ok] config: model_type=qwen3_5_moe hidden=2048 layers=40 vocab=248320
++[ok] step 1: from_pretrained on CPU in bf16 in 15.6s (rss 0.71 -> 4.28 GB)
++[..] step 2: replace 351 nn.Linear modules with bnb.Linear4bit
++    -> 350 modules to quantize, 1 kept in bf16 (lm_head)
++  [350/350] vram=1.00 GiB rss=4.4 GB
++[ok] 350 Linear4bit modules quantized in 9.3s; peak VRAM during quant = 721 MB (0.70 GiB)
++[..] step 3: move remaining (kept-bf16, embeddings, norms) to cuda:0
++torch.OutOfMemoryError: ... 44.35 GiB total, 43.97 GiB in use
++```
++
++The streaming-quant loop in step 2 is **exactly the behaviour the broken transformers path *should* have produced**: 350 NF4 Linears in 9.3 s, peak VRAM 0.70 GiB. That's the proof-of-concept we wanted. But step 3 (move-rest-to-GPU) blew up because the model has ~60 GB of bf16 weights that *are not in any* `nn.Linear`.
++
++### Why: Qwen3.6-MoE stores experts as grouped 3-D Parameters
++
++This Qwen3.5/3.6 MoE implementation packs each layer's experts into single grouped `torch.nn.Parameter` tensors:
++
++- `model.layers.X.mlp.experts.gate_up_proj` — shape `(num_experts, hidden, 2*intermediate)` bf16
++- `model.layers.X.mlp.experts.down_proj` — shape `(num_experts, intermediate, hidden)` bf16
++
++This is the standard grouped-GEMM layout for fast MoE forward passes. It is **not** `nn.ModuleList[nn.Linear]`, so `replace_with_bnb_linear` (which only walks `nn.Linear` submodules) never sees them, and bnb's `Linear4bit` cannot wrap a 3-D weight (its forward expects a 2-D weight). Roughly:
++
++| group | rough param count | what the script handled |
++| --- | --- | --- |
++| attention q/k/v/o, gate, shared-expert linears, linear_attn projections, lm_head | ~5 B | quantized to NF4 (350 modules, 0.70 GiB peak) |
++| MoE expert FFNs (`gate_up_proj` + `down_proj`, grouped) | ~30 B | left bf16 → ~60 GB → step-3 OOM |
++| embeddings, norms | <1 B | small, fine |
++
++So bnb-NF4 of the 35 B-A3B model on this stack **needs first-class grouped-MoE quantization support**, which neither bnb 0.49.2 nor transformers 5.8 ships. Real options for Phase 1+:
++
++- **(a) Manually quantize the grouped tensors with `bnb.functional.quantize_4bit` and write a custom forward that dequantizes per-expert on demand.** Real engineering, probably 100–300 lines plus a careful test against the bf16 baseline.
++- **(b) Pre-quantize with a different toolkit that does support grouped-MoE NF4** (`torchao` or `compressed-tensors`). Adds a dependency surface, possibly hours of integration to confirm hidden-state hooks still fire identically.
++- **(c) Wait for transformers to fix the 5.x bnb streaming-load regression** and use the standard `from_pretrained(quantization_config=...)` path. Cheapest for us, slowest by calendar.
++- **(d) Stay on the bf16 + CPU-offload fallback for now and revisit when speed actually matters.** Phase 1's KV-pressure curve is the first place 0.3 tok/s starts to hurt; we'll feel the pain there and decide between (a) and (b).
++
++`tools/quantize_qwen.py` is kept in the repo as a working scaffold for (a). The 350-Linear loop is correct and fast; an extension to handle grouped-expert tensors would slot in between steps 2 and 3.
++
++**Decision:** ship the `--no-quant` smoke as Phase 0's MoE deliverable (already done), defer NF4 to Phase 1. Add a "things to watch" entry for the grouped-MoE-experts gap so Phase 1 budgets it.
++
++---
++
++## 2026-05-09 #2c — Upstream analysis: it's two distinct bugs, not one
++
++User pointed at four upstream threads that re-frame the entire 0.5b friction:
++
++- huggingface/transformers#42043 ("Fix bnb for the weights refactor", SunMarc, merged 2025-11-18, 396 commits) — ships transformers 5.x bnb support but with an unchecked TODO in the body: *"check why the memory is way too high when quantizing on the fly"*. So 5.x out of the box is known-degraded for on-the-fly bnb.
++- huggingface/transformers#42246 ("Fix device when source and target are different", Cyrilvallez, merged 2025-11-18 same day) — fixes VLM `_conversion_mapping` loading by passing the **target GPU device** directly into `spawn_materialize`. PR body explicitly admits this exposes a latent bug: *"the only thing saving us is the fact that `accelerate_dispatch` will move the parameters if the device is not correct during post processing"*. Pre-#42246 the post-load dispatch step was inadvertently doing the bnb "stage on CPU then quantize" dance correctly.
++- huggingface/transformers#43032 ("[v5 Regression] BitsAndBytes 4-bit quantization OOM", jwm1969, 2025-12-24) — exact diagnosis of our load-time OOM, with a verified two-line fix in `core_model_loading.py:1382`. When `mapping.quantization_operation is not None`, force `param_device = "cpu"`. Author confirmed 280 Linear4bit modules loading to 8.88 GiB on a 16 GB card after the patch.
++- unslothai/unsloth#4108 — confirms `Qwen3.5/Qwen3.6` MoE works in transformers v5 + unsloth, but only via unsloth's custom MoE-aware quant stack and their pre-baked `unsloth/...-bnb-4bit` snapshots.
++
++**What this changes:**
++
++1. **The 5.8 streaming-load regression is real and fixable.** Applied the #43032 patch directly to the installed `core_model_loading.py:1382` (single `if mapping.quantization_operation is not None: param_device = "cpu"` line). After the patch, the previously-OOMing path got *much* further: `device_map="auto"` now plans correctly for the Linear-quantizable bytes; `device_map={"": 0}` runs the load loop and OOMs much later (at ~43 GiB allocated, not the 44 GiB we saw before — i.e. quantized Linears stay small but something else still exceeds the budget).
++2. **The grouped-MoE-experts gap is also real, and it's separate.** Reading `quantizer_bnb_4bit.py:91`: `param_needs_quantization` returns True **only** when the parent module is `bnb.nn.Linear4bit`. The Qwen3.5/3.6 MoE implementation packs each layer's experts as a 3-D `nn.Parameter` inside a `Qwen3_5MoeExperts` module (not `nn.ModuleList[nn.Linear]`), so bnb's integration leaves them in bf16. Compare with `quantizer_mxfp4.py:185-307` and `quantizer_fbgemm_fp8.py:185` which have explicit `layers.*.mlp.experts.gate_up_proj_blocks` patterns. **bitsandbytes has no equivalent.** That's why even with the #43032 patch applied, the second OOM still hits — ~60 GB of bf16 expert weights that nobody quantizes.
++
++So the picture is clean now:
++
++| problem | scope | fix surface | status |
++| --- | --- | --- | --- |
++| transformers 5.x bnb on-the-fly load OOM (issue #43032) | every bnb-quantizable model on tight GPUs in v5 | 2-line patch in `core_model_loading.py` | applied locally; upstream PR not yet merged |
++| no grouped-MoE-experts support in bnb integration | Qwen3.5/Qwen3.6 (and any future grouped-MoE arch) on bnb | new code in `transformers.integrations.bitsandbytes` mirroring the mxfp4/fbgemm_fp8 patterns, OR custom forward + per-expert `bnb.functional.quantize_4bit` | not addressed upstream; unsloth has it in their stack |
++
++**Verification of the patch (run captured to `runs/smoke_qwen35b_nf4.log`):**
++
++- Pre-patch: OOM in `_materialize_copy` at 68 % of the load (one Linear's 1024 MiB tried to land on a card already at 44.04 GiB).
++- Post-patch (`device_map={"": 0}`): load progresses to ~98 % before OOMing at 43.44 GiB. The shape of the OOM changed — what used to be "shipping bf16 to GPU before quantization" is now "shipping un-quantizable bf16 expert tensors to GPU after Linears were correctly NF4'd". Confirms the patch is doing what #43032 claimed and isolates the remaining cost as the experts.
++
++**Implications for the project:**
++
++- The `tools/quantize_qwen.py` scaffold's earlier 0.70 GiB peak quantizing 350 Linears was *actually correct* — it was hitting the same wall that vanilla `from_pretrained` now hits with the patch applied. The only thing my script was missing was a step to also quantize the grouped expert tensors, and now we know upstream isn't doing that either for bnb.
++- For Phase 1's KV-pressure curve we need a *fast* generator. Three real options now:
++  1. **Pull `unsloth/Qwen3.6-35B-A3B-Instruct-bnb-4bit` (or equivalent) instead of quantizing ourselves.** Unsloth pre-bakes their MoE-aware NF4 layout and ships a working HF snapshot. Cost: ~17 GB additional download, dependency on whichever runtime pieces unsloth requires (or just transformers if their NF4 layout is bnb-compatible at load time).
++  2. **Switch the generator's quant scheme from NF4 to MXFP4** (`BitsAndBytesConfig` → `Mxfp4Config`). transformers ships first-class grouped-MoE-expert support for MXFP4. Cost: different bytes/param ratio (4-bit but with extra metadata), need to confirm MXFP4 is fast on A40 (it was originally GB200-targeted).
++  3. **Extend `tools/quantize_qwen.py` with a manual grouped-expert pass + a custom forward** that calls `bnb.functional.dequantize_4bit` per-expert at runtime. Real engineering, ~1-2 days, but most under-our-control of the three.
++- The 2-line patch should also be packaged as a runtime monkey-patch (we shouldn't rely on a hand-edit of the installed `core_model_loading.py` surviving env recreation). Easy to add to `scripts/00_smoke.py` or a new `scripts/_compat.py` shim.
++
++**Decision (for now):** keep the diagnosis logged, leave the patch in place on this box, and bring the three options above to the next decision point. Phase 1 needs to pick one before writing `01_kv_pressure.py`.
++
++---
++
++## 2026-05-09 #1 — Phase 0 baseline (A40)
+ 
+ ### Stack as installed
+ 
+diff --git a/_PLAN.md b/_PLAN.md
+index 8c9e4cb..cae0016 100644
+--- a/_PLAN.md
++++ b/_PLAN.md
+@@ -75,15 +75,19 @@ recollection.local/
+ 
+ ## Phase 0 — Environment + smoke
+ 
+-**Goal:** clean A40 box reaches a HF + bnb + torch-CUDA stack that loads the MoE generator at 4-bit and exposes hidden states.
++**Goal:** clean GPU box reaches a HF + bnb + torch-CUDA stack that loads the MoE generator and exposes hidden states.
+ 
+-- [ ] **0.1** `setup.sh` conda probe handles `/opt/miniforge3/bin/conda` (vast.ai-style boxes); env builds from `environment.yml`; torch installs from cu124 wheel index; lockfile written.
+-- [ ] **0.2** `sysinfo.py` reports CUDA visibility, device name, total/free VRAM, torch + transformers + bnb + accelerate versions.
+-- [ ] **0.3** `download_models.sh` pulls `microsoft/Phi-4-mini-instruct` by default (small smoke target) and `Qwen/Qwen3.6-35B-A3B-Instruct` with `all`. Revisions captured.
+-- [ ] **0.4** `00_smoke.py` loads at 4-bit NF4, generates 32 tokens with `output_hidden_states=True`, prints tok/s, peak VRAM, hidden-state tensor shape.
+-- [ ] **0.5** **L4 landmine probe inside `00_smoke.py`:** predictable vs ambiguous prefix → hidden-state L2 norm + next-token entropy. Predictable should be visibly *lower* hidden-state variance than ambiguous and *lower* entropy. If MoE routing noise dominates, L1 is real and Phase 2 design needs a rethink.
++> Hardware update (2026-05-09): Phase 0 closed on A40 46 GB with a `--no-quant` bf16 + CPU-offload fallback (NF4 path blocked by upstream bnb bugs on Qwen3.6-MoE; see `_AGENT.md` 2026-05-09 #2c). Project is moving to an **A800 PCIe 80 GB** box where Qwen3.6-35B-A3B fits in bf16 natively, sidestepping NF4 entirely for Phase 1+. Re-baseline (steps 0.4–0.5 only) pending on new box; see `_AGENT.md` 2026-05-09 #3 for boot plan.
+ 
+-**Visible artifact:** A40 baseline appended to `_AGENT.md` (tok/s, peak VRAM, hidden-state shape, L4 numbers).
++- [x] **0.1** `setup.sh` conda probe handles `/opt/miniforge3/bin/conda` (vast.ai-style boxes); env builds from `environment.yml`; torch installs from cu124 wheel index; lockfile written.
++- [x] **0.2** `sysinfo.py` reports CUDA visibility, device name, total/free VRAM, torch + transformers + bnb + accelerate versions.
++- [x] **0.3** `download_models.sh` pulls `microsoft/Phi-4-mini-instruct` by default and `Qwen/Qwen3.6-35B-A3B` (no `-Instruct` suffix repo exists; chat template bundled) with `all`. Revisions captured + pinned in script.
++- [x] **0.4** `00_smoke.py` loads + generates 32 tokens with `output_hidden_states=True`, prints tok/s, peak VRAM, hidden-state tensor shape. Phi-4-mini at 4-bit NF4 ✓. Qwen3.6-35B-A3B 4-bit NF4 path is broken on transformers 5.8 + bnb 0.49.2 (streaming-quant regression — see `_AGENT.md` 2026-05-09 #2 entry); shipped via `--no-quant` bf16 + CPU-offload fallback. Pre-quantize-on-disk path is a Phase 1 task.
++- [x] **0.5** **L4 landmine probe inside `00_smoke.py`** ran on both Phi (dense) and Qwen (MoE). On the MoE generator: hidden L2 Δ ~ 0.6 % between predictable and ambiguous, entropy Δ 1.73 nats (predictable confident on ` Paris` p=0.568). **L1 confirmed: MoE noise *does* degrade the L2 signal further than dense.** Phase 2.3 must not start from L2-of-mean-pool.
++- [partial] **0.5b** Pre-quantize-on-disk attempt (`tools/quantize_qwen.py`) — sidesteps the transformers 5.8 streaming-load bug by loading source on CPU bf16, replacing each `nn.Linear` with `bnb.nn.Linear4bit`, and quantizing per-module on `.cuda()`. Works for the 350 standard `nn.Linear` modules in <10 s with peak VRAM 0.70 GiB. **Blocked by grouped MoE expert tensors** stored as 3-D `nn.Parameter` inside `Qwen3_5MoeExperts`. Detailed in `_AGENT.md` (2026-05-09 #2b).
++- [info] **0.5c** Upstream root-cause: load-time OOM is huggingface/transformers#43032 (regression introduced by #42246, partially shipped via #42043 with a known unchecked TODO). Two-line patch verified locally; need to package it as a runtime monkey-patch. Grouped-MoE-experts gap is *separate*: bnb integration has no equivalent of mxfp4's `layers.*.mlp.experts.gate_up_proj_blocks` patterns. Three real Phase 1 options for fast NF4 generation: (a) `unsloth/...-bnb-4bit` pre-baked snapshot, (b) switch to MXFP4 for grouped-MoE support, (c) extend the manual pre-quantize script. Detailed in `_AGENT.md` (2026-05-09 #2c).
++
++**Visible artifact:** A40 baseline #2 + Qwen MoE smoke + L4 probe results in `_AGENT.md`.
+ 
+ ---
+ 
+diff --git a/recollection-patch.tar.gz b/recollection-patch.tar.gz
+deleted file mode 100644
+index 8076352614464fbb26cdcf2e5f8291f640c9a8e0..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 43606
+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
+Wng6@+#`Ok$hmC1byN6-_0P`QEf8CY<
+
+diff --git a/runs_setup.log b/runs_setup.log
+new file mode 100644
+index 0000000..c045b26
+--- /dev/null
++++ b/runs_setup.log
+@@ -0,0 +1,1687 @@
++[32m[ok][0m OS=Linux arch=x86_64 backend=cuda
++[32m[ok][0m conda 26.1.1 (base=/opt/miniforge3)
++[33m[..][0m creating env 'recollection' from environment.yml
++Retrieving notices: - \ done
++Channels:
++ - conda-forge
++ - nvidia
++Platform: linux-64
++Collecting package metadata (repodata.json): / - \ | / - \ | / - \ | / - \ | / - done
++Solving environment: | / done
++
++
++==> WARNING: A newer version of conda exists. <==
++    current version: 26.1.1
++    latest version: 26.3.2
++
++Please update conda by running
++
++    $ conda update -n base -c conda-forge conda
++
++
++
++Downloading and Extracting Packages: ...working...python-3.11.15       | 29.5 MB   |            |   0% 
++cmake-4.3.2          | 22.0 MB   |            |   0% [A
++
++libstdcxx-15.2.0     | 5.6 MB    |            |   0% [A[A
++
++
++openssl-3.6.2        | 3.0 MB    |            |   0% [A[A[A
++
++
++
++pip-26.1.1           | 1.1 MB    |            |   0% [A[A[A[A
++
++
++
++
++libgcc-15.2.0        | 1017 KB   |            |   0% [A[A[A[A[A
++
++
++
++
++
++libsqlite-3.53.1     | 933 KB    |            |   0% [A[A[A[A[A[A
++
++
++
++
++
++
++ncurses-6.6          | 897 KB    |            |   0% [A[A[A[A[A[A[A
++
++
++
++
++
++
++
++libuv-1.51.0         | 874 KB    |            |   0% [A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++ld_impl_linux-64-2.4 | 711 KB    |            |   0% [A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++libgomp-15.2.0       | 590 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++libcurl-8.20.0       | 458 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++rhash-1.4.6          | 189 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++ca-certificates-2026 | 128 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++pkg-config-0.29.2    | 112 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++liblzma-5.8.3        | 111 KB    |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libxcrypt-4.4.36     | 98 KB     |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++packaging-26.2       | 89 KB     |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libexpat-2.8.0       | 75 KB     |            |   0% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++pip-26.1.1           | 1.1 MB    | ########## | 100% [A[A[A[Apython-3.11.15       | 29.5 MB   | #3         |  14% 
++cmake-4.3.2          | 22.0 MB   | 6          |   7% [A
++
++libstdcxx-15.2.0     | 5.6 MB    | ###8       |  39% [A[A
++
++
++openssl-3.6.2        | 3.0 MB    | #####3     |  54% [A[A[A
++
++
++
++
++libgcc-15.2.0        | 1017 KB   | ###1       |  31% [A[A[A[A[A
++
++
++
++
++libgcc-15.2.0        | 1017 KB   | ########## | 100% [A[A[A[A[A
++
++
++
++
++
++libsqlite-3.53.1     | 933 KB    | 1          |   2% [A[A[A[A[A[A
++
++
++openssl-3.6.2        | 3.0 MB    | ########## | 100% [A[A[A
++
++
++
++
++
++libsqlite-3.53.1     | 933 KB    | ########## | 100% [A[A[A[A[A[A
++
++
++
++
++
++
++ncurses-6.6          | 897 KB    | 1          |   2% [A[A[A[A[A[A[Apython-3.11.15       | 29.5 MB   | ###7       |  37% 
++cmake-4.3.2          | 22.0 MB   | ###7       |  37% [A
++
++
++
++
++
++
++
++libuv-1.51.0         | 874 KB    | 1          |   2% [A[A[A[A[A[A[A[A
++
++
++
++
++
++
++ncurses-6.6          | 897 KB    | ########## | 100% [A[A[A[A[A[A[A
++
++
++
++
++
++
++
++libuv-1.51.0         | 874 KB    | ########## | 100% [A[A[A[A[A[A[A[A
++
++libstdcxx-15.2.0     | 5.6 MB    | ########## | 100% [A[A
++
++libstdcxx-15.2.0     | 5.6 MB    | ########## | 100% [A[A
++
++
++
++
++
++
++
++
++ld_impl_linux-64-2.4 | 711 KB    | 2          |   2% [A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++libgomp-15.2.0       | 590 KB    | 2          |   3% [A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++libcurl-8.20.0       | 458 KB    | 3          |   3% [A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++libgcc-15.2.0        | 1017 KB   | ########## | 100% [A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++libcurl-8.20.0       | 458 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++libgcc-15.2.0        | 1017 KB   | ########## | 100% [A[A[A[A[A
++
++
++
++
++
++
++
++
++
++libgomp-15.2.0       | 590 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++ld_impl_linux-64-2.4 | 711 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++ca-certificates-2026 | 128 KB    | #2         |  13% [A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++ca-certificates-2026 | 128 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++rhash-1.4.6          | 189 KB    | 8          |   8% [A[A[A[A[A[A[A[A[A[A[A[Apython-3.11.15       | 29.5 MB   | ######1    |  62% 
++cmake-4.3.2          | 22.0 MB   | #####8     |  59% [A
++
++
++
++
++
++
++
++
++
++
++
++rhash-1.4.6          | 189 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++pkg-config-0.29.2    | 112 KB    | #4         |  14% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++pkg-config-0.29.2    | 112 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++liblzma-5.8.3        | 111 KB    | #4         |  14% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++libsqlite-3.53.1     | 933 KB    | ########## | 100% [A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++liblzma-5.8.3        | 111 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++libsqlite-3.53.1     | 933 KB    | ########## | 100% [A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libxcrypt-4.4.36     | 98 KB     | #6         |  16% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++packaging-26.2       | 89 KB     | #7         |  18% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libxcrypt-4.4.36     | 98 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++packaging-26.2       | 89 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libexpat-2.8.0       | 75 KB     | ##1        |  21% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libexpat-2.8.0       | 75 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[Apython-3.11.15       | 29.5 MB   | ########5  |  86% 
++cmake-4.3.2          | 22.0 MB   | #########  |  91% [A
++
++
++openssl-3.6.2        | 3.0 MB    | ########## | 100% [A[A[A
++
++
++
++
++
++
++
++libuv-1.51.0         | 874 KB    | ########## | 100% [A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++libuv-1.51.0         | 874 KB    | ########## | 100% [A[A[A[A[A[A[A[A
++cmake-4.3.2          | 22.0 MB   | ########## | 100% [Apython-3.11.15       | 29.5 MB   | ########## | 100% 
++
++
++
++pip-26.1.1           | 1.1 MB    | ########## | 100% [A[A[A[A
++
++
++
++pip-26.1.1           | 1.1 MB    | ########## | 100% [A[A[A[A
++
++
++
++
++
++
++
++
++
++
++libcurl-8.20.0       | 458 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++libcurl-8.20.0       | 458 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A
++
++libstdcxx-15.2.0     | 5.6 MB    | ########## | 100% [A[A
++
++
++
++
++
++
++
++
++
++libgomp-15.2.0       | 590 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++libgomp-15.2.0       | 590 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++ca-certificates-2026 | 128 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++ca-certificates-2026 | 128 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++ld_impl_linux-64-2.4 | 711 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++ld_impl_linux-64-2.4 | 711 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++rhash-1.4.6          | 189 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++rhash-1.4.6          | 189 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++pkg-config-0.29.2    | 112 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++pkg-config-0.29.2    | 112 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++liblzma-5.8.3        | 111 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++liblzma-5.8.3        | 111 KB    | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libxcrypt-4.4.36     | 98 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libxcrypt-4.4.36     | 98 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++packaging-26.2       | 89 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++packaging-26.2       | 89 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libexpat-2.8.0       | 75 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++libexpat-2.8.0       | 75 KB     | ########## | 100% [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++ ... (more hidden) ...[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++ncurses-6.6          | 897 KB    | ########## | 100% [A[A[A[A[A[A[A
++
++
++
++
++
++
++ncurses-6.6          | 897 KB    | ########## | 100% [A[A[A[A[A[A[Apython-3.11.15       | 29.5 MB   | ########## | 100% 
++cmake-4.3.2          | 22.0 MB   | ########## | 100% [A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++                      [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A                                                     
++                                                     [A
++
++                                                     [A[A
++
++
++                                                     [A[A[A
++
++
++
++                                                     [A[A[A[A
++
++
++
++
++                                                     [A[A[A[A[A
++
++
++
++
++
++                                                     [A[A[A[A[A[A
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++                                                     [A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A
++[A
++
++[A[A
++
++
++[A[A[A
++
++
++
++[A[A[A[A done
++Preparing transaction: \ | done
++Verifying transaction: - \ | / - \ | / - \ | / - \ | / done
++Executing transaction: \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - done
++Installing pip dependencies: | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | / - \ | Ran pip subprocess with arguments:
++['/venv/recollection/bin/python', '-m', 'pip', 'install', '-U', '-r', '/workspace/recollection.local/condaenv.megd7wqv.requirements.txt', '--exists-action=b']
++Pip subprocess output:
++Collecting transformers>=4.50 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading transformers-5.8.0-py3-none-any.whl.metadata (33 kB)
++Collecting accelerate>=1.0 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading accelerate-1.13.0-py3-none-any.whl.metadata (19 kB)
++Collecting safetensors>=0.4 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 3))
++  Downloading safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
++Collecting bitsandbytes>=0.45 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 4))
++  Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl.metadata (10 kB)
++Collecting huggingface_hub>=0.27 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading huggingface_hub-1.14.0-py3-none-any.whl.metadata (14 kB)
++Collecting sentence-transformers>=3.0 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 6))
++  Downloading sentence_transformers-5.4.1-py3-none-any.whl.metadata (17 kB)
++Collecting lancedb>=0.18 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading lancedb-0.30.2-cp39-abi3-manylinux_2_28_x86_64.whl.metadata (5.0 kB)
++Collecting datasets>=3.0 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading datasets-4.8.5-py3-none-any.whl.metadata (19 kB)
++Collecting pandas>=2.2 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 9))
++  Downloading pandas-3.0.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
++Collecting psutil>=6.0 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 10))
++  Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
++Collecting numpy>=2.0 (from -r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 11))
++  Downloading numpy-2.4.4-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
++Requirement already satisfied: packaging>=20.0 in /venv/recollection/lib/python3.11/site-packages (from transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1)) (26.2)
++Collecting pyyaml>=5.1 (from transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
++Collecting regex>=2025.10.22 (from transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading regex-2026.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
++Collecting tokenizers<=0.23.0,>=0.22.0 (from transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
++Collecting typer (from transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading typer-0.25.1-py3-none-any.whl.metadata (15 kB)
++Collecting tqdm>=4.27 (from transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading tqdm-4.67.3-py3-none-any.whl.metadata (57 kB)
++Collecting filelock>=3.10.0 (from huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading filelock-3.29.0-py3-none-any.whl.metadata (2.0 kB)
++Collecting fsspec>=2023.5.0 (from huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading fsspec-2026.4.0-py3-none-any.whl.metadata (10 kB)
++Collecting hf-xet<2.0.0,>=1.4.3 (from huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading hf_xet-1.5.0-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
++Collecting httpx<1,>=0.23.0 (from huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
++Collecting typing-extensions>=4.1.0 (from huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
++Collecting anyio (from httpx<1,>=0.23.0->huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
++Collecting certifi (from httpx<1,>=0.23.0->huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
++Collecting httpcore==1.* (from httpx<1,>=0.23.0->huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
++Collecting idna (from httpx<1,>=0.23.0->huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading idna-3.13-py3-none-any.whl.metadata (8.0 kB)
++Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
++Collecting torch>=2.0.0 (from accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading torch-2.11.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (29 kB)
++Collecting setuptools<82 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading setuptools-81.0.0-py3-none-any.whl.metadata (6.6 kB)
++Collecting sympy>=1.13.3 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
++Collecting networkx>=2.5.1 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading networkx-3.6.1-py3-none-any.whl.metadata (6.8 kB)
++Collecting jinja2 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
++Collecting cuda-toolkit==13.0.2 (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading cuda_toolkit-13.0.2-py2.py3-none-any.whl.metadata (9.4 kB)
++Collecting cuda-bindings<14,>=13.0.3 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading cuda_bindings-13.2.0-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.3 kB)
++Collecting nvidia-cudnn-cu13==9.19.0.56 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cudnn_cu13-9.19.0.56-py3-none-manylinux_2_27_x86_64.whl.metadata (1.9 kB)
++Collecting nvidia-cusparselt-cu13==0.8.0 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cusparselt_cu13-0.8.0-py3-none-manylinux2014_x86_64.whl.metadata (12 kB)
++Collecting nvidia-nccl-cu13==2.28.9 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_nccl_cu13-2.28.9-py3-none-manylinux_2_18_x86_64.whl.metadata (2.0 kB)
++Collecting nvidia-nvshmem-cu13==3.4.5 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.1 kB)
++Collecting triton==3.6.0 (from torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading triton-3.6.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-cublas==13.1.0.3.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cublas-13.1.0.3-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-cuda-runtime==13.0.96.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-cufft==12.0.0.61.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
++Collecting nvidia-cufile==1.15.1.6.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-cuda-cupti==13.0.85.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-curand==10.4.0.35.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-cusolver==12.0.4.66.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
++Collecting nvidia-cusparse==12.6.3.3.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
++Collecting nvidia-nvjitlink==13.0.88.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_nvjitlink-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-cuda-nvrtc==13.0.88.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
++Collecting nvidia-nvtx==13.0.85.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl.metadata (1.8 kB)
++Collecting cuda-pathfinder~=1.1 (from cuda-bindings<14,>=13.0.3->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading cuda_pathfinder-1.5.4-py3-none-any.whl.metadata (1.9 kB)
++Collecting scikit-learn>=0.22.0 (from sentence-transformers>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 6))
++  Downloading scikit_learn-1.8.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (11 kB)
++Collecting scipy>=1.0.0 (from sentence-transformers>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 6))
++  Downloading scipy-1.17.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
++Collecting deprecation>=2.1.0 (from lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading deprecation-2.1.0-py2.py3-none-any.whl.metadata (4.6 kB)
++Collecting overrides>=0.7 (from lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading overrides-7.7.0-py3-none-any.whl.metadata (5.8 kB)
++Collecting pyarrow>=16 (from lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading pyarrow-24.0.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (3.0 kB)
++Collecting pydantic>=1.10 (from lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading pydantic-2.13.4-py3-none-any.whl.metadata (109 kB)
++Collecting lance-namespace>=0.3.2 (from lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading lance_namespace-0.7.6-py3-none-any.whl.metadata (1.6 kB)
++Collecting dill<0.4.2,>=0.3.0 (from datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading dill-0.4.1-py3-none-any.whl.metadata (10 kB)
++Collecting requests>=2.32.2 (from datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading requests-2.33.1-py3-none-any.whl.metadata (4.8 kB)
++Collecting xxhash (from datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading xxhash-3.7.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (13 kB)
++Collecting multiprocess<0.70.20 (from datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading multiprocess-0.70.19-py311-none-any.whl.metadata (7.5 kB)
++Collecting fsspec>=2023.5.0 (from huggingface_hub>=0.27->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 5))
++  Downloading fsspec-2026.2.0-py3-none-any.whl.metadata (10 kB)
++Collecting aiohttp!=4.0.0a0,!=4.0.0a1 (from fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading aiohttp-3.13.5-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.1 kB)
++Collecting python-dateutil>=2.8.2 (from pandas>=2.2->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 9))
++  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
++Collecting aiohappyeyeballs>=2.5.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl.metadata (5.9 kB)
++Collecting aiosignal>=1.4.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
++Collecting attrs>=17.3.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
++Collecting frozenlist>=1.1.1 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading frozenlist-1.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (20 kB)
++Collecting multidict<7.0,>=4.5 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading multidict-6.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
++Collecting propcache>=0.2.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading propcache-0.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (16 kB)
++Collecting yarl<2.0,>=1.17.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2026.2.0,>=2023.1.0->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading yarl-1.23.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
++Collecting lance-namespace-urllib3-client==0.7.6 (from lance-namespace>=0.3.2->lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading lance_namespace_urllib3_client-0.7.6-py3-none-any.whl.metadata (28 kB)
++Collecting urllib3<3.0.0,>=1.25.3 (from lance-namespace-urllib3-client==0.7.6->lance-namespace>=0.3.2->lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
++Collecting annotated-types>=0.6.0 (from pydantic>=1.10->lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
++Collecting pydantic-core==2.46.4 (from pydantic>=1.10->lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
++Collecting typing-inspection>=0.4.2 (from pydantic>=1.10->lancedb>=0.18->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 7))
++  Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
++Collecting six>=1.5 (from python-dateutil>=2.8.2->pandas>=2.2->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 9))
++  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
++Collecting charset_normalizer<4,>=2 (from requests>=2.32.2->datasets>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 8))
++  Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
++Collecting joblib>=1.3.0 (from scikit-learn>=0.22.0->sentence-transformers>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 6))
++  Downloading joblib-1.5.3-py3-none-any.whl.metadata (5.5 kB)
++Collecting threadpoolctl>=3.2.0 (from scikit-learn>=0.22.0->sentence-transformers>=3.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 6))
++  Downloading threadpoolctl-3.6.0-py3-none-any.whl.metadata (13 kB)
++Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
++Collecting click>=8.2.1 (from typer->transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
++Collecting shellingham>=1.3.0 (from typer->transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
++Collecting rich>=13.8.0 (from typer->transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
++Collecting annotated-doc>=0.0.2 (from typer->transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)
++Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->typer->transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
++Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->typer->transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
++Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers>=4.50->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 1))
++  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
++Collecting MarkupSafe>=2.0 (from jinja2->torch>=2.0.0->accelerate>=1.0->-r /workspace/recollection.local/condaenv.megd7wqv.requirements.txt (line 2))
++  Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
++Downloading transformers-5.8.0-py3-none-any.whl (10.6 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.6/10.6 MB 155.4 MB/s  0:00:00
++
++Downloading huggingface_hub-1.14.0-py3-none-any.whl (661 kB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 661.5/661.5 kB 73.5 MB/s  0:00:00
++
++Downloading hf_xet-1.5.0-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 136.4 MB/s  0:00:00
++
++Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
++Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
++Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 137.5 MB/s  0:00:00
++
++Downloading accelerate-1.13.0-py3-none-any.whl (383 kB)
++Downloading safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (507 kB)
++Downloading bitsandbytes-0.49.2-py3-none-manylinux_2_24_x86_64.whl (60.7 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.7/60.7 MB 144.0 MB/s  0:00:00
++
++Downloading torch-2.11.0-cp311-cp311-manylinux_2_28_x86_64.whl (530.6 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 530.6/530.6 MB 115.6 MB/s  0:00:03
++
++Downloading cuda_toolkit-13.0.2-py2.py3-none-any.whl (2.4 kB)
++Downloading nvidia_cudnn_cu13-9.19.0.56-py3-none-manylinux_2_27_x86_64.whl (366.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 366.1/366.1 MB 137.1 MB/s  0:00:02
++
++Downloading nvidia_cusparselt_cu13-0.8.0-py3-none-manylinux2014_x86_64.whl (169.9 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 169.9/169.9 MB 103.8 MB/s  0:00:01
++
++Downloading nvidia_nccl_cu13-2.28.9-py3-none-manylinux_2_18_x86_64.whl (196.5 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.5/196.5 MB 134.2 MB/s  0:00:01
++
++Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (60.4 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.4/60.4 MB 146.1 MB/s  0:00:00
++
++Downloading triton-3.6.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (188.2 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 188.2/188.2 MB 114.4 MB/s  0:00:01
++
++Downloading cuda_bindings-13.2.0-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (6.3 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 127.7 MB/s  0:00:00
++
++Downloading cuda_pathfinder-1.5.4-py3-none-any.whl (51 kB)
++Downloading nvidia_cublas-13.1.0.3-py3-none-manylinux_2_27_x86_64.whl (423.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 423.1/423.1 MB 103.9 MB/s  0:00:03
++
++Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl (10.7 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 138.3 MB/s  0:00:00
++
++Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (90.2 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 90.2/90.2 MB 147.5 MB/s  0:00:00
++
++Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.2 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 119.0 MB/s  0:00:00
++
++Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (214.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 MB 147.5 MB/s  0:00:01
++
++Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 96.2 MB/s  0:00:00
++
++Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl (59.5 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.5/59.5 MB 142.0 MB/s  0:00:00
++
++Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl (200.9 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.9/200.9 MB 124.0 MB/s  0:00:01
++
++Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (145.9 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.9/145.9 MB 104.6 MB/s  0:00:01
++
++Downloading nvidia_nvjitlink-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (40.7 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.7/40.7 MB 138.7 MB/s  0:00:00
++
++Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl (148 kB)
++Downloading setuptools-81.0.0-py3-none-any.whl (1.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 95.5 MB/s  0:00:00
++
++Downloading sentence_transformers-5.4.1-py3-none-any.whl (571 kB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 571.3/571.3 kB 51.9 MB/s  0:00:00
++
++Downloading lancedb-0.30.2-cp39-abi3-manylinux_2_28_x86_64.whl (46.7 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.7/46.7 MB 43.3 MB/s  0:00:01
++
++Downloading datasets-4.8.5-py3-none-any.whl (528 kB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 529.0/529.0 kB 51.1 MB/s  0:00:00
++
++Downloading dill-0.4.1-py3-none-any.whl (120 kB)
++Downloading fsspec-2026.2.0-py3-none-any.whl (202 kB)
++Downloading multiprocess-0.70.19-py311-none-any.whl (144 kB)
++Downloading pandas-3.0.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (11.3 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 134.0 MB/s  0:00:00
++
++Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
++Downloading numpy-2.4.4-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 137.6 MB/s  0:00:00
++
++Downloading aiohttp-3.13.5-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.8 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 117.0 MB/s  0:00:00
++
++Downloading multidict-6.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (246 kB)
++Downloading yarl-1.23.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (102 kB)
++Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl (15 kB)
++Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
++Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
++Downloading deprecation-2.1.0-py2.py3-none-any.whl (11 kB)
++Downloading filelock-3.29.0-py3-none-any.whl (39 kB)
++Downloading frozenlist-1.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (231 kB)
++Downloading h11-0.16.0-py3-none-any.whl (37 kB)
++Downloading idna-3.13-py3-none-any.whl (68 kB)
++Downloading lance_namespace-0.7.6-py3-none-any.whl (12 kB)
++Downloading lance_namespace_urllib3_client-0.7.6-py3-none-any.whl (324 kB)
++Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
++Downloading networkx-3.6.1-py3-none-any.whl (2.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 118.0 MB/s  0:00:00
++
++Downloading overrides-7.7.0-py3-none-any.whl (17 kB)
++Downloading propcache-0.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (58 kB)
++Downloading pyarrow-24.0.0-cp311-cp311-manylinux_2_28_x86_64.whl (48.8 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.8/48.8 MB 140.9 MB/s  0:00:00
++
++Downloading pydantic-2.13.4-py3-none-any.whl (472 kB)
++Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 111.3 MB/s  0:00:00
++
++Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
++Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
++Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 76.0 MB/s  0:00:00
++
++Downloading regex-2026.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (799 kB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 799.8/799.8 kB 79.4 MB/s  0:00:00
++
++Downloading requests-2.33.1-py3-none-any.whl (64 kB)
++Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (214 kB)
++Downloading certifi-2026.4.22-py3-none-any.whl (135 kB)
++Downloading scikit_learn-1.8.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (9.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.1/9.1 MB 21.3 MB/s  0:00:00
++
++Downloading joblib-1.5.3-py3-none-any.whl (309 kB)
++Downloading scipy-1.17.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 139.7 MB/s  0:00:00
++
++Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
++Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 135.6 MB/s  0:00:00
++
++Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 55.8 MB/s  0:00:00
++
++Downloading threadpoolctl-3.6.0-py3-none-any.whl (18 kB)
++Downloading tqdm-4.67.3-py3-none-any.whl (78 kB)
++Downloading typer-0.25.1-py3-none-any.whl (58 kB)
++Downloading annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
++Downloading click-8.3.3-py3-none-any.whl (110 kB)
++Downloading rich-15.0.0-py3-none-any.whl (310 kB)
++Downloading pygments-2.20.0-py3-none-any.whl (1.2 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 101.2 MB/s  0:00:00
++
++Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
++Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
++Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
++Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
++Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
++Downloading anyio-4.13.0-py3-none-any.whl (114 kB)
++Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
++Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
++Downloading xxhash-3.7.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (193 kB)
++Installing collected packages: nvidia-cusparselt-cu13, mpmath, cuda-toolkit, xxhash, urllib3, typing-extensions, triton, tqdm, threadpoolctl, sympy, six, shellingham, setuptools, safetensors, regex, pyyaml, pygments, pyarrow, psutil, propcache, overrides, nvidia-nvtx, nvidia-nvshmem-cu13, nvidia-nvjitlink, nvidia-nccl-cu13, nvidia-curand, nvidia-cufile, nvidia-cuda-runtime, nvidia-cuda-nvrtc, nvidia-cuda-cupti, nvidia-cublas, numpy, networkx, multidict, mdurl, MarkupSafe, joblib, idna, hf-xet, h11, fsspec, frozenlist, filelock, dill, deprecation, cuda-pathfinder, click, charset_normalizer, certifi, attrs, annotated-types, annotated-doc, aiohappyeyeballs, yarl, typing-inspection, scipy, requests, python-dateutil, pydantic-core, nvidia-cusparse, nvidia-cufft, nvidia-cudnn-cu13, multiprocess, markdown-it-py, jinja2, httpcore, cuda-bindings, anyio, aiosignal, scikit-learn, rich, pydantic, pandas, nvidia-cusolver, httpx, aiohttp, typer, lance-namespace-urllib3-client, torch, lance-namespace, huggingface_hub, tokenizers, lancedb, datasets, bitsandbytes, accelerate, transformers, sentence-transformers
++  Attempting uninstall: setuptools
++    Found existing installation: setuptools 82.0.1
++    Uninstalling setuptools-82.0.1:
++      Successfully uninstalled setuptools-82.0.1
++
++
++Successfully installed MarkupSafe-3.0.3 accelerate-1.13.0 aiohappyeyeballs-2.6.1 aiohttp-3.13.5 aiosignal-1.4.0 annotated-doc-0.0.4 annotated-types-0.7.0 anyio-4.13.0 attrs-26.1.0 bitsandbytes-0.49.2 certifi-2026.4.22 charset_normalizer-3.4.7 click-8.3.3 cuda-bindings-13.2.0 cuda-pathfinder-1.5.4 cuda-toolkit-13.0.2 datasets-4.8.5 deprecation-2.1.0 dill-0.4.1 filelock-3.29.0 frozenlist-1.8.0 fsspec-2026.2.0 h11-0.16.0 hf-xet-1.5.0 httpcore-1.0.9 httpx-0.28.1 huggingface_hub-1.14.0 idna-3.13 jinja2-3.1.6 joblib-1.5.3 lance-namespace-0.7.6 lance-namespace-urllib3-client-0.7.6 lancedb-0.30.2 markdown-it-py-4.2.0 mdurl-0.1.2 mpmath-1.3.0 multidict-6.7.1 multiprocess-0.70.19 networkx-3.6.1 numpy-2.4.4 nvidia-cublas-13.1.0.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.19.0.56 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.0 nvidia-nccl-cu13-2.28.9 nvidia-nvjitlink-13.0.88 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 overrides-7.7.0 pandas-3.0.2 propcache-0.5.2 psutil-7.2.2 pyarrow-24.0.0 pydantic-2.13.4 pydantic-core-2.46.4 pygments-2.20.0 python-dateutil-2.9.0.post0 pyyaml-6.0.3 regex-2026.4.4 requests-2.33.1 rich-15.0.0 safetensors-0.7.0 scikit-learn-1.8.0 scipy-1.17.1 sentence-transformers-5.4.1 setuptools-81.0.0 shellingham-1.5.4 six-1.17.0 sympy-1.14.0 threadpoolctl-3.6.0 tokenizers-0.22.2 torch-2.11.0 tqdm-4.67.3 transformers-5.8.0 triton-3.6.0 typer-0.25.1 typing-extensions-4.15.0 typing-inspection-0.4.2 urllib3-2.7.0 xxhash-3.7.0 yarl-1.23.0
++
++done
++#
++# To activate this environment, use
++#
++#     $ conda activate recollection
++#
++# To deactivate an active environment, use
++#
++#     $ conda deactivate
++
++[32m[ok][0m env active: /venv/recollection (python=3.11.15)
++[33m[..][0m torch 2.11.0 -> 2.6.0+cu124 (driver-compat reinstall)
++[33m[..][0m Installing torch==2.6.0 (cu124 wheel)
++Looking in indexes: https://download.pytorch.org/whl/cu124
++Collecting torch==2.6.0
++  Downloading torch-2.6.0%2Bcu124-cp311-cp311-linux_x86_64.whl.metadata (28 kB)
++Collecting filelock (from torch==2.6.0)
++  Downloading filelock-3.25.2-py3-none-any.whl.metadata (2.0 kB)
++Collecting typing-extensions>=4.10.0 (from torch==2.6.0)
++  Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
++Collecting networkx (from torch==2.6.0)
++  Downloading networkx-3.6.1-py3-none-any.whl.metadata (6.8 kB)
++Collecting jinja2 (from torch==2.6.0)
++  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
++Collecting fsspec (from torch==2.6.0)
++  Downloading fsspec-2026.2.0-py3-none-any.whl.metadata (10 kB)
++Collecting nvidia-cuda-nvrtc-cu12==12.4.127 (from torch==2.6.0)
++  Downloading nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (24.6 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 24.6/24.6 MB 162.5 MB/s  0:00:00
++
++Collecting nvidia-cuda-runtime-cu12==12.4.127 (from torch==2.6.0)
++  Downloading nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (883 kB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 883.7/883.7 kB 53.8 MB/s  0:00:00
++
++Collecting nvidia-cuda-cupti-cu12==12.4.127 (from torch==2.6.0)
++  Downloading nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (13.8 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.8/13.8 MB 197.9 MB/s  0:00:00
++
++Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch==2.6.0)
++  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 664.8/664.8 MB 204.3 MB/s  0:00:03
++
++Collecting nvidia-cublas-cu12==12.4.5.8 (from torch==2.6.0)
++  Downloading nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl (363.4 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 363.4/363.4 MB 204.6 MB/s  0:00:01
++
++Collecting nvidia-cufft-cu12==11.2.1.3 (from torch==2.6.0)
++  Downloading nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl (211.5 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 211.5/211.5 MB 195.9 MB/s  0:00:01
++
++Collecting nvidia-curand-cu12==10.3.5.147 (from torch==2.6.0)
++  Downloading nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl (56.3 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.3/56.3 MB 205.1 MB/s  0:00:00
++
++Collecting nvidia-cusolver-cu12==11.6.1.9 (from torch==2.6.0)
++  Downloading nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl (127.9 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 127.9/127.9 MB 203.6 MB/s  0:00:00
++
++Collecting nvidia-cusparse-cu12==12.3.1.170 (from torch==2.6.0)
++  Downloading nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl (207.5 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 207.5/207.5 MB 199.9 MB/s  0:00:01
++
++Collecting nvidia-cusparselt-cu12==0.6.2 (from torch==2.6.0)
++  Downloading nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_x86_64.whl.metadata (6.8 kB)
++Collecting nvidia-nccl-cu12==2.21.5 (from torch==2.6.0)
++  Downloading nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl (188.7 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 188.7/188.7 MB 205.1 MB/s  0:00:00
++
++Collecting nvidia-nvtx-cu12==12.4.127 (from torch==2.6.0)
++  Downloading nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (99 kB)
++Collecting nvidia-nvjitlink-cu12==12.4.127 (from torch==2.6.0)
++  Downloading nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (21.1 MB)
++     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 21.1/21.1 MB 195.4 MB/s  0:00:00
++
++Collecting triton==3.2.0 (from torch==2.6.0)
++  Downloading triton-3.2.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.4 kB)
++Collecting sympy==1.13.1 (from torch==2.6.0)
++  Downloading sympy-1.13.1-py3-none-any.whl.metadata (12 kB)
++Collecting mpmath<1.4,>=1.1.0 (from sympy==1.13.1->torch==2.6.0)
++  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
++Collecting MarkupSafe>=2.0 (from jinja2->torch==2.6.0)
++  Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
++Downloading torch-2.6.0%2Bcu124-cp311-cp311-linux_x86_64.whl (768.5 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 768.5/768.5 MB 203.1 MB/s  0:00:03
++
++Downloading nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_x86_64.whl (150.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 150.1/150.1 MB 195.8 MB/s  0:00:00
++
++Downloading sympy-1.13.1-py3-none-any.whl (6.2 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.2/6.2 MB 192.4 MB/s  0:00:00
++
++Downloading triton-3.2.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (166.7 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 166.7/166.7 MB 201.7 MB/s  0:00:00
++
++Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 231.0 MB/s  0:00:00
++
++Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
++Downloading filelock-3.25.2-py3-none-any.whl (26 kB)
++Downloading fsspec-2026.2.0-py3-none-any.whl (202 kB)
++Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
++Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
++Downloading networkx-3.6.1-py3-none-any.whl (2.1 MB)
++   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 202.4 MB/s  0:00:00
++
++Installing collected packages: triton, nvidia-cusparselt-cu12, mpmath, typing-extensions, sympy, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, filelock, nvidia-cusparse-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch
++  Attempting uninstall: triton
++    Found existing installation: triton 3.6.0
++    Uninstalling triton-3.6.0:
++      Successfully uninstalled triton-3.6.0
++  Attempting uninstall: mpmath
++    Found existing installation: mpmath 1.3.0
++    Uninstalling mpmath-1.3.0:
++      Successfully uninstalled mpmath-1.3.0
++  Attempting uninstall: typing-extensions
++    Found existing installation: typing_extensions 4.15.0
++    Uninstalling typing_extensions-4.15.0:
++      Successfully uninstalled typing_extensions-4.15.0
++  Attempting uninstall: sympy
++    Found existing installation: sympy 1.14.0
++    Uninstalling sympy-1.14.0:
++      Successfully uninstalled sympy-1.14.0
++  Attempting uninstall: networkx
++    Found existing installation: networkx 3.6.1
++    Uninstalling networkx-3.6.1:
++      Successfully uninstalled networkx-3.6.1
++  Attempting uninstall: MarkupSafe
++    Found existing installation: MarkupSafe 3.0.3
++    Uninstalling MarkupSafe-3.0.3:
++      Successfully uninstalled MarkupSafe-3.0.3
++  Attempting uninstall: fsspec
++    Found existing installation: fsspec 2026.2.0
++    Uninstalling fsspec-2026.2.0:
++      Successfully uninstalled fsspec-2026.2.0
++  Attempting uninstall: filelock
++    Found existing installation: filelock 3.29.0
++    Uninstalling filelock-3.29.0:
++      Successfully uninstalled filelock-3.29.0
++  Attempting uninstall: jinja2
++    Found existing installation: Jinja2 3.1.6
++    Uninstalling Jinja2-3.1.6:
++      Successfully uninstalled Jinja2-3.1.6
++  Attempting uninstall: torch
++    Found existing installation: torch 2.11.0
++    Uninstalling torch-2.11.0:
++      Successfully uninstalled torch-2.11.0
++
++
++Successfully installed MarkupSafe-3.0.3 filelock-3.25.2 fsspec-2026.2.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.6.1 nvidia-cublas-cu12-12.4.5.8 nvidia-cuda-cupti-cu12-12.4.127 nvidia-cuda-nvrtc-cu12-12.4.127 nvidia-cuda-runtime-cu12-12.4.127 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.2.1.3 nvidia-curand-cu12-10.3.5.147 nvidia-cusolver-cu12-11.6.1.9 nvidia-cusparse-cu12-12.3.1.170 nvidia-cusparselt-cu12-0.6.2 nvidia-nccl-cu12-2.21.5 nvidia-nvjitlink-cu12-12.4.127 nvidia-nvtx-cu12-12.4.127 sympy-1.13.1 torch-2.6.0+cu124 triton-3.2.0 typing-extensions-4.15.0
++WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
++[ok] torch 2.6.0+cu124 cuda_available=True device_count=1
++[ok] device 0: NVIDIA A40
++[ok] transformers 5.8.0 / accelerate 1.13.0
++[ok] bitsandbytes 0.49.2
++[ok] platform=Linux-5.15.0-135-generic-x86_64-with-glibc2.39 py=3.11.15
++[32m[ok][0m models/, data/, runs/, figs/ ready
++[32m[ok][0m runs/env_lockfile.txt written (101 packages)
++[32m[ok][0m setup complete.
++    Activate with: conda activate recollection
+diff --git a/scripts/00_smoke.py b/scripts/00_smoke.py
+index ab31244..ae61ed6 100644
+--- a/scripts/00_smoke.py
++++ b/scripts/00_smoke.py
+@@ -56,6 +56,34 @@ def main() -> None:
+         "--prompt",
+         default="In one sentence, what is retrieval-augmented generation?",
+     )
++    parser.add_argument(
++        "--device-map",
++        default="auto",
++        choices=["single", "auto"],
++        help=(
++            "'auto' lets accelerate split between GPU and CPU. With NF4 + a 4-bit "
++            "BitsAndBytesConfig, quantizable Linear layers go to GPU; non-quantizable "
++            "modules (embeddings, lm_head, norms) may overflow to CPU when the GPU is "
++            "tight (35B@bf16=70GB intermediates exceed our ~44GiB cgroup budget). "
++            "'single' pins everything to cuda:0 — fits only for the small Phi model."
++        ),
++    )
++    parser.add_argument(
++        "--gpu-budget",
++        default="40GiB",
++        help="Per-GPU max for accelerate (auto). 40GiB on A40 leaves headroom for activations.",
++    )
++    parser.add_argument(
++        "--no-quant",
++        action="store_true",
++        help=(
++            "Skip bnb 4-bit and load bf16 with CPU offload. Required for the 35B "
++            "MoE on transformers 5.8 + bnb 0.49.2: the new core_model_loading path "
++            "in 5.8 materializes shards to GPU as bf16 before bnb can quantize, "
++            "OOM'ing the A40 (44GiB) long before reaching the ~18GB NF4 final size. "
++            "CPU bf16 fits in our 2TB RAM and still validates hidden-state extraction."
++        ),
++    )
+     args = parser.parse_args()
+ 
+     model_dir = Path("models") / args.model
+@@ -69,6 +97,26 @@ def main() -> None:
+     print(f"\n[..] importing torch + transformers + bitsandbytes ...")
+ 
+     import torch
++    # Compat shim: accelerate's dispatch_model passes a private `_is_hf_initialized`
++    # kwarg into Params4bit.__new__, but bnb 0.49.2 (the latest as of 2026-05) hasn't
++    # widened the signature to accept it. Result: TypeError during accelerate hook
++    # attachment whenever bnb 4-bit is mixed with cpu offload (or any module that
++    # carries the flag through). Patch the constructor to drop unknown kwargs.
++    # Drop this once bnb >0.49.2 ships.
++    import bitsandbytes.nn as _bnb_nn
++    if not getattr(_bnb_nn.Params4bit, "_recollect_kwargs_patched", False):
++        _orig_new = _bnb_nn.Params4bit.__new__
++        _allowed = {
++            "data", "requires_grad", "quant_state", "blocksize",
++            "compress_statistics", "quant_type", "quant_storage", "module",
++            "bnb_quantized",
++        }
++        def _patched_new(cls, data=None, requires_grad=False, **kwargs):
++            kwargs = {k: v for k, v in kwargs.items() if k in _allowed}
++            return _orig_new(cls, data=data, requires_grad=requires_grad, **kwargs)
++        _bnb_nn.Params4bit.__new__ = _patched_new
++        _bnb_nn.Params4bit._recollect_kwargs_patched = True
++
+     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+ 
+     rss_after_import = _process_rss_gb() or 0.0
+@@ -78,24 +126,40 @@ def main() -> None:
+         print("[!!] CUDA not available; v3 requires a CUDA GPU.")
+         sys.exit(1)
+ 
+-    bnb_config = BitsAndBytesConfig(
+-        load_in_4bit=True,
+-        bnb_4bit_quant_type="nf4",
+-        bnb_4bit_compute_dtype=torch.bfloat16,
+-        bnb_4bit_use_double_quant=True,
+-    )
++    if args.no_quant:
++        bnb_config = None
++        load_mode = "bf16 (no bnb)"
++    else:
++        bnb_config = BitsAndBytesConfig(
++            load_in_4bit=True,
++            bnb_4bit_quant_type="nf4",
++            bnb_4bit_compute_dtype=torch.bfloat16,
++            bnb_4bit_use_double_quant=True,
++        )
++        load_mode = "4-bit NF4, bf16 compute"
+ 
+-    print(f"[..] loading {model_dir} (4-bit NF4, bf16 compute)")
++    print(f"[..] loading {model_dir} ({load_mode})")
+     t0 = time.perf_counter()
+     # trust_remote_code=False on purpose: bundled modeling_phi3.py in the HF
+     # snapshot is pinned to an older transformers API (e.g. LossKwargs) and
+     # ImportErrors against current transformers. The built-in Phi3 / Qwen
+     # implementations in transformers 5.x handle these architectures natively.
+     tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
++    if args.no_quant:
++        device_map_arg = "auto"
++        max_memory = {0: args.gpu_budget, "cpu": "200GiB"}
++        load_kwargs: dict = {"dtype": torch.bfloat16}
++    else:
++        device_map_arg = {"": 0} if args.device_map == "single" else "auto"
++        max_memory = (
++            None if args.device_map == "single" else {0: args.gpu_budget}
++        )
++        load_kwargs = {"quantization_config": bnb_config, "dtype": torch.bfloat16}
+     model = AutoModelForCausalLM.from_pretrained(
+         str(model_dir),
+-        quantization_config=bnb_config,
+-        device_map="auto",
++        device_map=device_map_arg,
++        max_memory=max_memory,
++        **load_kwargs,
+     )
+     model.eval()
+     load_secs = time.perf_counter() - t0
+diff --git a/tools/quantize_qwen.py b/tools/quantize_qwen.py
+new file mode 100644
+index 0000000..fd9a978
+--- /dev/null
++++ b/tools/quantize_qwen.py
+@@ -0,0 +1,271 @@
++"""Pre-quantize a HF model snapshot to NF4 and save to disk.
++
++Workaround for the transformers 5.8 + bitsandbytes 0.49.2 NF4 streaming-load
++regression diagnosed in `_AGENT.md` (2026-05-09 #2). When `from_pretrained` is
++asked to load a 35B-class model with `quantization_config=BitsAndBytesConfig(...)`
++on a single tight-VRAM GPU (≤44 GiB), transformers 5.x's new
++`core_model_loading._materialize_copy` ships bf16 shards to the GPU *before*
++bnb gets a chance to quantize, OOMing well before reaching the ~18 GB NF4
++final size.
++
++This script sidesteps the load-time race entirely:
++
++  1. Load the source snapshot on CPU in bf16 via `AutoModelForCausalLM.from_pretrained`.
++     Transformers' from_pretrained handles the checkpoint's key remapping
++     (e.g. `model.language_model.layers.X` -> `model.layers.X` for VL-derived
++     snapshots that share an LM with the conditional-generation sibling). With
++     2 TB RAM, holding 67 GB of bf16 weights is cheap.
++  2. Walk every `nn.Linear` (skipping a configurable set such as `lm_head`).
++     For each one, construct a fresh `bnb.nn.Linear4bit`, attach the source
++     bf16 weight as a `bnb.nn.Params4bit`, move that single module to GPU
++     (Params4bit's `.cuda()` is where bnb actually runs `quantize_4bit` and
++     stores the 4-bit packed bytes), then splice it back into the parent module.
++     The original bf16 Linear is dropped, freeing its CPU storage immediately.
++     Peak VRAM during the loop ≈ (largest single Linear's bf16 + accumulating
++     4-bit). For a 35B MoE model this stays under ~3 GiB.
++  3. Move the remaining non-quantizable modules (embeddings / norms / lm_head)
++     to GPU in their original dtype.
++  4. `save_pretrained` writes the 4-bit-packed shards plus a
++     `quantization_config` entry into `config.json`. Subsequent
++     `from_pretrained(..., quantization_config=...)` materializes only ~18 GB
++     total (per-shard much smaller), which fits the 44 GiB GPU budget and
++     skips the broken streaming-quant path entirely.
++
++We avoid `accelerate.dispatch_model` and `load_checkpoint_in_model` because
++both re-trigger the `Params4bit.__new__` kwarg incompatibility and the
++`Tensor.item() on meta` crashes documented in `_AGENT.md`. Doing the swap
++manually keeps us inside well-tested module-replacement territory.
++
++Usage:
++    python tools/quantize_qwen.py \
++        --src models/qwen3.6-35b-a3b-instruct \
++        --dst models/qwen3.6-35b-a3b-instruct-nf4
++"""
++
++from __future__ import annotations
++
++import argparse
++import gc
++import shutil
++import sys
++import time
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent.parent
++sys.path.insert(0, str(HERE / "scripts"))
++
++from sysinfo import _process_rss_gb, vram_used_mb  # type: ignore[import-not-found]
++
++
++def _format_gb(mb: int | None) -> str:
++    return "n/a" if mb is None else f"{mb / 1024:.2f} GiB"
++
++
++def _set_submodule(root, dotted_name: str, new_module) -> None:
++    """torch.nn doesn't expose `set_submodule` until 2.4; do it by hand."""
++    parent_path, _, attr = dotted_name.rpartition(".")
++    parent = root.get_submodule(parent_path) if parent_path else root
++    setattr(parent, attr, new_module)
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
++    parser.add_argument(
++        "--src",
++        default="models/qwen3.6-35b-a3b-instruct",
++        help="Source model directory (bf16 safetensors snapshot).",
++    )
++    parser.add_argument(
++        "--dst",
++        default="models/qwen3.6-35b-a3b-instruct-nf4",
++        help="Destination directory for the NF4 snapshot.",
++    )
++    parser.add_argument(
++        "--keep-bf16",
++        nargs="*",
++        default=["lm_head"],
++        help="Module name substrings to leave in bf16 (default: lm_head).",
++    )
++    parser.add_argument(
++        "--device",
++        default="cuda:0",
++        help="Target device for quantization (must be CUDA for bnb).",
++    )
++    parser.add_argument(
++        "--report-every",
++        type=int,
++        default=100,
++        help="Print VRAM/RSS after every N quantized Linear4bit modules.",
++    )
++    args = parser.parse_args()
++
++    src = Path(args.src).resolve()
++    dst = Path(args.dst).resolve()
++    if not src.exists():
++        sys.exit(f"[!!] missing source: {src}")
++    if dst.exists() and any(dst.iterdir()):
++        sys.exit(f"[!!] destination not empty: {dst} (delete or pick a different --dst)")
++    dst.mkdir(parents=True, exist_ok=True)
++
++    print("[..] importing torch + transformers + bitsandbytes")
++    import torch
++    from torch import nn
++    import bitsandbytes as bnb
++    import bitsandbytes.nn as _bnb_nn
++
++    # Compat shim: see _AGENT.md "compat finding". We don't go through
++    # accelerate's dispatch_model here, but transformers' save_pretrained may
++    # still construct Params4bit indirectly. Keep the kwarg-dropping shim on.
++    if not getattr(_bnb_nn.Params4bit, "_recollect_kwargs_patched", False):
++        _orig_new = _bnb_nn.Params4bit.__new__
++        _allowed = {
++            "data", "requires_grad", "quant_state", "blocksize",
++            "compress_statistics", "quant_type", "quant_storage", "module",
++            "bnb_quantized",
++        }
++        def _patched_new(cls, data=None, requires_grad=False, **kwargs):
++            kwargs = {k: v for k, v in kwargs.items() if k in _allowed}
++            return _orig_new(cls, data=data, requires_grad=requires_grad, **kwargs)
++        _bnb_nn.Params4bit.__new__ = _patched_new
++        _bnb_nn.Params4bit._recollect_kwargs_patched = True
++
++    from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
++
++    if not torch.cuda.is_available():
++        sys.exit("[!!] CUDA not available; bnb 4-bit quantization requires a GPU.")
++    target = torch.device(args.device)
++
++    bnb_config = BitsAndBytesConfig(
++        load_in_4bit=True,
++        bnb_4bit_quant_type="nf4",
++        bnb_4bit_compute_dtype=torch.bfloat16,
++        bnb_4bit_use_double_quant=True,
++    )
++
++    cfg = AutoConfig.from_pretrained(str(src))
++    text_cfg = getattr(cfg, "text_config", cfg)
++    print(
++        f"[ok] config: model_type={cfg.model_type} "
++        f"hidden={getattr(text_cfg, 'hidden_size', '?')} "
++        f"layers={getattr(text_cfg, 'num_hidden_layers', '?')} "
++        f"vocab={getattr(text_cfg, 'vocab_size', '?')}"
++    )
++
++    rss0 = _process_rss_gb() or 0.0
++    print(f"\n[..] step 1: from_pretrained on CPU in bf16 (rss baseline {rss0:.2f} GB)")
++    t0 = time.perf_counter()
++    model = AutoModelForCausalLM.from_pretrained(
++        str(src),
++        dtype=torch.bfloat16,
++        device_map="cpu",
++        low_cpu_mem_usage=True,
++    )
++    model.eval()
++    load_secs = time.perf_counter() - t0
++    rss_after = _process_rss_gb() or 0.0
++    print(f"[ok] loaded on CPU in {load_secs:.1f}s | rss {rss0:.2f} -> {rss_after:.2f} GB")
++
++    n_total_lin = sum(1 for m in model.modules() if isinstance(m, nn.Linear))
++    skip_set = list(args.keep_bf16)
++    print(
++        f"\n[..] step 2: replace {n_total_lin} nn.Linear modules with bnb.Linear4bit "
++        f"(skip name-substrings: {skip_set})"
++    )
++    t0 = time.perf_counter()
++    torch.cuda.reset_peak_memory_stats(target)
++    targets: list[tuple[str, nn.Linear]] = []
++    for name, module in model.named_modules():
++        if isinstance(module, nn.Linear):
++            if any(s in name for s in skip_set):
++                continue
++            targets.append((name, module))
++    print(f"    -> {len(targets)} modules to quantize, {n_total_lin - len(targets)} kept in bf16")
++
++    n_done = 0
++    for name, old in targets:
++        # Build the empty Linear4bit shell first (cpu meta-ish; nothing
++        # quantized yet because no Params4bit data is attached).
++        new = _bnb_nn.Linear4bit(
++            old.in_features,
++            old.out_features,
++            bias=old.bias is not None,
++            compute_dtype=torch.bfloat16,
++            quant_type="nf4",
++            compress_statistics=True,
++        )
++        # Build a Params4bit holding the source bf16 weight. Constructing on
++        # CPU (data still on cpu) is cheap; the .to(target) below is what
++        # actually invokes bnb's quantize_4bit on the GPU.
++        p = _bnb_nn.Params4bit(
++            old.weight.data,
++            requires_grad=False,
++            quant_type="nf4",
++            compress_statistics=True,
++        )
++        new.weight = p
++        if old.bias is not None:
++            new.bias = nn.Parameter(old.bias.data.to(dtype=torch.bfloat16), requires_grad=False)
++        # Move + quantize. Params4bit overrides `.to(cuda)` to run quantize_4bit;
++        # after this call new.weight holds the 4-bit packed bytes plus quant_state.
++        new = new.to(target)
++        # Splice into parent. Drop the old Linear so its bf16 storage is GC'd.
++        _set_submodule(model, name, new)
++        del old, p
++        n_done += 1
++        if n_done % args.report_every == 0 or n_done == len(targets):
++            gc.collect()
++            torch.cuda.empty_cache()
++            vram = vram_used_mb()
++            rss = _process_rss_gb() or 0.0
++            print(
++                f"  [{n_done:4d}/{len(targets)}] "
++                f"vram={_format_gb(vram)} rss={rss:.1f} GB  ({name})"
++            )
++    quant_secs = time.perf_counter() - t0
++    peak_mb = int(torch.cuda.max_memory_allocated(target) / 1024**2)
++    print(
++        f"[ok] {n_done} Linear4bit modules quantized in {quant_secs:.1f}s; "
++        f"peak VRAM during quant = {peak_mb} MB ({_format_gb(peak_mb)})"
++    )
++
++    print(
++        f"\n[..] step 3: move remaining (kept-bf16, embeddings, norms) to {target}"
++    )
++    model.to(target)
++    gc.collect()
++    torch.cuda.empty_cache()
++    vram_final = vram_used_mb()
++    rss_final = _process_rss_gb() or 0.0
++    print(
++        f"[ok] final on-GPU footprint: vram={_format_gb(vram_final)} rss={rss_final:.1f} GB"
++    )
++
++    # Tell save_pretrained how to round-trip this model.
++    model.config.quantization_config = bnb_config.to_dict()
++    model.is_quantized = True
++    model.is_loaded_in_4bit = True
++
++    print(f"\n[..] step 4: save_pretrained -> {dst}")
++    t0 = time.perf_counter()
++    model.save_pretrained(str(dst), safe_serialization=True)
++    save_secs = time.perf_counter() - t0
++    print(f"[ok] model written in {save_secs:.1f}s")
++
++    print(f"[..] saving tokenizer + chat template")
++    tok = AutoTokenizer.from_pretrained(str(src))
++    tok.save_pretrained(str(dst))
++    chat_jinja = src / "chat_template.jinja"
++    if chat_jinja.exists():
++        shutil.copy2(chat_jinja, dst / "chat_template.jinja")
++        print(f"[ok] copied chat_template.jinja")
++
++    on_disk_bytes = sum(p.stat().st_size for p in dst.rglob("*") if p.is_file())
++    print(f"\n[ok] done. {dst.name} on disk = {on_disk_bytes / 1024**3:.2f} GiB")
++    print(
++        f"    Next: `python scripts/00_smoke.py --model {dst.name}` "
++        "(no --no-quant flag needed)."
++    )
++
++
++if __name__ == "__main__":
++    main()

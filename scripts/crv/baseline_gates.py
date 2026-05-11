@@ -1,28 +1,47 @@
-"""Phase 3 baseline gates — simulated comparators for the latent CRV trigger.
+"""Phase 3 / 4 baseline gates.
 
-Three gates live here:
+The active gate pool (as of `_AGENT.md` 2026-05-11 #16):
 
-  - ``RealmRetrieveSimGate``   — simulator for *ReaLM-Retrieve*. The original
-    fires retrieval when a small trained verifier scores the current
-    reasoning step as uncertain ("Reasoning Step Uncertainty Score", RSU)
-    AND/OR when discourse markers like "let me verify" / "actually" /
-    "I need to check" appear. We do not have access to ReaLM's trained
-    verifier, so the RSU score is replaced by a *stand-in* — the per-step
-    mean next-token entropy of the generator itself. This is documented
-    inline as a Phase 3 caveat (L3 in ``_PLAN.md``).
+  - ``SelfDoubtTier1Gate`` — true Hedge-to-Verify Ratio (HVR) gate from
+    Pandey et al. (`arXiv:2604.06389v1`). Computes
+    ``HVR_t = h_t / (v_t + 1)`` over the step text, where ``h_t`` is the
+    count of hedge markers and ``v_t`` is the count of verify markers in
+    the current step. Fires when ``HVR_t`` exceeds a calibrated threshold.
+    Adapted to per-step incremental firing from the paper's trace-final
+    framing; the adaptation is documented in the paper §5.
 
-  - ``GripSimGate``            — simulator for *GRIP* control-token gating.
-    The original learns a classifier head that emits a `<retrieve>` /
-    `<rethink>` control token at boundaries; without trained weights we
-    approximate "the classifier would have fired" as
-    (next-token entropy spike at the boundary, z-scored against a rolling
-    window) AND (discourse-marker prior). Same L3 caveat applies.
+  - ``EtcGate`` — Entropy-Trend Constraint from Li et al. (Modeling
+    Uncertainty Trends, 2026). Computes the second-order difference of
+    the per-step mean entropy series: ``D2H_t = H_{t+1} - 2 H_t + H_{t-1}``
+    and fires when ``|D2H_t|`` exceeds a calibrated threshold. Adapted
+    to step-mean entropy from the paper's per-token formulation; that
+    adaptation is also documented in the paper §5.
 
-  - ``RandomGate``              — Bernoulli baseline. The plan specifies firing
-    at the *same per-step rate as the average of the trained gates* on the
-    same trace, so this gate calibrates its rate **post-hoc** in
-    ``calibrate_rate(...)`` once the trace's other gate decisions are known.
-    The PRNG seed is captured in the gate's metadata.
+  - ``RandomGate`` — Bernoulli baseline at the matched per-step rate.
+    Deterministic seed.
+
+  - ``LatentGateAdapter`` — wraps the CRV trigger so the showdown driver
+    can dispatch uniformly.
+
+Deprecated gates (kept for regression compatibility; never appear in §5/§6
+of the paper):
+
+  - ``RealmRetrieveSimGate`` — hybrid simulator combining a *stand-in* RSU
+    score (per-step mean next-token entropy) with a discourse-marker regex
+    branch we added. Documented as a simulator with two substitutions in
+    every emitted row's ``simulation_caveats`` field. The discourse-marker
+    branch was originally intended as a proxy for ReaLM-Retrieve's
+    hesitation cues; on careful reading of Guo et al. (2026) the actual
+    method uses a trained MLP proxy or the full RSUS equation, neither of
+    which this simulator implements. **Deprecated 2026-05-11; superseded
+    by the true ReaLM-RSUS implementation in `_PLAN.md` Phase 4.9 once
+    compute is available.**
+
+  - ``GripSimGate`` — hybrid simulator (entropy z-score conjunction with
+    discourse marker). GRIP requires SFT on 40 k samples + DAPO RL on 5 k
+    samples; reproducing it from forward-pass quantities is categorically
+    impossible. **Deprecated 2026-05-11; GRIP is moved to §2 Related Work
+    under training-required RAG, out of scope by design.**
 
 All four gates (these three + the latent ``CRVTrigger``) emit rows that
 match the unified Phase 3.4 schema::
@@ -434,11 +453,493 @@ class LatentGateAdapter:
         }
 
 
+# ---- SELFDOUBT-Tier1: true HVR gate ------------------------------------------
+
+# Seed marker dictionaries drawn from Pandey et al. (`arXiv:2604.06389v1`)
+# page 1 and §3.1 seed examples. The paper specifies a per-model
+# unsupervised discovery pipeline (90 unlabeled traces, multi-LLM
+# consensus, BGE-M3 coherence filter); these seeds are a no-compute
+# approximation. `_PLAN.md` Phase 4.10 covers the full discovery pipeline
+# when compute is available. Patterns are case-insensitive whole-word
+# matches; the comma-anchored fillers ("hmm,", "wait,") preserve their
+# discourse-marker semantics without false-firing inside ordinary prose.
+HEDGE_PATTERNS: tuple[str, ...] = (
+    r"\bmaybe\b",
+    r"\bperhaps\b",
+    r"\bpossibly\b",
+    r"\bprobably\b",
+    r"\bseems\b",
+    r"\bappears\b",
+    r"\bnot (sure|certain|entirely sure)\b",
+    r"\bi'?m not (sure|certain)\b",
+    r"\bi am not (sure|certain)\b",
+    r"\bi don'?t (remember|recall|know)\b",
+    r"\bcould be wrong\b",
+    r"\bmight be (wrong|incorrect)\b",
+    r"\bmay be (wrong|incorrect)\b",
+    r"\bhmm,",
+    r"\bwait,",
+    r"\bwell,",
+)
+
+VERIFY_PATTERNS: tuple[str, ...] = (
+    r"\blet me (verify|check|confirm|re-?read|re-?check|see)\b",
+    r"\bi (need to|should|will|'ll) (verify|check|confirm|recheck|reconsider|review|re-?read)\b",
+    r"\bdouble[- ]?check\b",
+    r"\bsubstitute back\b",
+    r"\bplug (it )?in\b",
+    r"\bcorrection:",
+    r"\bactually,",
+    r"\bon second thought\b",
+    r"\bscratch that\b",
+)
+
+_HEDGE_RE = re.compile("|".join(HEDGE_PATTERNS), re.IGNORECASE)
+_VERIFY_RE = re.compile("|".join(VERIFY_PATTERNS), re.IGNORECASE)
+
+
+def hedge_verify_counts(text: str) -> tuple[int, int]:
+    """Return ``(hedge_count, verify_count)`` for SELFDOUBT-Tier1 HVR."""
+    if not text:
+        return 0, 0
+    return (len(_HEDGE_RE.findall(text)), len(_VERIFY_RE.findall(text)))
+
+
+class SelfDoubtTier1Gate:
+    """True Hedge-to-Verify Ratio gate per Pandey et al. (2026), §3.
+
+    Per-step decision::
+
+        HVR_t = h_t / (v_t + 1)
+        fired = HVR_t > hvr_threshold
+
+    where ``h_t`` and ``v_t`` are counts of hedge / verify regex matches in
+    the step text. ``+1`` in the denominator is exactly the Laplace-smoothed
+    form used in the SELFDOUBT paper (page 1: "hedge markers divided by the
+    number of verify markers plus one").
+
+    Adaptation note: the paper computes HVR over a *complete* reasoning
+    trace and reports trace-level AUROC. We compute HVR on each step's
+    text incrementally and fire when the per-step HVR crosses
+    ``hvr_threshold``. This is our adaptation; documented in the paper
+    §5. The Tier-1 ``HVR == 0 ⇒ predict correct`` gate from the SELFDOUBT
+    paper is recoverable by setting ``hvr_threshold = 0.0`` and reading
+    the ``fired`` field with inverted polarity.
+
+    Step record contract:
+
+        - ``step_text``  str  — text decoded since previous boundary
+    """
+
+    name = "selfdoubt_t1"
+
+    def __init__(self, hvr_threshold: float = 1.0) -> None:
+        self.hvr_threshold = float(hvr_threshold)
+
+    def evaluate(self, step_record: Mapping[str, object]) -> dict:
+        text = str(step_record.get("step_text", ""))
+        h, v = hedge_verify_counts(text)
+        hvr = h / (v + 1)
+        fired = hvr > self.hvr_threshold
+        reason = f"hvr={hvr:.3f}(h={h},v={v},thr={self.hvr_threshold:.2f})"
+        return {
+            "gate_name": self.name,
+            "fired": fired,
+            "score": float(hvr),
+            "reason": reason,
+            "simulation_caveats": [
+                "marker_dictionary_is_seed_set_not_paper_discovery_pipeline",
+                "hvr_computed_per_step_not_per_trace_as_in_paper",
+            ],
+        }
+
+    def metadata(self) -> dict:
+        return {
+            "gate_name": self.name,
+            "hvr_threshold": self.hvr_threshold,
+            "hedge_patterns": list(HEDGE_PATTERNS),
+            "verify_patterns": list(VERIFY_PATTERNS),
+            "caveats": [
+                "marker_dictionary_is_seed_set_not_paper_discovery_pipeline",
+                "hvr_computed_per_step_not_per_trace_as_in_paper",
+            ],
+        }
+
+
+# ---- ETC: Entropy-Trend Constraint (Li et al.) -------------------------------
+
+class EtcGate:
+    """Entropy-Trend Constraint gate per Li et al. (Modeling Uncertainty Trends).
+
+    Per-step decision::
+
+        D2H_t = H_{t+1} - 2 H_t + H_{t-1}        (second-order difference)
+        fired = |D2H_t| > d2h_threshold
+
+    where ``H_t`` is the per-step mean next-token entropy. The second
+    difference captures "uncertainty turning points" — where an entropy
+    trend changes curvature — which the ETC paper argues is a stronger
+    timing signal than absolute entropy.
+
+    Adaptation note: the paper formulates ETC on a per-*token* entropy
+    series. Our step records expose per-*step* mean entropy only (the
+    capture cost of per-token entropy was outside the Phase 2 budget).
+    We therefore evaluate ETC on the step-mean series, which has
+    coarser resolution than the original. Documented in the paper §5.
+
+    At ``step_idx <= 1`` the second difference is undefined and we emit
+    ``fired = False`` with ``score = nan``. Calibration ignores these
+    rows so the threshold reflects only well-defined boundary points.
+
+    Step record contract:
+
+        - ``step_idx``           int    — 1-indexed logical step
+        - ``mean_token_entropy`` float  — H_t in nats
+    """
+
+    name = "etc"
+
+    def __init__(self, d2h_threshold: float = 0.5) -> None:
+        self.d2h_threshold = float(d2h_threshold)
+        self._history: list[float] = []
+
+    def reset(self) -> None:
+        """Call between traces so the per-trace entropy buffer is cleared."""
+        self._history = []
+
+    def evaluate(self, step_record: Mapping[str, object]) -> dict:
+        h = float(step_record.get("mean_token_entropy", 0.0))
+        self._history.append(h)
+
+        # We need three consecutive entropies to compute D2H_{t-1}.
+        # Fire at the middle point of the most recent triple; the
+        # earliest two steps in any trace are necessarily not-fired.
+        if len(self._history) < 3:
+            return {
+                "gate_name": self.name,
+                "fired": False,
+                "score": float("nan"),
+                "reason": "warmup_<3_steps",
+                "simulation_caveats": [
+                    "d2h_on_step_mean_entropy_not_per_token_as_in_paper",
+                ],
+            }
+
+        h_prev, h_mid, h_curr = self._history[-3], self._history[-2], self._history[-1]
+        d2h = h_curr - 2.0 * h_mid + h_prev
+        abs_d2h = abs(d2h)
+        fired = abs_d2h > self.d2h_threshold
+        return {
+            "gate_name": self.name,
+            "fired": fired,
+            "score": float(abs_d2h),
+            "reason": f"|D2H|={abs_d2h:.3f}(thr={self.d2h_threshold:.2f})",
+            "simulation_caveats": [
+                "d2h_on_step_mean_entropy_not_per_token_as_in_paper",
+            ],
+        }
+
+    def metadata(self) -> dict:
+        return {
+            "gate_name": self.name,
+            "d2h_threshold": self.d2h_threshold,
+            "caveats": [
+                "d2h_on_step_mean_entropy_not_per_token_as_in_paper",
+            ],
+        }
+
+
+# =============================================================================
+# Compute-required SOTA gates (Phase 4.8 / 4.9 / 4.10 — handoff to GPU box).
+#
+# These three gates consume *precomputed* per-step features harvested by the
+# decode driver (`scripts/04f_run_qa_sota.py`) via `crv.sota_capture`. They
+# perform no GPU work themselves — they are pure scoring functions over the
+# captured step records — so calibration and bootstrap analysis run identically
+# on the local dev box once the captured JSONLs have been transferred back.
+#
+# Step-record contract for the SOTA gates (in addition to the base contract):
+#
+#   - ``dragin_rind_max``       float — per-step max RIND from RindAccumulator
+#   - ``u_verb``                float | None — 1 - verbalized_confidence
+#   - ``u_ent``                 float — entity grounding entropy (normalised)
+#   - ``u_cons``                float — 1 - mean pairwise cosine of K samples
+#   - ``hvr``                   float — Hedge-to-Verify Ratio (regex)
+#
+# See `_AGENT.md` 2026-05-11 #17 for handoff state.
+# =============================================================================
+
+
+class DraginGate:
+    """True DRAGIN RIND gate per Su et al. (`arXiv:2403.10081v3`), §3.2.
+
+    Per-step decision::
+
+        RIND_max(step) = max over content tokens i in step of H_i * a_max(i) * s_i
+        fired = RIND_max(step) > rind_threshold
+
+    where the per-token RIND triple is accumulated online during decoding
+    by ``crv.sota_capture.RindAccumulator`` — see that module for the
+    architecture-specific attention-layer selection (last full-attention
+    layer on Qwen 3.6's hybrid stack; last layer on dense Phi / Gemma).
+
+    Step record contract:
+
+        - ``dragin_rind_max``  float — produced by RindAccumulator.commit_step()
+    """
+
+    name = "dragin"
+
+    def __init__(self, rind_threshold: float = 1.0) -> None:
+        self.rind_threshold = float(rind_threshold)
+
+    def evaluate(self, step_record: Mapping[str, object]) -> dict:
+        v = step_record.get("dragin_rind_max")
+        if v is None:
+            return {
+                "gate_name": self.name,
+                "fired": False,
+                "score": float("nan"),
+                "reason": "no_rind_max_captured",
+                "simulation_caveats": [
+                    "rind_unavailable_amax_capture_missing_for_this_step",
+                ],
+            }
+        rind = float(v)
+        fired = rind > self.rind_threshold
+        return {
+            "gate_name": self.name,
+            "fired": fired,
+            "score": rind,
+            "reason": f"rind_max={rind:.3f}(thr={self.rind_threshold:.2f})",
+            "simulation_caveats": [],
+        }
+
+    def metadata(self) -> dict:
+        return {
+            "gate_name": self.name,
+            "rind_threshold": self.rind_threshold,
+            "caveats": [],
+        }
+
+
+# Default RSUS weights and threshold from Guo et al. (2026) Footnote 1.
+RSUS_WEIGHTS_DEFAULT: dict[str, float] = {"u_verb": 0.40, "u_ent": 0.35, "u_cons": 0.25}
+RSUS_THRESHOLD_DEFAULT: float = 0.65
+
+
+class RealmRsusGate:
+    """True ReaLM-Retrieve RSUS gate per Guo et al. (2026), §3.
+
+    Per-step decision::
+
+        RSUS = a * U_verb + b * U_ent + c * U_cons        (a, b, c published)
+        fired = RSUS > rsus_threshold
+
+    Each component is captured at the step boundary by
+    ``crv.sota_capture``:
+
+      - ``U_verb`` — 1 minus the model's verbalized confidence integer
+        on a KV-cache-forked probe ("Rate your confidence 0..100").
+      - ``U_ent``  — mean Shannon entropy (normalised to [0, 1]) of
+        BM25 posteriors over the 10 distractor passages for each
+        spaCy-NER entity in the step text.
+      - ``U_cons`` — 1 minus the mean pairwise sentence-BERT cosine
+        across K=3 forked continuations (T=0.6, top-p=0.9).
+
+    Scope note (per `_AGENT.md` 2026-05-11 #17): we evaluate ReaLM-
+    Retrieve's *detection* mechanism, not its RL-trained intervention
+    policy π_θ. The paper introduces RSUS as the detector that feeds
+    π_θ; we threshold RSUS directly. Reported as **ReaLM-RSUS
+    (Thresholded)** in the paper.
+    """
+
+    name = "realm_rsus"
+
+    def __init__(
+        self,
+        rsus_threshold: float = RSUS_THRESHOLD_DEFAULT,
+        weights: Mapping[str, float] | None = None,
+    ) -> None:
+        self.rsus_threshold = float(rsus_threshold)
+        self.weights = dict(weights or RSUS_WEIGHTS_DEFAULT)
+
+    def _combine(self, u_verb, u_ent, u_cons) -> tuple[float, dict[str, float]]:
+        components = {"u_verb": u_verb, "u_ent": u_ent, "u_cons": u_cons}
+        keep = {k: float(v) for k, v in components.items() if v is not None and v == v}
+        if not keep:
+            return float("nan"), {}
+        w_sum = sum(self.weights[k] for k in keep)
+        actually = {k: self.weights[k] / w_sum for k in keep}
+        score = float(sum(actually[k] * keep[k] for k in keep))
+        return score, actually
+
+    def evaluate(self, step_record: Mapping[str, object]) -> dict:
+        u_verb = step_record.get("u_verb")
+        u_ent = step_record.get("u_ent")
+        u_cons = step_record.get("u_cons")
+        score, actually = self._combine(u_verb, u_ent, u_cons)
+        if score != score:  # NaN
+            return {
+                "gate_name": self.name,
+                "fired": False,
+                "score": float("nan"),
+                "reason": "all_components_missing",
+                "simulation_caveats": [
+                    "no_uverb_uent_or_ucons_captured",
+                ],
+            }
+        fired = score > self.rsus_threshold
+        parts: list[str] = []
+        parts.append(f"u_v={'NA' if u_verb is None else f'{float(u_verb):.3f}'}")
+        parts.append(f"u_e={'NA' if u_ent is None else f'{float(u_ent):.3f}'}")
+        parts.append(f"u_c={'NA' if u_cons is None else f'{float(u_cons):.3f}'}")
+        reason = f"rsus={score:.3f}({', '.join(parts)})"
+        caveats = ["u_ent_bm25_proxy_for_bge_reranker", "thresholded_rsus_no_rl_policy"]
+        if u_verb is None:
+            caveats.append("uverb_missing_weight_redistributed")
+        return {
+            "gate_name": self.name,
+            "fired": fired,
+            "score": score,
+            "reason": reason,
+            "simulation_caveats": caveats,
+            "weights_used": actually,
+        }
+
+    def metadata(self) -> dict:
+        return {
+            "gate_name": self.name,
+            "rsus_threshold": self.rsus_threshold,
+            "weights": dict(self.weights),
+            "caveats": [
+                "thresholded_rsus_no_rl_policy",
+                "u_ent_bm25_proxy_for_bge_reranker",
+            ],
+        }
+
+
+class SelfDoubtFullGate:
+    """Full SELFDOUBT gate per Pandey et al. (2026), §3.
+
+    Combines the Tier-1 HVR signal with verbalized confidence by per-
+    model z-score fusion::
+
+        z_hvr  = (HVR_t  - mu_hvr)  / sigma_hvr
+        z_verb = (U_verb - mu_verb) / sigma_verb
+        SD_score = (z_hvr + z_verb) / 2
+        fired = SD_score > z_threshold
+
+    Distribution moments ``(mu_hvr, sigma_hvr, mu_verb, sigma_verb)`` are
+    fitted on the calibration split at threshold-fitting time and frozen
+    before validation evaluation (Phase 4.10 in `_PLAN.md`).
+
+    Step record contract:
+        - ``hvr``     float — Hedge-to-Verify Ratio
+        - ``u_verb``  float | None — verbalized uncertainty (1 - conf)
+
+    Per the paper, missing U_verb falls back to the Tier-1 HVR-only
+    decision (``fired = HVR_t > hvr_only_threshold``); the simulator
+    caveat is stamped accordingly.
+    """
+
+    name = "selfdoubt_full"
+
+    def __init__(
+        self,
+        z_threshold: float = 1.0,
+        hvr_only_threshold: float = 1.0,
+        moments: Mapping[str, float] | None = None,
+    ) -> None:
+        self.z_threshold = float(z_threshold)
+        self.hvr_only_threshold = float(hvr_only_threshold)
+        # moments dict: {"mu_hvr", "sigma_hvr", "mu_verb", "sigma_verb"}
+        self.moments: dict[str, float] = dict(moments or {})
+
+    def fit_moments(
+        self,
+        calib_step_records: Iterable[Mapping[str, object]],
+    ) -> None:
+        """Fit (mu, sigma) for HVR and U_verb on the calibration split."""
+        hvr_vals: list[float] = []
+        verb_vals: list[float] = []
+        for s in calib_step_records:
+            h = s.get("hvr")
+            if h is not None:
+                hvr_vals.append(float(h))
+            uv = s.get("u_verb")
+            if uv is not None:
+                verb_vals.append(float(uv))
+        import statistics
+        if len(hvr_vals) >= 2:
+            self.moments["mu_hvr"] = statistics.mean(hvr_vals)
+            self.moments["sigma_hvr"] = max(1e-6, statistics.pstdev(hvr_vals))
+        if len(verb_vals) >= 2:
+            self.moments["mu_verb"] = statistics.mean(verb_vals)
+            self.moments["sigma_verb"] = max(1e-6, statistics.pstdev(verb_vals))
+
+    def evaluate(self, step_record: Mapping[str, object]) -> dict:
+        h = step_record.get("hvr")
+        uv = step_record.get("u_verb")
+        # Fall back to Tier-1 if either moment is missing or U_verb absent.
+        if (
+            uv is None
+            or "mu_verb" not in self.moments
+            or "mu_hvr" not in self.moments
+            or h is None
+        ):
+            hvr_val = float(h) if h is not None else 0.0
+            fired = hvr_val > self.hvr_only_threshold
+            return {
+                "gate_name": self.name,
+                "fired": fired,
+                "score": hvr_val,
+                "reason": f"fallback_hvr_only(hvr={hvr_val:.3f},thr={self.hvr_only_threshold:.2f})",
+                "simulation_caveats": [
+                    "uverb_or_moments_missing_fell_back_to_tier1_hvr",
+                ],
+            }
+        z_hvr = (float(h) - self.moments["mu_hvr"]) / self.moments["sigma_hvr"]
+        z_verb = (float(uv) - self.moments["mu_verb"]) / self.moments["sigma_verb"]
+        sd = (z_hvr + z_verb) / 2.0
+        fired = sd > self.z_threshold
+        return {
+            "gate_name": self.name,
+            "fired": fired,
+            "score": float(sd),
+            "reason": f"sd={sd:.3f}(z_hvr={z_hvr:.2f},z_verb={z_verb:.2f},thr={self.z_threshold:.2f})",
+            "simulation_caveats": [
+                "marker_dictionary_is_seed_set_not_paper_discovery_pipeline",
+            ],
+        }
+
+    def metadata(self) -> dict:
+        return {
+            "gate_name": self.name,
+            "z_threshold": self.z_threshold,
+            "hvr_only_threshold": self.hvr_only_threshold,
+            "moments": dict(self.moments),
+            "caveats": [
+                "marker_dictionary_is_seed_set_not_paper_discovery_pipeline",
+            ],
+        }
+
+
 __all__ = [
     "DISCOURSE_PATTERNS",
     "discourse_marker_match",
+    "HEDGE_PATTERNS",
+    "VERIFY_PATTERNS",
+    "hedge_verify_counts",
     "RealmRetrieveSimGate",
     "GripSimGate",
+    "SelfDoubtTier1Gate",
+    "EtcGate",
+    "DraginGate",
+    "RealmRsusGate",
+    "SelfDoubtFullGate",
+    "RSUS_WEIGHTS_DEFAULT",
+    "RSUS_THRESHOLD_DEFAULT",
     "RandomGate",
     "LatentGateAdapter",
 ]

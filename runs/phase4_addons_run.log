@@ -1,0 +1,41 @@
+[..] Phase 4.7 add-on gates: SELFDOUBT-Tier1 (HVR) + ETC (|D2H|)
+     target_fire_rate=0.3, bootstrap B=10000, seed=20260511
+     loading existing summary: runs/phase4_showdown_v2_summary.json
+
+[arch] phi-4-mini-instruct  latent_mode=variance  n_eligible=11
+  calibrated thresholds:  selfdoubt_t1.HVR > 0.000   etc.|D2H| > 1.132
+  observed valid fire rates: latent=0.64  selfdoubt_t1=0.09  etc=0.64  random=0.73
+  gate            point     95% CI            sig
+  selfdoubt_t1         n/a  [     n/a,      n/a]   n/a (no fires on one side)
+  etc             +0.1522  [-0.0092, +0.3037]   n.s.
+  --- margins (paired bootstrap of Δfrac difference) ---
+  latent-selfdoubt_t1            n/a  [     n/a,      n/a]   P(>0)=n/a   n/a (insufficient fires)
+  latent-etc                -0.0764  [-0.1609, +0.0083]   P(>0)=0.034   n.s.
+  selfdoubt_t1-random            n/a  [     n/a,      n/a]   P(>0)=n/a   n/a (insufficient fires)
+  etc-random                -0.0274  [-0.2000, +0.1441]   P(>0)=0.383   n.s.
+
+[arch] gemma-4-26b-a4b-it  latent_mode=or  n_eligible=40
+  calibrated thresholds:  selfdoubt_t1.HVR > 0.000   etc.|D2H| > 0.380
+  observed valid fire rates: latent=1.00  selfdoubt_t1=0.00  etc=0.95  random=0.97
+  gate            point     95% CI            sig
+  selfdoubt_t1         n/a  [     n/a,      n/a]   n/a (no fires on one side)
+  etc             -0.0151  [-0.1739, +0.1471]   n.s.
+  --- margins (paired bootstrap of Δfrac difference) ---
+  latent-selfdoubt_t1            n/a  [     n/a,      n/a]   P(>0)=n/a   n/a (insufficient fires)
+  latent-etc                +0.0599  [-0.0932, +0.2142]   P(>0)=0.775   n.s.
+  selfdoubt_t1-random            n/a  [     n/a,      n/a]   P(>0)=n/a   n/a (insufficient fires)
+  etc-random                -0.0558  [-0.2503, +0.1366]   P(>0)=0.283   n.s.
+
+[arch] qwen3.6-35b-a3b-instruct  latent_mode=or  n_eligible=34
+  calibrated thresholds:  selfdoubt_t1.HVR > 0.000   etc.|D2H| > 0.416
+  observed valid fire rates: latent=0.88  selfdoubt_t1=0.00  etc=0.65  random=0.97
+  gate            point     95% CI            sig
+  selfdoubt_t1         n/a  [     n/a,      n/a]   n/a (no fires on one side)
+  etc             -0.0333  [-0.2790, +0.2131]   n.s.
+  --- margins (paired bootstrap of Δfrac difference) ---
+  latent-selfdoubt_t1            n/a  [     n/a,      n/a]   P(>0)=n/a   n/a (insufficient fires)
+  latent-etc                +0.3049  [+0.0531, +0.5698]   P(>0)=0.992   *** > 0
+  selfdoubt_t1-random            n/a  [     n/a,      n/a]   P(>0)=n/a   n/a (insufficient fires)
+  etc-random                -0.1512  [-0.4485, +0.1408]   P(>0)=0.145   n.s.
+
+[ok] wrote runs/phase4_bootstrap_v2_addons.json

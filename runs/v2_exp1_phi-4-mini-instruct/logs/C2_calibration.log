@@ -16,3 +16,21 @@
       dragin          100.0%
       random           88.5%
 [ok] wrote runs/v2_exp1_phi-4-mini-instruct/C2_calibration.json
+[..] calibration cohort: n=61  target_trace_fire_rate=0.3
+[..] thresholds (trace-level iso-0.30):
+      drift           τ = 0.2568
+      variance        τ = 61.2104
+      etc             τ = 1.6403
+      selfdoubt_t1    τ = 0.0000
+      dragin          τ = 3.9556
+[..] latent_mode chosen by 5-fold CV: 'variance'
+      drift      mean Δfrac = +0.0653   min Δfrac = -0.0476
+      variance   mean Δfrac = +0.1146   min Δfrac = -0.0726
+      or         mean Δfrac = +0.0577   min Δfrac = -0.1235
+[..] observed trace-level fire rates on calibration cohort:
+      latent           29.5%
+      etc              26.2%
+      selfdoubt_t1      1.6%
+      dragin           26.2%
+      random           88.5%
+[ok] wrote runs/v2_exp1_phi-4-mini-instruct/C2_calibration.json

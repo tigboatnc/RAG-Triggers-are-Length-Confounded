@@ -52,6 +52,23 @@ Calibration n=120 is within the community floor (SELFDOUBT n=90; ReARTeR n=200) 
 
 None of these need methodological changes. They are dataset-size-agnostic; v2 only changes the slice sizes and dataset set.
 
+### Fresh compute box bootstrap
+
+The whole stack — env, models, datasets, smoke — rebuilds from scratch on a new GPU box in well under an hour. The canonical procedure is `_MODEL.md §9` (validation checklist for a new compute box); it is **load-bearing for v2** and is not duplicated here. Summary, in order:
+
+1. `bash scripts/setup.sh` — conda env from `environment.yml`, torch 2.6.0+cu124, transformers / accelerate / bnb / datasets / spacy / rank_bm25 / sentence-transformers. Writes `runs/env_lockfile.txt`. Probes `/opt/miniforge3/bin/conda` for vast.ai-style boxes. ~3-4 min.
+2. `bash scripts/download_models.sh phase1.4` — Phi-4-mini + Gemma-4-26B-A4B-it + Qwen3.6-35B-A3B at pinned SHAs in the script's `REV_*` vars. ~125 GB total; wall clock dominated by network. For Phi-only experiments, `bash scripts/download_models.sh` (default) pulls Phi alone in <10 s on a warm cache.
+3. `python scripts/sysinfo.py` — captures `runs/sysinfo_<box>.json`. Must report CUDA visible, full VRAM (no cgroup limit), torch/transformers/bnb versions matching the lockfile.
+4. Slice builds (additive — v2 needs slices v1 did not):
+   - `python scripts/04_dataset.py` — v1 calibration cohort, `data/hotpotqa_distractor_200.jsonl`. Verifies `slice_sha256` against manifest.
+   - `python scripts/04_dataset.py --n 500 --seed 20260601 --split-seed 20260601 --exclude-ids-from data/hotpotqa_distractor_200.jsonl --all-test --name hotpotqa_distractor_500_v2test` — v2 in-domain test, provably disjoint from calibration.
+   - `python scripts/04_dataset_2wiki.py --n 500 --seed 20260601 --name 2wikimultihop_distractor_500_v2test` — v2 OOD test.
+5. `python scripts/04b_protocol_smoke.py` — must report `[ok] all 3 models pass Option A protocol smoke`. Sweep is blocked until this passes (the wrapper script enforces it). Skippable for Phi-only experiments where Qwen / Gemma are not loaded; the v2 orchestrator does its own 5-question smoke before the long decode.
+
+Time budget end-to-end on a recent run (vast.ai A800 80 GB, box #3b in `_AGENT.md` 2026-05-09): ~9 minutes wall (setup 3:35, downloads 2:38, extras 0:35, dataset rebuild 0:08, sysinfo 0:21). Plus the v2 slice builds (~30-60 s each over warm HF cache).
+
+If the box does not match the §6 hardware row in `_MODEL.md` — different driver, different CUDA, different VRAM ceiling — stop and audit before continuing; do not silently bump SHAs or the pinned torch/transformers/bnb versions.
+
 ### Knowledge (calibrated lessons, not statistical claims)
 
 1. **`enable_thinking=False` (Qwen) works on HotpotQA, fails on 2WikiMHQA.** Qwen under-generated (~30 tokens, no `Answer:` line, no reasoning chain) on 2Wiki under the v1 protocol. Protocol amendment options for v2: enable thinking on both, or enable thinking only on 2Wiki, or accept under-generation on 2Wiki as a documented OOD finding. **Decision deferred.**

@@ -1,0 +1,15 @@
+PRE-DISCRETIZATION AUROC  (label_INCORRECT vs label_CORRECT; >0.5 ⇒ higher score on incorrect)
+
+arch             |       drift        |      variance      |        etc         |        hvr         |       dragin      
+                 |  step trace  mean |  step trace  mean |  step trace  mean |  step trace  mean |  step trace  mean
+----------------------------------------------------------------------------------------------------------------------------
+phi              | 0.523 0.543 0.509 | 0.518 0.508 0.503 | 0.494 0.638 0.497 | 0.502 0.513 0.513 | 0.550 0.594 0.577 | 
+gemma            | 0.466 0.508 0.439 | 0.524 0.555 0.553 | 0.540 0.588 0.606 | 0.501 0.514 0.514 | 0.507 0.683 0.594 | 
+qwen             | 0.453 0.525 0.474 | 0.436 0.515 0.480 | 0.536 0.592 0.513 | 0.504 0.540 0.539 | 0.541 0.574 0.549 | 
+phi_hotpot_v2    | 0.523 0.549 0.582 | 0.463 0.476 0.474 | 0.527 0.613 0.570 | 0.502 0.513 0.513 | 0.508 0.572 0.516 | 
+phi_2wiki_v2     | 0.462 0.533 0.531 | 0.461 0.493 0.478 | 0.449 0.543 0.518 | 0.498 0.501 0.501 | 0.508 0.575 0.564 | 
+
+Reading: AUROC > 0.55 ⇒ signal exists pre-discretization; AUROC ≈ 0.50 ⇒ no signal.
+'step' = per-step AUROC (large n_steps, noisy individual signal)
+'trace' = per-trace max(score) AUROC (what gates effectively use)
+'mean' = per-trace mean(score) AUROC (alternative summary)

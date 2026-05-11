@@ -1,0 +1,70 @@
+
+=== phi_hotpot_v2  n=196 (correct=69, incorrect=127, EM=35.2%) ===
+
+(a) u_cons/max distribution by class:
+    correct   q10=0.169 q25=0.236 q50=0.320 q75=0.427 q90=0.488  (n=69)
+    incorrect q10=0.212 q25=0.316 q50=0.397 q75=0.522 q90=0.635  (n=127)
+    median shift = +0.077
+
+(b) Per-position u_cons AUROC:
+    u_cons/first   AUROC = 0.566  (196 usable traces)
+    u_cons/last    AUROC = 0.651  (196 usable traces)
+    u_cons/max     AUROC = 0.662  (196 usable traces)
+    u_cons/mean    AUROC = 0.629  (196 usable traces)
+    u_cons/sum     AUROC = 0.661  (196 usable traces)
+    Position of max u_cons (0=first, 1=last):
+      correct mean position = 0.53
+      incorrect mean position = 0.61
+
+(c) u_cons/max as gate at trace-iso-0.30:
+    target 0.10  τ=0.5990  fire-rate=0.10  P(incorrect | fired)=0.950  recall=0.150  base-rate-P(incorrect)=0.648
+    target 0.20  τ=0.5135  fire-rate=0.20  P(incorrect | fired)=0.897  recall=0.276  base-rate-P(incorrect)=0.648
+    target 0.30  τ=0.4633  fire-rate=0.30  P(incorrect | fired)=0.831  recall=0.386  base-rate-P(incorrect)=0.648
+    target 0.50  τ=0.3627  fire-rate=0.50  P(incorrect | fired)=0.735  recall=0.567  base-rate-P(incorrect)=0.648
+
+(d) u_cons/max AUROC within trace-length tertiles (control for length):
+    short ≤80           n= 73  AUROC = 0.573  (EM=45%)
+    mid                 n= 75  AUROC = 0.646  (EM=35%)
+    long >128           n= 48  AUROC = 0.742  (EM=21%)
+
+(e) u_cons/max AUROC bootstrap stability across n:
+    n= 30  AUROC mean=0.665  std=0.084  95% band ≈ [0.497, 0.833]
+    n= 50  AUROC mean=0.665  std=0.067  95% band ≈ [0.532, 0.798]
+    n= 80  AUROC mean=0.661  std=0.045  95% band ≈ [0.571, 0.751]
+    n=150  AUROC mean=0.661  std=0.022  95% band ≈ [0.617, 0.705]
+    n=196  AUROC mean=0.662  std=0.000  95% band ≈ [0.662, 0.662]
+
+=== phi_2wiki_v2  n=200 (correct=73, incorrect=127, EM=36.5%) ===
+
+(a) u_cons/max distribution by class:
+    correct   q10=0.093 q25=0.165 q50=0.324 q75=0.443 q90=0.549  (n=73)
+    incorrect q10=0.147 q25=0.217 q50=0.394 q75=0.589 q90=0.686  (n=127)
+    median shift = +0.070
+
+(b) Per-position u_cons AUROC:
+    u_cons/first   AUROC = 0.589  (200 usable traces)
+    u_cons/last    AUROC = 0.565  (200 usable traces)
+    u_cons/max     AUROC = 0.625  (200 usable traces)
+    u_cons/mean    AUROC = 0.620  (200 usable traces)
+    u_cons/sum     AUROC = 0.616  (200 usable traces)
+    Position of max u_cons (0=first, 1=last):
+      correct mean position = 0.65
+      incorrect mean position = 0.64
+
+(c) u_cons/max as gate at trace-iso-0.30:
+    target 0.10  τ=0.6677  fire-rate=0.10  P(incorrect | fired)=0.900  recall=0.142  base-rate-P(incorrect)=0.635
+    target 0.20  τ=0.5755  fire-rate=0.20  P(incorrect | fired)=0.825  recall=0.260  base-rate-P(incorrect)=0.635
+    target 0.30  τ=0.4672  fire-rate=0.30  P(incorrect | fired)=0.733  recall=0.346  base-rate-P(incorrect)=0.635
+    target 0.50  τ=0.3574  fire-rate=0.50  P(incorrect | fired)=0.710  recall=0.559  base-rate-P(incorrect)=0.635
+
+(d) u_cons/max AUROC within trace-length tertiles (control for length):
+    short ≤87           n= 67  AUROC = 0.598  (EM=37%)
+    mid                 n= 80  AUROC = 0.675  (EM=32%)
+    long >128           n= 53  AUROC = 0.603  (EM=42%)
+
+(e) u_cons/max AUROC bootstrap stability across n:
+    n= 30  AUROC mean=0.623  std=0.098  95% band ≈ [0.427, 0.819]
+    n= 50  AUROC mean=0.618  std=0.072  95% band ≈ [0.474, 0.762]
+    n= 80  AUROC mean=0.621  std=0.050  95% band ≈ [0.521, 0.721]
+    n=150  AUROC mean=0.629  std=0.020  95% band ≈ [0.589, 0.669]
+    n=200  AUROC mean=0.625  std=0.000  95% band ≈ [0.625, 0.625]

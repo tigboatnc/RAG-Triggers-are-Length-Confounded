@@ -1,0 +1,107 @@
+COGNITIVE-COST REFRAME: predict 'wasted trace' (long + wrong) from early signals
+
+=== phi  (n=165, EM=41.2%) ===
+  n_steps             AUROC=0.561  mean(incorrect)=3.4  mean(correct)=2.4  ratio=1.40×
+  tokens_generated    AUROC=0.622  mean(incorrect)=106.1  mean(correct)=80.9  ratio=1.31×
+  wall_clock_s        AUROC=0.625  mean(incorrect)=5.0  mean(correct)=3.8  ratio=1.30×
+
+  Length tertiles: short ≤1 (n=74, EM=45%)  mid (n=41, EM=44%)  long >3 (n=50, EM=34%)
+
+  PREDICT-FROM-PREFIX: AUROC for predicting incorrect from first-k steps only
+  feature                         k=1    k=2    k=3    k=5
+  mean_token_entropy            0.575  0.579  0.555  0.581 
+  drift_cosine                  0.500  0.534  0.535  0.538 
+  hidden_norm                   0.519  0.523  0.535  0.536 
+  hedge_count                   0.500  0.505  0.505  0.505 
+  verify_count                  0.500  0.500  0.500  0.500 
+  u_cons                         n/a   n/a   n/a   n/a 
+  u_ent                          n/a   n/a   n/a   n/a 
+  u_verb                         n/a   n/a   n/a   n/a 
+  boundary_token_entropy        0.455  0.475  0.467  0.470 
+  dragin_rind_max               0.595  0.568  0.534  0.553 
+  n_tokens_in_step              0.468  0.492  0.478  0.490 
+
+=== gemma  (n=200, EM=48.5%) ===
+  n_steps             AUROC=0.614  mean(incorrect)=15.4  mean(correct)=12.8  ratio=1.21×
+  tokens_generated    AUROC=0.569  mean(incorrect)=227.8  mean(correct)=202.2  ratio=1.13×
+  wall_clock_s        AUROC=0.570  mean(incorrect)=29.7  mean(correct)=26.4  ratio=1.13×
+
+  Length tertiles: short ≤11 (n=77, EM=60%)  mid (n=60, EM=42%)  long >15 (n=63, EM=41%)
+
+  PREDICT-FROM-PREFIX: AUROC for predicting incorrect from first-k steps only
+  feature                         k=1    k=2    k=3    k=5
+  mean_token_entropy            0.510  0.499  0.482  0.499 
+  drift_cosine                  0.500  0.430  0.439  0.434 
+  hidden_norm                   0.552  0.535  0.514  0.545 
+  hedge_count                   0.500  0.500  0.505  0.505 
+  verify_count                  0.500  0.500  0.500  0.500 
+  u_cons                         n/a   n/a   n/a   n/a 
+  u_ent                          n/a   n/a   n/a   n/a 
+  u_verb                         n/a   n/a   n/a   n/a 
+  boundary_token_entropy        0.530  0.516  0.485  0.517 
+  dragin_rind_max               0.528  0.516  0.524  0.492 
+  n_tokens_in_step              0.537  0.516  0.479  0.482 
+
+=== qwen  (n=200, EM=62.0%) ===
+  n_steps             AUROC=0.644  mean(incorrect)=13.3  mean(correct)=7.7  ratio=1.72×
+  tokens_generated    AUROC=0.615  mean(incorrect)=224.9  mean(correct)=138.9  ratio=1.62×
+  wall_clock_s        AUROC=0.616  mean(incorrect)=33.0  mean(correct)=20.7  ratio=1.60×
+
+  Length tertiles: short ≤5 (n=74, EM=74%)  mid (n=60, EM=60%)  long >10 (n=66, EM=50%)
+
+  PREDICT-FROM-PREFIX: AUROC for predicting incorrect from first-k steps only
+  feature                         k=1    k=2    k=3    k=5
+  mean_token_entropy            0.617  0.536  0.544  0.562 
+  drift_cosine                  0.500  0.556  0.551  0.569 
+  hidden_norm                   0.423  0.453  0.414  0.456 
+  hedge_count                   0.500  0.500  0.507  0.507 
+  verify_count                  0.500  0.500  0.500  0.500 
+  u_cons                         n/a   n/a   n/a   n/a 
+  u_ent                          n/a   n/a   n/a   n/a 
+  u_verb                         n/a   n/a   n/a   n/a 
+  boundary_token_entropy        0.491  0.490  0.499  0.528 
+  dragin_rind_max               0.563  0.479  0.495  0.473 
+  n_tokens_in_step              0.414  0.395  0.395  0.375 
+
+=== phi_hotpot_v2  (n=239, EM=38.5%) ===
+  n_steps             AUROC=0.591  mean(incorrect)=3.3  mean(correct)=2.4  ratio=1.38×
+  tokens_generated    AUROC=0.638  mean(incorrect)=108.5  mean(correct)=83.8  ratio=1.29×
+  wall_clock_s        AUROC=0.608  mean(incorrect)=17.6  mean(correct)=12.9  ratio=1.37×
+
+  Length tertiles: short ≤1 (n=90, EM=44%)  mid (n=88, EM=43%)  long >3 (n=61, EM=23%)
+
+  PREDICT-FROM-PREFIX: AUROC for predicting incorrect from first-k steps only
+  feature                         k=1    k=2    k=3    k=5
+  mean_token_entropy            0.561  0.517  0.487  0.503 
+  drift_cosine                  0.500  0.572  0.581  0.584 
+  hidden_norm                   0.513  0.503  0.505  0.504 
+  hedge_count                   0.503  0.507  0.501  0.501 
+  verify_count                  0.500  0.500  0.500  0.500 
+  u_cons                        0.607  0.610  0.611  0.627 
+  u_ent                          n/a   n/a   n/a   n/a 
+  u_verb                        0.501  0.489  0.528  0.548 
+  boundary_token_entropy        0.468  0.446  0.410  0.413 
+  dragin_rind_max               0.512  0.459  0.441  0.464 
+  n_tokens_in_step              0.465  0.464  0.459  0.477 
+
+=== phi_2wiki_v2  (n=259, EM=41.3%) ===
+  n_steps             AUROC=0.574  mean(incorrect)=2.7  mean(correct)=2.5  ratio=1.08×
+  tokens_generated    AUROC=0.588  mean(incorrect)=108.3  mean(correct)=99.4  ratio=1.09×
+  wall_clock_s        AUROC=0.604  mean(incorrect)=15.5  mean(correct)=14.2  ratio=1.09×
+
+  Length tertiles: short ≤1 (n=104, EM=50%)  mid (n=76, EM=37%)  long >2 (n=79, EM=34%)
+
+  PREDICT-FROM-PREFIX: AUROC for predicting incorrect from first-k steps only
+  feature                         k=1    k=2    k=3    k=5
+  mean_token_entropy            0.690  0.651  0.655  0.672 
+  drift_cosine                  0.500  0.583  0.589  0.591 
+  hidden_norm                   0.476  0.475  0.491  0.493 
+  hedge_count                   0.500  0.500  0.507  0.507 
+  verify_count                  0.500  0.500  0.500  0.500 
+  u_cons                        0.615  0.638  0.644  0.642 
+  u_ent                          n/a   n/a   n/a   n/a 
+  u_verb                        0.506  0.504  0.518  0.519 
+  boundary_token_entropy        0.534  0.477  0.482  0.503 
+  dragin_rind_max               0.525  0.559  0.551  0.565 
+  n_tokens_in_step              0.467  0.514  0.515  0.526 
+

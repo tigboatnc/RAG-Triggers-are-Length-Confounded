@@ -200,36 +200,20 @@ wait "${PID_E2}" || { log "E.2 FAILED (pid=${PID_E2}, exit=$?)"; E_FAIL=1; }
 log "E.1 + E.2 done"
 
 # ---------------------------------------------------------------------
-# Phase F — Analysis (frozen thresholds from Phase C)
+# Phases F (analysis) and G (summary) intentionally REMOVED from the
+# compute-box wrapper. This box runs LLM compute only (A → B → C → D → E).
+#
+# Analysis happens on the analysis box via `scripts/run_local_analysis.sh`
+# after the compute box's outputs are pulled (`git pull`). The legacy v1-gate
+# analyzer (`04o_exp_analyzer.py`) and the new u_cons hypothesis analyzer
+# (`analysis/iter5_preregistration.py`) both run there; both are pure Python
+# stats and do not need a GPU or transformers.
 # ---------------------------------------------------------------------
-step "F.1: analyze HotpotQA-500 v2-test (in-domain)"
-python scripts/04o_exp_analyzer.py \
-  --closed-book "${RUN_DIR}/D1_closed_hotpot.jsonl" \
-  --oracle      "${RUN_DIR}/E1_oracle_hotpot.jsonl" \
-  --thresholds  "${RUN_DIR}/C2_calibration.json" \
-  --out         "${RUN_DIR}/F1_analysis_hotpot.json" \
-  --label       "phi_hotpot500_indomain" \
-  --min-steps   3 \
-  -B 10000 \
-  2>&1 | tee "${LOG_DIR}/F1_analyze_hotpot.log"
 
-step "F.2: analyze 2WikiMHQA-500 v2-test (zero-shot OOD, frozen thresholds)"
-python scripts/04o_exp_analyzer.py \
-  --closed-book "${RUN_DIR}/D2_closed_wiki.jsonl" \
-  --oracle      "${RUN_DIR}/E2_oracle_wiki.jsonl" \
-  --thresholds  "${RUN_DIR}/C2_calibration.json" \
-  --out         "${RUN_DIR}/F2_analysis_wiki.json" \
-  --label       "phi_wiki500_ood" \
-  --min-steps   3 \
-  -B 10000 \
-  2>&1 | tee "${LOG_DIR}/F2_analyze_wiki.log"
-
-# ---------------------------------------------------------------------
-# Phase G — Wrap up
-# ---------------------------------------------------------------------
-step "G: summary"
-log "All artifacts under ${RUN_DIR}"
-ls -la "${RUN_DIR}"
-log "Logs under ${LOG_DIR}"
-ls -la "${LOG_DIR}"
-log "exp1 done"
+step "compute-side run finished. Outputs:"
+log "  D1 (closed-book Hot):   $(wc -l < "${RUN_DIR}/D1_closed_hotpot.jsonl")   rows"
+log "  D2 (closed-book 2Wiki): $(wc -l < "${RUN_DIR}/D2_closed_wiki.jsonl")    rows"
+log "  E1 (oracle Hot):        $(wc -l < "${RUN_DIR}/E1_oracle_hotpot.jsonl") rows"
+log "  E2 (oracle 2Wiki):      $(wc -l < "${RUN_DIR}/E2_oracle_wiki.jsonl")   rows"
+log "Commit + push the JSONLs; analysis happens on the analysis box."
+log "exp1 (compute portion) done"

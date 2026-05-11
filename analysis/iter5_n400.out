@@ -1,0 +1,48 @@
+
+=== phi_hotpot_v2  n=349  base P(incorrect) = 0.630 ===
+
+(a) Projected n=500 bootstrap (resample to 500 with replacement, 1000 reps):
+  u_cons.max    median=0.633  90% interval [0.593, 0.675]  P(AUROC>0.60)=0.91  P(AUROC>0.65)=0.27
+  dragin_max    median=0.535  90% interval [0.495, 0.583]  P(AUROC>0.60)=0.02  P(AUROC>0.65)=0.00
+  tokens_gen    median=0.633  90% interval [0.594, 0.676]  P(AUROC>0.60)=0.91  P(AUROC>0.65)=0.27
+
+(b) Paired bootstrap (u_cons.max − dragin_max AUROC), 1000 reps at n=500:
+  mean diff = +0.097  95% CI [+0.043, +0.152]  P(u_cons > dragin) = 1.000
+
+(c) u_cons.max as gate at low fire rates (deployment-edge precision):
+  target fire         τ  actual fire    P(incorrect|fired)  Δ vs base   recall   lift
+         0.05    0.6474        0.052                 0.944     +0.314    0.077   1.50
+         0.10    0.5700        0.100                 0.886     +0.255    0.141   1.41
+         0.15    0.4972        0.152                 0.849     +0.219    0.205   1.35
+         0.20    0.4758        0.201                 0.800     +0.170    0.255   1.27
+         0.30    0.4097        0.301                 0.752     +0.122    0.359   1.19
+         0.50    0.3202        0.499                 0.730     +0.100    0.577   1.16
+
+(d) Pre-registered τ = q70(u_cons.max) on calibrate-half, eval on held-out half (50 split-halves):
+  fire-rate    mean=0.297  std=0.056
+  precision    mean=0.756  std=0.046  vs base 0.630  ⇒ Δ_precision = +0.126
+  recall       mean=0.356  std=0.060
+
+=== phi_2wiki_v2  n=396  base P(incorrect) = 0.576 ===
+
+(a) Projected n=500 bootstrap (resample to 500 with replacement, 1000 reps):
+  u_cons.max    median=0.633  90% interval [0.591, 0.673]  P(AUROC>0.60)=0.90  P(AUROC>0.65)=0.25
+  dragin_max    median=0.599  90% interval [0.560, 0.641]  P(AUROC>0.60)=0.49  P(AUROC>0.65)=0.02
+  tokens_gen    median=0.583  90% interval [0.541, 0.626]  P(AUROC>0.60)=0.26  P(AUROC>0.65)=0.01
+
+(b) Paired bootstrap (u_cons.max − dragin_max AUROC), 1000 reps at n=500:
+  mean diff = +0.034  95% CI [-0.027, +0.090]  P(u_cons > dragin) = 0.890
+
+(c) u_cons.max as gate at low fire rates (deployment-edge precision):
+  target fire         τ  actual fire    P(incorrect|fired)  Δ vs base   recall   lift
+         0.05    0.6786        0.051                 0.900     +0.324    0.079   1.56
+         0.10    0.6022        0.101                 0.875     +0.299    0.154   1.52
+         0.15    0.5302        0.152                 0.817     +0.241    0.215   1.42
+         0.20    0.4747        0.199                 0.722     +0.146    0.250   1.25
+         0.30    0.3905        0.301                 0.731     +0.155    0.382   1.27
+         0.50    0.2700        0.500                 0.646     +0.071    0.561   1.12
+
+(d) Pre-registered τ = q70(u_cons.max) on calibrate-half, eval on held-out half (50 split-halves):
+  fire-rate    mean=0.306  std=0.052
+  precision    mean=0.720  std=0.038  vs base 0.576  ⇒ Δ_precision = +0.144
+  recall       mean=0.381  std=0.056

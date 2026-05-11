@@ -1,0 +1,153 @@
+FULL-FEATURE AUROC BAKE-OFF (trace-level, prediction target = INCORRECT)
+
+Per-feature per-aggregation AUROC, across architectures. AUROC > 0.55 in bold-equivalent.
+
+=== phi  n=165  EM=41.2% (P(incorrect)=0.59) ===
+feature                          max    mean     sum    last   first
+----------------------------------------------------------------------
+drift_cosine                   0.540   0.537   0.553   0.539   0.500  
+variance_l2_window             0.536   0.535   0.545   0.523   0.500  
+hidden_norm                    0.541   0.534   0.560   0.527   0.519  
+mean_token_entropy             0.574   0.582   0.583   0.566   0.575  
+boundary_token_entropy         0.525   0.477   0.557   0.473   0.455  
+hvr                            0.505   0.505   0.505   0.500   0.500  
+dragin_rind_max                0.563   0.562   0.588   0.532   0.595  
+dragin_n_content_tokens        0.523   0.475   0.552   0.475   0.449  
+hedge_count                    0.505   0.505   0.505   0.500   0.500  
+verify_count                   0.500   0.500   0.500   0.500   0.500  
+n_tokens_in_step               0.545   0.497   0.565   0.503   0.468  
+u_cons                           n/a     n/a     n/a     n/a     n/a  
+u_ent                            n/a     n/a     n/a     n/a     n/a  
+u_verb                           n/a     n/a     n/a     n/a     n/a  
+
+  trace-level features:
+  n_steps                        0.561
+  tokens_generated               0.622
+  wall_clock_s                   0.625
+
+  TOP 5 features for phi by |AUROC − 0.5|:
+    wall_clock_s/trace                    AUROC = 0.625  ↑ on incorrect
+    tokens_generated/trace                AUROC = 0.622  ↑ on incorrect
+    dragin_rind_max/first                 AUROC = 0.595  ↑ on incorrect
+    dragin_rind_max/sum                   AUROC = 0.588  ↑ on incorrect
+    mean_token_entropy/sum                AUROC = 0.583  ↑ on incorrect
+
+=== gemma  n=200  EM=48.5% (P(incorrect)=0.52) ===
+feature                          max    mean     sum    last   first
+----------------------------------------------------------------------
+drift_cosine                   0.508   0.439   0.589   0.536   0.500  
+variance_l2_window             0.555   0.553   0.607   0.606   0.500  
+hidden_norm                    0.619   0.585   0.613   0.490   0.552  
+mean_token_entropy             0.617   0.610   0.637   0.592   0.510  
+boundary_token_entropy         0.527   0.515   0.560   0.392   0.530  
+hvr                            0.514   0.514   0.514   0.505   0.500  
+dragin_rind_max                0.683   0.594   0.654   0.645   0.528  
+dragin_n_content_tokens        0.416   0.383   0.548   0.507   0.526  
+hedge_count                    0.514   0.514   0.514   0.505   0.500  
+verify_count                   0.505   0.505   0.505   0.500   0.500  
+n_tokens_in_step               0.450   0.403   0.565   0.514   0.537  
+u_cons                           n/a     n/a     n/a     n/a     n/a  
+u_ent                            n/a     n/a     n/a     n/a     n/a  
+u_verb                           n/a     n/a     n/a     n/a     n/a  
+
+  trace-level features:
+  n_steps                        0.614
+  tokens_generated               0.569
+  wall_clock_s                   0.570
+
+  TOP 5 features for gemma by |AUROC − 0.5|:
+    dragin_rind_max/max                   AUROC = 0.683  ↑ on incorrect
+    dragin_rind_max/sum                   AUROC = 0.654  ↑ on incorrect
+    dragin_rind_max/last                  AUROC = 0.645  ↑ on incorrect
+    mean_token_entropy/sum                AUROC = 0.637  ↑ on incorrect
+    hidden_norm/max                       AUROC = 0.619  ↑ on incorrect
+
+=== qwen  n=200  EM=62.0% (P(incorrect)=0.38) ===
+feature                          max    mean     sum    last   first
+----------------------------------------------------------------------
+drift_cosine                   0.568   0.530   0.638   0.436   0.500  
+variance_l2_window             0.564   0.535   0.628   0.499   0.500  
+hidden_norm                    0.596   0.549   0.644   0.514   0.423  
+mean_token_entropy             0.641   0.602   0.645   0.543   0.617  
+boundary_token_entropy         0.622   0.594   0.641   0.532   0.491  
+hvr                            0.538   0.538   0.538   0.496   0.500  
+dragin_rind_max                0.612   0.517   0.636   0.517   0.563  
+dragin_n_content_tokens        0.499   0.374   0.606   0.504   0.415  
+hedge_count                    0.538   0.538   0.538   0.496   0.500  
+verify_count                   0.500   0.500   0.500   0.500   0.500  
+n_tokens_in_step               0.527   0.393   0.616   0.506   0.414  
+u_cons                           n/a     n/a     n/a     n/a     n/a  
+u_ent                            n/a     n/a     n/a     n/a     n/a  
+u_verb                           n/a     n/a     n/a     n/a     n/a  
+
+  trace-level features:
+  n_steps                        0.644
+  tokens_generated               0.615
+  wall_clock_s                   0.616
+
+  TOP 5 features for qwen by |AUROC − 0.5|:
+    mean_token_entropy/sum                AUROC = 0.645  ↑ on incorrect
+    n_steps/trace                         AUROC = 0.644  ↑ on incorrect
+    hidden_norm/sum                       AUROC = 0.644  ↑ on incorrect
+    mean_token_entropy/max                AUROC = 0.641  ↑ on incorrect
+    boundary_token_entropy/sum            AUROC = 0.641  ↑ on incorrect
+
+=== phi_hotpot_v2  n=239  EM=38.5% (P(incorrect)=0.62) ===
+feature                          max    mean     sum    last   first
+----------------------------------------------------------------------
+drift_cosine                   0.582   0.589   0.594   0.592   0.500  
+variance_l2_window             0.556   0.555   0.569   0.553   0.500  
+hidden_norm                    0.537   0.509   0.579   0.473   0.513  
+mean_token_entropy             0.553   0.508   0.579   0.508   0.561  
+boundary_token_entropy         0.488   0.420   0.510   0.461   0.468  
+hvr                            0.508   0.508   0.508   0.503   0.503  
+dragin_rind_max                0.524   0.466   0.564   0.479   0.512  
+dragin_n_content_tokens        0.508   0.466   0.548   0.486   0.458  
+hedge_count                    0.508   0.508   0.508   0.503   0.503  
+verify_count                   0.500   0.500   0.500   0.500   0.500  
+n_tokens_in_step               0.523   0.481   0.557   0.496   0.465  
+u_cons                         0.658   0.643   0.640   0.654   0.607  
+u_ent                            n/a     n/a     n/a     n/a     n/a  
+u_verb                         0.551   0.550   0.554   0.534   0.498  
+
+  trace-level features:
+  n_steps                        0.591
+  tokens_generated               0.638
+  wall_clock_s                   0.608
+
+  TOP 5 features for phi_hotpot_v2 by |AUROC − 0.5|:
+    u_cons/max                            AUROC = 0.658  ↑ on incorrect
+    u_cons/last                           AUROC = 0.654  ↑ on incorrect
+    u_cons/mean                           AUROC = 0.643  ↑ on incorrect
+    u_cons/sum                            AUROC = 0.640  ↑ on incorrect
+    tokens_generated/trace                AUROC = 0.638  ↑ on incorrect
+
+=== phi_2wiki_v2  n=259  EM=41.3% (P(incorrect)=0.59) ===
+feature                          max    mean     sum    last   first
+----------------------------------------------------------------------
+drift_cosine                   0.594   0.591   0.584   0.598   0.500  
+variance_l2_window             0.570   0.568   0.569   0.571   0.500  
+hidden_norm                    0.523   0.496   0.561   0.441   0.476  
+mean_token_entropy             0.654   0.666   0.639   0.637   0.690  
+boundary_token_entropy         0.530   0.502   0.562   0.491   0.534  
+hvr                            0.502   0.502   0.502   0.503   0.500  
+dragin_rind_max                0.587   0.564   0.592   0.556   0.525  
+dragin_n_content_tokens        0.569   0.538   0.586   0.558   0.508  
+hedge_count                    0.502   0.502   0.502   0.503   0.500  
+verify_count                   0.500   0.500   0.500   0.500   0.500  
+n_tokens_in_step               0.566   0.532   0.578   0.557   0.467  
+u_cons                         0.650   0.641   0.644   0.611   0.615  
+u_ent                            n/a     n/a     n/a     n/a     n/a  
+u_verb                         0.514   0.515   0.514   0.509   0.506  
+
+  trace-level features:
+  n_steps                        0.574
+  tokens_generated               0.588
+  wall_clock_s                   0.604
+
+  TOP 5 features for phi_2wiki_v2 by |AUROC − 0.5|:
+    mean_token_entropy/first              AUROC = 0.690  ↑ on incorrect
+    mean_token_entropy/mean               AUROC = 0.666  ↑ on incorrect
+    mean_token_entropy/max                AUROC = 0.654  ↑ on incorrect
+    u_cons/max                            AUROC = 0.650  ↑ on incorrect
+    u_cons/sum                            AUROC = 0.644  ↑ on incorrect

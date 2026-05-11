@@ -1,0 +1,57 @@
+ITER 2 — Feature-selection stability (50 random calibrate/eval split-halves)
+
+=== phi  (n=61) ===
+  full-data best feature: wall_clock_s/trace                  AUROC = 0.699
+  most-common cal pick:   tokens_generated/trace              chosen in 7/50 splits (14%)
+  eval-half AUROC of cal-picked feature: mean=0.547  std=0.101  (95% interval ≈ [0.346, 0.748])
+  top 5 most-picked features across splits:
+    tokens_generated/trace              picked 7/50  full-data AUROC=0.697
+    mean_token_entropy/sum              picked 7/50  full-data AUROC=0.684
+    dragin_rind_max/first               picked 7/50  full-data AUROC=0.645
+    wall_clock_s/trace                  picked 5/50  full-data AUROC=0.699
+    variance_l2_window/slope            picked 4/50  full-data AUROC=0.353
+
+=== gemma  (n=200) ===
+  full-data best feature: dragin_rind_max/max                 AUROC = 0.683
+  most-common cal pick:   dragin_rind_max/max                 chosen in 20/50 splits (40%)
+  eval-half AUROC of cal-picked feature: mean=0.616  std=0.051  (95% interval ≈ [0.514, 0.719])
+  top 5 most-picked features across splits:
+    dragin_rind_max/max                 picked 20/50  full-data AUROC=0.683
+    dragin_rind_max/last                picked 8/50  full-data AUROC=0.645
+    dragin_rind_max/sum                 picked 5/50  full-data AUROC=0.654
+    dragin_rind_max/slope               picked 4/50  full-data AUROC=0.654
+    dragin_rind_max/monoton             picked 4/50  full-data AUROC=0.613
+
+=== qwen  (n=175) ===
+  full-data best feature: hidden_norm/slope                   AUROC = 0.372
+  most-common cal pick:   drift_cosine/last                   chosen in 11/50 splits (22%)
+  eval-half AUROC of cal-picked feature: mean=0.540  std=0.056  (95% interval ≈ [0.429, 0.652])
+  top 5 most-picked features across splits:
+    drift_cosine/last                   picked 11/50  full-data AUROC=0.374
+    hidden_norm/monoton                 picked 7/50  full-data AUROC=0.399
+    hidden_norm/slope                   picked 4/50  full-data AUROC=0.372
+    mean_token_entropy/last             picked 4/50  full-data AUROC=0.563
+    mean_token_entropy/first            picked 3/50  full-data AUROC=0.575
+
+=== phi_hotpot_v2  (n=131) ===
+  full-data best feature: u_cons/sum                          AUROC = 0.704
+  most-common cal pick:   u_cons/max                          chosen in 14/50 splits (28%)
+  eval-half AUROC of cal-picked feature: mean=0.617  std=0.064  (95% interval ≈ [0.488, 0.745])
+  top 5 most-picked features across splits:
+    u_cons/max                          picked 14/50  full-data AUROC=0.700
+    u_cons/sum                          picked 11/50  full-data AUROC=0.704
+    u_cons/last                         picked 7/50  full-data AUROC=0.675
+    u_cons/mean                         picked 4/50  full-data AUROC=0.670
+    tokens_generated/trace              picked 4/50  full-data AUROC=0.666
+
+=== phi_2wiki_v2  (n=107) ===
+  full-data best feature: u_cons/mean                         AUROC = 0.663
+  most-common cal pick:   variance_l2_window/monoton          chosen in 7/50 splits (14%)
+  eval-half AUROC of cal-picked feature: mean=0.545  std=0.053  (95% interval ≈ [0.440, 0.651])
+  top 5 most-picked features across splits:
+    variance_l2_window/monoton          picked 7/50  full-data AUROC=0.652
+    u_cons/first                        picked 7/50  full-data AUROC=0.636
+    boundary_token_entropy/range        picked 5/50  full-data AUROC=0.391
+    mean_token_entropy/mean             picked 5/50  full-data AUROC=0.648
+    u_cons/mean                         picked 5/50  full-data AUROC=0.663
+

@@ -1,0 +1,96 @@
+LAST-STEP vs WHOLE-TRACE: where is the signal?
+(AUROC > 0.55 = real signal; >0.6 = strong)
+
+
+=== phi  (n=61, n_incorrect=39) ===
+feature                      max    mean    last   last−max
+drift_cosine               0.543   0.509   0.534     -0.009
+variance_l2_window         0.508   0.503   0.444     -0.064  ★ last > max
+hidden_norm                0.530   0.499   0.520     -0.010
+mean_token_entropy         0.605   0.591   0.582     -0.023  ☆ max > last
+boundary_token_entropy     0.586   0.580   0.530     -0.056  ☆ max > last
+hvr                        0.513   0.513   0.500     -0.013
+dragin_rind_max            0.594   0.577   0.509     -0.085  ☆ max > last
+hedge_count                0.513   0.513   0.500     -0.013
+verify_count               0.500   0.500   0.500     +0.000
+u_cons                       nan   0.500     nan       +nan
+u_ent                        nan   0.500     nan       +nan
+u_verb                       nan   0.500     nan       +nan
+n_tokens_in_step           0.637   0.573   0.513     -0.124  ☆ max > last
+
+=== gemma  (n=200, n_incorrect=103) ===
+feature                      max    mean    last   last−max
+drift_cosine               0.508   0.439   0.536     +0.028  ★ last > max
+variance_l2_window         0.555   0.553   0.606     +0.052  ★ last > max
+hidden_norm                0.619   0.585   0.490     -0.128  ☆ max > last
+mean_token_entropy         0.617   0.610   0.592     -0.024  ☆ max > last
+boundary_token_entropy     0.527   0.515   0.392     -0.135  ★ last > max
+hvr                        0.514   0.514   0.505     -0.009
+dragin_rind_max            0.683   0.594   0.645     -0.038  ☆ max > last
+hedge_count                0.514   0.514   0.505     -0.009
+verify_count               0.505   0.505   0.500     -0.005
+u_cons                       nan   0.500     nan       +nan
+u_ent                        nan   0.500     nan       +nan
+u_verb                       nan   0.500     nan       +nan
+n_tokens_in_step           0.450   0.403   0.514     +0.064  ☆ max > last
+
+=== qwen  (n=175, n_incorrect=71) ===
+feature                      max    mean    last   last−max
+drift_cosine               0.525   0.474   0.374     -0.151  ★ last > max
+variance_l2_window         0.515   0.480   0.443     -0.072  ★ last > max
+hidden_norm                0.555   0.502   0.466     -0.089  ☆ max > last
+mean_token_entropy         0.600   0.575   0.563     -0.037  ☆ max > last
+boundary_token_entropy     0.592   0.566   0.537     -0.055  ☆ max > last
+hvr                        0.540   0.539   0.495     -0.044  ☆ max > last
+dragin_rind_max            0.574   0.549   0.561     -0.013
+hedge_count                0.540   0.539   0.495     -0.044  ☆ max > last
+verify_count               0.500   0.500   0.500     +0.000
+u_cons                       nan   0.500     nan       +nan
+u_ent                        nan   0.500     nan       +nan
+u_verb                       nan   0.500     nan       +nan
+n_tokens_in_step           0.537   0.428   0.554     +0.017
+
+=== phi_hotpot_v2  (n=96, n_incorrect=67) ===
+feature                      max    mean    last   last−max
+drift_cosine               0.549   0.582   0.601     +0.052  ★ last > max
+variance_l2_window         0.476   0.474   0.462     -0.013
+hidden_norm                0.486   0.493   0.420     -0.066  ★ last > max
+mean_token_entropy         0.563   0.476   0.559     -0.004
+boundary_token_entropy     0.532   0.518   0.548     +0.017
+hvr                        0.513   0.513   0.507     -0.005
+dragin_rind_max            0.572   0.516   0.556     -0.017
+hedge_count                0.513   0.513   0.507     -0.005
+verify_count               0.500   0.500   0.500     +0.000
+u_cons                     0.660   0.633   0.623     -0.037  ☆ max > last
+u_ent                        nan   0.500     nan       +nan
+u_verb                     0.593   0.587   0.560     -0.033  ☆ max > last
+n_tokens_in_step           0.532   0.520   0.532     +0.001
+
+=== phi_2wiki_v2  (n=79, n_incorrect=52) ===
+feature                      max    mean    last   last−max
+drift_cosine               0.533   0.531   0.573     +0.039  ★ last > max
+variance_l2_window         0.493   0.478   0.505     +0.012
+hidden_norm                0.486   0.479   0.417     -0.070  ★ last > max
+mean_token_entropy         0.622   0.601   0.651     +0.029  ★ last > max
+boundary_token_entropy     0.442   0.561   0.605     +0.162  ★ last > max
+hvr                        0.501   0.501   0.510     +0.009
+dragin_rind_max            0.575   0.564   0.569     -0.006
+hedge_count                0.501   0.501   0.510     +0.009
+verify_count               0.500   0.500   0.500     +0.000
+u_cons                     0.583   0.599   0.556     -0.028  ☆ max > last
+u_ent                        nan   0.500     nan       +nan
+u_verb                     0.523   0.524   0.503     -0.020
+n_tokens_in_step           0.514   0.529   0.570     +0.056  ★ last > max
+
+======================================================================
+TOP 10 (feature, agg, arch) pairs by |AUROC − 0.5|:
+  gemma             dragin_rind_max           (max)  AUROC = 0.683
+  phi_hotpot_v2     u_cons                    (max)  AUROC = 0.660
+  phi_2wiki_v2      mean_token_entropy        (last)  AUROC = 0.651
+  gemma             dragin_rind_max           (last)  AUROC = 0.645
+  phi               n_tokens_in_step          (max)  AUROC = 0.637
+  phi_hotpot_v2     u_cons                    (mean)  AUROC = 0.633
+  qwen              drift_cosine              (last)  AUROC = 0.374
+  phi_hotpot_v2     u_cons                    (last)  AUROC = 0.623
+  phi_2wiki_v2      mean_token_entropy        (max)  AUROC = 0.622
+  gemma             hidden_norm               (max)  AUROC = 0.619

@@ -1,0 +1,41 @@
+QUESTION-SIDE PREDICTION OF CLOSED-BOOK INCORRECTNESS
+
+AUROC for each PROMPT-ONLY feature → P(incorrect)
+feature          |            phi           gemma            qwen   phi_hotpot_v2    phi_2wiki_v2
+---------------------------------------------------------------------------------------------------
+q_chars          |          0.513           0.488           0.466           0.535           0.382  
+q_words          |          0.513           0.483           0.466           0.534           0.375  
+n_capitalized    |          0.501           0.449           0.518           0.469           0.370  
+n_digits         |          0.491           0.411           0.413           0.499           0.495  
+n_quoted         |          0.503           0.519           0.489           0.521           0.570  
+has_comparison   |          0.533           0.486           0.498           0.456           0.370  
+has_temporal     |          0.518           0.462           0.482           0.499           0.509  
+n_wh             |          0.523           0.501           0.506           0.586           0.550  
+is_easy          |          0.500           0.500           0.500           0.500           0.500  
+is_medium        |          0.500           0.500           0.500           0.500           0.500  
+is_hard          |          0.500           0.500           0.500           0.500           0.500  
+is_bridge        |          0.507           0.515           0.497           0.539           0.500  
+is_comparison    |          0.493           0.485           0.503           0.461           0.427  
+prompt_tokens    |          0.511           0.476           0.493           0.490           0.583  
+
+BEST PROMPT-ONLY FEATURE per arch (|AUROC − 0.5| maximised):
+  phi             : has_comparison     AUROC = 0.533
+  gemma           : n_digits           AUROC = 0.411
+  qwen            : n_digits           AUROC = 0.413
+  phi_hotpot_v2   : n_wh               AUROC = 0.586
+  phi_2wiki_v2    : n_capitalized      AUROC = 0.370
+
+COMPARISON: prompt-best vs drift_cosine_trace_max vs dragin_trace_max
+  arch                  prompt-best   drift_trace   dragin_trace
+  phi               0.533 (has_comparison)         0.543          0.594
+  gemma             0.411 (n_digits)         0.508          0.683
+  qwen              0.413 (n_digits)         0.525          0.574
+  phi_hotpot_v2        0.586 (n_wh)         0.549          0.572
+  phi_2wiki_v2      0.370 (n_capitalized)         0.533          0.575
+
+ADDITIVE COMBO (sign-weighted greedy sum of top 5 prompt features per arch):
+  phi               features=['has_comparison', 'n_wh', 'has_temporal', 'q_words', 'q_chars']  composite AUROC = 0.514
+  gemma             features=['n_digits', 'n_capitalized', 'has_temporal', 'prompt_tokens', 'n_quoted']  composite AUROC = 0.525
+  qwen              features=['n_digits', 'q_chars', 'q_words', 'has_temporal', 'n_capitalized']  composite AUROC = 0.537
+  phi_hotpot_v2     features=['n_wh', 'has_comparison', 'is_bridge', 'is_comparison', 'q_chars']  composite AUROC = 0.539
+  phi_2wiki_v2      features=['n_capitalized', 'has_comparison', 'q_words', 'q_chars', 'prompt_tokens']  composite AUROC = 0.588

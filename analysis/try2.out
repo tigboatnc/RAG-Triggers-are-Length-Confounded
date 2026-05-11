@@ -1,0 +1,30 @@
+PER-TRACE NORMALIZATION SWEEP  (target trace-fire-rate = 0.3)
+
+arch   gate       |    abs τ    Δfrac |   zscore τ    Δfrac |   maxnorm τ    Δfrac
+-----------------------------------------------------------------------------------------------
+phi    drift      |    0.257   -0.289 |      1.208   +0.000 |       1.332   +0.021
+phi    variance   |   65.260   -0.032 |      1.712   +0.278 |       5.174   +0.244
+phi    etc        |    1.588   -0.076 |      1.241   +0.021 |       1.000   +0.021
+phi    dragin     |    3.989   +0.150 |      1.558   +0.278 |       1.791   -0.021
+gemma  drift      |    0.261   -0.132 |      2.094   +0.000 |       4.279   -0.179
+gemma  variance   |  343.617   +0.017 |      2.408   +0.010 |       6.502   -0.065
+gemma  etc        |    0.831   +0.233 |      2.257   -0.030 |       5.380   -0.063
+gemma  dragin     |    1.945   +0.324 |      2.029   +0.392 |      11.841   -0.117
+qwen   drift      |    0.476   +0.174 |      1.779   +0.308 |       4.599   +0.062
+qwen   variance   |    0.148   +0.096 |      1.791   +0.330 |       3.451   -0.021
+qwen   etc        |    0.839   +0.014 |      2.231   +0.233 |       3.924   +0.062
+qwen   dragin     |    1.821   +0.241 |      2.003   +0.228 |       5.414   -0.021
+
+===========================================================================
+CROSS-ARCH STABILITY  (lower std = method ranks gates more consistently across archs):
+gate       |        absolute (μ, σ) |         z-score (μ, σ) |        max-norm (μ, σ)
+drift      | (-0.082, 0.192)         (+0.103, 0.145)           (-0.032, 0.105)
+variance   | (+0.027, 0.053)         (+0.206, 0.140)           (+0.053, 0.137)
+etc        | (+0.057, 0.130)         (+0.075, 0.114)           (+0.007, 0.052)
+dragin     | (+0.238, 0.071)         (+0.299, 0.068)           (-0.053, 0.045)
+
+BEST NORMALIZATION (highest mean Δfrac across archs):
+  drift     : z        (mean Δfrac = +0.103)  [abs=-0.082, z=+0.103, max=-0.032]
+  variance  : z        (mean Δfrac = +0.206)  [abs=+0.027, z=+0.206, max=+0.053]
+  etc       : z        (mean Δfrac = +0.075)  [abs=+0.057, z=+0.075, max=+0.007]
+  dragin    : z        (mean Δfrac = +0.299)  [abs=+0.238, z=+0.299, max=-0.053]

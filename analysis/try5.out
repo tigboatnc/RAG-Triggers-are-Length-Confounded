@@ -1,0 +1,84 @@
+
+=== phi  (n_eval=24, n_incorrect=15, EM=37.5%) ===
+
+Gate-level recall on INCORRECT traces (P(gate fires | incorrect)):
+  drift       recall=0.267  fire-rate=0.375  Δfrac=-0.289
+  variance    recall=0.200  fire-rate=0.208  Δfrac=-0.032
+  etc         recall=0.267  fire-rate=0.292  Δfrac=-0.076
+  hvr         recall=0.067  fire-rate=0.042  Δfrac=+0.391
+  dragin      recall=0.200  fire-rate=0.167  Δfrac=+0.150
+
+  UNION (any gate fires) recall on incorrect = 0.533
+  Best single-gate recall = 0.267
+  Δrecall (union − best single) = +0.267
+
+Per-pair OVERLAP on incorrect traces (Jaccard of fire-on-incorrect sets, 1.0 = identical, 0.0 = disjoint):
+                   drift    variance         etc         hvr      dragin
+  drift                —        0.17        0.33        0.00        0.40  
+  variance          0.17           —        0.00        0.00        0.20  
+  etc               0.33        0.00           —        0.25        0.40  
+  hvr               0.00        0.00        0.25           —        0.00  
+  dragin            0.40        0.20        0.40        0.00           —  
+
+  ORACLE-best-gate-per-trace correct decisions: 11/24 = 45.8%
+  vs majority-class baseline: 62.5%
+  Ensemble (any gate fires) Δfrac = -0.129  (fire-rate 0.583)
+  Ensemble (ALL gates fire) Δfrac = +nan  (fire-rate 0.000)
+
+=== gemma  (n_eval=80, n_incorrect=35, EM=56.2%) ===
+
+Gate-level recall on INCORRECT traces (P(gate fires | incorrect)):
+  drift       recall=0.400  fire-rate=0.475  Δfrac=-0.132
+  variance    recall=0.257  fire-rate=0.250  Δfrac=+0.017
+  etc         recall=0.486  fire-rate=0.362  Δfrac=+0.233
+  hvr         recall=0.029  fire-rate=0.013  Δfrac=+0.570
+  dragin      recall=0.371  fire-rate=0.237  Δfrac=+0.324
+
+  UNION (any gate fires) recall on incorrect = 0.829
+  Best single-gate recall = 0.486
+  Δrecall (union − best single) = +0.343
+
+Per-pair OVERLAP on incorrect traces (Jaccard of fire-on-incorrect sets, 1.0 = identical, 0.0 = disjoint):
+                   drift    variance         etc         hvr      dragin
+  drift                —        0.28        0.24        0.00        0.23  
+  variance          0.28           —        0.24        0.00        0.29  
+  etc               0.24        0.24           —        0.00        0.36  
+  hvr               0.00        0.00        0.00           —        0.08  
+  dragin            0.23        0.29        0.36        0.08           —  
+
+  ORACLE-best-gate-per-trace correct decisions: 40/80 = 50.0%
+  vs majority-class baseline: 56.2%
+  Ensemble (any gate fires) Δfrac = +0.107  (fire-rate 0.787)
+  Ensemble (ALL gates fire) Δfrac = +nan  (fire-rate 0.000)
+
+=== qwen  (n_eval=72, n_incorrect=22, EM=69.4%) ===
+
+Gate-level recall on INCORRECT traces (P(gate fires | incorrect)):
+  drift       recall=0.409  fire-rate=0.292  Δfrac=+0.174
+  variance    recall=0.227  fire-rate=0.181  Δfrac=+0.096
+  etc         recall=0.273  fire-rate=0.264  Δfrac=+0.014
+  hvr         recall=0.091  fire-rate=0.028  Δfrac=+0.714
+  dragin      recall=0.318  fire-rate=0.194  Δfrac=+0.241
+
+  UNION (any gate fires) recall on incorrect = 0.636
+  Best single-gate recall = 0.409
+  Δrecall (union − best single) = +0.227
+
+Per-pair OVERLAP on incorrect traces (Jaccard of fire-on-incorrect sets, 1.0 = identical, 0.0 = disjoint):
+                   drift    variance         etc         hvr      dragin
+  drift                —        0.17        0.36        0.22        0.45  
+  variance          0.17           —        0.22        0.17        0.20  
+  etc               0.36        0.22           —        0.14        0.62  
+  hvr               0.22        0.17        0.14           —        0.29  
+  dragin            0.45        0.20        0.62        0.29           —  
+
+  ORACLE-best-gate-per-trace correct decisions: 41/72 = 56.9%
+  vs majority-class baseline: 69.4%
+  Ensemble (any gate fires) Δfrac = +0.150  (fire-rate 0.514)
+  Ensemble (ALL gates fire) Δfrac = +0.704  (fire-rate 0.014)
+
+================================================================================
+READING:
+  - If union_recall >> best_single_recall: ensemble has headroom.
+  - If Jaccards are low: gates cover disjoint incorrect-trace pools (v1 #22).
+  - If Jaccards are high: gates are redundant; ensembling won't help much.

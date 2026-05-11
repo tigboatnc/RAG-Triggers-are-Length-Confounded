@@ -1,0 +1,38 @@
+ITER 1 — 5-feature sign-only combiner (split-half, z-normed)
+
+arch                                 valid feats             best-single    combiner        Δ
+----------------------------------------------------------------------------------------------------
+phi               var_monotonic,ent_first,dragin_max,tokens_gen      tokens_gen (0.692)       0.678   -0.015
+gemma             var_monotonic,ent_first,dragin_max,tokens_gen      dragin_max (0.691)       0.589   -0.102
+qwen              var_monotonic,ent_first,dragin_max,tokens_gen       ent_first (0.523)       0.587   +0.064
+phi_hotpot_v2     var_monotonic,ent_first,ucons_max,dragin_max,tokens_gen       ucons_max (0.656)       0.612   -0.044
+phi_2wiki_v2      var_monotonic,ent_first,ucons_max,dragin_max,tokens_gen   var_monotonic (0.604)       0.641   +0.037
+
+DROP-ONE ABLATION (avg AUROC over 4 split-halves; gap = combiner − drop-one):
+  phi               full combiner AUROC = 0.678
+    drop var_monotonic   AUROC = 0.619  (Δ vs full = -0.058)
+    drop ent_first       AUROC = 0.691  (Δ vs full = +0.013)
+    drop dragin_max      AUROC = 0.678  (Δ vs full = +0.000)
+    drop tokens_gen      AUROC = 0.640  (Δ vs full = -0.038)
+  gemma             full combiner AUROC = 0.589
+    drop var_monotonic   AUROC = 0.604  (Δ vs full = +0.015)
+    drop ent_first       AUROC = 0.616  (Δ vs full = +0.027)
+    drop dragin_max      AUROC = 0.489  (Δ vs full = -0.100)
+    drop tokens_gen      AUROC = 0.582  (Δ vs full = -0.007)
+  qwen              full combiner AUROC = 0.587
+    drop var_monotonic   AUROC = 0.600  (Δ vs full = +0.013)
+    drop ent_first       AUROC = 0.576  (Δ vs full = -0.011)
+    drop dragin_max      AUROC = 0.576  (Δ vs full = -0.011)
+    drop tokens_gen      AUROC = 0.566  (Δ vs full = -0.021)
+  phi_hotpot_v2     full combiner AUROC = 0.612
+    drop var_monotonic   AUROC = 0.610  (Δ vs full = -0.002)
+    drop ent_first       AUROC = 0.637  (Δ vs full = +0.025)
+    drop ucons_max       AUROC = 0.570  (Δ vs full = -0.042)
+    drop dragin_max      AUROC = 0.614  (Δ vs full = +0.002)
+    drop tokens_gen      AUROC = 0.610  (Δ vs full = -0.002)
+  phi_2wiki_v2      full combiner AUROC = 0.641
+    drop var_monotonic   AUROC = 0.573  (Δ vs full = -0.068)
+    drop ent_first       AUROC = 0.657  (Δ vs full = +0.016)
+    drop ucons_max       AUROC = 0.585  (Δ vs full = -0.056)
+    drop dragin_max      AUROC = 0.667  (Δ vs full = +0.026)
+    drop tokens_gen      AUROC = 0.640  (Δ vs full = -0.001)

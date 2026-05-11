@@ -53,10 +53,16 @@ def _load_jsonl(path: Path) -> list[dict]:
 
 
 def _all_step_scores(traces: list[dict], key: str) -> list[float]:
+    """Pool per-step scores across traces via sd._trace_scores, so canonical
+    field-name translation is applied (drift→drift_cosine, variance→
+    variance_l2_window, dragin→dragin_rind_max, etc→Δ²H of mean_token_entropy,
+    hvr→hvr). Reading raw step records with s.get(key) silently returns []
+    for the un-translated keys and collapses every threshold to 0.0.
+    """
     out: list[float] = []
     for t in traces:
-        for s in t.get("steps") or []:
-            v = s.get(key)
+        sc = sd._trace_scores(t)
+        for v in sc.get(key, []):
             if v is not None:
                 out.append(float(v))
     return out
@@ -99,14 +105,10 @@ def _trace_quantile_threshold(traces: list[dict], score_key: str,
                   for q in (0.50, 0.60, 0.70, 0.75, 0.80, 0.85, 0.90, 0.93, 0.95, 0.97, 0.99)]
     candidates = sorted(set(candidates))
     best_thr, best_diff = candidates[-1], float("inf")
+    per_trace = [[float(v) for v in sd._trace_scores(t).get(score_key, []) if v is not None]
+                 for t in traces]
     for thr in candidates:
-        fired = 0
-        for t in traces:
-            sc = sd._trace_scores(t)
-            scores = sc.get({"drift": "drift", "variance": "variance",
-                             "etc": "etc", "selfdoubt_t1": "hvr", "dragin": "dragin"}.get(score_key, score_key), [])
-            if any((v is not None and v > thr) for v in scores):
-                fired += 1
+        fired = sum(1 for vs in per_trace if any(v > thr for v in vs))
         rate = fired / len(traces)
         diff = abs(rate - target_trace_rate)
         if diff < best_diff:

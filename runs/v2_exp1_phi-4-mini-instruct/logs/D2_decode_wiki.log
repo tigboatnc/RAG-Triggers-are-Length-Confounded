@@ -86,3 +86,14 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..] 365/500  em=161/365  steps=  1  tok=  96  wall=7.1s  elapsed=84.7min
 [..] 370/500  em=161/370  steps=  2  tok=  96  wall=12.8s  elapsed=85.7min
 [..] 375/500  em=163/375  steps=  1  tok=  96  wall=7.3s  elapsed=86.4min
+[..] 380/500  em=166/380  steps=  1  tok=  64  wall=6.4s  elapsed=87.3min
+[..] 385/500  em=167/385  steps=  1  tok=  80  wall=7.5s  elapsed=88.2min
+[..] 390/500  em=170/390  steps=  1  tok=  64  wall=6.2s  elapsed=89.3min
+[..] 395/500  em=172/395  steps=  2  tok=  80  wall=11.3s  elapsed=89.7min
+[..] 400/500  em=173/400  steps=  0  tok=  48  wall=2.0s  elapsed=90.3min
+[..] 405/500  em=175/405  steps=  4  tok= 192  wall=23.8s  elapsed=91.3min
+[..] 410/500  em=177/410  steps=  1  tok=  35  wall=3.6s  elapsed=92.4min
+[..] 415/500  em=179/415  steps=  1  tok=  64  wall=6.5s  elapsed=93.5min
+[..] 420/500  em=181/420  steps=  3  tok= 112  wall=18.1s  elapsed=94.9min
+[..] 425/500  em=181/425  steps=  4  tok=  96  wall=20.1s  elapsed=95.9min
+[..] 430/500  em=184/430  steps=  1  tok=  48  wall=5.9s  elapsed=96.7min

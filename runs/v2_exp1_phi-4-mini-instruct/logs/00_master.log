@@ -21,3 +21,8 @@
 [2026-05-11T15:01:34Z] D.1 launched as pid=24873
 [2026-05-11T15:01:34Z] D.2 launched as pid=24880
 [2026-05-11T15:01:34Z] waiting for D.1 (pid=24873) and D.2 (pid=24880)...
+[2026-05-11T16:53:20Z] D.1 + D.2 done
+[2026-05-11T16:53:20Z] ==== STEP E.1 + E.2: oracle-retrieve decodes in PARALLEL ====
+[2026-05-11T16:53:20Z] E.1 launched as pid=47807
+[2026-05-11T16:53:20Z] E.2 launched as pid=47813
+[2026-05-11T16:53:20Z] waiting for E.1 (pid=47807) and E.2 (pid=47813)...

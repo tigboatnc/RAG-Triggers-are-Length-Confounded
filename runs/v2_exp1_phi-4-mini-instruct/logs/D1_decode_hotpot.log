@@ -99,3 +99,17 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..] 430/500  em=165/430  steps=  1  tok=  80  wall=7.8s  elapsed=94.7min
 [..] 435/500  em=165/435  steps=  0  tok=  32  wall=1.2s  elapsed=95.3min
 [..] 440/500  em=167/440  steps=  1  tok= 128  wall=8.3s  elapsed=96.3min
+[..] 445/500  em=170/445  steps=  2  tok= 128  wall=12.8s  elapsed=97.7min
+[..] 450/500  em=173/450  steps=  7  tok= 144  wall=36.4s  elapsed=98.9min
+[..] 455/500  em=177/455  steps=  2  tok= 112  wall=13.7s  elapsed=99.4min
+[..] 460/500  em=179/460  steps=  1  tok=  64  wall=6.4s  elapsed=100.1min
+[..] 465/500  em=180/465  steps=  4  tok= 192  wall=24.3s  elapsed=105.0min
+[..] 470/500  em=182/470  steps=  4  tok= 144  wall=22.0s  elapsed=106.4min
+[..] 475/500  em=185/475  steps=  2  tok=  80  wall=11.5s  elapsed=106.9min
+[..] 480/500  em=186/480  steps=  4  tok=  96  wall=20.0s  elapsed=108.3min
+[..] 485/500  em=189/485  steps=  2  tok=  97  wall=11.2s  elapsed=109.0min
+[..] 490/500  em=192/490  steps=  8  tok= 288  wall=36.3s  elapsed=110.1min
+[..] 495/500  em=193/495  steps=  0  tok=  64  wall=1.8s  elapsed=111.2min
+[..] 500/500  em=196/500  steps=  0  tok=  48  wall=1.4s  elapsed=111.6min
+[ok] wrote 500 rows to runs/v2_exp1_phi-4-mini-instruct/D1_closed_hotpot.jsonl
+[ok] em rate: 196/500 = 0.392

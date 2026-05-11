@@ -97,3 +97,19 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..] 420/500  em=181/420  steps=  3  tok= 112  wall=18.1s  elapsed=94.9min
 [..] 425/500  em=181/425  steps=  4  tok=  96  wall=20.1s  elapsed=95.9min
 [..] 430/500  em=184/430  steps=  1  tok=  48  wall=5.9s  elapsed=96.7min
+[..] 435/500  em=185/435  steps=  2  tok=  64  wall=10.5s  elapsed=97.7min
+[..] 440/500  em=188/440  steps=  2  tok= 112  wall=13.4s  elapsed=98.7min
+[..] 445/500  em=191/445  steps=  5  tok= 208  wall=27.3s  elapsed=99.9min
+[..] 450/500  em=192/450  steps=  2  tok=  64  wall=10.5s  elapsed=100.6min
+[..] 455/500  em=195/455  steps=  2  tok=  75  wall=7.0s  elapsed=101.2min
+[..] 460/500  em=196/460  steps=  2  tok=  96  wall=12.2s  elapsed=101.9min
+[..] 465/500  em=197/465  steps=  7  tok= 165  wall=34.1s  elapsed=103.0min
+[..] 470/500  em=200/470  steps=  1  tok=  67  wall=7.2s  elapsed=104.0min
+[..] 475/500  em=201/475  steps=  2  tok= 112  wall=12.4s  elapsed=104.9min
+[..] 480/500  em=202/480  steps=  0  tok=  64  wall=2.2s  elapsed=105.8min
+[..] 485/500  em=204/485  steps=  1  tok=  48  wall=6.0s  elapsed=106.6min
+[..] 490/500  em=206/490  steps=  0  tok=  64  wall=2.2s  elapsed=107.1min
+[..] 495/500  em=208/495  steps=  6  tok= 128  wall=29.4s  elapsed=109.0min
+[..] 500/500  em=209/500  steps=  0  tok=  64  wall=2.4s  elapsed=109.5min
+[ok] wrote 500 rows to runs/v2_exp1_phi-4-mini-instruct/D2_closed_wiki.jsonl
+[ok] em rate: 209/500 = 0.418

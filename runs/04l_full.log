@@ -1,0 +1,143 @@
+[..] loading models/qwen3.6-35b-a3b-instruct (bf16 native, device_map={'': 0})
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/693 [00:00<?, ?it/s]Loading weights:   0%|          | 2/693 [00:00<00:40, 17.12it/s]Loading weights:   2%|▏         | 14/693 [00:00<00:18, 35.81it/s]Loading weights:   4%|▍         | 30/693 [00:00<00:09, 68.31it/s]Loading weights:   6%|▌         | 39/693 [00:00<00:11, 56.17it/s]Loading weights:   7%|▋         | 50/693 [00:01<00:14, 45.59it/s]Loading weights:   8%|▊         | 58/693 [00:01<00:12, 51.76it/s]Loading weights:   9%|▉         | 65/693 [00:01<00:13, 48.21it/s]Loading weights:  12%|█▏        | 82/693 [00:01<00:08, 68.86it/s]Loading weights:  13%|█▎        | 91/693 [00:01<00:09, 63.84it/s]Loading weights:  14%|█▍        | 100/693 [00:01<00:11, 51.16it/s]Loading weights:  17%|█▋        | 118/693 [00:02<00:07, 72.54it/s]Loading weights:  18%|█▊        | 127/693 [00:02<00:09, 58.37it/s]Loading weights:  19%|█▉        | 135/693 [00:02<00:10, 55.30it/s]Loading weights:  22%|██▏       | 151/693 [00:02<00:07, 70.80it/s]Loading weights:  23%|██▎       | 160/693 [00:02<00:08, 60.16it/s]Loading weights:  24%|██▍       | 169/693 [00:02<00:08, 62.06it/s]Loading weights:  25%|██▌       | 176/693 [00:03<00:09, 52.30it/s]Loading weights:  27%|██▋       | 187/693 [00:03<00:08, 61.01it/s]Loading weights:  28%|██▊       | 194/693 [00:03<00:09, 53.33it/s]Loading weights:  29%|██▉       | 200/693 [00:03<00:12, 37.97it/s]Loading weights:  32%|███▏      | 220/693 [00:03<00:07, 60.25it/s]Loading weights:  33%|███▎      | 228/693 [00:04<00:08, 53.77it/s]Loading weights:  34%|███▍      | 238/693 [00:04<00:10, 44.84it/s]Loading weights:  37%|███▋      | 256/693 [00:04<00:06, 64.08it/s]Loading weights:  38%|███▊      | 265/693 [00:05<00:10, 39.65it/s]Loading weights:  42%|████▏     | 289/693 [00:05<00:08, 50.40it/s]Loading weights:  44%|████▍     | 307/693 [00:05<00:07, 52.85it/s]Loading weights:  47%|████▋     | 325/693 [00:05<00:05, 67.76it/s]Loading weights:  48%|████▊     | 335/693 [00:06<00:07, 50.37it/s]Loading weights:  52%|█████▏    | 358/693 [00:06<00:04, 68.64it/s]Loading weights:  53%|█████▎    | 368/693 [00:06<00:05, 62.29it/s]Loading weights:  54%|█████▍    | 377/693 [00:06<00:06, 49.32it/s]Loading weights:  57%|█████▋    | 394/693 [00:07<00:04, 64.15it/s]Loading weights:  58%|█████▊    | 403/693 [00:07<00:05, 52.94it/s]Loading weights:  59%|█████▉    | 411/693 [00:07<00:05, 52.00it/s]Loading weights:  62%|██████▏   | 427/693 [00:07<00:03, 68.86it/s]Loading weights:  63%|██████▎   | 436/693 [00:07<00:03, 67.81it/s]Loading weights:  64%|██████▍   | 445/693 [00:07<00:03, 70.49it/s]Loading weights:  66%|██████▌   | 454/693 [00:08<00:03, 62.73it/s]Loading weights:  67%|██████▋   | 462/693 [00:08<00:03, 62.08it/s]Loading weights:  68%|██████▊   | 469/693 [00:08<00:04, 52.61it/s]Loading weights:  69%|██████▊   | 475/693 [00:08<00:05, 41.12it/s]Loading weights:  71%|███████▏  | 494/693 [00:08<00:03, 64.04it/s]Loading weights:  72%|███████▏  | 502/693 [00:08<00:03, 60.33it/s]Loading weights:  74%|███████▍  | 514/693 [00:09<00:02, 67.34it/s]Loading weights:  75%|███████▌  | 522/693 [00:09<00:02, 62.54it/s]Loading weights:  77%|███████▋  | 533/693 [00:09<00:03, 51.34it/s]Loading weights:  78%|███████▊  | 541/693 [00:09<00:02, 56.08it/s]Loading weights:  79%|███████▉  | 548/693 [00:09<00:03, 47.53it/s]Loading weights:  82%|████████▏ | 565/693 [00:10<00:02, 52.73it/s]Loading weights:  84%|████████▍ | 584/693 [00:10<00:01, 60.77it/s]Loading weights:  87%|████████▋ | 601/693 [00:10<00:01, 76.02it/s]Loading weights:  88%|████████▊ | 610/693 [00:10<00:01, 63.67it/s]Loading weights:  89%|████████▉ | 618/693 [00:10<00:01, 60.71it/s]Loading weights:  91%|█████████▏| 634/693 [00:10<00:00, 75.36it/s]Loading weights:  93%|█████████▎| 643/693 [00:11<00:00, 62.82it/s]Loading weights:  94%|█████████▍| 652/693 [00:11<00:00, 67.86it/s]Loading weights:  95%|█████████▌| 660/693 [00:11<00:00, 63.42it/s]Loading weights:  97%|█████████▋| 670/693 [00:11<00:00, 67.63it/s]Loading weights:  98%|█████████▊| 678/693 [00:11<00:00, 60.05it/s]Loading weights:  99%|█████████▉| 685/693 [00:11<00:00, 47.16it/s]Loading weights: 100%|██████████| 693/693 [00:11<00:00, 57.82it/s]
+[ok] loaded in 20.45s | rss 1.038 GB | VRAM 68663 MB
+[  1] id=5a8e3ea95542995a26add48d  em=0  f1=0.750  tok=58  reason=eos  n_sup=2/10
+[  2] id=5ae4a3265542995ad6573de5  em=0  f1=0.000  tok=38  reason=eos  n_sup=2/10
+[  3] id=5ae2dd2055429928c423950d  em=1  f1=1.000  tok=68  reason=eos  n_sup=2/10
+[  4] id=5a8704f8554299211dda2ba4  em=1  f1=1.000  tok=121  reason=eos  n_sup=2/10
+[  5] id=5ae748d1554299572ea547b0  em=1  f1=1.000  tok=88  reason=eos  n_sup=2/10
+[  6] id=5a906a685542990a9849362e  em=1  f1=1.000  tok=51  reason=eos  n_sup=2/10
+[  7] id=5ab9b29c554299743d22ebae  em=0  f1=0.333  tok=141  reason=eos  n_sup=2/10
+[  8] id=5a89706055429951533612f9  em=1  f1=1.000  tok=43  reason=eos  n_sup=2/10
+[  9] id=5adbe1a7554299438c868cc3  em=1  f1=1.000  tok=65  reason=eos  n_sup=2/10
+[ 10] id=5ab7bae95542993667793ff4  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[ 11] id=5ab5057b5542991779162d56  em=0  f1=0.333  tok=65  reason=eos  n_sup=2/10
+[ 12] id=5a85c3a15542992a431d1b97  em=1  f1=1.000  tok=57  reason=eos  n_sup=2/10
+[ 13] id=5ae4c2b95542995dadf243ef  em=1  f1=1.000  tok=210  reason=eos  n_sup=2/10
+[ 14] id=5ac056385542997d64295a08  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 15] id=5abcc96c5542996583600492  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[ 16] id=5a8b78775542997f31a41d3d  em=0  f1=0.500  tok=106  reason=eos  n_sup=2/10
+[ 17] id=5adeffa85542992d7e9f926f  em=0  f1=0.000  tok=123  reason=eos  n_sup=2/10
+[ 18] id=5ade190f55429975fa854e40  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[ 19] id=5ac3b5d3554299741d48a2f3  em=1  f1=1.000  tok=96  reason=eos  n_sup=2/10
+[ 20] id=5ae48e7e55429913cc20449d  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[ 21] id=5ac1b5de5542994d76dccec6  em=1  f1=1.000  tok=119  reason=eos  n_sup=2/10
+[ 22] id=5a798f8c5542994bb9457023  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[ 23] id=5a80ecea55429938b6142254  em=1  f1=1.000  tok=75  reason=eos  n_sup=2/10
+[ 24] id=5ae1d0e8554299234fd0430a  em=0  f1=0.500  tok=74  reason=eos  n_sup=2/10
+[ 25] id=5ae533535542993aec5ec173  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[ 26] id=5add98985542990dbb2f7e82  em=0  f1=0.400  tok=59  reason=eos  n_sup=2/10
+[ 27] id=5a806cdf5542996402f6a508  em=1  f1=1.000  tok=154  reason=eos  n_sup=2/10
+[ 28] id=5a72f74a55429901807daf59  em=1  f1=1.000  tok=80  reason=eos  n_sup=2/10
+[ 29] id=5ab474135542991751b4d77b  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 30] id=5a73bcf055429978a71e909c  em=0  f1=0.800  tok=77  reason=eos  n_sup=2/10
+[ 31] id=5a7cc0d4554299452d57ba07  em=1  f1=1.000  tok=99  reason=eos  n_sup=2/10
+[ 32] id=5addfc425542997dc7907101  em=1  f1=1.000  tok=88  reason=eos  n_sup=2/10
+[ 33] id=5a8cee9b554299441c6b9f87  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[ 34] id=5a7f5ab65542995d8a8dde43  em=0  f1=0.400  tok=87  reason=eos  n_sup=2/10
+[ 35] id=5a7a1b845542990783324e5f  em=0  f1=0.000  tok=81  reason=eos  n_sup=2/10
+[ 36] id=5a8a265b5542992d82986ecc  em=1  f1=1.000  tok=216  reason=eos  n_sup=2/10
+[ 37] id=5abffd10554299012d1db556  em=1  f1=1.000  tok=76  reason=eos  n_sup=2/4
+[ 38] id=5a77ba6c55429967ab10524c  em=1  f1=1.000  tok=179  reason=eos  n_sup=2/10
+[ 39] id=5ab66b63554299110f219a0a  em=1  f1=1.000  tok=56  reason=eos  n_sup=2/10
+[ 40] id=5a7b1d3b5542992d025e677a  em=0  f1=0.000  tok=76  reason=eos  n_sup=2/10
+[ 41] id=5abb02fe554299232ef4a39f  em=1  f1=1.000  tok=56  reason=eos  n_sup=2/10
+[ 42] id=5ac524e55542994611c8b3d0  em=0  f1=0.000  tok=160  reason=eos  n_sup=2/10
+[ 43] id=5ab66fd355429954757d32b7  em=1  f1=1.000  tok=50  reason=eos  n_sup=2/10
+[ 44] id=5a8a06c35542992d82986e57  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[ 45] id=5a83438955429966c78a6b61  em=0  f1=0.500  tok=59  reason=eos  n_sup=2/10
+[ 46] id=5abdaa0f55429965af743dad  em=1  f1=1.000  tok=115  reason=eos  n_sup=2/10
+[ 47] id=5a80522b5542996402f6a4c1  em=1  f1=1.000  tok=80  reason=eos  n_sup=2/10
+[ 48] id=5adce88b5542992c1e3a249a  em=1  f1=1.000  tok=71  reason=eos  n_sup=2/10
+[ 49] id=5ae3c5535542991a06ce9a20  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[ 50] id=5ac538025542996feb3fea41  em=0  f1=0.667  tok=68  reason=eos  n_sup=2/10
+[ 51] id=5a7c2819554299683c1c62db  em=1  f1=1.000  tok=97  reason=eos  n_sup=2/10
+[ 52] id=5a7fb1e55542995d8a8ddef7  em=1  f1=1.000  tok=144  reason=eos  n_sup=2/10
+[ 53] id=5ab84f2c55429934fafe6d54  em=1  f1=1.000  tok=63  reason=eos  n_sup=2/10
+[ 54] id=5ac19f405542991316484b5b  em=1  f1=1.000  tok=96  reason=eos  n_sup=2/10
+[ 55] id=5ac072ef554299294b218fe4  em=0  f1=0.000  tok=95  reason=eos  n_sup=2/10
+[ 56] id=5ab4b7d15542996a3a969fbc  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[ 57] id=5ac3dfee554299204fd21eab  em=1  f1=1.000  tok=92  reason=eos  n_sup=2/10
+[ 58] id=5a7e075c5542995f4f4023a3  em=1  f1=1.000  tok=44  reason=eos  n_sup=2/10
+[ 59] id=5ae17d6855429901ffe4aea7  em=0  f1=0.667  tok=180  reason=eos  n_sup=2/10
+[ 60] id=5ae4aba25542995ad6573e12  em=1  f1=1.000  tok=78  reason=eos  n_sup=2/10
+[ 61] id=5a905f2a55429933b8a204fb  em=1  f1=1.000  tok=64  reason=eos  n_sup=2/10
+[ 62] id=5ae4758b5542995dadf24342  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[ 63] id=5ac15de55542991316484afb  em=1  f1=1.000  tok=83  reason=eos  n_sup=2/10
+[ 64] id=5ae532365542992663a4f150  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[ 65] id=5abe044d5542991f661060a7  em=0  f1=0.000  tok=80  reason=eos  n_sup=2/10
+[ 66] id=5ae72e79554299572ea54763  em=1  f1=1.000  tok=42  reason=eos  n_sup=2/10
+[ 67] id=5a8e27d45542995a26add46a  em=1  f1=1.000  tok=57  reason=eos  n_sup=2/10
+[ 68] id=5ab950bd55429970cfb8ea4c  em=1  f1=1.000  tok=74  reason=eos  n_sup=2/10
+[ 69] id=5a7c0aa15542997c3ec972cd  em=1  f1=1.000  tok=61  reason=eos  n_sup=2/10
+[ 70] id=5adf75e35542993344016c98  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[ 71] id=5ae1faf15542997f29b3c1e3  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[ 72] id=5a8cb4b2554299585d9e372a  em=0  f1=0.800  tok=122  reason=eos  n_sup=2/10
+[ 73] id=5a7d22dc5542995ed0d16600  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[ 74] id=5abb207d5542992ccd8e7f1d  em=0  f1=0.667  tok=75  reason=eos  n_sup=2/10
+[ 75] id=5a75da6d5542992db94736fa  em=1  f1=1.000  tok=94  reason=eos  n_sup=2/10
+[ 76] id=5ae2136d5542997283cd23b6  em=1  f1=1.000  tok=84  reason=eos  n_sup=2/10
+[ 77] id=5abf12f25542997719eab667  em=1  f1=1.000  tok=205  reason=eos  n_sup=2/10
+[ 78] id=5ae074aa5542993d6555eb54  em=1  f1=1.000  tok=137  reason=eos  n_sup=2/10
+[ 79] id=5ab9d6ef5542994dbf01985b  em=0  f1=0.000  tok=156  reason=eos  n_sup=2/10
+[ 80] id=5ab42d6055429942dd415eb0  em=1  f1=1.000  tok=59  reason=eos  n_sup=2/10
+[ 81] id=5a8315c055429966c78a6b2d  em=0  f1=0.400  tok=76  reason=eos  n_sup=2/10
+[ 82] id=5adf9ee75542992d7e9f93c0  em=0  f1=0.857  tok=54  reason=eos  n_sup=2/10
+[ 83] id=5ae3a8985542992f92d82329  em=1  f1=1.000  tok=52  reason=eos  n_sup=2/10
+[ 84] id=5a7a4ca955429941d65f25a3  em=1  f1=1.000  tok=106  reason=eos  n_sup=2/10
+[ 85] id=5ae022ab554299025d62a428  em=1  f1=1.000  tok=99  reason=eos  n_sup=2/10
+[ 86] id=5a8bb90f5542996e8ac88a02  em=0  f1=0.500  tok=74  reason=eos  n_sup=2/10
+[ 87] id=5a907bf05542995651fb5164  em=0  f1=0.667  tok=86  reason=eos  n_sup=2/10
+[ 88] id=5ac1b3a75542994ab5c67dd2  em=1  f1=1.000  tok=61  reason=eos  n_sup=2/10
+[ 89] id=5a72abb95542992359bc3162  em=1  f1=1.000  tok=80  reason=eos  n_sup=2/10
+[ 90] id=5adc020e55429947ff1738b4  em=1  f1=1.000  tok=67  reason=eos  n_sup=2/10
+[ 91] id=5ab9aab555429970cfb8eb65  em=1  f1=1.000  tok=154  reason=eos  n_sup=2/10
+[ 92] id=5a8ceddb554299441c6b9f85  em=0  f1=0.000  tok=97  reason=eos  n_sup=2/10
+[ 93] id=5abd0097554299700f9d7956  em=0  f1=0.500  tok=131  reason=eos  n_sup=2/10
+[ 94] id=5a89e2785542992e4fca843d  em=1  f1=1.000  tok=92  reason=eos  n_sup=2/10
+[ 95] id=5a8ce55f554299441c6b9f62  em=1  f1=1.000  tok=43  reason=eos  n_sup=2/10
+[ 96] id=5a8e3e9b5542995085b37402  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[ 97] id=5ae0ba1155429924de1b7156  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[ 98] id=5ac4f2235542996feb3fe995  em=0  f1=0.000  tok=84  reason=eos  n_sup=2/10
+[ 99] id=5a89e57f5542992e4fca845d  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[100] id=5ae552bb55429908b63265d9  em=1  f1=1.000  tok=84  reason=eos  n_sup=2/10
+[101] id=5a84fd085542994c784ddaba  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[102] id=5a7b59115542995eb53be923  em=0  f1=0.000  tok=278  reason=eos  n_sup=2/10
+[103] id=5adc99ba5542994ed6169ba9  em=0  f1=0.667  tok=108  reason=eos  n_sup=2/10
+[104] id=5add23e45542992ae4cec4a1  em=1  f1=1.000  tok=72  reason=eos  n_sup=2/10
+[105] id=5a7736bc554299373536021b  em=0  f1=0.800  tok=67  reason=eos  n_sup=2/10
+[106] id=5ae625935542995703ce8b2a  em=1  f1=1.000  tok=68  reason=eos  n_sup=2/10
+[107] id=5a7c4a6455429907fabeef53  em=1  f1=1.000  tok=238  reason=eos  n_sup=2/10
+[108] id=5a8ba45b554299240d9c2051  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[109] id=5ae61ac355429929b0807ac6  em=0  f1=0.667  tok=78  reason=eos  n_sup=2/10
+[110] id=5a8257fa55429940e5e1a866  em=1  f1=1.000  tok=85  reason=eos  n_sup=2/10
+[111] id=5ae20427554299234fd04397  em=0  f1=0.667  tok=80  reason=eos  n_sup=2/10
+[112] id=5abca6375542993a06baf946  em=1  f1=1.000  tok=134  reason=eos  n_sup=2/10
+[113] id=5a87100655429960ec39b71e  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[114] id=5ab674ee5542995eadeefff2  em=0  f1=0.000  tok=41  reason=eos  n_sup=2/10
+[115] id=5a836a2d554299334474600f  em=1  f1=1.000  tok=85  reason=eos  n_sup=2/10
+[116] id=5ae0ee2c5542993d6555eca3  em=1  f1=1.000  tok=116  reason=eos  n_sup=2/10
+[117] id=5abbd12b55429931dba14577  em=1  f1=1.000  tok=151  reason=eos  n_sup=2/10
+[118] id=5ac1218c55429964131be15c  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[119] id=5abced075542993a06baf9ac  em=1  f1=1.000  tok=47  reason=eos  n_sup=2/10
+[120] id=5ab8764155429919ba4e22fe  em=1  f1=1.000  tok=142  reason=eos  n_sup=2/10
+[121] id=5a716c415542994082a3e827  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[122] id=5adc82fc554299438c868dce  em=0  f1=0.333  tok=72  reason=eos  n_sup=2/10
+[123] id=5a734db15542994cef4bc523  em=1  f1=1.000  tok=126  reason=eos  n_sup=2/10
+[124] id=5abdb10f55429965af743dc9  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[125] id=5ae4083755429970de88d885  em=1  f1=1.000  tok=685  reason=eos  n_sup=2/10
+[126] id=5adf5c175542995ec70e8fd0  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[127] id=5ac2768d5542990b17b153a8  em=0  f1=0.500  tok=61  reason=eos  n_sup=2/10
+[128] id=5ae4ce835542990ba0bbb14d  em=0  f1=0.571  tok=62  reason=eos  n_sup=2/10
+[129] id=5a90206155429933b8a20481  em=0  f1=0.000  tok=130  reason=eos  n_sup=2/10
+[130] id=5a722a6855429971e9dc9320  em=0  f1=0.667  tok=91  reason=eos  n_sup=2/10
+[131] id=5a8834f05542994846c1ce26  em=1  f1=1.000  tok=98  reason=eos  n_sup=2/10
+[132] id=5ab294a6554299545a2cf9a6  em=0  f1=0.000  tok=59  reason=eos  n_sup=2/10
+[133] id=5ac2c4fe554299218029db3b  em=0  f1=0.667  tok=75  reason=eos  n_sup=2/10
+[134] id=5ae7eed8554299540e5a56b5  em=1  f1=1.000  tok=63  reason=eos  n_sup=2/10
+[135] id=5abd6db755429933744ab7d0  em=1  f1=1.000  tok=54  reason=eos  n_sup=2/10
+[136] id=5a88a23f5542997e5c09a652  em=0  f1=0.000  tok=92  reason=eos  n_sup=2/10
+[137] id=5a80ad19554299485f5986a8  em=1  f1=1.000  tok=43  reason=eos  n_sup=2/10
+[138] id=5ae564a155429960a22e02e4  em=1  f1=1.000  tok=119  reason=eos  n_sup=2/10
+[139] id=5a8d40585542994ba4e3dc39  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10

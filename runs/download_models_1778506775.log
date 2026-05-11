@@ -1,0 +1,21 @@
+[33m[..][0m downloading microsoft/Phi-4-mini-instruct @ cfbefacb99257ffa30c83adab238a50856ac3083 -> models/phi-4-mini-instruct
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Still waiting to acquire lock on models/phi-4-mini-instruct/.cache/huggingface/.gitignore.lock (elapsed: 0.1 seconds)
+Still waiting to acquire lock on models/phi-4-mini-instruct/.cache/huggingface/.gitignore.lock (elapsed: 0.1 seconds)
+path=/workspace/recollection.local/models/phi-4-mini-instruct
+[32m[ok][0m phi-4-mini-instruct downloaded (sha=cfbefacb99257ffa30c83adab238a50856ac3083)
+[33m[..][0m downloading Qwen/Qwen3.6-35B-A3B @ 995ad96eacd98c81ed38be0c5b274b04031597b0 -> models/qwen3.6-35b-a3b-instruct
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Still waiting to acquire lock on models/qwen3.6-35b-a3b-instruct/.cache/huggingface/.gitignore.lock (elapsed: 0.1 seconds)
+path=/workspace/recollection.local/models/qwen3.6-35b-a3b-instruct
+[32m[ok][0m qwen3.6-35b-a3b-instruct downloaded (sha=995ad96eacd98c81ed38be0c5b274b04031597b0)
+[32m[ok][0m downloads complete
+
+Resolved revisions (pin these into REV_QWEN / REV_PHI4MINI after a clean run):
+  phi-4-mini-instruct = cfbefacb99257ffa30c83adab238a50856ac3083
+  qwen3.6-35b-a3b-instruct = 995ad96eacd98c81ed38be0c5b274b04031597b0
+
+7.2G	models/phi-4-mini-instruct
+4.0K	models/phi-4-mini-instruct.revision
+67G	models/qwen3.6-35b-a3b-instruct
+4.0K	models/qwen3.6-35b-a3b-instruct.revision

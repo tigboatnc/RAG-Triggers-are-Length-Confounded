@@ -1,0 +1,62 @@
+[..] phi_wiki500_ood: built 136 rows  (closed=500, oracle=500, thresholds_mode=drift, B=10000)
+
+====================================================================================================
+== phi_wiki500_ood :: all (n=136)  (n=136)
+====================================================================================================
+  lift_em:  helpful(+1)=23  neutral(0)=95  harmful(-1)=18  base_rate_helpful=16.9%
+  closed-book EM = 35.3%  F1 = 42.0%
+  oracle      EM = 39.0%  F1 = 47.1%  (Δ=+3.7 EM, +5.2 F1)
+
+  gate            fire%  rec_em  prec_em  fpr_em  harm   Δlift_em(point  [95% CI])         Δlift_f1(point  [95% CI])         prec(point [95% CI])
+  latent          100.0  100.0   16.9   100.0   13.2      n/a [   n/a,   n/a]       n/a [   n/a,   n/a]    +16.91 [+11.03,+23.53]
+  etc             100.0  100.0   16.9   100.0   13.2      n/a [   n/a,   n/a]       n/a [   n/a,   n/a]    +16.91 [+11.03,+23.53]
+  selfdoubt_t1     4.4   13.0   50.0     2.7   16.7   +31.03 [-43.82,+96.99]    +15.36 [-64.24,+90.22]    +50.00 [ +0.00,+100.00]
+  dragin          100.0  100.0   16.9   100.0   13.2      n/a [   n/a,   n/a]       n/a [   n/a,   n/a]    +16.91 [+11.03,+23.53]
+  random          79.4   65.2   13.9    82.3   15.7   -26.85 [-48.82, -5.28]    -28.10 [-49.51, -6.50]    +13.89 [ +7.62,+20.56]
+
+  Paired margins (latent − baseline). 2-sided p, Bonferroni @ α=0.05/4=0.0125.
+    -- lift_em --
+    -- lift_f1 --
+    -- precision --
+      latent − etc             Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
+      latent − selfdoubt_t1    Δ=-33.09  [-81.62, +14.71]  p2-sided=0.1391  P(>0)=0.070  
+      latent − dragin          Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
+      latent − random          Δ= +3.02  [ -0.56,  +7.06]  p2-sided=0.1060  P(>0)=0.947  
+
+  McNemar on lift_em=+1 (helpful cohort only). Continuity-corrected χ², approx p.
+    latent vs etc             zero discordant pairs (a_only=0, b_only=0)
+    latent vs selfdoubt_t1    a_only= 20  b_only=  0  both=  3  neither=  0  χ²=18.050  p_approx=0.0001
+    latent vs dragin          zero discordant pairs (a_only=0, b_only=0)
+    latent vs random          a_only=  8  b_only=  0  both= 15  neither=  0  χ²=6.125  p_approx=0.0468
+
+
+====================================================================================================
+== phi_wiki500_ood :: split=ood_test (n=136)  (n=136)
+====================================================================================================
+  lift_em:  helpful(+1)=23  neutral(0)=95  harmful(-1)=18  base_rate_helpful=16.9%
+  closed-book EM = 35.3%  F1 = 42.0%
+  oracle      EM = 39.0%  F1 = 47.1%  (Δ=+3.7 EM, +5.2 F1)
+
+  gate            fire%  rec_em  prec_em  fpr_em  harm   Δlift_em(point  [95% CI])         Δlift_f1(point  [95% CI])         prec(point [95% CI])
+  latent          100.0  100.0   16.9   100.0   13.2      n/a [   n/a,   n/a]       n/a [   n/a,   n/a]    +16.91 [+11.03,+23.53]
+  etc             100.0  100.0   16.9   100.0   13.2      n/a [   n/a,   n/a]       n/a [   n/a,   n/a]    +16.91 [+11.03,+23.53]
+  selfdoubt_t1     4.4   13.0   50.0     2.7   16.7   +31.03 [-40.40,+96.89]    +15.36 [-62.31,+89.71]    +50.00 [ +0.00,+100.00]
+  dragin          100.0  100.0   16.9   100.0   13.2      n/a [   n/a,   n/a]       n/a [   n/a,   n/a]    +16.91 [+11.03,+23.53]
+  random          79.4   65.2   13.9    82.3   15.7   -26.85 [-48.50, -5.50]    -28.10 [-49.50, -7.02]    +13.89 [ +7.76,+20.75]
+
+  Paired margins (latent − baseline). 2-sided p, Bonferroni @ α=0.05/4=0.0125.
+    -- lift_em --
+    -- lift_f1 --
+    -- precision --
+      latent − etc             Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
+      latent − selfdoubt_t1    Δ=-33.09  [-81.62, +14.71]  p2-sided=0.1254  P(>0)=0.063  
+      latent − dragin          Δ= +0.00  [ +0.00,  +0.00]  p2-sided=0.0000  P(>0)=0.000  ***bonf
+      latent − random          Δ= +3.02  [ -0.51,  +7.11]  p2-sided=0.1030  P(>0)=0.948  
+
+  McNemar on lift_em=+1 (helpful cohort only). Continuity-corrected χ², approx p.
+    latent vs etc             zero discordant pairs (a_only=0, b_only=0)
+    latent vs selfdoubt_t1    a_only= 20  b_only=  0  both=  3  neither=  0  χ²=18.050  p_approx=0.0001
+    latent vs dragin          zero discordant pairs (a_only=0, b_only=0)
+    latent vs random          a_only=  8  b_only=  0  both= 15  neither=  0  χ²=6.125  p_approx=0.0468
+
+[ok] wrote runs/v2_exp1_phi-4-mini-instruct/F2_analysis_wiki.json

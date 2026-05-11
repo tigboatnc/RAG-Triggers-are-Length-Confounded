@@ -471,3 +471,37 @@
 [467] id=5adfb790554299603e418389  em=0  f1=0.125  tok=48  reason=answer_marker  n_sup=2/10
 [468] id=5ae69cfe55429908198fa65f  em=0  f1=0.727  tok=112  reason=answer_marker  n_sup=2/10
 [469] id=5ab28156554299449642c8ce  em=0  f1=0.286  tok=176  reason=answer_marker  n_sup=2/10
+[470] id=5ab42f3c55429942dd415ebc  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[471] id=5ac292175542996366519a14  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[472] id=5ab529005542996a3a96a045  em=0  f1=0.857  tok=176  reason=answer_marker  n_sup=2/10
+[473] id=5a8ac4dd5542992d82986f76  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=2/10
+[474] id=5a7587705542992db9473674  em=0  f1=0.500  tok=176  reason=answer_marker  n_sup=2/10
+[475] id=5ab3357d554299166977419d  em=1  f1=1.000  tok=64  reason=answer_marker  n_sup=2/10
+[476] id=5ae1e8ab5542997283cd22ca  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[477] id=5a8a09ff5542992d82986e6b  em=0  f1=0.000  tok=208  reason=answer_marker  n_sup=2/10
+[478] id=5abb23655542992ccd8e7f25  em=0  f1=0.000  tok=80  reason=answer_marker  n_sup=2/10
+[479] id=5ae535bc55429960a22e0260  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=2/10
+[480] id=5ac0cfb45542997d64295a58  em=0  f1=0.000  tok=80  reason=answer_marker  n_sup=2/10
+[481] id=5a832ad55542990548d0b1b5  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=2/10
+[482] id=5ab2a1f35542997061209677  em=1  f1=1.000  tok=64  reason=answer_marker  n_sup=2/10
+[483] id=5a7ae2f2554299042af8f6aa  em=1  f1=1.000  tok=64  reason=answer_marker  n_sup=2/10
+[484] id=5a8563c05542997b5ce3fff4  em=0  f1=0.000  tok=112  reason=answer_marker  n_sup=2/10
+[485] id=5a7f7e3a5542992097ad2f89  em=0  f1=0.400  tok=80  reason=answer_marker  n_sup=2/10
+[486] id=5ab875bd55429916710eb062  em=1  f1=1.000  tok=192  reason=answer_marker  n_sup=2/10
+[487] id=5a77ca3955429967ab1052a3  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[488] id=5a77769e5542997042120a65  em=0  f1=0.800  tok=128  reason=answer_marker  n_sup=2/10
+[489] id=5a86f204554299211dda2b60  em=1  f1=1.000  tok=64  reason=answer_marker  n_sup=2/10
+[490] id=5a877df15542993e715abf7a  em=0  f1=0.000  tok=96  reason=answer_marker  n_sup=2/10
+[491] id=5a7557d75542992d0ec05f68  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[492] id=5adf95745542995534e8c7f8  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10
+[493] id=5ac473e4554299204fd21f54  em=0  f1=0.143  tok=64  reason=answer_marker  n_sup=2/10
+[494] id=5a7776b955429967ab10519e  em=1  f1=1.000  tok=64  reason=answer_marker  n_sup=2/10
+[495] id=5ae2c6bf554299492dc91c6c  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[496] id=5adcad175542994ed6169bc3  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10
+[497] id=5adc6f6255429947ff173961  em=0  f1=0.250  tok=64  reason=answer_marker  n_sup=2/10
+[498] id=5a8756aa5542994846c1cd69  em=0  f1=0.222  tok=80  reason=answer_marker  n_sup=2/10
+[499] id=5addb1515542995b365fab60  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10
+[500] id=5ac132a755429964131be17c  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10
+
+[ok] wrote runs/v2_exp1_phi-4-mini-instruct/E1_oracle_hotpot.jsonl
+     n=500  EM=192/500 (38.4%)  meanF1=0.549

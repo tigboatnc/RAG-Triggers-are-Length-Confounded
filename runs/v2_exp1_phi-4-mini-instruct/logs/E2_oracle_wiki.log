@@ -481,3 +481,27 @@
 [477] id=bc61bfd608d311ebbd96ac1f6bf848b6  em=0  f1=0.000  tok=96  reason=answer_marker  n_sup=4/10
 [478] id=da9eb08e0bdb11eba7f7acde48001122  em=0  f1=0.800  tok=80  reason=answer_marker  n_sup=2/10
 [479] id=fbf8fd9e0bda11eba7f7acde48001122  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10
+[480] id=e22b6ac20bdb11eba7f7acde48001122  em=0  f1=0.500  tok=48  reason=answer_marker  n_sup=2/10
+[481] id=73ab605a0bb011ebab90acde48001122  em=0  f1=0.333  tok=128  reason=answer_marker  n_sup=2/10
+[482] id=41ba0aa60bb011ebab90acde48001122  em=0  f1=0.250  tok=128  reason=answer_marker  n_sup=2/10
+[483] id=402c6e0008c611ebbd90ac1f6bf848b6  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[484] id=3b5e453a096611ebbdafac1f6bf848b6  em=0  f1=0.000  tok=112  reason=answer_marker  n_sup=2/10
+[485] id=7d638c340bd911eba7f7acde48001122  em=1  f1=1.000  tok=64  reason=answer_marker  n_sup=2/10
+[486] id=415e3b580bde11eba7f7acde48001122  em=0  f1=0.100  tok=80  reason=answer_marker  n_sup=2/10
+[487] id=5256bf800bb011ebab90acde48001122  em=0  f1=0.000  tok=176  reason=answer_marker  n_sup=2/10
+[488] id=e639c91e088a11ebbd6fac1f6bf848b6  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=4/10
+[489] id=12afb387087d11ebbd6aac1f6bf848b6  em=0  f1=0.000  tok=80  reason=answer_marker  n_sup=2/10
+[490] id=844db8ce0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=2/10
+[491] id=f9302d0808e211ebbda4ac1f6bf848b6  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=4/10
+[492] id=09beb233086d11ebbd61ac1f6bf848b6  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[493] id=0c0a8c72088c11ebbd6fac1f6bf848b6  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=4/10
+[494] id=a5592a6808e711ebbda6ac1f6bf848b6  em=1  f1=1.000  tok=176  reason=answer_marker  n_sup=4/10
+[495] id=9041408408d811ebbd9cac1f6bf848b6  em=0  f1=0.118  tok=112  reason=answer_marker  n_sup=2/10
+[496] id=fe73168b08e311ebbda4ac1f6bf848b6  em=0  f1=0.000  tok=112  reason=answer_marker  n_sup=4/10
+[497] id=3101726e0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[498] id=08dc39f3088611ebbd6dac1f6bf848b6  em=0  f1=0.333  tok=64  reason=answer_marker  n_sup=2/10
+[499] id=b270bb19085a11ebbd5cac1f6bf848b6  em=1  f1=1.000  tok=176  reason=answer_marker  n_sup=4/10
+[500] id=062c28b60bdd11eba7f7acde48001122  em=0  f1=0.000  tok=80  reason=answer_marker  n_sup=2/10
+
+[ok] wrote runs/v2_exp1_phi-4-mini-instruct/E2_oracle_wiki.jsonl
+     n=500  EM=225/500 (45.0%)  meanF1=0.537

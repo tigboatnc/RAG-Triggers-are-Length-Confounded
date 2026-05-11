@@ -11,6 +11,13 @@
 set -euo pipefail
 shopt -s inherit_errexit
 
+# Defensive: ensure the project conda env is on PATH even from non-interactive
+# shells that don't source ~/.bashrc. `/venv/recollection` is a conda env (no
+# `activate` script), so we just prepend its bin dir.
+if [[ -x /venv/recollection/bin/python ]]; then
+  export PATH="/venv/recollection/bin:${PATH}"
+fi
+
 # ---------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------
@@ -79,7 +86,7 @@ step "B: smoke decode (Phi on 5 HotpotQA v2-test questions)"
 python scripts/04f_run_qa_sota.py \
   --model "${MODEL_NAME}" \
   --model-dir "${MODEL_DIR}" \
-  --slice "${HOTPOT_TEST_SLICE}" \
+  --dataset "${HOTPOT_TEST_SLICE}" \
   --layer-mode mid_stack \
   --limit 5 \
   --output "${RUN_DIR}/B_smoke_hotpot.jsonl" \
@@ -110,7 +117,7 @@ if [[ ! -f "${V1_TRACES}" ]]; then
   python scripts/04f_run_qa_sota.py \
     --model "${MODEL_NAME}" \
     --model-dir "${MODEL_DIR}" \
-    --slice "${V1_SLICE}" \
+    --dataset "${V1_SLICE}" \
     --layer-mode mid_stack \
     --output "${V1_TRACES}" \
     2>&1 | tee "${LOG_DIR}/C1_v1_decode.log"
@@ -135,7 +142,7 @@ step "D.1: closed-book decode on HotpotQA-500 v2-test"
 python scripts/04f_run_qa_sota.py \
   --model "${MODEL_NAME}" \
   --model-dir "${MODEL_DIR}" \
-  --slice "${HOTPOT_TEST_SLICE}" \
+  --dataset "${HOTPOT_TEST_SLICE}" \
   --layer-mode mid_stack \
   --output "${RUN_DIR}/D1_closed_hotpot.jsonl" \
   2>&1 | tee "${LOG_DIR}/D1_decode_hotpot.log"
@@ -144,7 +151,7 @@ step "D.2: closed-book decode on 2WikiMHQA-500 v2-test (OOD)"
 python scripts/04f_run_qa_sota.py \
   --model "${MODEL_NAME}" \
   --model-dir "${MODEL_DIR}" \
-  --slice "${WIKI_TEST_SLICE}" \
+  --dataset "${WIKI_TEST_SLICE}" \
   --layer-mode mid_stack \
   --output "${RUN_DIR}/D2_closed_wiki.jsonl" \
   2>&1 | tee "${LOG_DIR}/D2_decode_wiki.log"
@@ -155,14 +162,14 @@ python scripts/04f_run_qa_sota.py \
 step "E.1: oracle-retrieve decode on HotpotQA-500 v2-test"
 python scripts/04l_oracle_retrieve_decode.py \
   --model "${MODEL_NAME}" \
-  --slice "${HOTPOT_TEST_SLICE}" \
+  --dataset "${HOTPOT_TEST_SLICE}" \
   --output "${RUN_DIR}/E1_oracle_hotpot.jsonl" \
   2>&1 | tee "${LOG_DIR}/E1_oracle_hotpot.log"
 
 step "E.2: oracle-retrieve decode on 2WikiMHQA-500 v2-test (OOD)"
 python scripts/04l_oracle_retrieve_decode.py \
   --model "${MODEL_NAME}" \
-  --slice "${WIKI_TEST_SLICE}" \
+  --dataset "${WIKI_TEST_SLICE}" \
   --output "${RUN_DIR}/E2_oracle_wiki.jsonl" \
   2>&1 | tee "${LOG_DIR}/E2_oracle_wiki.log"
 

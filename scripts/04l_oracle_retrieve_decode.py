@@ -206,7 +206,7 @@ def main() -> int:
                         "`models/<model>` (the project convention used in "
                         "04_run_qa.py); pass explicitly if different.")
     p.add_argument("--dataset", default="data/hotpotqa_distractor_200.jsonl")
-    p.add_argument("--out", required=True)
+    p.add_argument("--out", "--output", dest="out", required=True)
     p.add_argument("--max-new-tokens", type=int, default=1024)
     p.add_argument("--limit", type=int, default=None, help="dev knob; first N rows")
     p.add_argument("--attn-impl", default=None,

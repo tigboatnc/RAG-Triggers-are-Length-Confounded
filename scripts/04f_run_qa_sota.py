@@ -437,6 +437,12 @@ def run_one_question_sota(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
+    parser.add_argument("--model-dir", default=None,
+                        help="Override the implicit models/<model> path. "
+                             "Useful when running from a v2 RUN_DIR with non-default layout.")
+    parser.add_argument("--output", default=None,
+                        help="Override the implicit runs/phase4_qa_<model>_<layer_mode><out_suffix>.jsonl path. "
+                             "Required for v2 multi-phase runs to avoid clobbering across phases.")
     parser.add_argument("--dataset", default=qa.DEFAULT_DATASET_PATH)
     parser.add_argument("--manifest", default=qa.DEFAULT_MANIFEST_PATH)
     parser.add_argument("--split", default="all", choices=["all", "calibration", "validation", "test"])
@@ -468,7 +474,7 @@ def main() -> None:
     parser.add_argument("--inline-system", action="store_true")
     args = parser.parse_args()
 
-    model_dir = Path("models") / args.model
+    model_dir = Path(args.model_dir) if args.model_dir else Path("models") / args.model
     if not model_dir.exists():
         print(f"[!!] missing {model_dir}.")
         sys.exit(1)
@@ -536,7 +542,11 @@ def main() -> None:
 
     runs_dir = Path("runs")
     runs_dir.mkdir(parents=True, exist_ok=True)
-    out_path = runs_dir / f"phase4_qa_{args.model}_{args.layer_mode}{args.out_suffix}.jsonl"
+    if args.output:
+        out_path = Path(args.output)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        out_path = runs_dir / f"phase4_qa_{args.model}_{args.layer_mode}{args.out_suffix}.jsonl"
     print(f"[..] writing {out_path}")
 
     n_total = len(questions)

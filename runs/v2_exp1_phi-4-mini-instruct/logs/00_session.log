@@ -1,0 +1,30 @@
+[2026-05-11T14:53:21Z] exp1 starting
+[2026-05-11T14:53:21Z] MODEL_NAME=phi-4-mini-instruct
+[2026-05-11T14:53:21Z] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-11T14:53:21Z] V1_SLICE=data/hotpotqa_distractor_200.jsonl
+[2026-05-11T14:53:21Z] HOTPOT_TEST_SLICE=data/hotpotqa_distractor_500_v2test.jsonl
+[2026-05-11T14:53:21Z] WIKI_TEST_SLICE=data/2wikimultihop_distractor_500_v2test.jsonl
+[2026-05-11T14:53:21Z] RUN_DIR=runs/v2_exp1_phi-4-mini-instruct
+[2026-05-11T14:53:21Z] git rev: 28db418
+[2026-05-11T14:53:21Z] python:  Python 3.11.15
+[2026-05-11T14:53:21Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-11T14:53:21Z] ==== STEP A.1: HotpotQA-500 test slice (disjoint from v1, all rows tagged split=test) ====
+[2026-05-11T14:53:21Z] A.1: slice already exists, skipping
+-rw-rw-r-- 1 root root 6228429 May 11 14:43 data/hotpotqa_distractor_500_v2test.jsonl
+[2026-05-11T14:53:21Z] ==== STEP A.2: 2WikiMHQA-500 test slice (OOD) ====
+[2026-05-11T14:53:21Z] A.2: slice already exists, skipping
+-rw-rw-r-- 1 root root 4191853 May 11 14:45 data/2wikimultihop_distractor_500_v2test.jsonl
+[2026-05-11T14:53:21Z] ==== STEP B: smoke decode (Phi on 5 HotpotQA v2-test questions) ====
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:38,  5.04it/s]Loading weights:   8%|▊         | 16/194 [00:00<00:02, 62.74it/s]Loading weights:  18%|█▊        | 34/194 [00:00<00:01, 98.75it/s]Loading weights:  26%|██▌       | 50/194 [00:00<00:01, 118.25it/s]Loading weights:  33%|███▎      | 64/194 [00:00<00:01, 124.25it/s]Loading weights:  41%|████      | 80/194 [00:00<00:00, 135.20it/s]Loading weights:  49%|████▉     | 95/194 [00:00<00:00, 136.64it/s]Loading weights:  57%|█████▋    | 111/194 [00:00<00:00, 140.98it/s]Loading weights:  65%|██████▍   | 126/194 [00:01<00:00, 133.27it/s]Loading weights:  72%|███████▏  | 140/194 [00:01<00:00, 134.35it/s]Loading weights:  79%|███████▉  | 154/194 [00:01<00:00, 124.85it/s]Loading weights:  86%|████████▌ | 167/194 [00:01<00:00, 125.88it/s]Loading weights:  93%|█████████▎| 180/194 [00:01<00:00, 125.25it/s]Loading weights:  99%|█████████▉| 193/194 [00:01<00:00, 125.35it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 120.08it/s]
+[ok] loaded in 3.83s | rss 1.023 GB | VRAM 8105 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=3, T=0.6, top_p=0.9)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_exp1_phi-4-mini-instruct/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 9186.50it/s]

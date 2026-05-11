@@ -1,0 +1,15 @@
+[2026-05-11T14:53:21Z] exp1 starting
+[2026-05-11T14:53:21Z] MODEL_NAME=phi-4-mini-instruct
+[2026-05-11T14:53:21Z] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-11T14:53:21Z] V1_SLICE=data/hotpotqa_distractor_200.jsonl
+[2026-05-11T14:53:21Z] HOTPOT_TEST_SLICE=data/hotpotqa_distractor_500_v2test.jsonl
+[2026-05-11T14:53:21Z] WIKI_TEST_SLICE=data/2wikimultihop_distractor_500_v2test.jsonl
+[2026-05-11T14:53:21Z] RUN_DIR=runs/v2_exp1_phi-4-mini-instruct
+[2026-05-11T14:53:21Z] git rev: 28db418
+[2026-05-11T14:53:21Z] python:  Python 3.11.15
+[2026-05-11T14:53:21Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-11T14:53:21Z] ==== STEP A.1: HotpotQA-500 test slice (disjoint from v1, all rows tagged split=test) ====
+[2026-05-11T14:53:21Z] A.1: slice already exists, skipping
+[2026-05-11T14:53:21Z] ==== STEP A.2: 2WikiMHQA-500 test slice (OOD) ====
+[2026-05-11T14:53:21Z] A.2: slice already exists, skipping
+[2026-05-11T14:53:21Z] ==== STEP B: smoke decode (Phi on 5 HotpotQA v2-test questions) ====

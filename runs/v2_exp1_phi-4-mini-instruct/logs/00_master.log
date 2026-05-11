@@ -26,3 +26,10 @@
 [2026-05-11T16:53:20Z] E.1 launched as pid=47807
 [2026-05-11T16:53:20Z] E.2 launched as pid=47813
 [2026-05-11T16:53:20Z] waiting for E.1 (pid=47807) and E.2 (pid=47813)...
+[2026-05-11T17:14:59Z] E.1 + E.2 done
+[2026-05-11T17:14:59Z] ==== STEP F.1: analyze HotpotQA-500 v2-test (in-domain) ====
+[2026-05-11T17:15:05Z] ==== STEP F.2: analyze 2WikiMHQA-500 v2-test (zero-shot OOD, frozen thresholds) ====
+[2026-05-11T17:15:10Z] ==== STEP G: summary ====
+[2026-05-11T17:15:10Z] All artifacts under runs/v2_exp1_phi-4-mini-instruct
+[2026-05-11T17:15:10Z] Logs under runs/v2_exp1_phi-4-mini-instruct/logs
+[2026-05-11T17:15:10Z] exp1 done

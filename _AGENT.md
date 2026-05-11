@@ -4,6 +4,235 @@
 
 ---
 
+## 2026-05-11 #21 — PRE-REGISTRATION: OOD transfer test on 2WikiMultiHopQA-distractor (Qwen only)
+
+> **This entry is a pre-registration.** It is written *before* the 2Wiki traces are generated. The configuration, the frozen thresholds, the analysis pool, and the success/failure criteria are committed here. Subsequent entries that report 2Wiki numbers must reference this entry by id (#21) so the audit trail shows the analysis was specified before the data was opened.
+
+### Decision
+
+Narrative for the EMNLP short paper is locked to **Narrative A (single-model, Qwen3.6-35B-A3B, mechanism-forward)**. Phi-4-mini and Gemma-4-26B-A4B move to Future Work (architecture-dependence sweep). HotpotQA-distractor result from #20 is the in-distribution headline. We add **one** OOD experiment: **2WikiMultiHopQA-distractor as a zero-shot transfer test** using the Qwen thresholds and aggregation mode already calibrated on HotpotQA-distractor in #20.
+
+We do **not** also calibrate on 2Wiki itself (the 2×2 "transfer + ceiling" design was considered and explicitly rejected — Option 3 in the chat decision log). The downside-protection of frozen-only transfer is preferred over the rhetorical upgrade of bounded transfer-penalty in a 4-page short paper. The 2×2 design is logged as a follow-up.
+
+### Frozen Qwen3.6 configuration (copied verbatim from #20)
+
+These are the **only** numbers allowed to score the 2Wiki traces. No 2Wiki-derived re-fitting is permitted.
+
+```
+latent_mode           = "or"
+threshold_drift       = 0.3029     (drift_cosine > tau)
+threshold_variance    = 0.0811     (variance_l2_window > tau)
+threshold_etc         = 0.4382     (|Δ²H| over mean_token_entropy series > tau)
+threshold_selfdoubt_t1 = 0.0       (native Pandey "HVR > 0" rule, not iso-fire calibrated)
+threshold_dragin       = 0.9053    (dragin_rind_max > tau)
+random_p              = 0.30        (Bernoulli, fixed seed)
+random_seed           = 20260511
+```
+
+Source of truth: `runs/phase4_bootstrap_dragin.json` → `per_arch."qwen3.6-35b-a3b-instruct".thresholds` and `.latent_mode_chosen`. The analyzer (`scripts/04i_ood_transfer.py`) re-reads this file at runtime rather than hard-coding the numbers; the file is committed to git so the audit trail is unambiguous.
+
+### 2WikiMultiHopQA-distractor slice
+
+- Source mirror: `xanhho/2WikiMultihopQA` on HuggingFace Datasets (config = `default`, split = `validation`). Fallback mirror if unavailable: `voidful/2WikiMultihopQA`. The chosen mirror is recorded in the on-disk manifest.
+- Sample size: **200 questions**.
+- Sampling seed: 20260511 (same generation seed used elsewhere in this campaign).
+- Stratification: on 2Wiki's four reasoning types (`compositional`, `inference`, `comparison`, `bridge_comparison`). 2Wiki has no `level` field; stratification is on `type` only.
+- Partition: **all 200 questions are tagged `split = "ood_test"`** in the on-disk JSONL. There is no calibration split because no thresholds are fit on this dataset. There is no validation split because no model-selection knobs are tuned on this dataset.
+- File layout: `data/2wikimultihop_distractor_200.jsonl` + `data/2wikimultihop_distractor_200.manifest.json`. `slice_sha256` pinned. Schema is identical to the HotpotQA slice (`split`, `id`, `question`, `answer`, `type`, `level=""`, `paragraphs`, `supporting_facts`) so the existing driver requires no modification.
+- Builder: `scripts/04_dataset_2wiki.py` (new). Run once on the compute box before the sweep.
+
+### Sweep configuration
+
+Generate traces with the existing driver, no code changes:
+
+```
+python scripts/04f_run_qa_sota.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/2wikimultihop_distractor_200.jsonl \
+    --manifest data/2wikimultihop_distractor_200.manifest.json \
+    --split all \
+    --layer-mode mid_stack \
+    --out-suffix _2wiki_ood
+```
+
+Writes `runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_2wiki_ood.jsonl`.
+
+Estimated compute on A100-SXM4-80GB: ~1.5–2 h end-to-end (matches the per-question wall-clock from #19 multiplied by 200). DRAGIN attention capture and per-step CRV capture both run as in #19.
+
+### Mandatory pre-sweep smoke
+
+Before launching the 200-question sweep, run a 5-question smoke and verify:
+
+1. The 2Wiki paragraphs render correctly into the Qwen chat template (no truncation, no schema mismatch).
+2. The `Answer:` early-stop regex fires on at least 3 of 5 questions (sanity check on response format).
+3. DRAGIN attention layer auto-detect picks the correct tuple index (should print "9" for Qwen3.6 hybrid stack, as in #18).
+4. Per-step `drift_cosine`, `variance_l2_window`, `mean_token_entropy`, `hvr`, `dragin_rind_max` are all populated (non-null) in the smoke JSONL.
+
+Smoke command:
+
+```
+python scripts/04f_run_qa_sota.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/2wikimultihop_distractor_200.jsonl \
+    --split all --limit 5 \
+    --out-suffix _2wiki_smoke
+```
+
+If any of the four checks fails, the sweep is blocked and the failure is logged here as #21 §smoke-fail. Do not advance to the 200-q sweep until the smoke is clean.
+
+### Analyzer
+
+`scripts/04i_ood_transfer.py` (new). Reads:
+
+- `runs/phase4_bootstrap_dragin.json` → frozen Qwen thresholds + mode.
+- `runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_2wiki_ood.jsonl` → 2Wiki traces.
+
+Applies the frozen configuration zero-shot. Same `n_steps ≥ 3` eligibility filter as #20. Same 10,000-resample paired percentile bootstrap on Δfrac and on the four paired margins (latent − ETC, latent − DRAGIN, latent − SELFDOUBT-T1, latent − random). Writes `runs/phase4_ood_transfer_2wiki.json` with the same JSON schema as `runs/phase4_bootstrap_dragin.json` so the headline figure script can ingest it without modification.
+
+### Pre-specified success / partial-success / failure criteria
+
+These are committed *before* the test is run so the writeup framing is determined by outcome, not by reverse-engineering the framing to match the numbers.
+
+| outcome | criterion | paper framing |
+|---|---|---|
+| **strong success** | Δfrac > 0 with 95% CI excluding 0 **and** latent − DRAGIN margin CI excludes 0 | abstract gets a second sentence: "thresholds calibrated on HotpotQA-distractor transfer zero-shot to 2WikiMultiHopQA, retaining a paired margin over DRAGIN of [X] at 95% CI". |
+| **success** | Δfrac > 0 with 95% CI excluding 0; latent − DRAGIN margin CI overlaps 0 | abstract gets: "thresholds transfer zero-shot to 2WikiMultiHopQA (Δfrac [X], 95% CI [Y, Z])"; margin against DRAGIN reported in body. |
+| **partial** | Δfrac point estimate > 0 but 95% CI overlaps 0; P(Δfrac > 0) ≥ 0.85 | "thresholds show a positive but power-limited transfer trend on 2Wiki" in §Results; one §Limitations bullet. HotpotQA headline unaffected. |
+| **null / negative** | Δfrac point estimate ≤ 0 or P(Δfrac > 0) < 0.5 | "thresholds calibrated on HotpotQA-distractor do not transfer zero-shot to 2WikiMultiHopQA"; honest reporting in §Results and §Limitations. HotpotQA headline still stands; this becomes a substantive finding about task-coupling of thresholds, suggested as future work. |
+
+### What this entry does NOT authorize
+
+- Re-calibration of any threshold on 2Wiki data.
+- Mode-pick re-selection on 2Wiki data.
+- Reporting any 2Wiki number with a different threshold configuration than the one frozen above without a new pre-registration entry (#22+) preceding it.
+- Adding a second OOD dataset (MuSiQue / Bamboogle / fullwiki HotpotQA) to this paper. Logged as future work.
+
+### Compute-box handoff runbook (Qwen-only, ~2 h end-to-end)
+
+> Prepared on the local PC; all commands below run on the compute box (A100-SXM4-80GB, `conda activate gzn`). The local PC has none of the heavy deps and is not used for any step that touches a GPU or HF.
+
+**Step 0 — environment prerequisites (skip if already satisfied on this box).** The compute box already has `transformers 5.8`, `torch 2.6.0+cu124`, `bnb 0.49.2`, `spacy`, `rank_bm25`, `sentence-transformers`, `datasets`, and the env file pinned in `runs/env_lockfile.txt`. If this is a fresh box, follow `_MODEL.md` §9 instead of this runbook; this runbook assumes Phase 1–4 has already run on this hardware.
+
+**Step 1 — pull the new scripts.**
+
+```bash
+cd /path/to/recollection.local
+git fetch --all && git pull
+ls scripts/04_dataset_2wiki.py scripts/04i_ood_transfer.py scripts/04i_2wiki_smoke_validator.py scripts/run_2wiki_ood.sh
+```
+
+**Step 2 — model download (Qwen only).** Phi and Gemma are out of scope for the OOD transfer test under Narrative A. Only Qwen3.6-35B-A3B is required. If `models/qwen3.6-35b-a3b-instruct/` already exists from #18 / #19, skip this step.
+
+```bash
+bash scripts/download_models.sh qwen-only
+```
+
+If `download_models.sh` does not expose a `qwen-only` subcommand on this branch, the explicit fallback is:
+
+```bash
+huggingface-cli download Qwen/Qwen3.6-35B-A3B \
+    --revision 995ad96eacd98c81ed38be0c5b274b04031597b0 \
+    --local-dir models/qwen3.6-35b-a3b-instruct \
+    --local-dir-use-symlinks False
+```
+
+Note the pinned revision SHA (matches `_MODEL.md` §1). Do *not* pull the latest tag.
+
+**Step 3 — build the 2Wiki slice (deterministic; ~1 minute).**
+
+```bash
+python scripts/04_dataset_2wiki.py
+```
+
+Writes:
+
+- `data/2wikimultihop_distractor_200.jsonl`
+- `data/2wikimultihop_distractor_200.manifest.json`
+
+Sanity-check the manifest:
+
+```bash
+python -c "import json; m=json.load(open('data/2wikimultihop_distractor_200.manifest.json')); \
+print('mirror=',m['dataset_name'],'split=',m['dataset_split']); \
+print('n=',m['sample_size'],'sha=',m['slice_sha256'][:16]); \
+print('per_type=',m['split']['per_type_counts_in_slice'])"
+```
+
+Expect `n=200`, four reasoning types in `per_type_counts_in_slice`, slice_sha256 a 16-char prefix that will be quoted in the paper. **Pin this sha256 to `_AGENT.md` #21 under §sha-pin once produced** (one extra commit) so the audit trail is locked.
+
+If the dataset builder fails because the default mirror has moved, try an alternative:
+
+```bash
+python scripts/04_dataset_2wiki.py --hf-name voidful/2WikiMultihopQA
+python scripts/04_dataset_2wiki.py --hf-name iohadrubin/2wikimultihop
+```
+
+The chosen mirror is recorded in the manifest.
+
+**Step 4 — pre-sweep smoke (5 questions; ~3 minutes).** Required by #21 §smoke; the validator script halts the runbook if any check fails.
+
+```bash
+python scripts/04f_run_qa_sota.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/2wikimultihop_distractor_200.jsonl \
+    --manifest data/2wikimultihop_distractor_200.manifest.json \
+    --split all --limit 5 \
+    --out-suffix _2wiki_smoke
+
+python scripts/04i_2wiki_smoke_validator.py \
+    --traces runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_2wiki_smoke.jsonl
+```
+
+The validator checks the four #21 §smoke criteria and prints `[ok]` per check. If anything prints `[FAIL]`, **do not run the full sweep**; copy the failure block into a new `_AGENT.md` entry #21 §smoke-fail and stop.
+
+**Step 5 — full sweep (200 questions; ~1.5–2 h).**
+
+```bash
+nohup python scripts/04f_run_qa_sota.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/2wikimultihop_distractor_200.jsonl \
+    --manifest data/2wikimultihop_distractor_200.manifest.json \
+    --split all \
+    --layer-mode mid_stack \
+    --out-suffix _2wiki_ood \
+    > runs/04f_qwen_2wiki_ood.log 2>&1 &
+
+tail -f runs/04f_qwen_2wiki_ood.log
+```
+
+Writes `runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_2wiki_ood.jsonl`.
+
+**Step 6 — OOD transfer analysis (offline; ~30 seconds).**
+
+```bash
+python scripts/04i_ood_transfer.py \
+    --bootstrap-json runs/phase4_bootstrap_dragin.json \
+    --traces runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_2wiki_ood.jsonl \
+    --bootstrap 10000 \
+    --out runs/phase4_ood_transfer_2wiki.json
+```
+
+Prints the per-gate Δfrac table, the four paired margins, and a `[verdict]` line classifying the outcome against the #21 pre-registered criteria. Writes the full JSON for the writeup.
+
+**Step 7 — log the numbers.** Append a new entry `_AGENT.md` #22 with: latent Δfrac point + 95% CI, all four paired margins, the verdict tier, the eligible-trace count, and (if needed) a short paragraph on which `[verdict]` tier the result landed in. Reference `#21` for the pre-registration.
+
+**Single-command alternative (Steps 4–6 chained).** For a hands-off run after Steps 1–3 land cleanly:
+
+```bash
+bash scripts/run_2wiki_ood.sh
+```
+
+The wrapper aborts at the smoke gate if it fails. Reads no flags; everything is pinned to #21 defaults.
+
+### Things this handoff intentionally does NOT do
+
+- **No Phi or Gemma compute.** Narrative A drops both for this submission. Their HotpotQA traces from #18 / #19 remain on disk as audit history; no 2Wiki traces are generated for them.
+- **No re-run of HotpotQA on Qwen.** The #20 numbers stand. The OOD analyzer reads `runs/phase4_bootstrap_dragin.json` for the frozen thresholds.
+- **No headline-figure regeneration.** That happens once the verdict is logged in #22 and the writeup branch is opened.
+- **No paper text edits.** The `.tex` rewrite for Narrative A is queued as the next step *after* #22 lands.
+
+---
+
 ## 2026-05-11 #20 — local re-bootstrap on the new gate pool (parent, conda gzn)
 
 > Back on the local box after the #19 DRAGIN-only sweeps landed. Re-bootstrap on the **{latent, ETC, SELFDOUBT-Tier1, DRAGIN, random}** pool over the new `runs/phase4_qa_<arch>_mid_stack_dragin.jsonl` files using `conda activate gzn`.

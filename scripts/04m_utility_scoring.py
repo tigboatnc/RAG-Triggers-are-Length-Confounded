@@ -125,15 +125,15 @@ def _bootstrap_paired(per_trace_em: dict[str, list[int]],
             margin_boot[(a, b)].append(f1_b[a] - f1_b[b])
 
     for p in POLICIES:
-        em_lo, em_hi = sd._pct(em_boot[p], 2.5), sd._pct(em_boot[p], 97.5)
-        f1_lo, f1_hi = sd._pct(f1_boot[p], 2.5), sd._pct(f1_boot[p], 97.5)
+        em_lo, em_hi = sd._pct(em_boot[p], 0.025), sd._pct(em_boot[p], 0.975)
+        f1_lo, f1_hi = sd._pct(f1_boot[p], 0.025), sd._pct(f1_boot[p], 0.975)
         out[p] = {
             "em_point": em_point[p], "em_ci": [em_lo, em_hi],
             "f1_point": f1_point[p], "f1_ci": [f1_lo, f1_hi],
         }
     for (a, b) in margins_keys:
         pts = margin_boot[(a, b)]
-        lo, hi = sd._pct(pts, 2.5), sd._pct(pts, 97.5)
+        lo, hi = sd._pct(pts, 0.025), sd._pct(pts, 0.975)
         point = (f1_point[a] - f1_point[b])
         p_gt_zero = sum(1 for x in pts if x > 0) / len(pts)
         out["__margins__"][f"{a}_minus_{b}_f1"] = {

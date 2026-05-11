@@ -1,0 +1,39 @@
+[..] model=qwen3.6-35b-a3b-instruct  B=10000  min_steps=0
+     n_calibration=79
+     n_validation=30
+     n_test=30
+
+--- CALIBRATION (n=79) ---
+  lift_em distribution:  helpful(+1)=8  neutral(0)=69  harmful(-1)=2
+  base rate of helpful retrieval: 10.1%
+
+  gate            fires%  rec_em  prec_em  fpr_em  harm   ΔlEM(fired−nf)    95% CI                 P>0   ΔlF1(fired−nf)    95% CI                 P>0
+  latent           87.3   87.5   10.1    87.3    2.9    -2.75   [-27.27, +13.85]   0.460    +2.15   [ -6.49, +10.58]   0.689
+  etc              57.0   87.5   15.6    53.5    2.2   +13.33   [ -0.90, +28.14]   0.962   +12.03   [ +0.87, +24.47]   0.984
+  selfdoubt_t1      5.1   25.0   50.0     2.8    0.0   +44.67   [ -8.00, +97.40]   0.887   +48.58   [ -3.66, +100.98]   0.920
+  dragin           82.3   87.5   10.8    81.7    3.1    +0.55   [-18.18, +14.52]   0.559    +3.99   [ -6.06, +14.01]   0.782
+  random           81.0  100.0   12.5    78.9    1.6   +17.60   [ +4.62, +35.27]   0.998   +15.07   [ +2.67, +32.08]   0.996
+
+--- VALIDATION (n=30) ---
+  lift_em distribution:  helpful(+1)=0  neutral(0)=29  harmful(-1)=1
+  base rate of helpful retrieval: 0.0%
+
+  gate            fires%  rec_em  prec_em  fpr_em  harm   ΔlEM(fired−nf)    95% CI                 P>0   ΔlF1(fired−nf)    95% CI                 P>0
+  latent           80.0  n/a    0.0    80.0    4.2    -4.17   [-13.64,  +0.00]   0.000    -2.78   [-13.04,  +3.85]   0.316
+  etc              60.0  n/a    0.0    60.0    5.6    -5.56   [-18.75,  +0.00]   0.000    -3.70   [-16.67,  +5.13]   0.319
+  selfdoubt_t1      0.0  n/a  n/a     0.0  n/a   n/a   [n/a, n/a]   n/a   n/a   [n/a, n/a]   n/a
+  dragin           76.7  n/a    0.0    76.7    4.3    -4.35   [-14.29,  +0.00]   0.000    -2.90   [-13.33,  +4.00]   0.258
+  random           80.0  n/a    0.0    80.0    4.2    -4.17   [-13.64,  +0.00]   0.000    -2.78   [-13.04,  +3.71]   0.306
+
+--- TEST (n=30) ---
+  lift_em distribution:  helpful(+1)=0  neutral(0)=30  harmful(-1)=0
+  base rate of helpful retrieval: 0.0%
+
+  gate            fires%  rec_em  prec_em  fpr_em  harm   ΔlEM(fired−nf)    95% CI                 P>0   ΔlF1(fired−nf)    95% CI                 P>0
+  latent           76.7  n/a    0.0    76.7    0.0    +0.00   [ +0.00,  +0.00]   0.000    -2.17   [ -7.16,  +0.00]   0.301
+  etc              53.3  n/a    0.0    53.3    0.0    +0.00   [ +0.00,  +0.00]   0.000    +3.57   [ -0.00, +11.54]   0.752
+  selfdoubt_t1      3.3  n/a    0.0     3.3    0.0    +0.00   [ +0.00,  +0.00]   0.000    +1.72   [ -0.00,  +5.35]   0.632
+  dragin           83.3  n/a    0.0    83.3    0.0    +0.00   [ +0.00,  +0.00]   0.000    -2.00   [ -6.52,  +0.00]   0.150
+  random           93.3  n/a    0.0    93.3    0.0    +0.00   [ +0.00,  +0.00]   0.000    -1.79   [ -5.77,  +0.00]   0.142
+
+[ok] wrote runs/phase4_lift_conditional.json

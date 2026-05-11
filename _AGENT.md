@@ -4,7 +4,243 @@
 
 ---
 
-## 2026-05-11 #24 — HANDOFF STATE (paused mid-iteration, end of session)
+## 2026-05-11 #26 — STATISTICAL-POWER CORRECTION: prior decisions retracted. The whole evaluation arm has been operating below the 2026 community floor.
+
+### What I missed and what it changes
+
+Parent raised the statistical-power critique with a literature audit. I had been operating as if n=40 paired-bootstrap claims on a single dataset were the relevant standard. They are not. The actual 2026 standard for dynamic-RAG / training-free trigger / uncertainty-detection papers is **300-500 test questions per dataset, with at least one in-domain + one OOD dataset**:
+
+| paper | test n per dataset | datasets evaluated |
+|---|---|---|
+| DRAGIN (Su et al.) | 1000 | 2WikiMHQA, HotpotQA, StrategyQA, IIRC (954) |
+| Adaptive-RAG (Jeong et al.) | 500 | strict 500-per-dataset protocol |
+| ReARTeR (Sun et al.) | 500 | HotpotQA, 2Wiki, MuSiQue |
+| FLARE (Jiang et al.) | 500 | HotpotQA, 2Wiki, MuSiQue |
+| Semantic Entropy (Farquhar et al.) | 400 | with 10× sampling cost per query |
+| HALT (Shapiro et al.) | 10 task clusters | calibration-robust by design |
+
+Our setup: **3 models × 1 dataset × 200 questions × 60/20/20 split → n=40 test per model**. This is roughly **8-25× below community floor for paired-significance claims**, and our single-dataset scope makes the architecture-portable claim untestable in principle (a reviewer can correctly attribute any cross-arch finding to dataset-specific quirks).
+
+### Specific prior claims retracted
+
+These are claims made in earlier entries today that I now consider statistically unsupported at the n we operated on:
+
+1. **"On Qwen-test, the latent gate Δfrac=+0.284 ✱ beats DRAGIN/ETC/SELFDOUBT-T1 at the point estimate"** (#20, repeated through #22b / #23 / #25). At n=37, the CI is [+0.11, +0.46] — a 35pp half-width. The point estimate is consistent with effects anywhere from "borderline" to "huge", and any sub-significant paired margin against another gate (e.g., latent vs random P(>0)=0.93) is essentially unfalsifiable at this n. **Status: pilot signal, direction-suggestive, not significance-claimable.**
+
+2. **"The utility framing is decisively closed on (Qwen × HotpotQA)"** (#25). Per #25 numbers: test has 1 positive label of 40. At calibration base rate 7.5%, expected positives at n=40 are 3, observed 1, which is within Poisson noise of expectation. The "experiment failed" claim is **a property of the n, not of the method**. The correct claim is **"the n=40 test split is uninformative on lift-conditional gate behavior because the positive-class count is too small for any gate comparison"**. We have no evidence whether the utility framing works at properly powered n.
+
+3. **"Random gate's lift margin ✱>0 beats latent's on calibration with paired significance"** (#25 #26). The Random vs Latent paired margin on the calibration lift_f1 was reported as random ✱>0 vs latent n.s. on n=120. With 9 positive labels in the entire cohort, this is **a sampling artifact**: random's not-fired cohort (n≈22) happened to contain 0 of the 9 positives by chance, which structurally inflates its conditional Δlift. Re-running at n=500 calibration with ~38 positives would either replicate (real disjoint-firing problem for the latent gate) or wash out (sampling artifact). We do not currently know which. **Status: indeterminate.**
+
+4. **"Tier 1 multi-feature fusion fails on Qwen with paired significance"** (#22 / #22b). The 5-variant ablation table is internally consistent but built on the same n=37 test cohort. Conclusions like "F1-thresholded LR is significantly worse than the OR" (paired margin −0.207 [−0.36, −0.06] ✱<0) are technically correct at the reported n but **may not survive a 10× larger evaluation**. The disjoint-firing mechanism story is plausible but currently a pilot interpretation.
+
+5. **"Defer EMNLP submission this cycle"** (#25). This decision was made based on the four claims above, three of which I am now retracting and one of which is unconvinced. The decision itself is therefore premature. The correct framing is **"under the current evaluation budget (200 q × 1 dataset), the data is not sufficient to support an EMNLP-main short submission; the experiments need to be re-run at the literature-standard scale before the submission decision can be made on evidence"**.
+
+### Detailed per-paper split audit (parent's lit deep-dive, 2024-2026)
+
+Below is the per-paper breakdown of calibration vs. test split sizes for the methods that are direct competitors or set the methodological standard. Parent supplied this audit; I am committing it verbatim into the log so subsequent decisions are anchored to the actual numbers, not my prior approximations.
+
+**(1) Training-free + lightweight calibration methods (closest to our CRV adapter):**
+
+| paper | calibration / train | test |
+|---|---|---|
+| SELFDOUBT (Pandey et al.) | **90 unlabeled traces** (marker dictionary + z-score normalization) | 198 GPQA-Diamond, **300** BBH, **300** MMLU-Pro (all OOD) |
+| Semantic Entropy (Farquhar et al.) | 400 train | **400 test** (BioASQ, SQuAD, TriviaQA, ...) |
+| Adaptive-RAG (Jeong et al.) | 400 train queries for the complexity classifier, ≤100-iter val | **500 test per dataset** |
+| DRAGIN (Su et al.) | n/a (training-free) | **1,000** for 2WikiMHQA / HotpotQA / StrategyQA; **954** for IIRC |
+| FLARE (Jiang et al.) | n/a (training-free) | **500** multi-hop / long-form / open-domain; 229 CommonsenseQA |
+
+**(2) Lightweight classifier + time-series probes:**
+
+| paper | train | val | test |
+|---|---|---|---|
+| ReaLM-Retrieve (Guo et al.) | **2,847 NQ traces** for boundary classifier + MLP proxy | 412 NQ | zero-shot OOD on MuSiQue / HotpotQA / 2Wiki (typically 500+ dev items) |
+| HALT (Shapiro et al.) | **35,377** (per cluster, e.g. QA) | 1,885 | **1,400** per cluster |
+| Semantic Entropy Probes (Kossen et al.) | **1,000** (long-form) / 2,000 (short-form) | — | zero-shot on held-out datasets |
+
+**(3) Heavy RL / fine-tuned methods (sets the multi-hop QA evaluation standard):**
+
+| paper | train | test |
+|---|---|---|
+| Search-R1 (Jin et al.) / LatentRAG (Zheng et al.) | NQ ~79k + HotpotQA ~90k merged | NQ 3,610; TriviaQA 11,313; HotpotQA dev 7,405; 2Wiki dev 12,576; MuSiQue dev 2,417 |
+| ReARTeR (Sun et al.) | 200-example bootstrap → 167,716-sample synthesized PRM training | **500** sampled from dev splits of HotpotQA / 2Wiki / MuSiQue |
+| GainRAG (Jiang et al.) | 20k HotpotQA + 4k WebQuestions → 14,084 filtered | **500** for 2Wiki / HotpotQA |
+
+### The verdict against our current setup (audit only, no operational commitments)
+
+Three plain-numerical readings from the audit above; the *response* to these (what to re-run, at what n, on which datasets, under what protocol amendments) is **explicitly not committed in this entry** and is left for parent's decision in a subsequent entry.
+
+1. **Calibration n=120 is at the community floor for training-free / lightweight-calibration methods.** SELFDOUBT uses 90 unlabeled traces; ReARTeR initializes from 200. The 120-question calibration split is defensible as data-efficient calibration. Nothing about this needs to change methodologically.
+2. **Test n=40 is below the community floor.** The literature floor is **300 (BBH/MMLU-Pro in SELFDOUBT) to 500 (Adaptive-RAG / FLARE / ReARTeR / GainRAG)**, with DRAGIN going to 1,000. n=40 is 7-25× below floor. Any paired-bootstrap / paired-margin claim derived from the current test split should be labelled "pilot" in subsequent prose, not "significance".
+3. **Dataset count n=1 cannot license a portability claim.** The architecture-portable / data-portable claim (Contributions 2 and 3 of the intended narrative) requires zero-shot OOD transfer to a second dataset, per the explicit protocols in SEP (Kossen), ReaLM-Retrieve (Guo), and Search-R1 (Jin). One dataset is sufficient for a *case-study* claim, not a portability claim.
+
+### What is *not* retracted, and what's reusable as-is
+
+- The on-disk artifacts (#20 traces, #22b ablation pool, #23 oracle decodes, #25 / #04n lift labels) are not invalidated. They are **pilots** — direction-suggestive at the explored n, not significance-claimable.
+- The methodology (zero-leakage split, iso-fire-rate calibration, paired bootstrap, DRAGIN / ETC / SELFDOUBT-T1 baseline pool from #16) is fine and reusable. Only the slice size is in question.
+- The mid-stack mechanism claim has *never* been tested against last-layer at any n. That ablation is a mechanism question, not a power question, and is independent of any decision about slice scale.
+- The evaluation pipeline (data slice → decode → trace capture → calibration → bootstrap analysis) is fully parameterised on dataset size, fire rate, and model. Whatever scale parent decides, the scripts do not need methodological changes.
+
+### Acknowledgement
+
+I should have raised the power critique myself in #20, before we ran #22 / #22b / #23 / #25 with n=37-40 test. Each of those experiments was technically correct at its reported scale but below the threshold at which their conclusions are publishable. Parent's audit in this entry is the correct frame; subsequent entries will label pilots as pilots and not derive "significantly beats / doesn't beat" claims from n<300 test cohorts.
+
+### What this entry does NOT do
+
+- Does not commit to a specific scaled evaluation design (n, dataset choice, protocol amendments).
+- Does not commit to k-fold CV vs held-out validation, or to Bonferroni vs other correction, or to thinking-mode protocols for any second dataset.
+- Does not commit to a submission timeline or venue.
+- Does not retract the *underlying signals* (the Δfrac point estimates, the lift distributions, the per-step features on disk). It retracts the *significance claims* layered on top of them.
+
+These decisions are deferred to subsequent entries and to parent.
+
+---
+
+## 2026-05-11 #25 — Downstream-QA utility experiment ran; result is unrecoverable on (Qwen × HotpotQA-distractor). Decision: defer submission, switch to exploration. *(SUPERSEDED IN PART BY #26: the "decisively closed" claim and the "random beats latent on lift" claim are retracted in #26 as statistical-power artifacts. The raw numbers are correct at the n we ran; their interpretation as falsified hypotheses is not. Retained for audit trail.)*
+
+### Day's outcome in one sentence
+
+The #23 oracle-retrieve experiment ran on the compute box (139/200 partial, full clean, no `enable_thinking=False` collapse), and the result rules out the planned utility narrative: the (Qwen × HotpotQA-distractor) pair has no usable retrieval-need signal because Qwen is too strong on this benchmark closed-book.
+
+### What was run
+
+1. **Compute box** — `scripts/04l_oracle_retrieve_decode.py` smoke (5/5 OK, all 4 criteria pass: n_sup=2, tok 38-121, all `eos`, no errors) → full sweep (139/200 captured at the time of analysis; all clean, all `eos`, tok median 77, mean 92.6, min 38, max 685, **0 traces <30 tokens** — no 2Wiki-style under-generation on HotpotQA).
+2. **Local PC** — `scripts/04m_utility_scoring.py` per-policy F1/EM with 10k paired bootstrap.
+   - Bug found and fixed mid-session: `sd._pct(xs, q)` expects `q ∈ [0,1]`; my call site passed `2.5` / `97.5` as percentiles. Fixed in commit-ready state.
+3. **Local PC** — `scripts/04n_lift_conditional.py` (new) — lift-conditional gate diagnostics (recall / precision / paired Δlift on the fired vs not-fired cohorts).
+
+### Numbers (139-trace partial; closed-book traces from #20 unchanged)
+
+Per-policy F1, paired margins (key rows):
+
+| split | n | always − never | gate_latent − never | gate_latent − random |
+|---|---|---|---|---|
+| calibration | 79 | +3.88 P(>0)=0.88  | +3.63 P(>0)=0.86  | −1.83 P(>0)=0.06 |
+| validation  | 30 | **−2.22** P(>0)=0.31 | −2.22 P(>0)=0.31 | 0 |
+| test        | 30 | **−1.79** P(>0)=0.13 | −1.79 P(>0)=0.19 | 0 |
+
+Closed-book EM rates by split: calib 59.5%, validation 70.0%, **test 80.0%**.
+
+Lift-EM distribution (oracle_em − closed_em ∈ {−1, 0, +1}):
+
+| split | n | helpful (+1) | neutral (0) | harmful (−1) | base rate helpful |
+|---|---|---|---|---|---|
+| calibration | 79 | 8 | 69 | 2 | **10.1%** |
+| validation  | 30 | **0** | 29 | 1 | 0.0% |
+| test        | 30 | **0** | 30 | 0 | 0.0% |
+
+Lift-conditional `mean_lift_em(fired) − mean_lift_em(not_fired)` paired bootstrap, calibration only (val/test cannot be scored — positive class is empty):
+
+| gate | fires% | precision_em | Δlift_em | P(>0) |
+|---|---|---|---|---|
+| latent | 87% | 10.1% (= base rate) | −2.75 [−27, +14] | 0.46 |
+| etc | 57% | 15.6% | +13.33 [−0.9, +28] | 0.96 |
+| dragin | 82% | 10.8% | +0.55 | 0.56 |
+| **random** | 81% | 12.5% | **+17.60 [+4.6, +35.3]** | **0.998 ✱>0** |
+
+### Root cause analysis
+
+- **Qwen3.6-35B-A3B is too strong on HotpotQA-distractor.** Test EM = 80% closed-book; oracle paragraph filter provides no measurable additional lift on val/test (n=30 each).
+- **Step-level iso-fire-rate 0.30 → trace-level fire rate 80-90% on Qwen.** With a 10% base rate of helpful retrieval, any gate firing this densely has precision ≈ base rate by construction — the cohort split between fired and not-fired traces is mostly noise on a near-degenerate positive class.
+- **Random gate's "win" on the lift margin is a structural artifact of cohort imbalance + small n, not a real signal.** It does not invalidate the latent gate's mechanism — but it does invalidate the utility framing because the framing assumes the positive class is identifiable.
+- The Δfrac signal observed on Qwen-test in #20 (+0.284 ✱) is **a property of the correct/incorrect partition**, not the helpful-retrieval/no-change partition. Δfrac measures whether the gate fires earlier on incorrect traces; it does not measure whether retrieval *fixes* those traces. These are different conditional questions, and the data tells us the second one is unanswerable on this (model, dataset) pair.
+
+### Pre-registered branch hit: #23 branch (2) inconclusive AND the option-1 rescue (#04n) fails
+
+Both `gate_latent − never F1` (n.s. on val and test) and the lift-conditional rescue (latent precision = base rate, random Δlift beats latent) confirm the experiment is not recoverable as designed on this pair. Per #23 §"Pre-specified failure / inconclusive outcomes" this is a documented, defensible negative result — it is *not* a methodological failure; it is a property of the chosen evaluation pair.
+
+### Decision (signed off by parent: "scratch submission this cycle, finish exploring")
+
+- EMNLP-main short submission target: **dropped for this cycle.** Next viable submission window deferred to ~12 months out (or earlier alternate venue if a stronger result lands first).
+- This entry closes the line of work that targeted the original #15–#23 narrative arc.
+- Subsequent entries (#26+) operate in **exploration mode**: try things, log results, no submission pressure, no pre-registration gating, but maintain audit-trail hygiene (each entry timestamped, decisions logged, scripts committed).
+
+### Addendum — full 200/200 oracle decode landed; re-scored
+
+Compute box completed the full sweep; 200/200 captured, 199 `eos` + 1 `max_tokens`, 0 errors, oracle EM=130/200 (65.0%), meanF1=0.794. Tok median 79, mean 104.8, min 29, max 1024 (1 row hit max_tokens). Sweep clean.
+
+Re-scored with the full cohort (`runs/phase4_utility.json`, `runs/phase4_lift_conditional.json`, logs in `runs/04m_full.log`, `runs/04n_full.log`). Headline facts changed only in degree, not direction:
+
+**Lift-EM distribution per split (full 200):**
+
+| split | n | helpful (+1) | neutral (0) | harmful (−1) | base rate helpful |
+|---|---|---|---|---|---|
+| calibration | 120 | 9 | 108 | 3 | **7.5%** |
+| validation  | 40 | **0** | 39 | 1 | 0.0% |
+| test        | 40 | **1** | 39 | 0 | **2.5%** |
+
+The headline test split has exactly **1 positive label**. No gate comparison on lift is meaningful at this signal-to-noise ratio.
+
+**Calibration lift margins (full 120, where positives exist):**
+
+| gate | fires% | precision_em | Δlift_em | P(>0) | Δlift_f1 | P(>0) |
+|---|---|---|---|---|---|---|
+| latent | 85.8% | 7.8% (≈ base rate 7.5%) | −1.03 [−16, +10] | 0.48 | −0.85 | 0.43 |
+| etc | 57.5% | 11.6% | +8.70 [−1.7, +19] | 0.95 | **+9.34 [+0.9, +18]** | **0.985 ✱>0** |
+| dragin | 83.3% | 8.0% | +0.00 | 0.53 | +3.56 | 0.84 |
+| **random** | 81.7% | 9.2% | **+11.69 [+2.1, +24]** | **0.994 ✱>0** | **+11.10 [+2.3, +23]** | **0.997 ✱>0** |
+| selfdoubt_t1 | 5.8% | 42.9% | +40.20 [−2.6, +81] | 0.96 | +41.92 | 0.97 |
+
+Final reading: random and ETC have paired-significant lift margins on calibration; the latent gate does not (precision indistinguishable from base rate, point estimate negative). SELFDOUBT-T1 is interesting (precision 42.9% at fires=5.8%, point Δlift very high) but CI is wide enough to be marginal and only one half-significant.
+
+**Per-policy F1 margins (full 200):**
+
+| split | always − never | gate_latent − never | gate_random − never |
+|---|---|---|---|
+| calibration | +3.39 P(>0)=0.91 n.s. | +2.80 P(>0)=0.87 n.s. | **+4.43 [+0.04, +9.25] P(>0)=0.98 ✱>0** |
+| validation  | +0.81 P(>0)=0.60 n.s. | +0.81 n.s. | +0.81 n.s. |
+| test        | −0.42 P(>0)=0.39 n.s. | −0.42 n.s. | −0.42 n.s. |
+
+Closed-book Qwen EM by split: calib 55.8% / val 72.5% / test 70.0%. Even on validation+test where closed-book is lower, all gates collapse to identical F1 because the positive class (retrieval helps) is empty (0/1).
+
+**Two strange but worth-noting things on calibration:**
+
+1. **Random gate ✱>0 on both lift and F1 margin.** Random fires on 81.7% of traces; the not-fired cohort is only 18% of n=120 (~22 traces). With base-rate 7.5% helpful, expected helpful-in-not-fired ≈ 1.6. Empirically, random fired on all 9 helpful + most neutrals; the not-fired cohort contains zero positives by coincidence, which gives random a structurally favorable Δlift. This is a sampling artifact, not a real signal.
+2. **The latent gate fires more often than random** (85.8% vs 81.7%) and captures essentially the same number of positives (recall_em both ≈90-100%), but has worse precision because it also captures 4-5 more neutrals. This means our calibrated threshold is *less selective than random at this fire rate*. The OR rule with iso-fire-rate=0.30-at-step level is dispersing too widely at the trace level on Qwen.
+
+### Final verdict on this evaluation arm
+
+The utility framing is **definitively closed** for (Qwen × HotpotQA-distractor). Three independent metrics all confirm:
+- Per-policy F1 (#04m): n.s. across all splits.
+- Per-policy EM (#04m): n.s. across all splits.
+- Lift-conditional Δlift (#04n): random and ETC ✱>0; latent indistinguishable from base rate.
+
+The Δfrac signal from #20 (latent +0.284 ✱ on test) is **real but mis-labeled** — it predicts *correctness*, not *retrieval need*. These are different conditional questions on this benchmark; the data is decisive.
+
+### What is still on disk and reusable
+
+- `runs/phase4_qa_qwen3.6-35b-a3b-instruct_oracle_retrieve.jsonl` — 200 oracle answers, full sweep. Reusable for *any* further conditional analysis (per-question type, per reasoning chain length, per closed-book confidence) without re-decode.
+- All #20 / #22 / #22b / #23 / #25 artifacts intact. The Δfrac story (Qwen-test +0.284 ✱) and the ablation table (#22b 5-variant) remain unaffected — neither depends on the utility experiment.
+- New scripts: `04j_fused_gate.py`, `04k_method_variants.py`, `04l_oracle_retrieve_decode.py`, `04m_utility_scoring.py`, `04n_lift_conditional.py`. All uncommitted; should be `git add`'d so the audit trail is reproducible later.
+
+### Open exploration directions (parent to choose, none pre-registered)
+
+The Δfrac signal *is real* on Qwen — that part survived everything. So the question is: **what is it actually detecting?** Hypotheses worth probing on existing data, ranked by leverage-per-effort:
+
+| # | direction | new compute? | what we'd learn |
+|---|---|---|---|
+| E1 | Re-run #20 latent gate at much lower iso-fire (0.10, 0.05) to push trace-level fire rate from 85% to 20-30%. Re-score Δfrac and lift on the calibration positives. | No | Does lower fire rate sharpen precision? Is the disjoint-firing claim from #22 robust to fire-rate? |
+| E2 | Replace EM with continuous F1 in #04n. Calibration's `lift_f1` had ETC ✱>0; latent did not. Need to characterise why. | No | Whether the gate aligns with a continuous correctness gradient or only the binary partition. |
+| E3 | **Last-layer Qwen ablation** (the long-deferred mechanism check). Same #20 protocol, `--layer-mode last_layer`. | Yes, ~3h | Mechanism: does mid-stack genuinely carry signal that last-layer does not on hybrid linear-attention? This is the experiment that *actually* tests the "mid-stack matters" claim regardless of paper status. |
+| E4 | Switch dataset: build a 200-q MuSiQue slice with the existing #04_dataset_2wiki.py-style script, re-run #20 + #23. | Yes, ~6-8h | Whether the Δfrac signal transfers to a harder benchmark. Could resurrect the utility framing entirely. |
+| E5 | Profile WHICH 8 traces are the helpful-retrieval traces on calibration. Manual inspection. Are they `comparison`-type or `bridge`-type? Are they consistently low-confidence under closed-book? | No | Gives a mechanism story for retrieval-need that doesn't depend on Δfrac. |
+| E6 | Run #04n on Phi and Gemma traces (already on disk from #20). Lift cannot be computed without oracle decodes, but lift-conditional Δfrac (correctness, not helpful-retrieval) can. | No (no oracle yet) | Whether the mid-stack signal transfers cross-architecture under the alternate metric. |
+
+E3 and E5 are the highest-leverage *exploration* moves. E1 is the cheapest sanity check. E4 is the highest variance and only worth doing if E5 reveals something interesting.
+
+Suggested order for the remaining week:
+1. **E5 first** (manual inspection of the 8 helpful traces). Free, ~30 min.
+2. **E1 in parallel** (re-score at lower fire rate). Free, ~10 min.
+3. **E3** (last-layer Qwen ablation). One compute run. Result regardless of paper outcome is a real mechanism finding.
+4. Decide E4 (new dataset) based on E5+E1+E3 outcomes.
+
+---
+
+## 2026-05-11 #24 — HANDOFF STATE (superseded by #25)
+
+Original handoff entry that pre-dated the oracle-retrieve completion. Retained for audit trail; current state is now #25.
+
+(Original content below preserved for reference.)
+
 
 Status at the time of pause:
 

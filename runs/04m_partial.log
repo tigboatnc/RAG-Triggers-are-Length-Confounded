@@ -1,0 +1,79 @@
+[..] model=qwen3.6-35b-a3b-instruct  B=10000  min_steps=0
+     n_calib=79  n_val=30  n_test=30  dropped_short=0  missing_oracle=61
+
+--- CALIBRATION (n=79) ---
+  trace fire rates: latent=87%  etc=57%  selfdoubt_t1=5%  dragin=82%  random=81%
+
+  policy                    fired%      EM  EM 95% CI                F1  F1 95% CI
+  never                        0.0   59.5  [ 48.1,  69.6]    74.6  [ 66.2,  82.6]
+  always                     100.0   67.1  [ 57.0,  77.2]    78.5  [ 70.6,  86.0]
+  gate_latent                 87.3   65.8  [ 55.7,  75.9]    78.3  [ 70.3,  85.7]
+  gate_etc                    57.0   67.1  [ 57.0,  77.2]    79.8  [ 72.1,  86.9]
+  gate_selfdoubt_t1            5.1   62.0  [ 50.6,  72.2]    77.2  [ 69.0,  84.7]
+  gate_dragin                 82.3   65.8  [ 55.7,  75.9]    78.4  [ 70.5,  85.8]
+  gate_random                 81.0   68.4  [ 58.2,  78.5]    80.1  [ 72.3,  87.4]
+
+  --- Paired F1 margins (policy − reference, paired across traces) ---
+  gate_latent    − never     ΔF1= +3.63  [ -2.70, +10.53]   P(>0)=0.861   n.s.
+  gate_etc       − never     ΔF1= +5.16  [ -0.75, +11.57]   P(>0)=0.956   n.s.
+  gate_selfdoubt_t1 − never     ΔF1= +2.53  [ +0.00,  +6.33]   P(>0)=0.867   n.s.
+  gate_dragin    − never     ΔF1= +3.77  [ -2.51, +10.55]   P(>0)=0.873   n.s.
+  gate_random    − never     ΔF1= +5.46  [ -0.15, +11.91]   P(>0)=0.972   n.s.
+  gate_latent    − always    ΔF1= -0.25  [ -0.76,  +0.00]   P(>0)=0.000   n.s.
+  gate_etc       − always    ΔF1= +1.28  [ -0.72,  +3.71]   P(>0)=0.890   n.s.
+  gate_selfdoubt_t1 − always    ΔF1= -1.35  [ -7.21,  +4.03]   P(>0)=0.326   n.s.
+  gate_dragin    − always    ΔF1= -0.11  [ -1.27,  +0.95]   P(>0)=0.342   n.s.
+  gate_random    − always    ΔF1= +1.58  [ +0.00,  +4.43]   P(>0)=0.953   n.s.
+  always         − never     ΔF1= +3.88  [ -2.45, +10.69]   P(>0)=0.878   n.s.
+
+--- VALIDATION (n=30) ---
+  trace fire rates: latent=80%  etc=60%  selfdoubt_t1=0%  dragin=77%  random=80%
+
+  policy                    fired%      EM  EM 95% CI                F1  F1 95% CI
+  never                        0.0   70.0  [ 53.3,  86.7]    80.8  [ 68.6,  91.6]
+  always                     100.0   66.7  [ 50.0,  83.3]    78.6  [ 65.8,  90.0]
+  gate_latent                 80.0   66.7  [ 50.0,  83.3]    78.6  [ 65.8,  90.0]
+  gate_etc                    60.0   66.7  [ 50.0,  83.3]    78.6  [ 65.8,  90.0]
+  gate_selfdoubt_t1            0.0   70.0  [ 53.3,  86.7]    80.8  [ 68.6,  91.6]
+  gate_dragin                 76.7   66.7  [ 50.0,  83.3]    78.6  [ 65.8,  90.0]
+  gate_random                 80.0   66.7  [ 50.0,  83.3]    78.6  [ 65.8,  90.0]
+
+  --- Paired F1 margins (policy − reference, paired across traces) ---
+  gate_latent    − never     ΔF1= -2.22  [-10.00,  +3.33]   P(>0)=0.307   n.s.
+  gate_etc       − never     ΔF1= -2.22  [-10.00,  +3.33]   P(>0)=0.306   n.s.
+  gate_selfdoubt_t1 − never     ΔF1= +0.00  [ +0.00,  +0.00]   P(>0)=0.000   n.s.
+  gate_dragin    − never     ΔF1= -2.22  [-10.00,  +3.33]   P(>0)=0.280   n.s.
+  gate_random    − never     ΔF1= -2.22  [-10.00,  +3.33]   P(>0)=0.307   n.s.
+  gate_latent    − always    ΔF1= +0.00  [ -0.00,  +0.00]   P(>0)=0.349   n.s.
+  gate_etc       − always    ΔF1= +0.00  [ -0.00,  +0.00]   P(>0)=0.349   n.s.
+  gate_selfdoubt_t1 − always    ΔF1= +2.22  [ -3.33, +10.00]   P(>0)=0.660   n.s.
+  gate_dragin    − always    ΔF1= -0.00  [ -0.00,  +0.00]   P(>0)=0.000   n.s.
+  gate_random    − always    ΔF1= +0.00  [ -0.00,  +0.00]   P(>0)=0.349   n.s.
+  always         − never     ΔF1= -2.22  [-10.00,  +3.33]   P(>0)=0.312   n.s.
+
+--- TEST (n=30) ---
+  trace fire rates: latent=77%  etc=53%  selfdoubt_t1=3%  dragin=83%  random=93%
+
+  policy                    fired%      EM  EM 95% CI                F1  F1 95% CI
+  never                        0.0   80.0  [ 63.3,  93.3]    92.3  [ 85.6,  97.8]
+  always                     100.0   80.0  [ 63.3,  93.3]    90.6  [ 81.7,  97.8]
+  gate_latent                 76.7   80.0  [ 63.3,  93.3]    90.6  [ 81.7,  97.8]
+  gate_etc                    53.3   80.0  [ 63.3,  93.3]    92.3  [ 85.6,  97.8]
+  gate_selfdoubt_t1            3.3   80.0  [ 63.3,  93.3]    92.3  [ 85.6,  97.8]
+  gate_dragin                 83.3   80.0  [ 63.3,  93.3]    90.6  [ 81.7,  97.8]
+  gate_random                 93.3   80.0  [ 63.3,  93.3]    90.6  [ 81.7,  97.8]
+
+  --- Paired F1 margins (policy − reference, paired across traces) ---
+  gate_latent    − never     ΔF1= -1.67  [ -5.00,  +0.00]   P(>0)=0.190   n.s.
+  gate_etc       − never     ΔF1= -0.00  [ -0.00,  +0.00]   P(>0)=0.181   n.s.
+  gate_selfdoubt_t1 − never     ΔF1= -0.00  [ -0.00,  +0.00]   P(>0)=0.000   n.s.
+  gate_dragin    − never     ΔF1= -1.67  [ -5.00,  +0.00]   P(>0)=0.131   n.s.
+  gate_random    − never     ΔF1= -1.67  [ -5.00,  +0.00]   P(>0)=0.131   n.s.
+  gate_latent    − always    ΔF1= +0.00  [ +0.00,  +0.00]   P(>0)=0.630   n.s.
+  gate_etc       − always    ΔF1= +1.67  [ -0.00,  +5.00]   P(>0)=0.769   n.s.
+  gate_selfdoubt_t1 − always    ΔF1= +1.67  [ -0.00,  +5.00]   P(>0)=0.781   n.s.
+  gate_dragin    − always    ΔF1= +0.00  [ +0.00,  +0.00]   P(>0)=0.000   n.s.
+  gate_random    − always    ΔF1= +0.00  [ +0.00,  +0.00]   P(>0)=0.000   n.s.
+  always         − never     ΔF1= -1.67  [ -5.00,  +0.00]   P(>0)=0.131   n.s.
+
+[ok] wrote runs/phase4_utility.json

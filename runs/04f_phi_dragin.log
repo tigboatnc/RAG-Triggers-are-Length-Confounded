@@ -1,0 +1,50 @@
+[..] dataset data/hotpotqa_distractor_200.jsonl -> 200 questions (split filter: all)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:55,  3.45it/s]Loading weights:   7%|▋         | 13/194 [00:00<00:04, 41.26it/s]Loading weights:  13%|█▎        | 25/194 [00:00<00:02, 65.37it/s]Loading weights:  19%|█▉        | 37/194 [00:00<00:01, 80.54it/s]Loading weights:  25%|██▌       | 49/194 [00:00<00:01, 91.38it/s]Loading weights:  31%|███▏      | 61/194 [00:00<00:01, 98.58it/s]Loading weights:  38%|███▊      | 73/194 [00:00<00:01, 103.75it/s]Loading weights:  44%|████▍     | 85/194 [00:01<00:01, 106.38it/s]Loading weights:  50%|█████     | 97/194 [00:01<00:00, 109.11it/s]Loading weights:  56%|█████▌    | 109/194 [00:01<00:00, 110.83it/s]Loading weights:  62%|██████▏   | 121/194 [00:01<00:00, 112.16it/s]Loading weights:  69%|██████▊   | 133/194 [00:01<00:00, 112.86it/s]Loading weights:  75%|███████▍  | 145/194 [00:01<00:00, 113.47it/s]Loading weights:  81%|████████  | 157/194 [00:01<00:00, 113.82it/s]Loading weights:  87%|████████▋ | 169/194 [00:01<00:00, 113.74it/s]Loading weights:  93%|█████████▎| 181/194 [00:01<00:00, 114.16it/s]Loading weights:  99%|█████████▉| 193/194 [00:01<00:00, 114.46it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 98.68it/s] 
+[ok] loaded in 4.39s | rss 1.062 GB | VRAM 8112 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] writing runs/phase4_qa_phi-4-mini-instruct_mid_stack_dragin.jsonl
+[..]   5/200  em=2/5  steps=  8  tok= 112  wall=5.3s  elapsed=0.3min
+[..]  10/200  em=5/10  steps=  1  tok=  96  wall=4.4s  elapsed=0.6min
+[..]  15/200  em=5/15  steps=  5  tok=  96  wall=4.5s  elapsed=1.0min
+[..]  20/200  em=9/20  steps=  0  tok=  29  wall=1.4s  elapsed=1.2min
+[..]  25/200  em=12/25  steps=  0  tok=  45  wall=2.1s  elapsed=1.5min
+[..]  30/200  em=13/30  steps=  4  tok= 128  wall=5.8s  elapsed=1.9min
+[..]  35/200  em=16/35  steps=  0  tok=  64  wall=3.0s  elapsed=2.2min
+[..]  40/200  em=20/40  steps=  4  tok=  80  wall=3.7s  elapsed=2.5min
+[..]  45/200  em=23/45  steps=  5  tok=  96  wall=4.7s  elapsed=2.8min
+[..]  50/200  em=24/50  steps=  3  tok=  96  wall=4.5s  elapsed=3.2min
+[..]  55/200  em=27/55  steps=  0  tok=  32  wall=1.6s  elapsed=3.5min
+[..]  60/200  em=31/60  steps=  0  tok=  80  wall=3.7s  elapsed=4.0min
+[..]  65/200  em=34/65  steps=  1  tok=  64  wall=3.0s  elapsed=4.3min
+[..]  70/200  em=38/70  steps=  3  tok=  96  wall=4.4s  elapsed=4.7min
+[..]  75/200  em=40/75  steps=  1  tok=  80  wall=3.7s  elapsed=4.9min
+[..]  80/200  em=44/80  steps=  1  tok=  48  wall=2.4s  elapsed=5.2min
+[..]  85/200  em=48/85  steps=  2  tok=  96  wall=4.4s  elapsed=5.6min
+[..]  90/200  em=50/90  steps=  2  tok= 112  wall=5.4s  elapsed=5.9min
+[..]  95/200  em=52/95  steps=  1  tok=  64  wall=3.1s  elapsed=6.2min
+[..] 100/200  em=55/100  steps= 10  tok= 224  wall=10.3s  elapsed=6.7min
+[..] 105/200  em=56/105  steps=  2  tok= 112  wall=5.2s  elapsed=7.0min
+[..] 110/200  em=59/110  steps=  0  tok=  64  wall=3.0s  elapsed=7.4min
+[..] 115/200  em=62/115  steps=  1  tok=  64  wall=3.1s  elapsed=7.8min
+[..] 120/200  em=62/120  steps=  0  tok=  20  wall=1.0s  elapsed=8.0min
+[..] 125/200  em=66/125  steps=  1  tok=  96  wall=4.5s  elapsed=8.3min
+[..] 130/200  em=67/130  steps=  5  tok= 208  wall=9.9s  elapsed=8.7min
+[..] 135/200  em=69/135  steps=  0  tok=  48  wall=2.4s  elapsed=9.0min
+[..] 140/200  em=70/140  steps=  1  tok=  80  wall=3.8s  elapsed=9.4min
+[..] 145/200  em=71/145  steps=  5  tok= 144  wall=6.8s  elapsed=9.7min
+[..] 150/200  em=71/150  steps=  0  tok=  64  wall=3.0s  elapsed=10.0min
+[..] 155/200  em=71/155  steps=  2  tok=  96  wall=4.5s  elapsed=10.4min
+[..] 160/200  em=72/160  steps=  6  tok=  96  wall=4.5s  elapsed=10.8min
+[..] 165/200  em=73/165  steps=  0  tok=  80  wall=3.8s  elapsed=11.1min
+[..] 170/200  em=76/170  steps=  1  tok=  54  wall=2.7s  elapsed=11.4min
+[..] 175/200  em=78/175  steps=  4  tok=  64  wall=3.1s  elapsed=11.8min
+[..] 180/200  em=78/180  steps=  2  tok=  64  wall=3.1s  elapsed=12.6min
+[..] 185/200  em=79/185  steps=  1  tok=  64  wall=3.0s  elapsed=12.9min
+[..] 190/200  em=81/190  steps=  7  tok=  96  wall=4.5s  elapsed=13.2min
+[..] 195/200  em=84/195  steps=  1  tok=  52  wall=2.4s  elapsed=13.4min
+[..] 200/200  em=85/200  steps=  2  tok= 112  wall=5.2s  elapsed=13.8min
+[ok] wrote 200 rows to runs/phase4_qa_phi-4-mini-instruct_mid_stack_dragin.jsonl
+[ok] em rate: 85/200 = 0.425

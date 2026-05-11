@@ -1,0 +1,49 @@
+[..] dataset data/hotpotqa_distractor_200.jsonl -> 200 questions (split filter: all)
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 2/1013 [00:00<02:13,  7.57it/s]Loading weights:   0%|          | 3/1013 [00:00<02:15,  7.46it/s]Loading weights:   0%|          | 4/1013 [00:00<03:05,  5.43it/s]Loading weights:   2%|▏         | 25/1013 [00:00<00:22, 44.74it/s]Loading weights:   3%|▎         | 31/1013 [00:01<00:28, 34.65it/s]Loading weights:   5%|▍         | 47/1013 [00:01<00:26, 36.31it/s]Loading weights:   7%|▋         | 69/1013 [00:01<00:16, 57.27it/s]Loading weights:   8%|▊         | 77/1013 [00:01<00:19, 47.98it/s]Loading weights:   9%|▉         | 91/1013 [00:02<00:16, 57.49it/s]Loading weights:  10%|▉         | 98/1013 [00:02<00:19, 46.37it/s]Loading weights:  11%|█         | 113/1013 [00:02<00:15, 57.78it/s]Loading weights:  12%|█▏        | 120/1013 [00:02<00:19, 46.26it/s]Loading weights:  13%|█▎        | 134/1013 [00:02<00:15, 55.80it/s]Loading weights:  14%|█▍        | 141/1013 [00:03<00:19, 44.93it/s]Loading weights:  15%|█▌        | 156/1013 [00:03<00:20, 41.18it/s]Loading weights:  18%|█▊        | 178/1013 [00:03<00:13, 60.05it/s]Loading weights:  18%|█▊        | 186/1013 [00:04<00:16, 50.15it/s]Loading weights:  20%|█▉        | 200/1013 [00:04<00:13, 58.78it/s]Loading weights:  21%|██        | 208/1013 [00:04<00:16, 48.20it/s]Loading weights:  22%|██▏       | 222/1013 [00:04<00:13, 57.49it/s]Loading weights:  23%|██▎       | 229/1013 [00:04<00:17, 45.82it/s]Loading weights:  24%|██▍       | 244/1013 [00:05<00:13, 57.03it/s]Loading weights:  25%|██▍       | 251/1013 [00:05<00:16, 45.65it/s]Loading weights:  26%|██▌       | 265/1013 [00:05<00:13, 55.16it/s]Loading weights:  27%|██▋       | 272/1013 [00:05<00:16, 44.10it/s]Loading weights:  28%|██▊       | 287/1013 [00:05<00:13, 55.83it/s]Loading weights:  29%|██▉       | 294/1013 [00:06<00:16, 44.78it/s]Loading weights:  31%|███       | 309/1013 [00:06<00:12, 56.56it/s]Loading weights:  31%|███       | 316/1013 [00:06<00:15, 43.96it/s]Loading weights:  33%|███▎      | 331/1013 [00:06<00:12, 54.24it/s]Loading weights:  33%|███▎      | 338/1013 [00:07<00:15, 42.43it/s]Loading weights:  35%|███▍      | 353/1013 [00:07<00:12, 53.97it/s]Loading weights:  36%|███▌      | 360/1013 [00:07<00:14, 43.65it/s]Loading weights:  37%|███▋      | 375/1013 [00:07<00:11, 55.19it/s]Loading weights:  38%|███▊      | 382/1013 [00:08<00:14, 44.20it/s]Loading weights:  39%|███▉      | 396/1013 [00:08<00:11, 53.41it/s]Loading weights:  40%|███▉      | 403/1013 [00:08<00:14, 42.29it/s]Loading weights:  41%|████▏     | 418/1013 [00:08<00:11, 52.80it/s]Loading weights:  42%|████▏     | 425/1013 [00:09<00:14, 41.57it/s]Loading weights:  43%|████▎     | 440/1013 [00:09<00:10, 52.78it/s]Loading weights:  44%|████▍     | 447/1013 [00:09<00:13, 42.11it/s]Loading weights:  46%|████▌     | 462/1013 [00:09<00:10, 52.99it/s]Loading weights:  46%|████▋     | 469/1013 [00:09<00:12, 42.66it/s]Loading weights:  48%|████▊     | 484/1013 [00:10<00:09, 53.74it/s]Loading weights:  48%|████▊     | 491/1013 [00:10<00:12, 42.86it/s]Loading weights:  50%|████▉     | 505/1013 [00:10<00:13, 37.30it/s]Loading weights:  52%|█████▏    | 527/1013 [00:11<00:08, 54.46it/s]Loading weights:  53%|█████▎    | 534/1013 [00:11<00:10, 44.69it/s]Loading weights:  54%|█████▍    | 549/1013 [00:11<00:08, 54.32it/s]Loading weights:  55%|█████▍    | 556/1013 [00:11<00:10, 44.08it/s]Loading weights:  56%|█████▋    | 571/1013 [00:12<00:10, 40.82it/s]Loading weights:  59%|█████▊    | 593/1013 [00:12<00:07, 58.73it/s]Loading weights:  59%|█████▉    | 601/1013 [00:12<00:08, 49.70it/s]Loading weights:  61%|██████    | 615/1013 [00:12<00:06, 58.13it/s]Loading weights:  62%|██████▏   | 623/1013 [00:13<00:08, 48.45it/s]Loading weights:  63%|██████▎   | 637/1013 [00:13<00:06, 57.14it/s]Loading weights:  64%|██████▎   | 644/1013 [00:13<00:07, 46.21it/s]Loading weights:  72%|███████▏  | 727/1013 [00:13<00:01, 167.11it/s]Loading weights:  82%|████████▏ | 831/1013 [00:13<00:00, 323.69it/s]Loading weights:  92%|█████████▏| 935/1013 [00:13<00:00, 468.43it/s]Loading weights: 100%|██████████| 1013/1013 [00:13<00:00, 73.15it/s]
+[ok] loaded in 19.49s | rss 1.181 GB | VRAM 49888 MB
+[..] layer_mode=mid_stack  capture_subset=[15]
+[..] dragin_attn_layer_idx=29 (override=None)
+[..] writing runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_dragin.jsonl
+[..]   5/200  em=2/5  steps= 12  tok= 232  wall=30.3s  elapsed=2.0min
+[..]  10/200  em=5/10  steps= 12  tok= 142  wall=18.5s  elapsed=3.8min
+[..]  15/200  em=8/15  steps= 11  tok= 170  wall=22.2s  elapsed=6.1min
+[..]  20/200  em=12/20  steps=  9  tok= 156  wall=20.3s  elapsed=8.5min
+[..]  25/200  em=15/25  steps=  9  tok= 176  wall=23.1s  elapsed=10.9min
+[..]  30/200  em=18/30  steps= 13  tok= 192  wall=25.1s  elapsed=13.3min
+[..]  35/200  em=19/35  steps=  8  tok= 181  wall=23.6s  elapsed=15.7min
+[..]  40/200  em=22/40  steps= 33  tok= 343  wall=44.7s  elapsed=18.4min
+[..]  45/200  em=24/45  steps= 19  tok= 256  wall=33.9s  elapsed=20.6min
+[..]  50/200  em=27/50  steps= 17  tok= 210  wall=27.6s  elapsed=22.9min
+[..]  55/200  em=31/55  steps=  8  tok=  92  wall=12.1s  elapsed=24.8min
+[..]  60/200  em=34/60  steps= 14  tok= 325  wall=42.2s  elapsed=27.6min
+[..]  65/200  em=36/65  steps= 17  tok= 192  wall=25.0s  elapsed=29.4min
+[..]  70/200  em=40/70  steps= 23  tok= 320  wall=41.7s  elapsed=31.7min
+[..]  75/200  em=42/75  steps=  8  tok= 213  wall=27.8s  elapsed=33.9min
+[..]  80/200  em=45/80  steps= 12  tok= 160  wall=21.0s  elapsed=35.9min
+[..]  85/200  em=48/85  steps= 19  tok= 320  wall=41.5s  elapsed=38.5min
+[..]  90/200  em=51/90  steps= 10  tok= 149  wall=19.6s  elapsed=40.8min
+[..]  95/200  em=53/95  steps= 15  tok= 231  wall=30.1s  elapsed=43.0min
+[..] 100/200  em=54/100  steps= 30  tok= 395  wall=51.4s  elapsed=45.6min
+[..] 105/200  em=55/105  steps= 26  tok= 403  wall=52.4s  elapsed=48.6min
+[..] 110/200  em=58/110  steps= 16  tok= 224  wall=29.2s  elapsed=50.5min
+[..] 115/200  em=59/115  steps= 14  tok= 256  wall=33.4s  elapsed=52.4min
+[..] 120/200  em=63/120  steps= 26  tok= 441  wall=57.3s  elapsed=55.3min
+[..] 125/200  em=66/125  steps= 24  tok= 464  wall=60.3s  elapsed=58.2min
+[..] 130/200  em=68/130  steps= 10  tok= 191  wall=25.4s  elapsed=60.3min
+[..] 135/200  em=70/135  steps=  9  tok= 157  wall=20.4s  elapsed=62.3min
+[..] 140/200  em=74/140  steps= 20  tok= 304  wall=39.7s  elapsed=65.0min
+[..] 145/200  em=76/145  steps= 24  tok= 385  wall=50.1s  elapsed=69.5min
+[..] 150/200  em=78/150  steps= 12  tok= 183  wall=23.9s  elapsed=71.6min
+[..] 155/200  em=81/155  steps=  9  tok= 183  wall=23.9s  elapsed=74.1min
+[..] 160/200  em=81/160  steps= 14  tok= 256  wall=33.2s  elapsed=77.1min
+[..] 165/200  em=83/165  steps=  7  tok= 202  wall=26.3s  elapsed=79.4min
+[..] 170/200  em=87/170  steps= 11  tok= 164  wall=21.3s  elapsed=81.3min
+[..] 175/200  em=90/175  steps= 12  tok= 117  wall=15.4s  elapsed=83.2min
+[..] 180/200  em=91/180  steps= 10  tok= 145  wall=18.8s  elapsed=85.0min
+[..] 185/200  em=92/185  steps= 15  tok= 195  wall=25.4s  elapsed=87.4min
+[..] 190/200  em=93/190  steps= 15  tok= 224  wall=29.1s  elapsed=89.6min
+[..] 195/200  em=96/195  steps=  8  tok= 139  wall=18.2s  elapsed=91.7min
+[..] 200/200  em=97/200  steps= 19  tok= 268  wall=34.6s  elapsed=93.7min
+[ok] wrote 200 rows to runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_dragin.jsonl
+[ok] em rate: 97/200 = 0.485

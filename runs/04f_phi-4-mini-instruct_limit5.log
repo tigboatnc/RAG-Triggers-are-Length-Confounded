@@ -1,20 +1,0 @@
-[..] dataset data/hotpotqa_distractor_200.jsonl -> 5 questions (split filter: calibration; limit 5)
-[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
-[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
-Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:57,  3.38it/s]Loading weights:   7%|▋         | 13/194 [00:00<00:04, 40.82it/s]Loading weights:  13%|█▎        | 25/194 [00:00<00:02, 64.85it/s]Loading weights:  19%|█▉        | 37/194 [00:00<00:01, 80.62it/s]Loading weights:  25%|██▌       | 49/194 [00:00<00:01, 91.17it/s]Loading weights:  31%|███▏      | 61/194 [00:00<00:01, 97.71it/s]Loading weights:  38%|███▊      | 73/194 [00:00<00:01, 102.85it/s]Loading weights:  44%|████▍     | 85/194 [00:01<00:01, 106.30it/s]Loading weights:  50%|█████     | 97/194 [00:01<00:00, 108.95it/s]Loading weights:  56%|█████▌    | 109/194 [00:01<00:00, 110.17it/s]Loading weights:  62%|██████▏   | 121/194 [00:01<00:00, 110.79it/s]Loading weights:  69%|██████▊   | 133/194 [00:01<00:00, 111.78it/s]Loading weights:  75%|███████▍  | 145/194 [00:01<00:00, 112.16it/s]Loading weights:  81%|████████  | 157/194 [00:01<00:00, 112.69it/s]Loading weights:  87%|████████▋ | 169/194 [00:01<00:00, 112.91it/s]Loading weights:  93%|█████████▎| 181/194 [00:01<00:00, 113.19it/s]Loading weights:  99%|█████████▉| 193/194 [00:01<00:00, 112.04it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 97.69it/s] 
-[ok] loaded in 4.40s | rss 1.058 GB | VRAM 8112 MB
-[..] layer_mode=mid_stack  capture_subset=[16]
-[..] dragin_attn_layer_idx=31 (override=None)
-[..] verbalized confidence probe ready (max_probe_tokens=12)
-[..] consistency sampler ready (K=3, T=0.6, top_p=0.9)
-[..] entity entropy scorer ready (spaCy + rank_bm25)
-[..] writing runs/phase4_qa_phi-4-mini-instruct_mid_stack_sota.jsonl
-[..]   1/5  em=0/1  steps=  0  tok=  64  wall=3.5s  elapsed=0.1min
-[..]   2/5  em=0/2  steps=  0  tok=  64  wall=3.0s  elapsed=0.1min
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 5939.88it/s]
-[..]   3/5  em=1/3  steps=  2  tok=  48  wall=16.1s  elapsed=0.4min
-[..]   4/5  em=2/4  steps=  1  tok=  96  wall=10.4s  elapsed=0.6min
-[..]   5/5  em=2/5  steps=  6  tok= 192  wall=44.6s  elapsed=1.3min
-[ok] wrote 5 rows to runs/phase4_qa_phi-4-mini-instruct_mid_stack_sota.jsonl
-[ok] em rate: 2/5 = 0.400

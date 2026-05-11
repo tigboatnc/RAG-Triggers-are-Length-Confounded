@@ -1,0 +1,49 @@
+====================================================================================================
+HEADLINE — full 200-q DRAGIN-pool sweep, 2026-05-11 #19, A100-SXM4-80GB
+====================================================================================================
+
+arch                      n     EM     F1 avg_steps tok_avg zerostep% hitcap%
+----------------------------------------------------------------------------------------------------
+phi  (dense, 32 L)      200  0.425  0.557      2.46    87.7      17.5     0.0
+gemma (sw, 30 L)        200  0.485  0.718     14.12   215.4       0.0     0.5
+qwen (hybrid, 40 L)     200  0.620  0.773      9.84   171.6       0.0     2.0
+
+Per-gate fire rate over all eligible steps:
+arch                   |     latent        etc selfdoubt_t1     dragin     random
+----------------------------------------------------------------------------------------------------
+phi  (dense, 32 L)     |     0.6159     0.3150     0.0000     0.8191     0.0772 
+gemma (sw, 30 L)       |     0.9292     0.1583     0.0004     0.2415     0.2259 
+qwen (hybrid, 40 L)    |     0.7687     0.1881     0.0000     0.2450     0.1932 
+
+Δfrac = P(EM=1 | gate did not fire) − P(EM=1 | gate fired)
+    positive ⇒ gate firing flags hallucinations correctly (DESIRED)
+    negative ⇒ gate firing flags correct answers (BAD)
+arch                   |     latent        etc selfdoubt_t1     dragin     random
+----------------------------------------------------------------------------------------------------
+phi  (dense, 32 L)     |    +0.0621    +0.1068          -    -0.0125    +0.0884 
+gemma (sw, 30 L)       |          -    +0.1448    +0.4874    +0.1933    +0.5176 
+qwen (hybrid, 40 L)    |    +0.2419    +0.1524          -    +0.1749    +0.1396 
+
+Paired margins vs latent (positive = latent BETTER than the named baseline):
+arch                   |            etc         dragin         random
+----------------------------------------------------------------------------------------------------
+phi  (dense, 32 L)     |        -0.0447        +0.0746        -0.0263 
+gemma (sw, 30 L)       | n/a
+qwen (hybrid, 40 L)    |        +0.0895        +0.0670        +0.1023 
+
+First-fire step index (mean), conditional on the gate firing at all:
+arch                   |         latent            etc   selfdoubt_t1         dragin         random
+----------------------------------------------------------------------------------------------------
+phi  (dense, 32 L)     |     2.13(n= 79)     3.62(n= 53)     (no fires)     1.00(n=160)     6.56(n= 18) 
+gemma (sw, 30 L)       |     2.00(n=200)     7.01(n=153)    10.00(n=  1)     2.55(n=188)     7.00(n=199) 
+qwen (hybrid, 40 L)    |     2.19(n=187)     6.54(n=101)     (no fires)     2.97(n=155)     7.00(n=122) 
+
+Sanity: dragin_attn_layer_idx per arch (must match #18 smoke values):
+  phi  (dense, 32 L)      dragin_attn_layer_idx = 31
+  gemma (sw, 30 L)        dragin_attn_layer_idx = 29
+  qwen (hybrid, 40 L)     dragin_attn_layer_idx = 9
+
+Comparison to #15 (validation n=40 → n=200 full):
+  Phi  validation          EM #15=0.182  EM #19=0.425  Δ = +0.243
+  Gemma validation         EM #15=0.525  EM #19=0.485  Δ = -0.040
+  Qwen validation          EM #15=0.706  EM #19=0.620  Δ = -0.086

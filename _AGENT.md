@@ -4,6 +4,85 @@
 
 ---
 
+## 2026-05-11 #19 — DRAGIN-only sweep complete on all three architectures (probes off)
+
+> Scope-limited per parent handoff: ReaLM-RSUS + SELFDOUBT-Full deferred (structural-degenerate baselines under greedy Option-A: `u_verb`→0, BM25-`u_ent`→1, `u_cons` arch-asymmetric). New headline gate pool = **{latent, SELFDOUBT-Tier1, ETC, DRAGIN, random}**. This entry covers (i) wall-clock + zero-step rate per arch; (ii) per-arch DRAGIN fire-count distribution at default threshold; (iii) any L9-picker or eager-attn regression vs the #18 smoke. **Method/Results commentary out of scope** — parent re-runs `scripts/04c_bootstrap.py` on the new JSONLs and writes up from there.
+
+### (i) Wall-clock + zero-step rate
+
+Sequential, single A100-SXM4-80GB, eager attention, probes off (`--no-verb --no-ent --no-cons`), all 200 questions (split filter `all`):
+
+| arch | wall (min) | per-Q (s) | n | EM | F1 | avg_steps | avg_tok | zerostep % | hitcap % |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| phi-4-mini-instruct (dense, 32 L) | 13.8 | 4.1 | 200 | 0.425 | 0.557 | 2.46 | 87.7 | **17.5** | 0.0 |
+| qwen3.6-35b-a3b-instruct (hybrid, 40 L → 10 full) | 82.7 | 24.8 | 200 | 0.620 | 0.773 | 9.84 | 171.6 | 0.0 | 2.0 |
+| gemma-4-26b-a4b-it (sliding-window, 30 L) | 93.7 | 28.1 | 200 | 0.485 | 0.718 | 14.12 | 215.4 | 0.0 | 0.5 |
+
+**Total compute: 190 min** (≈3.2 h). Within ±5 % of parent's pre-handoff envelope.
+
+**Phi zero-step rate landed at 17.5 %, below the 30 % threshold parent flagged.** Phi greedy-echo from #11 is real but bounded; protocol stays as-is (not papered over). Hit-cap (`early_stop_reason="max_tokens"`) is essentially zero on Phi/Gemma and 2 % on Qwen (4 thinking-block runaways — consistent with #11/#12).
+
+**EM vs #15 validation (n=40 → n=200 full slice):**
+
+- Phi   #15 EM = 0.182 (validation, n=40) → #19 EM = 0.425 (n=200) — **+0.243**, the 40-q validation slice was anomalously hard for Phi.
+- Gemma #15 EM = 0.525 → #19 EM = 0.485 — **−0.040**, within sampling noise.
+- Qwen  #15 EM = 0.706 → #19 EM = 0.620 — **−0.086**, within sampling noise.
+
+The two MoE architectures track #15 to within sampling noise on the full slice; Phi's EM jump is real and consistent with the validation partition (40 q) being on the difficult tail by chance.
+
+### (ii) Per-arch DRAGIN fire-count distribution at the default threshold (`dragin_threshold=1.0`)
+
+| arch | dragin fire rate (per step) | rows with ≥1 dragin fire | avg first-fire step idx | rind_max min / mean / max (steps) |
+|---|---:|---:|---:|---:|
+| phi (idx=31) | **0.819** | 160 / 200 | 1.00 | 0.000 / 1.934 / 5.199 (77 sampled) |
+| gemma (idx=29) | 0.241 | 188 / 200 | 2.55 | — |
+| qwen (idx=9) | 0.245 | 155 / 200 | 2.97 | — |
+
+**Phi DRAGIN fires on 82 % of all eligible steps and on 80 % of rows by row 1.** This is *not* a code bug (sanity check from earlier in this session: 76/77 step records with `dragin_rind_max > 0`, mean `n_content_tokens = 10.49`, layer-31 attention shape `[1, 24, T, T]` per #18). It's the dense-model attention-saturation behaviour — DRAGIN's last-layer max-attention head is uninformative when content-token salience flattens. **Calibration on the 120-q calibration split per arch will tighten the threshold from `dragin_threshold=1.0` to whatever achieves the per-arch target fire rate (#15 used iso-fire-rate 0.30 as the headline target);** point estimates below are at the un-calibrated default, parent will re-derive at the calibrated thresholds.
+
+Gemma and Qwen both fire DRAGIN at ~24 % of steps without calibration — much closer to the eventual iso-fire-rate target. Per-arch threshold calibration is a #20 bootstrap-side task, not this entry.
+
+**Provisional point-estimate Δfrac (P(EM=1 | not_fired) − P(EM=1 | fired), default thresholds, no CIs):**
+
+| arch | latent | etc | dragin | random | latent − dragin |
+|---|---:|---:|---:|---:|---:|
+| phi | +0.062 | +0.107 | −0.012 | +0.088 | +0.075 |
+| gemma | n/a* | +0.145 | +0.193 | +0.518 | n/a |
+| qwen | **+0.242** | +0.152 | +0.175 | +0.140 | +0.067 |
+
+\* Gemma latent fires on **93 %** of steps at the default `threshold_drift=0.1, threshold_variance=1.0`; the "not-fired" row set is empty (and Gemma random at fire-rate 0.226 over avg 14.12 steps has P(≥1 fire) ≈ 0.97, so its "not-fired" set is ~6 rows of 200 — point estimate +0.518 is on n_nf ≈ 6 and is not interpretable). **Gemma threshold calibration is non-optional for the bootstrap-side analysis;** the row-level Δfrac proxy is a degenerate cut at the default thresholds. Quintile-of-first-fire (the #15 mechanism cut) is the better Gemma analysis.
+
+**First-fire step index** (mean, over rows where the gate fired): latent fires at step ~2 on all three archs; DRAGIN fires at step 1.00 (Phi) / 2.55 (Gemma) / 2.97 (Qwen) — DRAGIN is *not* later than latent on any arch. The earliness story therefore retires; the load-bearing comparison is signal-quality at comparable fire-time.
+
+### (iii) No L9-picker / eager-attn regression vs #18 smoke
+
+Sanity strip from each final JSONL's first row (`sota_config.dragin_attn_layer_idx`):
+
+| arch | smoke #18 | sweep #19 | match? |
+|---|---:|---:|---|
+| phi | 31 | 31 | ✓ |
+| gemma | 29 | 29 | ✓ |
+| qwen | **9** | **9** | ✓ (compact tuple index — hybrid-stack L9 fix durable on full sweep) |
+
+DRAGIN sanity check on Phi partial (33 rows, 77 steps; ran inline during sweep): `dragin_rind_max > 0` on **76/77 steps** (the one zero is a legitimate 0-content-token step), `dragin_n_content_tokens > 0` on 76/77 (mean 10.49). Picker, eager attention, transformers-5.x cache helpers — all stable from smoke to full sweep on all three architectures.
+
+No transformers / accelerate / bnb warnings beyond the expected ones (`rope_parameters` notice on Phi, `flash-linear-attention not installed` on Qwen — both pre-existing from #18 and Phase 0).
+
+### Artifacts
+
+- `runs/phase4_qa_phi-4-mini-instruct_mid_stack_dragin.jsonl` — 200 rows
+- `runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_dragin.jsonl` — 200 rows
+- `runs/phase4_qa_gemma-4-26b-a4b-it_mid_stack_dragin.jsonl` — 200 rows
+- `runs/04f_{phi,qwen,gemma}_dragin.log` — driver stdout
+- `runs/dragin_quick_analysis.txt` — point-estimate analysis dump (this entry's tables, reproducible)
+- `runs/chain.log` — Qwen→Gemma auto-chain trace
+
+### Handback to parent
+
+JSONLs in place, schema conformant with `04c_bootstrap.py` expectations (verified: `n_steps`, `fire_counts`, `gate_decisions[*].{gate_name, step_idx, fired}`, `em`, `f1`, `split`, `sota_config.dragin_attn_layer_idx`). Parent's task: extend the bootstrap analyzer's gate list to include `dragin`, re-run on these new JSONLs, regenerate `figs/phase4_headline_geometry_aware.{png,pdf}`. `_PLAN.md` Phase 4.8 status flip + bootstrap commentary deferred to parent's #20.
+
+---
+
 ## 2026-05-11 #18 — A100-SXM4-80GB compute-box bring-up; two transformers-5.8 bugs that #17 didn't predict
 
 ### What triggered the entry

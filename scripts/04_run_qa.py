@@ -147,8 +147,13 @@ def _format_mb(mb: int | None) -> str:
     return "n/a" if mb is None else f"{mb} MB"
 
 
-def load_generator(model_dir: Path):
-    """Load a generator in bf16 native, fully on cuda:0 (canonical Phase 1.4 path)."""
+def load_generator(model_dir: Path, attn_implementation: str | None = None):
+    """Load a generator in bf16 native, fully on cuda:0 (canonical Phase 1.4 path).
+
+    ``attn_implementation`` defaults to None (HF picks: sdpa/flash on GPU).
+    Pass ``"eager"`` from the SOTA driver (04f) when ``output_attentions=True``
+    is needed downstream — sdpa silently returns ``out.attentions = (None, ...)``.
+    """
     import torch
 
     import bitsandbytes.nn as _bnb_nn
@@ -173,10 +178,15 @@ def load_generator(model_dir: Path):
     print(f"[..] loading {model_dir} (bf16 native, device_map={{'': 0}})")
     t0 = time.perf_counter()
     tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
-    model = AutoModelForCausalLM.from_pretrained(
-        str(model_dir),
+    _from_pretrained_kwargs: dict = dict(
         device_map={"": 0},
         dtype=torch.bfloat16,
+    )
+    if attn_implementation is not None:
+        _from_pretrained_kwargs["attn_implementation"] = attn_implementation
+    model = AutoModelForCausalLM.from_pretrained(
+        str(model_dir),
+        **_from_pretrained_kwargs,
     )
     model.eval()
     load_secs = time.perf_counter() - t0

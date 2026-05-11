@@ -305,14 +305,34 @@ class VerbalizedConfidenceProbe:
     def _truncate_cache_to(self, cache: Any, target_len: int) -> Any:
         """Slice the cache back to ``target_len`` on the sequence dim.
 
-        Mutates DynamicCache in-place when possible (the typical HF
-        path); for tuple-of-tuple caches, returns a new tuple.
+        Handles three cache layouts:
+          - transformers >=5.x ``DynamicCache``: per-layer objects on
+            ``cache.layers[*]`` exposing ``.keys`` / ``.values`` /
+            ``cumulative_length`` / ``crop(max_length)``. The canonical
+            truncation path is ``cache.crop(target_len)`` when present.
+          - transformers <5 ``DynamicCache``: parallel ``key_cache`` /
+            ``value_cache`` lists plus ``_seen_tokens``.
+          - tuple-of-tuples legacy ``past_key_values``.
         """
+        if hasattr(cache, "crop"):
+            try:
+                cache.crop(int(target_len))
+                return cache
+            except Exception:
+                pass
+        if hasattr(cache, "layers") and len(cache.layers) > 0 and hasattr(cache.layers[0], "keys"):
+            for layer in cache.layers:
+                if layer.keys is not None:
+                    layer.keys = layer.keys[:, :, :target_len, :].contiguous()
+                if layer.values is not None:
+                    layer.values = layer.values[:, :, :target_len, :].contiguous()
+                if hasattr(layer, "cumulative_length"):
+                    layer.cumulative_length = int(target_len)
+            return cache
         if hasattr(cache, "key_cache") and hasattr(cache, "value_cache"):
             for li in range(len(cache.key_cache)):
                 cache.key_cache[li] = cache.key_cache[li][:, :, :target_len, :].contiguous()
                 cache.value_cache[li] = cache.value_cache[li][:, :, :target_len, :].contiguous()
-            # Some DynamicCache versions track ``seen_tokens`` separately.
             if hasattr(cache, "_seen_tokens"):
                 cache._seen_tokens = target_len
             return cache
@@ -542,6 +562,21 @@ class ConsistencySampler:
         raise RuntimeError("cannot read sequence length from past_key_values object")
 
     def _truncate_cache_to(self, cache: Any, target_len: int) -> Any:
+        if hasattr(cache, "crop"):
+            try:
+                cache.crop(int(target_len))
+                return cache
+            except Exception:
+                pass
+        if hasattr(cache, "layers") and len(cache.layers) > 0 and hasattr(cache.layers[0], "keys"):
+            for layer in cache.layers:
+                if layer.keys is not None:
+                    layer.keys = layer.keys[:, :, :target_len, :].contiguous()
+                if layer.values is not None:
+                    layer.values = layer.values[:, :, :target_len, :].contiguous()
+                if hasattr(layer, "cumulative_length"):
+                    layer.cumulative_length = int(target_len)
+            return cache
         if hasattr(cache, "key_cache") and hasattr(cache, "value_cache"):
             for li in range(len(cache.key_cache)):
                 cache.key_cache[li] = cache.key_cache[li][:, :, :target_len, :].contiguous()

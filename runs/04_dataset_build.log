@@ -1,0 +1,13 @@
+[..] importing datasets ...
+[..] loading hotpotqa/hotpot_qa (config=distractor, split=validation)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Generating train split:   0%|          | 0/90447 [00:00<?, ? examples/s]Generating train split:   1%|          | 1000/90447 [00:00<00:12, 7176.12 examples/s]Generating train split:   7%|▋         | 6000/90447 [00:00<00:03, 26046.65 examples/s]Generating train split:  13%|█▎        | 12000/90447 [00:00<00:02, 32043.36 examples/s]Generating train split:  20%|█▉        | 18000/90447 [00:00<00:02, 34875.04 examples/s]Generating train split:  27%|██▋       | 24000/90447 [00:00<00:01, 39694.40 examples/s]Generating train split:  33%|███▎      | 30000/90447 [00:00<00:01, 39871.82 examples/s]Generating train split:  40%|███▉      | 36000/90447 [00:00<00:01, 40152.86 examples/s]Generating train split:  46%|████▋     | 42000/90447 [00:01<00:01, 41881.56 examples/s]Generating train split:  51%|█████     | 46224/90447 [00:01<00:01, 38617.14 examples/s]Generating train split:  58%|█████▊    | 52224/90447 [00:01<00:00, 41952.98 examples/s]Generating train split:  63%|██████▎   | 57224/90447 [00:01<00:00, 40599.72 examples/s]Generating train split:  70%|██████▉   | 63224/90447 [00:01<00:00, 41628.72 examples/s]Generating train split:  77%|███████▋  | 69224/90447 [00:01<00:00, 43657.39 examples/s]Generating train split:  83%|████████▎ | 75224/90447 [00:01<00:00, 41828.35 examples/s]Generating train split:  90%|████████▉ | 81224/90447 [00:02<00:00, 41683.75 examples/s]Generating train split:  96%|█████████▋| 87224/90447 [00:02<00:00, 43343.61 examples/s]Generating train split: 100%|██████████| 90447/90447 [00:02<00:00, 40081.36 examples/s]
+Generating validation split:   0%|          | 0/7405 [00:00<?, ? examples/s]Generating validation split:  54%|█████▍    | 4000/7405 [00:00<00:00, 36747.66 examples/s]Generating validation split: 100%|██████████| 7405/7405 [00:00<00:00, 45812.44 examples/s]
+[ok] loaded 7405 questions, fingerprint=6d38dc5e932fe842
+[ok] wrote 200 questions to data/hotpotqa_distractor_200.jsonl
+     split counts  = {'calibration': 120, 'validation': 40, 'test': 40} (frac calib=0.6, val=0.2, test=0.2)
+     slice_sha256  = 2f1fafcc855ca6db67bc374be47af56b26d7b2aa9a89b78f6a1d28febc0d5394
+     manifest      = data/hotpotqa_distractor_200.manifest.json
+     per-(level, type) cell counts:
+       hard|bridge          -> {'calibration': 98, 'validation': 33, 'test': 33}
+       hard|comparison      -> {'calibration': 22, 'validation': 7, 'test': 7}

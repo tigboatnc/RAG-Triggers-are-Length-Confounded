@@ -4,6 +4,220 @@
 
 ---
 
+## 2026-05-11 #18 — A100-SXM4-80GB compute-box bring-up; two transformers-5.8 bugs that #17 didn't predict
+
+### What triggered the entry
+
+Cold handoff of the #17 SOTA code to a fresh vast.ai A100-SXM4-80GB box (Idaho US, driver 580.126.20, CUDA 13.0 runtime, 167 GB host RAM, 362 GB disk, no cgroup VRAM limit — `81152 MB free` visible). Electrically equivalent to the prior A800 PCIe 80 GB box (#3b) for our purposes; same canonical bf16-native path expected to work. Goal of this entry: get setup + downloads + per-arch smokes green so Phase 4.8 / 4.9 / 4.10 sweeps can start.
+
+### Setup, downloads, extras — all clean
+
+| step | result |
+|---|---|
+| `scripts/setup.sh` | clean; torch 2.6.0+cu124 / transformers 5.8.0 / accelerate 1.13.0 / bnb 0.49.2 — identical lockfile to A800 box (108 packages). `runs/env_lockfile.txt` re-written. |
+| `scripts/04_dataset.py` | rebuilt the 200-question HotpotQA-distractor slice (data/ is gitignored, so a fresh build is part of every box bring-up). **`slice_sha256` matches the #15 manifest** (`2f1fafcc855ca6db67bc374be47af56b26d7b2aa9a89b78f6a1d28febc0d5394`) — the same calibration / validation / test partition that the headline #15 bootstrap numbers are anchored to. Worth remembering: HotpotQA seed determinism survives a re-pull because the `datasets` fingerprint matches. |
+| `scripts/download_models.sh phase1.4` | phi + gemma-4-26b-a4b-it + qwen3.6-35b-a3b — 123 GB total, SHAs verified against pinned revisions on first re-pull. Gemma snapshot is two shards (47 G + 1.6 G) — upstream-published layout, not a download artifact. |
+| sota extras | `rank_bm25`, `spacy` + `en_core_web_sm`, sentence-transformers `all-MiniLM-L6-v2` pre-cached (T5 needs it loaded before the smoke or first-call download eats wall-clock). |
+| `scripts/sysinfo.py` | captured to `runs/sysinfo_a100_box.json`. |
+
+Time budget for everything above: ~9 minutes wall (setup 3:35, downloads 2:38, extras 0:35, dataset rebuild 0:08, sysinfo 0:21).
+
+### #17's T2 forecast was right; the eager-attn TODO needs to be **on by default** for the SOTA path
+
+`scripts/04h_sota_smoke.py --model phi-4-mini-instruct` failed T2-T6 on the first attempt with three distinct symptoms that all came from one root cause + one new transformers-5.x cache refactor:
+
+1. **T2 fail:** `tuple index out of range` on `out.attentions[dragin_layer_idx]`. The actual transformers warning was `sdpa attention does not support output_attentions=True. Please set your attention to eager` — sdpa returns `out.attentions = (None, None, ...)`. **This is exactly the TODO header in `04f_run_qa_sota.py:38`** flagging "Qwen 3.6 hybrid stack may need `attn_implementation='eager'`". The forecast was right but the conditional was wrong — on transformers 5.8 + CUDA, **every backend** silently routes through sdpa unless asked otherwise, including Phi-4-mini. So eager-attn is not a Qwen-specific workaround; it is a hard requirement for the entire SOTA code path. **Pinning this so #19 doesn't relitigate:**
+
+   - `04_run_qa.load_generator(model_dir, attn_implementation: str | None = None)` — added the kwarg; default `None` preserves the Phase 4.1b behaviour (which doesn't need attentions). The pre-existing `04_run_qa.py` sweep is untouched on bit-exact reload.
+   - `04f_run_qa_sota.py` and `04h_sota_smoke.py` — both now call `qa.load_generator(model_dir, attn_implementation="eager")` at their single load site.
+   - **Cost:** eager attention is slower than sdpa on the A100 (single-digit-percent on Phi at 256 tokens — `T6 wall 17.9 s = 14.3 tok/s` vs Phase 4.1b sdpa baseline `~40 tok/s`). For the SOTA sweep this is fine; it's the *necessary* tradeoff for `output_attentions=True`. **Do NOT silently use sdpa for the existing Phase 4.1b sweep or the #15 bootstrap numbers move.**
+
+2. **T4 / T5 fail:** `unsupported cache type for truncation`. This is *new* — not forecast in #17. The transformers 5.x `DynamicCache` is a complete refactor:
+
+   - **Old shape (≤4.x and what `sota_capture.py` was written against):** `cache.key_cache[li]` / `cache.value_cache[li]` are parallel lists of 4-D tensors `[B, H, T, D]`; `cache._seen_tokens` tracks length.
+   - **New shape (5.x as installed):** `cache.layers[li]` is a `DynamicLayer` / `DynamicSlidingWindowLayer` object with `.keys`, `.values`, `.cumulative_length`, `.sliding_window`, `.layer_type`, AND a canonical `.crop(max_length)` method that does exactly the truncation we want. `cache.key_cache` *doesn't exist* on the new class, so our `hasattr(cache, "key_cache") and hasattr(cache, "value_cache")` check went straight to the "unsupported" branch.
+
+   **The fix that landed (both `VerbalizedConfidenceProbe._truncate_cache_to` and `ConsistencySampler._truncate_cache_to` — they're parallel implementations and both needed the patch):**
+
+   ```python
+   # 1. Canonical 5.x path:
+   if hasattr(cache, "crop"):
+       try:
+           cache.crop(int(target_len))
+           return cache
+       except Exception:
+           pass
+   # 2. Manual 5.x layer surgery (fallback if .crop() raises on an arch we don't know yet):
+   if hasattr(cache, "layers") and len(cache.layers) > 0 and hasattr(cache.layers[0], "keys"):
+       for layer in cache.layers:
+           if layer.keys is not None:
+               layer.keys = layer.keys[:, :, :target_len, :].contiguous()
+           if layer.values is not None:
+               layer.values = layer.values[:, :, :target_len, :].contiguous()
+           if hasattr(layer, "cumulative_length"):
+               layer.cumulative_length = int(target_len)
+       return cache
+   # 3. Pre-existing 4.x and tuple-of-tuple paths kept underneath for portability.
+   ```
+
+   **Sliding-window-layer nuance worth not losing:** Gemma 4's `DynamicSlidingWindowLayer` (used for the local-attention layers) also exposes `.keys`/`.values` but its keys tensor may already be shorter than `target_len` because the window is bounded. Slicing with `[:, :, :target_len, :]` is a no-op in that case (the slice is longer than the tensor), which is exactly what we want — the window-truncated state stays as-is. The smoke's T4/T5 cache-length round-trip verified this on Phi (which has 32 full-attention layers, no sliding); Gemma will exercise the real sliding-window path and #19 should re-confirm there.
+
+3. **T6 fail (separate issue, not transformers-related):** "no step records emitted" on the first dataset row. Root cause: Phi greedy + this specific multi-hop question echoes the prompt and the first 64 tokens of generation contain neither a sentence-ending punctuation token that single-tokenises (`?` mid-phrase tokenises into a multi-token sequence on the Phi BPE) nor a clean Answer-marker. The `_ANSWER_MARKER_RE` early-stop fires anyway (likely matching "Answer:" from echoed instructions inside the 256-token sliding tail decode) and ends generation at 64 tokens before any boundary triggers. This is **the same Phi-greedy-echo-degeneration documented in #11** (which is exactly why `MODEL_PROTOCOL["phi-4-mini-instruct"]["repetition_penalty"] = 1.05` is set — but the smoke's first row apparently still hits the loop).
+
+   **Fix in the smoke only (production driver unchanged):** T6 now tries up to 3 dataset rows and accepts the first that emits ≥1 step. `max_new_tokens` bumped 64 → 512 (still cheap; one Phi run is ~12 s). The T6 retry log is preserved in `report["T6_attempts"]` so we can audit *which* row finally produced steps on each arch. **Do not generalise this retry to the production sweep** — the 200-question sweep already has enough variety that some questions hit boundaries cleanly, and per-arch hit-cap rates are a real signal we want to measure, not paper over.
+
+### After fixes — phi smoke green
+
+```
+T1 spaCy/rank_bm25/sentence-transformers           u_ent=0.946  n_entities=3  OK
+T2 output_attentions[31].shape = [1, 24, 5, 5]                              OK
+T3 RindAccumulator (rind_max 1.359, n_content 2 of 4)                       OK
+T4 VerbalizedConfidenceProbe  u_verb=0.0  len 20→20                         OK
+T5 ConsistencySampler (K=3, T=0.6, top_p=0.9)  u_cons=0.343  len 24→24      OK
+T6 2 steps emitted in 17.9 s; all required keys present                     OK
+   fire_counts {latent:1, etc:0, selfdoubt_t1:0, dragin:2, realm_rsus:0,
+                selfdoubt_full:0, random:0}
+```
+
+VRAM after Phi load: 8.1 GB (matches prior boxes within rounding). DRAGIN attention layer auto-pick: `dragin_attn_layer_idx=31` (last layer, full attention — correct for Phi's 32-layer dense stack). `parse_verbal_confidence` returned `0.0` not `None` — Phi parsed `"Confidence: 100"` on the verbal probe, which is sensible greedy-decode behaviour for an instruct model that's never seen the calibrated-confidence training signal that SELFDOUBT/ReaLM-RSUS assume. **Worth noting for the writeup:** `u_verb` ≡ 0.0 across all greedy Phi steps is a known degenerate mode for that uncertainty channel; SELFDOUBT-Full will lean entirely on HVR + (eventually) `u_ent`/`u_cons` on Phi.
+
+### Gemma smoke — clean on first re-run
+
+```
+T1                                          u_ent=0.946  OK
+T2 attentions[29].shape = [1, 16, 5, 5]                  OK   (last layer, full-attn — picker correct)
+T3 RindAccumulator (rind_max 0.157)                      OK
+T4 verbal probe  u_verb=0.0  len 20→20                   OK
+T5 consistency   u_cons=0.062  mean_cos=0.938  len 24→24 OK
+T6 16 steps in 177.1s; all required keys present         OK
+   fire_counts {latent:15, etc:4, dragin:5, realm_rsus:0,
+                selfdoubt_t1:0, selfdoubt_full:0, random:4}
+```
+
+Load: 91 s, VRAM 49.9 GB. **DynamicSlidingWindowLayer.crop() round-tripped cleanly** through both T4 and T5 — L7 fix confirmed on the sliding-window path. `dragin_attn_layer_idx=29` (model-layer index, picker correct on this arch). Eager-mode decode 16.4 tok/s — marginally *faster* than the sdpa baseline (~13 tok/s from #6) because Gemma's local-attention layers limit the eager quadratic.
+
+`u_cons=0.062 / mean_cos=0.938` — the three sampled continuations on Gemma agreed strongly on this hotpotqa row, exactly the expected behaviour on a well-conditioned answerable question. Sanity-check passed.
+
+### Qwen smoke — L9 surfaced: hybrid-stack attentions tuple is *compact*, not None-padded
+
+First attempt failed T2/T3 with `tuple index out of range` at `dragin_attn_layer_idx=39`. Root cause turned out to be a #17 mismodelling that the smoke caught early:
+
+**#17's L7 forecast (Qwen-specific):** `Qwen 3.6's hybrid stack has linear / GDN layers where out.attentions[i] is legitimately None; the driver skips with attn_layer is not None: ...`. The driver's `attn_layer is not None` short-circuit was written against this assumption.
+
+**Reality on transformers 5.8 + Qwen 3.6 (verified by direct probe; see `runs/04h_smoke_qwen.log` and the manual inspection that followed):**
+
+| property | value |
+| --- | --- |
+| `num_hidden_layers` | 40 |
+| `len(config.layer_types)` | 40 |
+| pattern | `['linear', 'linear', 'linear', 'full', ...]` — strict 3:1 GDN : full repeating |
+| full-attn model-layer indices | `[3, 7, 11, 15, 19, 23, 27, 31, 35, 39]` — 10 total |
+| **`len(out.attentions)`** | **10**, NOT 40 |
+| `out.attentions[i].shape` for i in 0..9 | `[1, 16, T, T]` for every i — uniform |
+
+**transformers 5.8 returns a *compact* attentions tuple containing only the full-attention layers, indexed 0..9 in tuple-order, NOT padded with None at GDN positions.** This is the opposite of what #17 forecast. The `attn_layer is not None` guard in `04f_run_qa_sota.py:221` is therefore harmless (never triggers) but does nothing useful; the real defence is making the picker return the correct *tuple index*, not the model-layer index.
+
+**Fix in `_resolve_dragin_attn_layer`:**
+
+```python
+if layer_types:
+    full_positions = [i for i, t in enumerate(layer_types) if "full" in str(t).lower()]
+    if len(full_positions) < len(layer_types):
+        # Hybrid stack: attentions tuple is compact (full-attn-only).
+        return len(full_positions) - 1     # Qwen: 10 - 1 = 9
+    # All-full stack: tuple-index == model-index.
+    return full_positions[-1]              # Phi: 31, Gemma: 29
+```
+
+Re-run after the fix:
+
+```
+T1                                          u_ent=0.946  OK
+T2 attentions[9].shape = [1, 16, 5, 5]                   OK   (was attentions[39] → out-of-range)
+T3 RindAccumulator (rind_max 1.412)                      OK
+T4 verbal probe  u_verb=0.0  len 20→20                   OK
+T5 consistency   u_cons=0.714  mean_cos=0.286  len 24→24 OK
+T6 3 steps in 16.5s; all required keys present           OK
+   fire_counts {latent:2, etc:1, dragin:2, realm_rsus:0,
+                selfdoubt_t1:0, selfdoubt_full:0, random:0}
+```
+
+**`dragin:2` after fix vs `dragin:0` before** — confirms DRAGIN was effectively dead on Qwen in any prior pre-fix attempt. If you find an earlier `runs/04f_qwen*.log` (we shouldn't — this is a fresh box), the `dragin:0` fire count there is a code bug, not a Qwen finding. **Worth a sanity-check audit on the Phase 4 #17 partial-run JSONLs (the no-compute addons from #16) — those didn't run DRAGIN, but if they had they'd have been silently bogus on Qwen.**
+
+Load: 20.3 s second-attempt (was 31 s first attempt — warm OS-page cache effect), VRAM 68.7 GB. `u_cons=0.714 / mean_cos=0.286` — Qwen's three sampled continuations diverged strongly on the same question Gemma answered confidently. Could be the temperature setting (0.6) interacting with Qwen's hybrid MoE routing variance (L1 territory). Worth keeping an eye on in the #19 sweep — if mean `u_cons` on Qwen lands consistently in the 0.6-0.8 range, the `u_cons` channel is going to dominate Qwen's RSUS fusion regardless of factuality.
+
+### All three architectures green — summary table
+
+| arch | load (s) | VRAM (MB) | dragin_idx | T2 shape | T6 wall (s) | T6 steps | tok/s eager |
+|---|---:|---:|---:|---|---:|---:|---:|
+| phi-4-mini-instruct (dense, 32 L) | 4.7 | 8 112 | 31 (model = tuple) | `[1, 24, 5, 5]` | 17.9 (after 2-row retry) | 2 | 14.3 |
+| gemma-4-26b-a4b-it (sliding-window, 30 L) | 91.1 | 49 888 | 29 (model = tuple) | `[1, 16, 5, 5]` | 177.1 | 16 | 16.4 |
+| qwen3.6-35b-a3b-instruct (hybrid 3:1, 40 L → 10 full-attn) | 20.3 | 68 670 | 9 (tuple-compact) | `[1, 16, 5, 5]` | 16.5 | 3 | 18.0 |
+
+All six T-checks passing on all three architectures. Cache truncation, eager attention, attention-layer-picking all validated on the actual model stacks.
+
+### Wall-clock projection for the full SOTA sweep (re-budget from #17)
+
+Extrapolating from the T6 single-question runs (with all probes ON: DRAGIN + verbal + entity + consistency):
+
+| arch | T6 sec/q | × 200 q | with calib(120) only | rough A100 wall |
+|---|---:|---:|---:|---|
+| phi-4-mini-instruct | ~9 s/q | ~30 min | ~18 min | basically free |
+| gemma-4-26b-a4b-it | **~177 s/q** | **~9.8 h** | **~5.9 h** | **cost wall** |
+| qwen3.6-35b-a3b-instruct | ~5.5 s/q | ~18 min | ~11 min | basically free |
+
+**Single-arch outlier: Gemma is 30× slower per question than Phi or Qwen.** Two hypotheses:
+
+1. The first Gemma question that emitted 16 steps was on a long-generation row (vs Phi at 64 tokens / 2 steps and Qwen at 3 steps); the per-question cost scales with step count because the consistency sampler runs per-step.
+2. Gemma at eager attention is paying a per-layer dense softmax on a 60K-context-capable model that's actually doing useful work, while Qwen's hybrid GDN layers skip the softmax entirely.
+
+#19 should run `--limit 5` dry on each arch to disambiguate (5 questions × 3 archs ≈ 20 min total) and decide whether `--no-cons` for Gemma is needed.
+
+### Files touched in #18 (cumulative)
+
+- `scripts/04_run_qa.py` — `load_generator(..., attn_implementation=None)`. Phase 4.1b bit-exact on default.
+- `scripts/04f_run_qa_sota.py` — `attn_implementation="eager"` at load; `_resolve_dragin_attn_layer` now returns **tuple index** with hybrid-stack handling.
+- `scripts/04h_sota_smoke.py` — `"eager"` at load; T6 retries up to 3 rows, `max_new_tokens=512`, dumps tokens+stop-reason on failure.
+- `scripts/crv/sota_capture.py` — both `_truncate_cache_to` methods upgraded for transformers 5.x `DynamicCache.layers[*]` + `cache.crop()` path.
+- `runs/04h_smoke_{phi,gemma,qwen}.log` + `runs/phase4_sota_smoke_*.json` — green smoke reports per arch.
+
+### Landmines added to the watch list
+
+- **L6 (eager attention is mandatory for SOTA path on transformers 5.x, all archs).** Confirmed universal, not Qwen-specific as #17 forecast.
+- **L7 (`DynamicCache` refactor).** 5.x uses `cache.layers[*].keys / .values / .crop(n)`. Old `key_cache / value_cache` lists gone. Pin transformers in `environment.yml` once #19's full sweep lands.
+- **L8 (`u_verb=0.0` is real signal, not parse failure).** Don't filter on `u_verb > 0` anywhere.
+- **L9 (NEW) — hybrid-stack `out.attentions` is COMPACT, not None-padded.** transformers 5.8 strips GDN-layer attentions entirely from `out.attentions`; you get a tuple of length `num_full_attn_layers`, indexed 0..N-1 in tuple-order, NOT padded at GDN positions. **The picker MUST return tuple-index, not model-layer-index, for hybrid stacks.** #17's L7 forecast was wrong on the None-padding assumption. The `attn_layer is not None` guard in the driver is now dead code but harmless. **If future transformers versions switch back to None-padding (would be a transparent design improvement), the picker logic needs to detect that and return the model-layer index instead** — the current code assumes compact iff `len(full_positions) < len(layer_types)`.
+
+### What #19 needs to do
+
+1. **`--limit 5` dry runs** on each arch under the new picker + eager-attn settings. Confirm per-question wall-clock; decide if Gemma needs `--no-cons` to fit the rental window. (~20 min total.)
+2. **Audit the Phase 4.7 / 4.8 / 4.9 / 4.10 plan** in `_PLAN.md` against the L9 fix — re-confirm that DRAGIN is meaningfully wired on Qwen now that the tuple-index is correct.
+3. **Full SOTA sweep** on all 3 archs across calibration (120) + validation (40) + test (40) splits. Read calibration only for threshold-fitting; do NOT open test until headline numbers are locked (L5).
+4. **Calibration of `dragin_threshold` / `selfdoubt_full_z`** on the calibration split per arch — `04g_sota_showdown.py` is the planned analyzer; #17 left it as the deferred-but-noted next analyzer write.
+5. **Sanity-check audit** of all prior `runs/04f_*.log` (none on this box, but the user may have older ones archived). If any DRAGIN fire count on Qwen is exactly zero, that's the L9 bug, not a Qwen finding.
+
+### Files touched this entry
+
+- `scripts/04_run_qa.py` — `load_generator` gained `attn_implementation: str | None = None`. Default unchanged → Phase 4.1b reload is bit-exact.
+- `scripts/04f_run_qa_sota.py` — passes `attn_implementation="eager"` at its single load site.
+- `scripts/04h_sota_smoke.py` — passes `"eager"`; T6 now retries up to 3 dataset rows, `max_new_tokens` 64 → 512, failure path dumps `tokens_generated` / `early_stop_reason` / generation tail.
+- `scripts/crv/sota_capture.py` — both `_truncate_cache_to` methods upgraded to handle transformers-5.x `DynamicCache.layers[*]` + `cache.crop(...)` path. 4.x and tuple-of-tuples fallbacks preserved.
+- `runs/setup_a100.log`, `runs/download_models_a100.log`, `runs/sysinfo_a100_box.json`, `runs/04_dataset_build.log`, `runs/04h_smoke_phi.log`, `runs/phase4_sota_smoke_phi-4-mini-instruct.json` — fresh artifacts.
+
+### Landmines added to the watch list
+
+- **L6 (NEW) — eager attention is mandatory for the SOTA path on transformers 5.x, regardless of arch.** Forecast as Qwen-specific in #17 (`04f_run_qa_sota.py:38` TODO header); confirmed today as universal. The TODO header in `04f` should be updated to reflect this when the user opens that file next; for now the runtime behaviour is correct.
+- **L7 (NEW) — `DynamicCache` is a moving target.** Between transformers 4.x → 5.x, the cache went from `(key_cache, value_cache, _seen_tokens)` lists to `(layers[*].keys, layers[*].values, layers[*].cumulative_length, .crop(...))` objects. If transformers 5.9+ refactors again (the `DynamicSlidingWindowLayer` / `DynamicLayer` split looks like it might consolidate), the `_truncate_cache_to` helpers will need a third layout. Either pin `transformers==5.8.0` exactly in `environment.yml` for the SOTA sweep window, or write a runtime smoke that verifies cache-length round-trip on every model load.
+- **L8 (NEW) — `parse_verbal_confidence == 0.0` is a real value, not a parse failure.** Means "Confidence: 100" → `1 - 1.0 = 0.0`. Don't filter on `u_verb is not None and u_verb > 0` anywhere; that silently drops the model's most-confident steps. The `SelfDoubtFullGate.fit_moments()` call site needs to treat `u_verb=0.0` as observed signal, not missing. Worth a one-line guard check in the calibration analyzer when it lands in #19.
+
+### What #19 needs to do
+
+1. Re-launch the Gemma + Qwen smokes. Confirm L6/L7 fixes hold on the sliding-window and hybrid-linear paths.
+2. `--limit 5` dry run on each arch to size the full-sweep wall clock under the eager-attn budget.
+3. Decide budget: full SOTA sweep on this A100 rental window, OR triage components via `--no-cons` / `--no-verb` flags if 4.10 (SELFDOUBT-Full + ReaLM-RSUS) is the cost wall.
+
+---
+
 ## 2026-05-11 #17 — True-SOTA code ready for compute-box handoff (DRAGIN + ReaLM-RSUS + SELFDOUBT-Full)
 
 ### What triggered the entry

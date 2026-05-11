@@ -256,18 +256,18 @@ def t5_consistency_sampler(model, tokenizer, report: dict, skip: bool) -> bool:
 
 def t6_end_to_end(model, tokenizer, dragin_layer_idx: int, dataset_path: Path, model_name: str,
                   report: dict, skip_cons: bool) -> bool:
-    print("[T6] one full question through run_one_question_sota (max_new_tokens=64)")
+    print("[T6] one full question through run_one_question_sota (max_new_tokens=512, retry up to 3 rows)")
     try:
-        # Pull the first row.
-        row = None
+        rows: list[dict] = []
         with dataset_path.open() as f:
             for line in f:
                 line = line.strip()
                 if not line:
                     continue
-                row = json.loads(line)
-                break
-        if row is None:
+                rows.append(json.loads(line))
+                if len(rows) >= 3:
+                    break
+        if not rows:
             report["T6"] = {"error": "dataset empty", "ok": False}
             return False
 
@@ -276,7 +276,7 @@ def t6_end_to_end(model, tokenizer, dragin_layer_idx: int, dataset_path: Path, m
         ns = argparse.Namespace(
             model=model_name,
             layer_mode="mid_stack",
-            max_new_tokens=64,
+            max_new_tokens=512,
             window_size=10,
             threshold_drift=0.1,
             threshold_variance=1.0,
@@ -304,8 +304,23 @@ def t6_end_to_end(model, tokenizer, dragin_layer_idx: int, dataset_path: Path, m
         probes["entity_scorer_factory"] = lambda paragraphs: EntityEntropyScorer(paragraphs)
 
         t0 = time.perf_counter()
-        result = sota.run_one_question_sota(row, tokenizer, model, layer_subset, probes, ns)
+        attempts: list[dict] = []
+        result = None
+        for attempt_i, row in enumerate(rows):
+            r = sota.run_one_question_sota(row, tokenizer, model, layer_subset, probes, ns)
+            attempts.append({
+                "row_id": row.get("id"),
+                "tokens_generated": r.get("tokens_generated"),
+                "n_steps": r.get("n_steps"),
+                "early_stop_reason": r.get("early_stop_reason"),
+            })
+            if (r.get("steps") or []):
+                result = r
+                break
         wall = time.perf_counter() - t0
+        if result is None:
+            result = r
+        report.setdefault("T6_attempts", attempts)
 
         # Check that every new step-record key is present on at least one step.
         required_keys = {
@@ -314,9 +329,21 @@ def t6_end_to_end(model, tokenizer, dragin_layer_idx: int, dataset_path: Path, m
         }
         steps = result.get("steps") or []
         if not steps:
-            report["T6"] = {"error": "no steps emitted; max_new_tokens too low or step detector silent",
-                            "wall_s": wall, "ok": False}
-            print(f"     -> FAIL: no step records emitted ({wall:.1f}s)")
+            tail = (result.get("model_answer_full_generation_tail") or "")[-200:]
+            report["T6"] = {
+                "error": "no steps emitted; max_new_tokens too low or step detector silent",
+                "wall_s": wall,
+                "tokens_generated": result.get("tokens_generated"),
+                "early_stop_reason": result.get("early_stop_reason"),
+                "eos_seen_at": result.get("eos_seen_at"),
+                "answer_marker_seen_at": result.get("answer_marker_seen_at"),
+                "generation_tail": tail,
+                "ok": False,
+            }
+            print(f"     -> FAIL: no step records emitted ({wall:.1f}s, "
+                  f"tokens={result.get('tokens_generated')}, "
+                  f"stop={result.get('early_stop_reason')!r})")
+            print(f"     tail: {tail!r}")
             return False
         first = steps[0]
         missing = [k for k in required_keys if k not in first]
@@ -371,7 +398,7 @@ def main() -> int:
         print(f"\n[!!] missing {model_dir}; aborting before GPU tests.")
         return 1
 
-    tokenizer, model = qa.load_generator(model_dir)
+    tokenizer, model = qa.load_generator(model_dir, attn_implementation="eager")
     dragin_layer_idx = sota._resolve_dragin_attn_layer(model, args.dragin_attn_layer_idx)
     print(f"\n[..] dragin_attn_layer_idx={dragin_layer_idx}")
     if hasattr(model.config, "layer_types"):

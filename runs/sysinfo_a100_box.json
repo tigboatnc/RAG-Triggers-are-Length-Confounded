@@ -1,0 +1,51 @@
+============================================================
+SYSINFO
+============================================================
+{
+  "os": "Linux",
+  "release": "6.17.0-1013-gcp",
+  "arch": "x86_64",
+  "python": "3.11.15",
+  "executable": "/venv/recollection/bin/python",
+  "ram": {
+    "total_gb": 167.04,
+    "available_gb": 161.11,
+    "used_gb": 5.93,
+    "percent": 3.6
+  },
+  "gpu": {
+    "backend": "cuda",
+    "details": [
+      {
+        "name": "NVIDIA A100-SXM4-80GB",
+        "memory_total_mb": 81920,
+        "memory_used_mb": 0,
+        "memory_free_mb": 81152,
+        "driver": "580.126.20"
+      }
+    ]
+  },
+  "torch_cuda": {
+    "torch_version": "2.6.0+cu124",
+    "available": true,
+    "device_count": 1,
+    "device_name": "NVIDIA A100-SXM4-80GB",
+    "cuda_version": "12.4",
+    "bf16_supported": true
+  },
+  "process_rss_gb": 0.394,
+  "packages": {
+    "torch": "2.6.0+cu124",
+    "transformers": "5.8.0",
+    "accelerate": "1.13.0",
+    "bitsandbytes": "0.49.2",
+    "safetensors": "0.7.0",
+    "huggingface_hub": "1.14.0",
+    "sentence_transformers": "5.4.1",
+    "lancedb": "0.30.2",
+    "datasets": "4.8.5",
+    "psutil": "7.2.2",
+    "numpy": "2.4.4"
+  }
+}
+============================================================

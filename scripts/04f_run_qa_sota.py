@@ -86,13 +86,28 @@ from qa_grading import exact_match, extract_answer, token_f1  # type: ignore[imp
 
 
 def _resolve_dragin_attn_layer(model: Any, override: int | None) -> int:
-    """Pick which layer's attentions DRAGIN reads.
+    """Pick which entry of ``out.attentions`` DRAGIN reads.
 
-    Dense models (Phi, Gemma): the last hidden layer is fine.
-    Qwen 3.6 hybrid: pick the last *full-attention* layer; we read
-    ``config.layer_types`` and find the rightmost "full_attention"
-    entry. If absent (older config), default to the last layer and
-    log a caveat.
+    Returns an index into the **attentions tuple**, not necessarily the
+    model-layer index. They diverge on Qwen 3.6 and other hybrid stacks:
+
+    * Dense / sliding-window stacks (Phi-4-mini, Gemma 4): every layer
+      contributes an entry to ``out.attentions``; tuple length equals
+      ``num_hidden_layers``. The last full-attention layer's model-index
+      equals its tuple-index. Picking ``num_full - 1`` and ``n_layers - 1``
+      give the same answer.
+    * Hybrid (Qwen 3.6, 40 layers, 3:1 GDN : full pattern): transformers
+      5.8 returns a **compact** tuple of length 10 containing only the
+      full-attention layers' attentions — the GDN layers do NOT produce
+      None entries, they are dropped. The model-layer index 39 of the
+      rightmost full-attn layer is therefore wrong; the correct tuple
+      index is 9. We compute it as ``count(full_attention layers in
+      layer_types) - 1``.
+
+    For backwards compatibility with calling code that wants the
+    model-layer index (e.g. for logging), use ``override`` to pin it
+    explicitly. The smoke test #18 / production sweep #19+ both read
+    the tuple index returned here.
     """
     if override is not None:
         return int(override)
@@ -100,9 +115,14 @@ def _resolve_dragin_attn_layer(model: Any, override: int | None) -> int:
     layer_types = getattr(cfg, "layer_types", None)
     n_layers = getattr(cfg, "num_hidden_layers", None) or getattr(cfg.text_config, "num_hidden_layers", None)
     if layer_types:
-        for i in range(len(layer_types) - 1, -1, -1):
-            if "full" in str(layer_types[i]).lower():
-                return i
+        full_positions = [i for i, t in enumerate(layer_types) if "full" in str(t).lower()]
+        if not full_positions:
+            return int(n_layers) - 1
+        if len(full_positions) < len(layer_types):
+            # Hybrid stack: attentions tuple is compact (full-attn-only).
+            return len(full_positions) - 1
+        # All-full stack: tuple-index == model-index.
+        return full_positions[-1]
     return int(n_layers) - 1
 
 
@@ -478,7 +498,7 @@ def main() -> None:
 
     import torch  # noqa: F401
 
-    tokenizer, model = qa.load_generator(model_dir)
+    tokenizer, model = qa.load_generator(model_dir, attn_implementation="eager")
     capture_subset = qa._resolve_layer_subset(model, args.layer_mode)
     dragin_layer_idx = _resolve_dragin_attn_layer(model, args.dragin_attn_layer_idx)
     print(f"[..] layer_mode={args.layer_mode}  capture_subset={capture_subset}")

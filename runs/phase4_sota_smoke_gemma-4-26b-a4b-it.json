@@ -1,0 +1,86 @@
+{
+  "model": "gemma-4-26b-a4b-it",
+  "args": {
+    "model": "gemma-4-26b-a4b-it",
+    "dataset": "data/hotpotqa_distractor_200.jsonl",
+    "dragin_attn_layer_idx": null,
+    "skip_cons": false,
+    "out": null
+  },
+  "results": {
+    "T1": {
+      "u_ent": 0.9463471998207567,
+      "n_entities": 3,
+      "ok": true
+    },
+    "T2": {
+      "n_layers": 30,
+      "layer_idx": 29,
+      "shape": [
+        1,
+        16,
+        5,
+        5
+      ],
+      "ok": true
+    },
+    "T3": {
+      "rind": {
+        "rind_max": 0.1573441436048597,
+        "rind_mean": 0.1573441436048597,
+        "n_content_tokens": 1,
+        "n_tokens": 4
+      },
+      "ok": true
+    },
+    "T4": {
+      "u_verb": 0.0,
+      "len_before": 20,
+      "len_after": 20,
+      "cache_restored": true,
+      "ok": true
+    },
+    "T5": {
+      "u_cons": 0.0623044099188137,
+      "mean_pairwise_cos": 0.9376955900811863,
+      "len_before": 24,
+      "len_after": 24,
+      "cache_restored": true,
+      "ok": true
+    },
+    "T6_attempts": [
+      {
+        "row_id": "5a8e3ea95542995a26add48d",
+        "tokens_generated": 192,
+        "n_steps": 16,
+        "early_stop_reason": "answer_marker"
+      }
+    ],
+    "T6": {
+      "n_steps": 16,
+      "wall_s": 177.104,
+      "tokens_generated": 192,
+      "missing_step_keys": [],
+      "first_step_excerpt": {
+        "dragin_rind_max": 1.4852121137082577,
+        "hedge_count": 0,
+        "hvr": 0.0,
+        "u_cons": 0.0006881120217713255,
+        "u_ent": 0.5,
+        "u_verb": 0.0,
+        "verify_count": 0
+      },
+      "fire_counts": {
+        "latent": 15,
+        "etc": 4,
+        "selfdoubt_t1": 0,
+        "dragin": 5,
+        "realm_rsus": 0,
+        "selfdoubt_full": 0,
+        "random": 4
+      },
+      "ok": true
+    }
+  },
+  "overall_ok": true
+}

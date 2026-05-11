@@ -1,0 +1,28 @@
+
+=== Phase 4 SOTA smoke test on phi-4-mini-instruct ===
+
+[T1] CPU-only deps: spaCy + rank_bm25 + sentence-transformers
+     -> u_ent=0.946  n_entities=3  OK
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:56,  3.42it/s]Loading weights:   7%|▋         | 13/194 [00:00<00:04, 40.69it/s]Loading weights:  13%|█▎        | 25/194 [00:00<00:02, 64.55it/s]Loading weights:  19%|█▉        | 37/194 [00:00<00:01, 80.40it/s]Loading weights:  25%|██▌       | 49/194 [00:00<00:01, 90.37it/s]Loading weights:  31%|███▏      | 61/194 [00:00<00:01, 97.71it/s]Loading weights:  38%|███▊      | 73/194 [00:00<00:01, 102.86it/s]Loading weights:  44%|████▍     | 85/194 [00:01<00:01, 105.64it/s]Loading weights:  50%|█████     | 97/194 [00:01<00:00, 108.16it/s]Loading weights:  56%|█████▌    | 109/194 [00:01<00:00, 108.61it/s]Loading weights:  62%|██████▏   | 121/194 [00:01<00:00, 108.66it/s]Loading weights:  69%|██████▊   | 133/194 [00:01<00:00, 109.74it/s]Loading weights:  75%|███████▍  | 145/194 [00:01<00:00, 110.35it/s]Loading weights:  81%|████████  | 157/194 [00:01<00:00, 111.28it/s]Loading weights:  87%|████████▋ | 169/194 [00:01<00:00, 111.98it/s]Loading weights:  93%|█████████▎| 181/194 [00:01<00:00, 111.97it/s]Loading weights:  99%|█████████▉| 193/194 [00:01<00:00, 112.35it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 97.10it/s] 
+[ok] loaded in 4.67s | rss 1.096 GB | VRAM 8112 MB
+
+[..] dragin_attn_layer_idx=31
+[T2] forward pass with output_attentions=True
+     -> attentions[31].shape=[1, 24, 5, 5]  OK
+[T3] RindAccumulator end-to-end on a 4-token forward
+     -> {'rind_max': 1.3591959476470947, 'rind_mean': 0.6795979738235474, 'n_content_tokens': 2, 'n_tokens': 4}  OK
+[T4] VerbalizedConfidenceProbe: fork + restore + parse
+     -> u_verb=0.0  len_before=20  len_after=20  OK
+[T5] ConsistencySampler: 3 samples, T=0.6, top_p=0.9, then cache restore
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 4458.43it/s]
+     -> u_cons=0.343  mean_cos=0.657  len_before=24  len_after=24  OK
+[T6] one full question through run_one_question_sota (max_new_tokens=512, retry up to 3 rows)
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 4525.88it/s]
+     -> 2 steps in 17.9s; missing keys: none  OK
+     fire_counts: {'latent': 1, 'etc': 0, 'selfdoubt_t1': 0, 'dragin': 2, 'realm_rsus': 0, 'selfdoubt_full': 0, 'random': 0}
+
+[ok] wrote runs/phase4_sota_smoke_phi-4-mini-instruct.json
+[OK] overall smoke: True

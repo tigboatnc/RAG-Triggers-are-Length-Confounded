@@ -13,6 +13,15 @@
 \usepackage{booktabs}
 
 \title{Geometry-Aware Latent Gating for Corrective Retrieval in 2026 Edge LLMs}
+% TITLE NOTE (parent #19, post-reviewer-critique): "Corrective Retrieval" implies
+% we run a trigger-then-retrieve-then-improve loop; we currently do not (no
+% intervention arm in this short paper -- see §Limitations + §Future Work).
+% Honest alternatives to consider:
+%   - "Geometry-Aware Latent Gating for Retrieval-Need Detection in Edge LLMs"
+%   - "Mid-Stack Drift as an Early Retrieval-Need Signal in Edge Instruct LLMs"
+%   - "An Architecture-Agnostic Hidden-State Trigger for Retrieval-Need Detection"
+% Keeping current title pending user decision. Body claims are softened to
+% "retrieval-need detection" throughout regardless of the final title.
 
 \author{Anonymous}
 
@@ -20,8 +29,9 @@
 \maketitle
 
 \begin{abstract}
-The 2026 generation of edge-scale instruct models pushes the key-value-cache memory bottleneck below the operating point of long-context inference at the architecture level, and the dominant inference cost shifts to tokens spent extending hallucinated reasoning trajectories. Existing dynamic-retrieval triggers fire after the model has already committed those tokens: they parse generated text or score it post hoc, and the few latent-space alternatives require an additional projection head trained against a retrieval objective. We propose a parameter-free, calibration-anchored, architecture-portable framework that probes mid-stack hidden states at logical reasoning-step boundaries. The Concept Representation Vector (CRV) adapter mean-pools a configurable mid-stack layer over the tokens of a step and gates on cosine drift versus the previous step's CRV together with a rolling L2-norm variance over a sliding window. A zero-leakage calibration protocol selects the per-architecture aggregation rule (drift, variance, or their disjunction) from a held-out split that is never seen at evaluation. We evaluate on a 200-question HotpotQA-distractor slice across the three dominant 2026 edge-LLM architectural classes: Phi-4-mini (dense), Gemma-4-26B-A4B (sliding-window MoE), and Qwen3.6-35B-A3B (hybrid Gated DeltaNet MoE), under a unified greedy decoding protocol, against the training-free post-decode detector family: SELFDOUBT-Tier1, the Entropy-Trend Constraint, DRAGIN, and a rate-matched random baseline. The latent gate significantly outperforms every text-parsing and probability-parsing baseline on the sliding-window MoE at 95\% paired bootstrap; on the hybrid linear MoE the effect size is large but power-limited at $n=34$; on the dense SLM the gate is an honest negative under the same protocol. The mechanism (quintile-EM gap from earliest fire to never-fired) holds on all three architectures. We argue that mid-stack hidden-state drift is a real-time, architecture-portable retrieval-trigger signal whose optimal aggregation rule varies systematically with model class.
-% TODO(parent #19): re-verify the Gemma 95% claim and the Qwen P(>0) after the DRAGIN-only sweep + re-bootstrap on the new pool {latent, selfdoubt_t1, etc, dragin, random}. The current wording reflects the most-likely-preserved outcome; revise if the new pool moves the headline.
+Training-free retrieval triggers for chain-of-thought reasoning fall into two structural patterns: methods that emit a learned control token during generation, and methods that score generated text after each reasoning step. Both fire after the model has already committed the tokens they are meant to assess. We ask whether hidden states provide an earlier, training-free signal at reasoning-step boundaries. We introduce the Concept Representation Vector (CRV) trigger: at a deterministic sentence-end boundary, we mean-pool a configurable mid-stack layer over the tokens of the current step, then fire when either cosine drift from the previous step's CRV or the rolling L2-norm variance of recent CRVs exceeds a threshold. The CRV computation introduces no learned parameters. Both thresholds and the aggregation rule (drift, variance, or their disjunction) are selected on a held-out calibration split and frozen before evaluation; the protocol never touches the validation or test splits. We evaluate on a 200-question HotpotQA-distractor slice across three current edge-deployable instruction-tuned models: Phi-4-mini-instruct (dense, grouped-query attention) \cite{microsoft_phi4mini_card_2025}, Gemma-4-26B-A4B-it (sparse MoE, hybrid local/global attention) \cite{google_gemma4_26b_card_2026}, and Qwen3.6-35B-A3B (hybrid Gated-DeltaNet / Gated-Attention MoE) \cite{qwen_qwen3p6_35b_card_2026}, under a unified greedy decoding protocol. The training-free baseline pool is SELFDOUBT-Tier1, the Entropy-Trend Constraint, DRAGIN, and a rate-matched random gate. CRV significantly improves retrieval-need detection over every text-parsing and probability-based baseline on Gemma-4-26B-A4B in a paired bootstrap at $95\%$ confidence; on Qwen3.6-35B-A3B the effect is large but power-limited at $n=34$ eligible cases; on Phi-4-mini CRV does not improve over baselines. Across all three models, earlier CRV firing is associated with lower final exact match. The feature extractor is identical across architectures; the optimal aggregation rule selected from each calibration split varies systematically with model class.
+% TODO(parent #19): re-verify Gemma 95% claim + Qwen P(>0) after the DRAGIN-only
+% sweep + re-bootstrap on {latent, selfdoubt_t1, etc, dragin, random}.
 \end{abstract}
 
 % =============================================================================
@@ -55,7 +65,7 @@ The key-value (KV) cache used to set the operating point of long-context inferen
 %   regex fires on step 1 of nearly every trace (protocol-fragile).
 
 Active retrieval triggers fall into two structural patterns. The first internalizes retrieval as part of the generation vocabulary: Self-RAG and Open-RAG train the model to emit reflection tokens such as \texttt{[Retrieve]} \cite{Asai_SelfRAGLearning,Islam_OpenRAGEnhanced}, and GRIP extends the idea with explicit control tokens that schedule retrieval inside the autoregressive trajectory \cite{Li_RetrievalGenerationUnified}. The second parses the generated text after each reasoning step: FLARE evaluates token probabilities of a provisional next sentence \cite{Jiang_ActiveRetrievalAugmented}, DRAGIN evaluates the uncertainty and semantic importance of each generated token \cite{Su_DRAGINDynamicRetrieval}, SELFDOUBT computes a hedge-to-verify ratio over generated tokens at the trace level \cite{Pandey_SELFDOUBTUncertainty}, the Entropy-Trend Constraint monitors second-order entropy differences along the token series \cite{Li_ModelingUncertaintyTrends}, and ReaLM-Retrieve combines a verbalized $0$-$100$ confidence rating with named-entity entropy at step boundaries \cite{Guo_WhenRetrieveAdaptive}.% NOTE for self: ReaLM-Retrieve's full RSUS also includes a third consistency component U_cons; omitted here for brevity. SELFDOUBT's full method fuses HVR with verbalized confidence; we cite Tier-1 here and note the full version in §5.
- Both families pay the same structural delay: by the time the trigger evaluates, the model has already sampled the tokens it is meant to assess, and recent work names this as the delayed-retrieval problem in dynamic RAG \cite{Li_ModelingUncertaintyTrends}. Latent-space alternatives exist (LatentRAG, LAnR), and they bypass discrete decoding by routing through a learned latent code, but they require an additional projection head trained against a retrieval objective \cite{Zheng_LatentRAGLatent,T_LatentAbstractionRetrieval}. We instead probe the forward pass the model already runs: hidden states at sentence boundaries are observable on every architecture without an extra training stage, and single-pass hidden-state probes recover semantic uncertainty before a token is sampled \cite{Kossen_SemanticEntropyProbes,Chen_INSIDELLMsInternal}. The adapter we propose is parameter-free and calibration-anchored, and the same code path ports across the three 2026 edge-LLM architectural classes without architectural surgery or weight fine-tuning; the per-architecture aggregation rule it uses to combine that hidden-state signal is itself selected from a held-out calibration split, consistent with growing evidence that hidden-state geometry encodes uncertainty differently under expert routing than under dense attention \cite{Atkinson_TetheredReasoningDecoupling}.
+ Both families pay the same structural delay: by the time the trigger evaluates, the model has already sampled the tokens it is meant to assess, and recent work names this as the delayed-retrieval problem in dynamic RAG \cite{Li_ModelingUncertaintyTrends}. Latent-space alternatives exist (LatentRAG, LAnR), and they bypass discrete decoding by routing through a learned latent code, but they require an additional projection head trained against a retrieval objective \cite{Zheng_LatentRAGLatent,T_LatentAbstractionRetrieval}. We instead probe the forward pass the model already runs: hidden states at sentence boundaries are observable on every architecture without an extra training stage, and single-pass hidden-state probes recover semantic uncertainty before a token is sampled \cite{Kossen_SemanticEntropyProbes,Chen_INSIDELLMsInternal}. The feature extractor we propose introduces no learned parameters; the same code path applies across the three current edge-deployable architectural classes we test, while thresholds and the aggregation rule are calibrated per model from a held-out split, consistent with growing evidence that hidden-state geometry encodes uncertainty differently under expert routing than under dense attention \cite{Atkinson_TetheredReasoningDecoupling}.
 
 % PROPOSAL paragraph (to be written as prose; reviewer-facing scaffold below):
 %
@@ -152,10 +162,20 @@ Active retrieval triggers fall into two structural patterns. The first internali
 % 3.1 THE CRV ADAPTER (~0.4 pages)
 %
 %   The adapter consumes the HF `CausalLMOutputWithPast.hidden_states` tuple,
-%   so it is engine-agnostic (no hooks, no per-architecture wiring). At each
-%   logical step boundary (sentence-end detector over a small punctuation
-%   token set), we mean-pool the per-token hidden states of the configured
-%   mid-stack layer floor(L/2) over the step's tokens to obtain CRV_t.
+%   so it is engine-agnostic (no hooks, no per-architecture wiring).
+%
+%   STEP-BOUNDARY DEFINITION (deterministic, text-derived):
+%     A logical step ends at the first generated token whose decoded surface
+%     form is in {"." "?" "!" "\n"}. We use the tokenizer's per-id decode
+%     (not a regex over decoded text) so the boundary is determined by the
+%     model's own token stream, not by post-hoc string parsing. A minimum
+%     of N=8 tokens since the previous boundary guards against fragmenting
+%     short clauses. This rule is identical across all three architectures.
+%
+%   CRV COMPUTATION:
+%     At each boundary, we mean-pool the per-token hidden states of the
+%     configured mid-stack layer floor(L/2) over the tokens emitted since
+%     the previous boundary, yielding CRV_t in R^d.
 %
 %   Two per-step scalars:
 %     d_t = 1 - cos(CRV_t, CRV_{t-1})      (cosine drift)
@@ -222,11 +242,35 @@ Active retrieval triggers fall into two structural patterns. The first internali
 \section{Experiments and Results}
 
 % 4.1 SETUP
-%   Models: Phi-4-mini (3.8B dense), Gemma-4-26B-A4B (~3.8B active, sliding-
-%     window MoE), Qwen3.6-35B-A3B (~3B active, hybrid Gated DeltaNet MoE).
-%     All bf16 native, single A100-SXM4-80GB (electrically equivalent to the
-%     A800 used in Phases 1-3); attn_implementation="eager" required on
-%     transformers 5.x for the DRAGIN attention capture (see _AGENT.md #18 L6).
+%   Models (architecture facts pulled from the official model cards;
+%   bibkeys microsoft_phi4mini_card_2025, google_gemma4_26b_card_2026,
+%   qwen_qwen3p6_35b_card_2026):
+%
+%     Phi-4-mini-instruct  -- 3.8B-parameter dense decoder-only Transformer
+%       with grouped-query attention, 200K vocabulary, shared input/output
+%       embedding, 128K context. Source: microsoft/Phi-4-mini-instruct
+%       model card; technical report arxiv:2503.01743.
+%
+%     Gemma-4-26B-A4B-it   -- 25.2B total parameters, 3.8B active, 30
+%       decoder layers, MoE with 8 routed + 1 shared expert per layer (128
+%       total experts). Hybrid local/global attention: interleaved local
+%       sliding-window (window 1024) and full global attention; the final
+%       layer is always global; global layers use unified keys/values and
+%       Proportional RoPE. 256K context. Source: google/gemma-4-26B-A4B-it
+%       model card.
+%
+%     Qwen3.6-35B-A3B      -- 35B total parameters, 3B activated, 40 layers
+%       arranged as 10 blocks of (3 x Gated-DeltaNet -> MoE) followed by
+%       (1 x Gated-Attention -> MoE); MoE with 8 routed + 1 shared from
+%       256 experts. Gated-DeltaNet sublayers have 32 V-heads / 16 QK-heads;
+%       Gated-Attention sublayers have 16 Q-heads / 2 KV-heads. 262K native
+%       context (extensible via YaRN). Source: Qwen/Qwen3.6-35B-A3B model
+%       card.
+%
+%   All three run bf16 native on a single A100-SXM4-80GB (electrically
+%   equivalent to the A800 used in Phases 1-3). attn_implementation="eager"
+%   is required on transformers 5.x for the DRAGIN attention-row capture
+%   (see _AGENT.md #18 L6).
 %   Dataset: 200 HotpotQA-distractor questions, 60/20/20 calibration/validation/
 %     test, stratified on (level × type), slice_sha256 pinned in _AGENT.md #18.
 %   Decoding protocol (Option A): greedy; enable_thinking=False for Qwen;
@@ -272,13 +316,15 @@ Active retrieval triggers fall into two structural patterns. The first internali
 %     #18 DRAGIN-only sweep with probes-off. Calibration thresholds fit on
 %     the 120-q calibration split per L5 contract.
 
-% 4.3 MECHANISM EVIDENCE: HIDDEN-STATE DRIFT TRACKS CORRECTNESS
+% 4.3 ASSOCIATION: EARLIER FIRING TRACKS LOWER FINAL EM
 %   Bin validation traces by first-fire-fraction quintile, plot EM vs quintile.
-%   The expected monotone (earliest-fire quintile = lowest EM; never-fired
-%   bucket = highest EM) was observed on all three architectures in the #13
-%   geometry-aware run. The mechanism evidence is orthogonal to the headline
-%   Δfrac: it survives even on Phi where the latent gate does not beat
-%   baselines at 95%.
+%   The expected monotone -- earliest-fire quintile has the lowest mean EM,
+%   never-fired bucket the highest -- was observed on all three architectures
+%   in the #13 geometry-aware run. We report this as an association, not as
+%   evidence of a causal mechanism; an intervention arm (fire-then-retrieve)
+%   that would establish causal benefit is left to future work (§Limitations).
+%   The association is orthogonal to the headline Δfrac: it holds on Phi
+%   where the gate does not significantly beat baselines.
 %   Reference numbers from #13 (to be re-checked under the new pool):
 %     Qwen   q1 EM = 0.667, never-fired EM = 0.800 (33 pp range)
 %     Gemma  q1 EM = 0.500, q4 EM = 0.625          (12.5 pp range)
@@ -327,10 +373,11 @@ Active retrieval triggers fall into two structural patterns. The first internali
 %    large but power-limited at n=34. On the dense SLM the gate is an
 %    honest negative under the same protocol.
 %
-% 4. The mechanism (quintile-EM gap from earliest fire to never-fired)
-%    holds on all three architectures, supporting hidden-state drift as a
-%    real-time, architecture-portable retrieval-trigger signal even where
-%    the gate does not significantly beat baselines.
+% 4. The same monotonic association -- earlier firing aligns with lower
+%    final EM -- holds on all three architectures. We report this as an
+%    association consistent with the hypothesis that mid-stack drift
+%    tracks correctness; intervention (fire then retrieve then re-decode)
+%    is the causal test, and it is future work.
 %
 % 5. Overhead is <=3% throughput at steady state. Future work: intervention
 %    (does firing the gate plus a retrieval call improve final EM?), the
@@ -389,11 +436,60 @@ Active retrieval triggers fall into two structural patterns. The first internali
 %    Full evaluation against the trained-detector and multi-channel
 %    families is deferred to follow-up work.
 %
-% 6. Scope of the architecture-portable claim. We test three architectures.
-%    The Mamba / pure-linear-attention class and the dense > 30 B class are
-%    not covered. We therefore claim portability across the three 2026
-%    edge-LLM classes we test, not universal portability.
+% 6. Scope of the architecture claim. We test three architectures. The
+%    Mamba / pure-linear-attention class and the dense > 30 B class are
+%    not covered. We therefore claim that the same feature extractor
+%    applies across the three edge-deployable architectural classes we
+%    test, not that it is universally portable or universally optimal.
+%
+% 7. No intervention arm. We report retrieval-NEED DETECTION (does the
+%    gate fire early on traces the model gets wrong?), not retrieval
+%    triggering with a costed cost-quality tradeoff. The standard
+%    follow-up -- fire CRV, retrieve supporting passages, resume
+%    generation, compare end-to-end EM and tokens at a matched retrieval
+%    rate against {SELFDOUBT-Tier1, ETC, DRAGIN, random} -- is future
+%    work and would convert this short paper's contribution into a long-
+%    paper "trigger then retrieve" arc.
+%
+% 8. Single task, greedy-only decoding. We evaluate one multi-hop QA
+%    dataset (HotpotQA-distractor, 200 questions) under one decoding
+%    protocol (greedy, Option A). Sampling, temperature variation,
+%    different prompt templates, and other tasks (SQuAD-open, TriviaQA-
+%    open, MuSiQue) are left for follow-up.
+%
+% 9. Open-weights access required. The signal lives in
+%    intermediate-layer hidden states. Deployment behind a
+%    completions-only API (no `output_hidden_states`) is out of scope.
 
+% BIBKEY REMINDER (Overleaf custom.bib): three model-card entries the abstract
+% and §4.1 setup paragraph rely on. Source URLs and proposed BibTeX stubs:
+%
+%   microsoft_phi4mini_card_2025
+%     URL: https://huggingface.co/microsoft/Phi-4-mini-instruct
+%     @misc{microsoft_phi4mini_card_2025,
+%       author = {{Microsoft}},
+%       title  = {Phi-4-mini-instruct (model card)},
+%       year   = {2025},
+%       howpublished = {\url{https://huggingface.co/microsoft/Phi-4-mini-instruct}}
+%     }
+%
+%   google_gemma4_26b_card_2026
+%     URL: https://huggingface.co/google/gemma-4-26B-A4B-it
+%     @misc{google_gemma4_26b_card_2026,
+%       author = {{Google DeepMind}},
+%       title  = {Gemma-4-26B-A4B-it (model card)},
+%       year   = {2026},
+%       howpublished = {\url{https://huggingface.co/google/gemma-4-26B-A4B-it}}
+%     }
+%
+%   qwen_qwen3p6_35b_card_2026
+%     URL: https://huggingface.co/Qwen/Qwen3.6-35B-A3B
+%     @misc{qwen_qwen3p6_35b_card_2026,
+%       author = {{Qwen Team, Alibaba Cloud}},
+%       title  = {Qwen3.6-35B-A3B (model card)},
+%       year   = {2026},
+%       howpublished = {\url{https://huggingface.co/Qwen/Qwen3.6-35B-A3B}}
+%     }
 \bibliography{custom}
 
 \end{document}

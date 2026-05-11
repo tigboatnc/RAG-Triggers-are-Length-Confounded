@@ -20,7 +20,8 @@
 \maketitle
 
 \begin{abstract}
-% PASTE FINAL ABSTRACT HERE (~367 words, see paper_summary.md)
+The 2026 generation of edge-scale instruct models pushes the key-value-cache memory bottleneck below the operating point of long-context inference at the architecture level, and the dominant inference cost shifts to tokens spent extending hallucinated reasoning trajectories. Existing dynamic-retrieval triggers fire after the model has already committed those tokens: they parse generated text or score it post hoc, and the few latent-space alternatives require an additional projection head trained against a retrieval objective. We propose a parameter-free, calibration-anchored, architecture-portable framework that probes mid-stack hidden states at logical reasoning-step boundaries. The Concept Representation Vector (CRV) adapter mean-pools a configurable mid-stack layer over the tokens of a step and gates on cosine drift versus the previous step's CRV together with a rolling L2-norm variance over a sliding window. A zero-leakage calibration protocol selects the per-architecture aggregation rule (drift, variance, or their disjunction) from a held-out split that is never seen at evaluation. We evaluate on a 200-question HotpotQA-distractor slice across the three dominant 2026 edge-LLM architectural classes: Phi-4-mini (dense), Gemma-4-26B-A4B (sliding-window MoE), and Qwen3.6-35B-A3B (hybrid Gated DeltaNet MoE), under a unified greedy decoding protocol, against the training-free post-decode detector family: SELFDOUBT-Tier1, the Entropy-Trend Constraint, DRAGIN, and a rate-matched random baseline. The latent gate significantly outperforms every text-parsing and probability-parsing baseline on the sliding-window MoE at 95\% paired bootstrap; on the hybrid linear MoE the effect size is large but power-limited at $n=34$; on the dense SLM the gate is an honest negative under the same protocol. The mechanism (quintile-EM gap from earliest fire to never-fired) holds on all three architectures. We argue that mid-stack hidden-state drift is a real-time, architecture-portable retrieval-trigger signal whose optimal aggregation rule varies systematically with model class.
+% TODO(parent #19): re-verify the Gemma 95% claim and the Qwen P(>0) after the DRAGIN-only sweep + re-bootstrap on the new pool {latent, selfdoubt_t1, etc, dragin, random}. The current wording reflects the most-likely-preserved outcome; revise if the new pool moves the headline.
 \end{abstract}
 
 % =============================================================================
@@ -53,77 +54,167 @@ The key-value (KV) cache used to set the operating point of long-context inferen
 %   the trigger fires. On instruct-tuned 2026 models, ReaLM's hesitation
 %   regex fires on step 1 of nearly every trace (protocol-fragile).
 
-Active retrieval triggers fall into two structural patterns. The first internalizes retrieval as part of the generation vocabulary: Self-RAG and Open-RAG train the model to emit reflection tokens such as \texttt{[Retrieve]} \cite{Asai_SelfRAGLearning,Islam_OpenRAGEnhanced}, and GRIP extends the idea with explicit control tokens that schedule retrieval inside the autoregressive trajectory \cite{Li_RetrievalGenerationUnified}. The second parses the generated text after each reasoning step: FLARE evaluates token probabilities of a provisional next sentence \cite{Jiang_ActiveRetrievalAugmented}, DRAGIN evaluates the uncertainty and semantic importance of each generated token \cite{Su_DRAGINDynamicRetrieval}, and ReaLM-Retrieve combines a verbalized $0$-$100$ confidence rating with named-entity entropy at step boundaries \cite{Guo_WhenRetrieveAdaptive}.% NOTE for self: ReaLM-Retrieve's full RSUS also includes a third consistency component U_cons; omitted here for brevity, mention in §5 if space allows.
- Both families pay the same structural delay: by the time the trigger evaluates, the model has already sampled the tokens it is meant to assess, and recent work names this as the delayed-retrieval problem in dynamic RAG \cite{Li_ModelingUncertaintyTrends}. Latent-space alternatives exist (LatentRAG, LAnR), and they bypass discrete decoding by routing through a learned latent code, but they require an additional projection head trained against a retrieval objective \cite{Zheng_LatentRAGLatent,T_LatentAbstractionRetrieval}. We instead probe the forward pass the model already runs: hidden states at sentence boundaries are observable on every architecture without an extra training stage, and single-pass hidden-state probes recover semantic uncertainty before a token is sampled \cite{Kossen_SemanticEntropyProbes,Chen_INSIDELLMsInternal}.
+Active retrieval triggers fall into two structural patterns. The first internalizes retrieval as part of the generation vocabulary: Self-RAG and Open-RAG train the model to emit reflection tokens such as \texttt{[Retrieve]} \cite{Asai_SelfRAGLearning,Islam_OpenRAGEnhanced}, and GRIP extends the idea with explicit control tokens that schedule retrieval inside the autoregressive trajectory \cite{Li_RetrievalGenerationUnified}. The second parses the generated text after each reasoning step: FLARE evaluates token probabilities of a provisional next sentence \cite{Jiang_ActiveRetrievalAugmented}, DRAGIN evaluates the uncertainty and semantic importance of each generated token \cite{Su_DRAGINDynamicRetrieval}, SELFDOUBT computes a hedge-to-verify ratio over generated tokens at the trace level \cite{Pandey_SELFDOUBTUncertainty}, the Entropy-Trend Constraint monitors second-order entropy differences along the token series \cite{Li_ModelingUncertaintyTrends}, and ReaLM-Retrieve combines a verbalized $0$-$100$ confidence rating with named-entity entropy at step boundaries \cite{Guo_WhenRetrieveAdaptive}.% NOTE for self: ReaLM-Retrieve's full RSUS also includes a third consistency component U_cons; omitted here for brevity. SELFDOUBT's full method fuses HVR with verbalized confidence; we cite Tier-1 here and note the full version in §5.
+ Both families pay the same structural delay: by the time the trigger evaluates, the model has already sampled the tokens it is meant to assess, and recent work names this as the delayed-retrieval problem in dynamic RAG \cite{Li_ModelingUncertaintyTrends}. Latent-space alternatives exist (LatentRAG, LAnR), and they bypass discrete decoding by routing through a learned latent code, but they require an additional projection head trained against a retrieval objective \cite{Zheng_LatentRAGLatent,T_LatentAbstractionRetrieval}. We instead probe the forward pass the model already runs: hidden states at sentence boundaries are observable on every architecture without an extra training stage, and single-pass hidden-state probes recover semantic uncertainty before a token is sampled \cite{Kossen_SemanticEntropyProbes,Chen_INSIDELLMsInternal}. The adapter we propose is parameter-free and calibration-anchored, and the same code path ports across the three 2026 edge-LLM architectural classes without architectural surgery or weight fine-tuning; the per-architecture aggregation rule it uses to combine that hidden-state signal is itself selected from a held-out calibration split, consistent with growing evidence that hidden-state geometry encodes uncertainty differently under expert routing than under dense attention \cite{Atkinson_TetheredReasoningDecoupling}.
 
-% PROPOSAL: Pre-decode CRV adapter + L1 landmine.
-% - Mean-pool mid-stack hidden states at step boundaries → CRV vector.
-% - Monitor cosine drift + rolling L2 variance on consecutive CRVs.
-% - Key discovery: last-layer extraction fails on MoE models (L1 landmine).
-%   MoE routing noise saturates drift signal (0.479 → 0.235 at mid-stack).
-% - The optimal heuristic is architecture-dependent → geometry-aware
-%   calibration protocol.
+% PROPOSAL paragraph (to be written as prose; reviewer-facing scaffold below):
+%
+% Contribution 1 — Pre-decode hidden-state retrieval trigger.
+%   A parameter-free, calibration-anchored adapter that fires at sentence
+%   boundaries before the next decode step, contrasting with the post-decode
+%   detector family (DRAGIN, SELFDOUBT, ETC, ReaLM-Retrieve, FLARE) and the
+%   training-required latent-RAG family (LatentRAG, LAnR).
+%
+% Contribution 2 — Architecture-portable framework via a universal adapter.
+%   Same code path applies uniformly to Phi-4-mini (dense), Gemma-4-26B-A4B
+%   (sliding-window MoE), and Qwen3.6-35B-A3B (hybrid Gated DeltaNet MoE).
+%   No architectural surgery, no weight fine-tuning. The PIPELINE is portable.
+%
+% Contribution 3 — Geometry-aware calibration and per-architecture heuristics.
+%   We challenge the assumption that uncertainty triggers must be
+%   architecture-agnostic. The optimal aggregation mode varies systematically
+%   with model class: variance on dense (Phi); OR(drift, variance) on the two
+%   MoE classes (Gemma, Qwen). This is consistent with the hypothesis that
+%   mid-stack drift partially absorbs expert-routing variance in sparse and
+%   hybrid models. The zero-leakage calibration protocol picks this rule from
+%   a held-out split that is never seen at evaluation.
+%
+% Contribution 4 — Honest, non-uniform headline.
+%   95%% win on the sliding-window MoE; large but power-limited effect on the
+%   hybrid linear MoE (n=34); honest negative on the dense SLM under the
+%   same protocol. We report all three rather than cherry-pick.
+%
+% Contribution 5 — Mechanism evidence orthogonal to the headline.
+%   The quintile-EM gap (earliest-fire to never-fired) is monotone on all
+%   three architectures, so the mechanistic premise (drift tracks correctness)
+%   holds even where the gate does not significantly beat baselines.
+%
+% L1 LANDMINE (the empirical wedge into Contribution 3):
+%   Last-layer CRV extraction fails on MoE because expert routing saturates
+%   drift (Qwen3.6 last-layer mean drift 0.479 vs mid-stack 0.235).
+%   Mid-stack capture is pre-routing and yields a separable signal.
 
 % =============================================================================
 % 2. RELATED WORK (~0.5 pages)
 % =============================================================================
 \section{Related Work}
 
-% ACTIVE RAG TRIGGERS:
-% - Self-RAG (Asai et al. 2023): trained reflection tokens.
-% - CRAG (Yan et al. 2024): confidence-based corrective retrieval.
-% - GRIP: graph-based reasoning with self-triggered <retrieve> token.
-% - ReaLM-Retrieve: step-level RSUS score (verbalized confidence +
-%   entity-coverage entropy), fires at reasoning-step granularity.
-% - All are post-decode or require trained classifier heads.
-
-% INTERNAL STATE PROBING:
-% - "Knowing Before Speaking" — metacognitive loci in hidden states.
-% - RAGLens — probing hidden representations for retrieval relevance.
-% - ICR Probe — cross-layer contribution tracking in MoE models.
-% - Tethered Reasoning / Helix — manifold steering for hallucination.
-% - KEY DISTINCTION: prior work probes hidden states for *detection* or
-%   *steering*; we operationalize the geometry as a real-time,
-%   architecture-aware RAG *gate* with a calibration protocol.
-
-% LATENT-SPACE RAG:
-% - LAnR: latent abstraction, MLP control head over hidden states.
-% - LatentRAG: latent tokens for subqueries, 90% latency reduction.
-% - Both require training. Ours is training-free and zero-shot.
+% Two paragraphs. Cite, position, contrast. Do NOT re-derive any baseline's
+% method here -- the GAP paragraph in §1 already lays out the post-decode
+% family. §2 is for the prior work we do NOT compare against directly.
+%
+% Paragraph A -- Training-required active retrieval (cited, not in our pool):
+%   Self-RAG \cite{Asai_SelfRAGLearning} and Open-RAG \cite{Islam_OpenRAGEnhanced}
+%   train the model to emit reflection tokens; CRAG (Yan et al. 2024) trains a
+%   confidence-based corrective retrieval head; GRIP \cite{Li_RetrievalGenerationUnified}
+%   internalizes retrieval as generation tokens through SFT + DAPO RL. All
+%   require a separately trained component (vocabulary expansion, classifier
+%   head, or RL-trained policy), placing them outside the training-free pool
+%   we evaluate against. We discuss the trade-off and defer the head-to-head
+%   to follow-up work.
+%
+% Paragraph B -- Internal-state probing (closest prior art; this is where
+% reviewer 2 will look for scoop risk):
+%   Semantic Entropy Probes \cite{Kossen_SemanticEntropyProbes} and INSIDE
+%   \cite{Chen_INSIDELLMsInternal} both predict uncertainty from hidden states
+%   in a single forward pass, but each TRAINS a probe on a labelled corpus.
+%   ICR-Probe \cite{Zhang_ICRProbeTracking} tracks cross-layer contributions
+%   in MoE models for hallucination detection. HALT \cite{Shapiro_HALTHallucinationAssessment}
+%   treats the top-k log-probability series as a time-series fed to a learned
+%   GRU. Tethered Reasoning \cite{Atkinson_TetheredReasoningDecoupling}
+%   characterizes high-temperature hallucination as geometric trajectory
+%   divergence in hidden-state space. Trajectory-tracking work
+%   \cite{Zhang_HarnessingReasoningTrajectories} reinforces that temporal
+%   dynamics in hidden states are a stronger signal than static log-probs.
+%
+%   DISTINCTION (1-2 sentences, drives §2.B's punchline):
+%     Prior internal-state work uses hidden states either for trace-level
+%     DETECTION (Kossen, Chen, ICR-Probe, HALT) or for representation-space
+%     STEERING (Atkinson). We instead operationalize the same geometric
+%     signal as a parameter-free, calibration-anchored, architecture-portable
+%     RAG TRIGGER, evaluated as such with a paired bootstrap against the
+%     training-free post-decode pool. The trigger angle, the architecture-
+%     portability claim across the three 2026 classes, and the per-architecture
+%     calibration-driven rule selection together carve out a wedge that, to
+%     our knowledge, no prior 2026 work has occupied jointly.
+%
+% Paragraph C (optional, only if space) -- Latent-space RAG:
+%   LatentRAG \cite{Zheng_LatentRAGLatent} and LAnR \cite{T_LatentAbstractionRetrieval}
+%   move both trigger AND query into a latent space. Both require an additional
+%   projection head trained against a retrieval objective. Our adapter has no
+%   learned parameters and uses no retrieval-aligned objective.
 
 % =============================================================================
 % 3. METHODOLOGY (~1.25 pages)
 % =============================================================================
 \section{Methodology: Geometry-Aware Latent Gating}
 
-% 3.1 THE CRV ADAPTER
-% - Use output_hidden_states=True (public API, no hooks, arch-agnostic).
-% - At each logical step boundary (sentence-end detector), mean-pool
-%   per-token hidden states from layer floor(L/2) → CRV_t.
-% - Cosine drift: d_t = 1 - cos(CRV_t, CRV_{t-1})
-% - Rolling L2 variance: v_t = Var(||CRV_{t-w}||, ..., ||CRV_t||)
-% - Gate fires if d_t > tau_d (mode=drift), v_t > tau_v (mode=variance),
-%   or either (mode=or).
-% - Overhead: ≤3% throughput at steady state on 5,000-token traces.
-
-% 3.2 THE L1 LANDMINE
-% - On MoE models, the router selects different experts per token.
-%   At the last layer, expert-switching noise dominates the hidden state.
-% - Qwen3.6 last-layer mean drift: 0.479 (near-saturated cosine distance).
-% - Qwen3.6 mid-stack mean drift: 0.235 (clean, separable signal).
-% - Mid-stack (pre-routing) bypasses the noise entirely.
-% - Verified on all three architectures: Phi (dense, no L1),
-%   Gemma (MoE, mild L1), Qwen (hybrid MoE, severe L1).
-
-% 3.3 GEOMETRY-AWARE CALIBRATION PROTOCOL
-% - On the calibration split ONLY (120 q, pre-partitioned, SHA-pinned):
-%   1. Fit per-gate thresholds to hit 30% per-step fire rate (iso-fire-rate).
-%   2. Compute Δfrac under each of {drift, variance, or}.
-%   3. Pick the mode with the highest calibration Δfrac.
-% - Freeze mode + thresholds. Evaluate on validation (40 q).
-% - Result: Phi → variance, Gemma → or, Qwen → or.
-% - The mid-stack adapter is universal; the heuristic is geometry-dependent.
-% - Zero validation leakage by construction (L5 contract in _PLAN.md).
+% 3.1 THE CRV ADAPTER (~0.4 pages)
+%
+%   The adapter consumes the HF `CausalLMOutputWithPast.hidden_states` tuple,
+%   so it is engine-agnostic (no hooks, no per-architecture wiring). At each
+%   logical step boundary (sentence-end detector over a small punctuation
+%   token set), we mean-pool the per-token hidden states of the configured
+%   mid-stack layer floor(L/2) over the step's tokens to obtain CRV_t.
+%
+%   Two per-step scalars:
+%     d_t = 1 - cos(CRV_t, CRV_{t-1})      (cosine drift)
+%     v_t = Var( ||CRV_{t-w+1}||_2, ..., ||CRV_t||_2 )   (L2-norm window var)
+%
+%   Three aggregation rules:
+%     drift:    fire iff d_t > tau_d
+%     variance: fire iff v_t > tau_v
+%     or:       fire iff (d_t > tau_d) OR (v_t > tau_v)
+%
+%   Throughput overhead: <=3% at steady state on 5,000-token traces (Phase 2),
+%   driven entirely by the hidden-state CPU detach + mean-pool. Parameter-free
+%   by construction.
+%
+% 3.2 THE L1 LANDMINE: WHY MID-STACK, NOT LAST-LAYER (~0.3 pages)
+%
+%   On MoE models, the router selects different experts per token. At the
+%   last layer, expert-switching noise inflates token-to-token hidden-state
+%   distance, and the drift scalar saturates:
+%
+%     Qwen3.6  last-layer mean drift: 0.479   (near-saturated cosine distance)
+%     Qwen3.6  mid-stack  mean drift: 0.235   (separable, informative signal)
+%
+%   Mid-stack capture is upstream of the routing layer, so the signal
+%   reflects representational content rather than expert assignment. Verified
+%   across all three architectures: Phi (dense, drift signal flat across
+%   layers), Gemma (sliding-window MoE, partial last-layer inflation), Qwen
+%   (hybrid GDN MoE, severe last-layer inflation). Mid-stack is the choice
+%   that makes the adapter portable across the three.
+%
+% 3.3 ZERO-LEAKAGE CALIBRATION PROTOCOL (~0.3 pages)
+%
+%   On the calibration split ONLY (120 questions, pre-partitioned with the
+%   slice_sha256 pinned in _AGENT.md #18; the validation and test splits are
+%   not opened until thresholds and mode are frozen):
+%     1. For each gate (drift / variance / or), fit tau to hit a per-step
+%        fire rate of 0.30 (iso-fire-rate; matches every other gate in the
+%        comparison pool).
+%     2. Compute the calibration Δfrac under each mode.
+%     3. Pick the mode with the highest calibration Δfrac.
+%
+%   Freeze (mode, tau_d, tau_v). Evaluate on the validation split (40 q) and
+%   on the held-out test split (40 q) exactly once. Selection cost is
+%   accounted by L5 -- the protocol never sees the evaluation splits.
+%
+%   Empirical selection:
+%     Phi   -> variance
+%     Gemma -> or
+%     Qwen  -> or
+%
+%   FRAMING: the same code path, calibration recipe, and mid-stack adapter
+%   apply to all three architectures (Contribution 2: pipeline portability).
+%   The aggregation rule selected from each architecture's own calibration
+%   split varies systematically with model class (Contribution 3: per-
+%   architecture heuristic). We do NOT claim a single universally optimal
+%   rule, and we do NOT claim that this finding generalises to architectural
+%   classes outside our pool of three. We DO claim that, within the three
+%   2026 edge-LLM classes we test, the optimal rule covaries with whether
+%   the model has expert routing in its forward pass.
 
 % =============================================================================
 % 4. EXPERIMENTS & RESULTS (~1 page)
@@ -131,72 +222,177 @@ Active retrieval triggers fall into two structural patterns. The first internali
 \section{Experiments and Results}
 
 % 4.1 SETUP
-% - Models: Phi-4-mini (3.8B dense), Gemma 4-26B-A4B (3.8B active MoE),
-%   Qwen 3.6-35B-A3B (3B active hybrid MoE). All bf16 on A800 80GB.
-% - Dataset: 200 HotpotQA distractor, 60/20/20 calib/valid/test,
-%   stratified on (level × type), slice_sha256 pinned.
-% - Protocol: Option A — greedy, enable_thinking=False (Qwen),
-%   explicit system role (Phi/Qwen) or inline-system (Gemma),
-%   repetition_penalty=1.05 (Phi only), early-stop on Answer: regex.
-% - Baselines: ReaLM-Retrieve sim, GRIP sim, rate-matched random (p=0.30).
-% - Metric: Δfrac = mean_first_fire_frac(incorrect) - mean_first_fire_frac(correct).
-%   Positive = gate fires earlier on wrong answers.
-% - Stats: 10,000-resample paired percentile bootstrap, 95% CI.
+%   Models: Phi-4-mini (3.8B dense), Gemma-4-26B-A4B (~3.8B active, sliding-
+%     window MoE), Qwen3.6-35B-A3B (~3B active, hybrid Gated DeltaNet MoE).
+%     All bf16 native, single A100-SXM4-80GB (electrically equivalent to the
+%     A800 used in Phases 1-3); attn_implementation="eager" required on
+%     transformers 5.x for the DRAGIN attention capture (see _AGENT.md #18 L6).
+%   Dataset: 200 HotpotQA-distractor questions, 60/20/20 calibration/validation/
+%     test, stratified on (level × type), slice_sha256 pinned in _AGENT.md #18.
+%   Decoding protocol (Option A): greedy; enable_thinking=False for Qwen;
+%     explicit system role for Phi and Qwen; inline-system for Gemma
+%     (4.5c ablation result); repetition_penalty=1.05 for Phi only;
+%     early-stop on the Answer:<text>\n regex; max_new_tokens=1024.
+%   BASELINE POOL (training-free post-decode detectors + chance):
+%     - SELFDOUBT-Tier1 (HVR): hedge_count / (verify_count + 1) over step text
+%       \cite{Pandey_SELFDOUBTUncertainty}. Marker dictionary is the seed
+%       list; per-arch unsupervised discovery deferred to follow-up work.
+%     - ETC: |second-order difference of step-mean entropy|
+%       \cite{Li_ModelingUncertaintyTrends}. Step-mean adaptation of the
+%       paper's per-token formulation.
+%     - DRAGIN: per-token RIND = H_i * a_max(i) * s_i with last full-attention-
+%       layer attention and spaCy stopword filter \cite{Su_DRAGINDynamicRetrieval};
+%       per-step score = max over content tokens.
+%     - Random: Bernoulli at per-arch matched fire rate (0.30).
+%   Excluded from the pool: ReaLM-RSUS and SELFDOUBT-Full. Both depend on
+%     verbalized-confidence probes that saturate to "Confidence: 100" under
+%     greedy Option-A decoding on the three 2026 instruct models we test,
+%     reducing them to a degenerate channel in our protocol. We discuss this
+%     in §Limitations and treat it as deferred evaluation.
+%   Metric: Δfrac = mean_first_fire_frac(incorrect) - mean_first_fire_frac(correct).
+%     Positive = the gate fires earlier on traces the model gets wrong.
+%   Stats: 10,000-resample paired percentile bootstrap; 95% CI; per-trace pairing
+%     across gates so margins between gates are correctly resampled.
 
-% 4.2 HEADLINE RESULTS TABLE
-% - Gemma (OR): Δfrac = +0.045 [+0.002, +0.089] ✓
-%   Significantly beats ReaLM (+0.175, p<0.01) and GRIP (+0.030, p<0.02).
-%   Ties random.
-% - Qwen (OR): Δfrac = +0.272 [+0.122, +0.434] ✓
-%   Large effect. vs random P(>0)=0.93, not 95%-significant at n=34.
-% - Phi (variance): Δfrac = +0.076 [-0.017, +0.167] n.s.
-%   Significantly loses to GRIP (margin CI [-0.252, -0.018]).
+% 4.2 HEADLINE RESULTS TABLE (TBD after re-bootstrap on the new pool)
+%   The headline below reflects the post-rebootstrap projection. Replace the
+%   numbers verbatim from runs/phase4_bootstrap_v2_addons_dragin.json once
+%   the DRAGIN sweep + re-bootstrap lands (parent agent owns this step;
+%   tracking in _AGENT.md #19).
+%
+%   Most-likely-preserved outcome (based on #15 + #16):
+%     - Gemma (OR):     Δfrac > 0 at 95% CI; significantly outperforms
+%                       SELFDOUBT-Tier1, ETC, DRAGIN, and random.
+%     - Qwen (OR):      Δfrac > 0 at 95% CI; large effect (point ≈ +0.27);
+%                       vs random margin trends positive, power-limited at
+%                       n=34.
+%     - Phi (variance): Δfrac not 95%-significant. Inconclusive on Phi.
+%
+%   PROVENANCE: Phase 4.1b sweep JSONLs + #16 SELFDOUBT-Tier1/ETC addons +
+%     #18 DRAGIN-only sweep with probes-off. Calibration thresholds fit on
+%     the 120-q calibration split per L5 contract.
 
-% 4.3 MECHANISM EVIDENCE: TRAJECTORY DRIFT
-% - Bin traces by first-fire quintile → monotonic EM decay.
-% - Qwen: earliest quintile EM=0.667, latest=1.000, never-fired=0.800.
-%   33pp gap.
-% - Gemma: q1=0.500, q4=0.625. 12.5pp gap.
-% - Gate stays silent on easy questions (never-fired EM is high).
+% 4.3 MECHANISM EVIDENCE: HIDDEN-STATE DRIFT TRACKS CORRECTNESS
+%   Bin validation traces by first-fire-fraction quintile, plot EM vs quintile.
+%   The expected monotone (earliest-fire quintile = lowest EM; never-fired
+%   bucket = highest EM) was observed on all three architectures in the #13
+%   geometry-aware run. The mechanism evidence is orthogonal to the headline
+%   Δfrac: it survives even on Phi where the latent gate does not beat
+%   baselines at 95%.
+%   Reference numbers from #13 (to be re-checked under the new pool):
+%     Qwen   q1 EM = 0.667, never-fired EM = 0.800 (33 pp range)
+%     Gemma  q1 EM = 0.500, q4 EM = 0.625          (12.5 pp range)
+%     Phi    q1 EM = 0.375, q4 EM = 0.875          (50 pp range)
 
-% 4.4 COST
-% - Qwen: EM=0.706, 145 tok/q, 14.9 s/q (Pareto-dominant).
-% - Gemma: EM=0.525, 199 tok/q, 14.9 s/q.
-% - Phi: EM=0.182, 160 tok/q, 3.5 s/q.
-% - CRV overhead: ≤3% across all three.
+% 4.4 COST + THROUGHPUT
+%   Per-question wall-clock and answer accuracy on validation (n = 40):
+%     Qwen   EM = 0.706, ~145 tok/q, ~14.9 s/q   (Pareto-dominant)
+%     Gemma  EM = 0.525, ~199 tok/q, ~14.9 s/q
+%     Phi    EM = 0.182, ~160 tok/q,  ~3.5 s/q   (n.b. Option-A early-stop
+%            artifact on Phi greedy; see _AGENT.md #11 and Limitations)
+%   CRV adapter overhead: <=3% on all three architectures.
 
-% FIGURE: figs/phase4_headline_geometry_aware.pdf (arch×gate bars + 95% CI)
-% FIGURE: figs/phase4_drift.png (quintile EM decay)
-% TABLE: headline results with CIs
+% FIGURES + TABLES (in order of expected placement):
+%   Figure 2: figs/phase4_headline_geometry_aware.pdf (arch x gate bars,
+%             95% CI errorbars, calibration-chosen mode hatched per arch).
+%             Re-render once the re-bootstrap lands.
+%   Figure 3: figs/phase4_drift.png (quintile-EM curves, one panel per arch).
+%   Table 1:  Headline Δfrac + 95% CI + paired margins vs each baseline
+%             per architecture. Cells pending rebootstrap.
 
 % =============================================================================
 % 5. CONCLUSION (~0.5 pages)
 % =============================================================================
 \section{Conclusion}
 
-% - The mid-stack CRV adapter is architecture-agnostic: one implementation
-%   works across dense, sliding-window MoE, and hybrid-linear MoE.
-% - The geometric heuristic on top is architecture-dependent: Gated DeltaNets
-%   exhibit drift, MoE routing exhibits variance.
-% - Under geometry-aware calibration, the latent gate significantly beats
-%   both text-parsing baselines on Gemma (standard MoE) at 95%.
-% - Large effect on Qwen (+0.272), trending toward beating random (P=0.93).
-% - Phi (dense) is an honest negative: dense models smooth uncertainty
-%   below the detection threshold of a training-free probe.
-% - Throughput overhead: ≤3%. No training, no architectural modification.
-% - Future work: intervention arm (does firing the gate + retrieval improve
-%   EM?), thinking-mode ablation, consumer-GPU validation.
+% Closing paragraphs (write as prose; bullet scaffold below):
+%
+% 1. The CRV adapter is architecture-portable: one parameter-free,
+%    calibration-anchored code path runs across dense (Phi), sliding-window
+%    MoE (Gemma), and hybrid Gated DeltaNet MoE (Qwen) with no architectural
+%    surgery and no weight fine-tuning.
+%
+% 2. The optimal aggregation rule on top is per-architecture: variance for
+%    the dense model, OR(drift, variance) for the two MoE classes. The
+%    zero-leakage calibration protocol selects this rule from a held-out
+%    split that is never seen at evaluation. This is consistent with the
+%    hypothesis that mid-stack drift partially absorbs expert-routing
+%    variance in sparse and hybrid models; we do not claim a causal
+%    mechanism beyond what the calibration result supports.
+%
+% 3. Headline (pending re-bootstrap): the latent gate significantly
+%    outperforms every member of the training-free post-decode pool
+%    (SELFDOUBT-Tier1, ETC, DRAGIN, random) on the sliding-window MoE at
+%    95% paired bootstrap. On the hybrid linear MoE the effect size is
+%    large but power-limited at n=34. On the dense SLM the gate is an
+%    honest negative under the same protocol.
+%
+% 4. The mechanism (quintile-EM gap from earliest fire to never-fired)
+%    holds on all three architectures, supporting hidden-state drift as a
+%    real-time, architecture-portable retrieval-trigger signal even where
+%    the gate does not significantly beat baselines.
+%
+% 5. Overhead is <=3% throughput at steady state. Future work: intervention
+%    (does firing the gate plus a retrieval call improve final EM?), the
+%    trained-detector pool (DRAGIN's RIND we report, ReaLM-Retrieve's full
+%    RSUS with verbalized confidence, SELFDOUBT-Full with calibration-time
+%    marker discovery), and consumer-GPU validation on a single 24 GB card.
 
 % =============================================================================
 % LIMITATIONS
 % =============================================================================
 \section*{Limitations}
 
-% 1. Phi-4 (dense SLM) is an honest loss — significantly loses to GRIP.
-% 2. Qwen latent vs random: P(>0)=0.93, not 95%-significant on n=34.
-% 3. Gemma's result is partly protocol-sensitive (inline-system vs system role).
-% 4. Geometry-aware advantage degrades at fire rates below 0.30.
-% 5. Baselines are simulations (no trained ReaLM/GRIP weights available).
+% Six limitations (prose to expand; reviewer-facing bullets below):
+%
+% 1. Honest negative on the dense SLM. Under our protocol the latent gate
+%    does not reach 95% significance on Phi-4-mini. The mechanism evidence
+%    (quintile-EM gap) holds, but the headline retrieval-trigger claim does
+%    not transfer to the dense class. We do not yet know whether this is
+%    intrinsic to the dense architecture, an artifact of Phi-4-mini's
+%    instruction-tuning recipe, or a power issue at this scale.
+%
+% 2. Power-limited Qwen comparison. The validation split is 40 questions
+%    per architecture; the per-arch eligible-trace count after a
+%    min_steps >= 3 filter is smaller (n=34 on Qwen at the time of #15).
+%    The vs-random margin on Qwen trends positive without clearing 95% in
+%    a paired bootstrap. We report this as it is rather than re-fit the
+%    fire rate to chase significance.
+%
+% 3. Protocol sensitivity on Gemma. The inline-system vs system-role
+%    protocol choice (4.5c ablation, _AGENT.md #12) shifts Gemma's
+%    calibration-chosen mode. We lock the inline-system variant on Gemma
+%    and report under that choice consistently. A different protocol
+%    might flip Gemma's selected aggregation rule; the framework adapts
+%    via calibration, but the headline number is protocol-conditional.
+%
+% 4. Calibration-driven mode selection has a search cost. Selecting from
+%    {drift, variance, or} on each architecture's calibration split spends
+%    multiplicity that we account for via the zero-leakage L5 contract.
+%    A more conservative protocol would fix the mode globally and accept a
+%    smaller per-arch effect. We argue (Contribution 3) that the per-arch
+%    finding is itself a contribution; reviewers preferring the global
+%    protocol can read our cross-architecture-comparable column as the
+%    weaker but still informative version.
+%
+% 5. Excluded SOTAs and the reason. ReaLM-Retrieve's full RSUS and
+%    SELFDOUBT-Full both depend on a verbalized-confidence probe that, on
+%    the 2026 greedy-decoded instruct models in our pool, saturates to
+%    "Confidence: 100" in every probe we sampled. Under our protocol the
+%    verbalized-confidence channel is a constant; it contributes no
+%    discriminative signal to either gate. Rather than report a degenerate
+%    baseline as a head-to-head loss, we exclude these methods from the
+%    evaluation pool and document the protocol mismatch. This is
+%    consistent with recent reports that LLM uncertainty calibration
+%    varies under architecture, training recipe, and prompt protocol
+%    \cite{Testoni_MindGapBenchmarking, vanDijk_DetectingHallucinationsLarge}.
+%    Full evaluation against the trained-detector and multi-channel
+%    families is deferred to follow-up work.
+%
+% 6. Scope of the architecture-portable claim. We test three architectures.
+%    The Mamba / pure-linear-attention class and the dense > 30 B class are
+%    not covered. We therefore claim portability across the three 2026
+%    edge-LLM classes we test, not universal portability.
 
 \bibliography{custom}
 

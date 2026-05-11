@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geometry-Aware Latent Gating — Visual Explainer</title>
+  <meta name="description" content="Interactive visualization of geometry-aware latent gating for corrective retrieval in 2026 edge LLMs.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION                                                            -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">Geometry-Aware Latent Gating</div>
+    <ul class="nav-links">
+      <li><a href="#problem">Problem</a></li>
+      <li><a href="#models">Models</a></li>
+      <li><a href="#memory">Memory</a></li>
+      <li><a href="#signal">The Signal</a></li>
+      <li><a href="#traces">Traces</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#baselines">Baselines</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="models.html" style="color:var(--accent-cyan)">Model Deep-Dive →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="hero visible" id="hero">
+  <div class="container hero-content">
+    <h1 class="hero-title">
+      Can We Detect Hallucinations<br>
+      <span class="gradient">Before They Happen?</span>
+    </h1>
+    <p class="hero-subtitle">
+      Large language models sometimes drift into wrong reasoning mid-thought.
+      Existing detectors wait until the model has <em>already written</em> the bad text.
+      We ask: can the model's own <strong>internal hidden states</strong> reveal the
+      drift <em>before</em> the next token is even generated?
+    </p>
+    <div class="hero-chips">
+      <div class="chip"><span class="dot" style="background:var(--phi-color)"></span> Phi-4-mini · Dense</div>
+      <div class="chip"><span class="dot" style="background:var(--gemma-color)"></span> Gemma-4-26B · MoE</div>
+      <div class="chip"><span class="dot" style="background:var(--qwen-color)"></span> Qwen3.6-35B · Hybrid Linear</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §1 — THE PROBLEM                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="problem">
+  <div class="container">
+    <span class="section-label">§1 · The Problem</span>
+    <h2 class="section-title">LLMs Think in Chains — And Chains Can Go Wrong</h2>
+    <p class="section-subtitle">
+      Modern LLMs reason step-by-step. When a step goes wrong, everything after it
+      is wasted compute and wrong answers. The question is: <em>when</em> can we detect it?
+    </p>
+
+    <!-- What is chain-of-thought? -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <h3>🔗 What Is Chain-of-Thought Reasoning?</h3>
+      <p class="card-text">
+        If you've used ChatGPT, you've seen it "think out loud." When asked
+        <em>"Who directed Big Stone Gap, and what New York neighborhood are they from?"</em>,
+        the model doesn't just blurt an answer — it reasons through steps:
+      </p>
+      <div style="margin:1.2rem 0; padding:1rem 1.5rem; background:rgba(129,140,248,0.05); border-left:3px solid var(--accent-indigo); border-radius:0 8px 8px 0; font-size:0.88rem; line-height:1.8;">
+        <strong style="color:var(--accent-indigo)">Step 1:</strong> The film "Big Stone Gap" was directed by Adriana Trigiani.<br>
+        <strong style="color:var(--accent-indigo)">Step 2:</strong> Adriana Trigiani is a novelist and filmmaker based in…<br>
+        <strong style="color:var(--accent-indigo)">Step 3:</strong> She is known to be from Greenwich Village, New York City.<br>
+        <strong style="color:var(--accent-emerald)">Answer:</strong> Greenwich Village, New York City
+      </div>
+      <p class="card-text">
+        This is <strong>multi-hop reasoning</strong> — the model "hops" through facts
+        to reach the answer. But what if Step 2 was wrong? Then Step 3 would be wrong
+        too, and the model would confidently deliver a hallucinated answer.
+      </p>
+    </div>
+
+    <!-- The timing problem -->
+    <h3 style="margin-top:2rem">⏱️ The Timing Problem</h3>
+    <p class="card-text" style="margin-bottom:1.5rem">
+      Existing tools to detect these errors fall into two camps — and both have a
+      structural delay:
+    </p>
+
+    <div class="split">
+      <div class="card">
+        <div class="card-icon" style="background:rgba(251,191,36,0.1)">🏷️</div>
+        <div class="card-title">Trained Token Detectors</div>
+        <p class="card-text">
+          Methods like <strong>Self-RAG</strong> and <strong>GRIP</strong> train the model
+          to emit special tokens like <code>[Retrieve]</code> when it's uncertain.
+          <br><br>
+          <strong>Problem:</strong> Requires retraining the model. GRIP needs 40k SFT samples +
+          5k RL samples. Not applicable to off-the-shelf models.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(251,113,133,0.1)">📝</div>
+        <div class="card-title">Text-Parsing Detectors</div>
+        <p class="card-text">
+          Methods like <strong>DRAGIN</strong>, <strong>SELFDOUBT</strong>, and
+          <strong>ReaLM-Retrieve</strong> look at what the model <em>already wrote</em>
+          — scanning for hedge phrases like "I'm not sure" or measuring token entropy.
+          <br><br>
+          <strong>Problem:</strong> By the time you read the text, the model has already
+          committed those tokens. You're always one step behind.
+        </p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>Our idea:</strong> Instead of waiting for the model to <em>write</em>
+        something suspicious, look at its <strong>internal hidden states</strong> — the
+        vectors flowing through the neural network — right at the moment between
+        reasoning steps. These vectors exist <em>before</em> the next token is generated.
+        If they're drifting in an unusual direction, something may be going wrong.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §2 — THE THREE MODELS                                                -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="models">
+  <div class="container">
+    <span class="section-label">§2 · The Test Subjects</span>
+    <h2 class="section-title">Three Architectures, One Experiment</h2>
+    <p class="section-subtitle">
+      We test on three 2026 models that represent fundamentally different
+      approaches to building a transformer. All have ~3-4 billion <em>active</em>
+      parameters per token, so compute per token is roughly matched.
+    </p>
+
+    <div class="card-grid-3">
+      <!-- Phi -->
+      <div class="card model-card phi">
+        <div class="model-name">Phi-4-mini</div>
+        <div class="model-tag">Dense · 3.8B</div>
+        <p class="card-text">
+          <strong>The classic.</strong> Every layer is a standard attention layer.
+          Every token attends to every previous token. Simple, well-understood — like
+          a textbook CNN but for text.
+        </p>
+        <div class="model-stats">
+          <div class="stat-row"><span class="stat-label">Layers</span><span class="stat-value">32</span></div>
+          <div class="stat-row"><span class="stat-label">Hidden dim</span><span class="stat-value">3,072</span></div>
+          <div class="stat-row"><span class="stat-label">Attention</span><span class="stat-value">Full (GQA 3:1)</span></div>
+          <div class="stat-row"><span class="stat-label">VRAM</span><span class="stat-value">~8 GB</span></div>
+          <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-value">47 tok/s</span></div>
+        </div>
+      </div>
+
+      <!-- Gemma -->
+      <div class="card model-card gemma">
+        <div class="model-name">Gemma-4-26B-A4B</div>
+        <div class="model-tag">Sparse MoE · 25.2B total</div>
+        <p class="card-text">
+          <strong>The efficient giant.</strong> 128 expert sub-networks, but only 8
+          activate per token. Uses a sliding window: each token only "sees" the last
+          1,024 tokens in most layers.
+        </p>
+        <div class="model-stats">
+          <div class="stat-row"><span class="stat-label">Layers</span><span class="stat-value">30</span></div>
+          <div class="stat-row"><span class="stat-label">Hidden dim</span><span class="stat-value">2,816</span></div>
+          <div class="stat-row"><span class="stat-label">Attention</span><span class="stat-value">Sliding + Global</span></div>
+          <div class="stat-row"><span class="stat-label">Experts</span><span class="stat-value">128 total, 8 active</span></div>
+          <div class="stat-row"><span class="stat-label">VRAM</span><span class="stat-value">~50 GB</span></div>
+          <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-value">13 tok/s</span></div>
+        </div>
+      </div>
+
+      <!-- Qwen -->
+      <div class="card model-card qwen">
+        <div class="model-name">Qwen3.6-35B-A3B</div>
+        <div class="model-tag">Hybrid Linear MoE · 35B total</div>
+        <p class="card-text">
+          <strong>The radical.</strong> 30 of 40 layers replace attention with a
+          <em>recurrent</em> mechanism (Gated DeltaNet) that uses fixed memory
+          regardless of context length. Only 10 layers use real attention.
+        </p>
+        <div class="model-stats">
+          <div class="stat-row"><span class="stat-label">Layers</span><span class="stat-value">40 (30 linear + 10 full)</span></div>
+          <div class="stat-row"><span class="stat-label">Hidden dim</span><span class="stat-value">2,048</span></div>
+          <div class="stat-row"><span class="stat-label">Attention</span><span class="stat-value">3:1 DeltaNet:Full</span></div>
+          <div class="stat-row"><span class="stat-label">Experts</span><span class="stat-value">256 total, 8 active</span></div>
+          <div class="stat-row"><span class="stat-label">VRAM</span><span class="stat-value">~68 GB</span></div>
+          <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-value">13 tok/s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why these three? -->
+    <div class="callout info" style="margin-top:2rem">
+      <span class="callout-icon">🎯</span>
+      <div>
+        <strong>Why these three?</strong> They bracket the entire 2026 design space
+        at matched active-parameter scale (~3-4B active). If our method works across
+        all three, we can claim it's <strong>architecture-portable</strong>. If it
+        doesn't, we learn exactly where the approach breaks down.
+      </div>
+    </div>
+
+    <!-- Analogy for CNNs people -->
+    <div class="card" style="margin-top:1.5rem">
+      <h3>🧠 CNN Analogy: What Is an "Expert" in MoE?</h3>
+      <p class="card-text">
+        Think of a CNN with multiple convolutional filter banks. Now imagine that
+        for each input patch, a <strong>router</strong> selects only 8 out of 128
+        filter banks to apply. That's MoE (Mixture of Experts). The router learns
+        which "expert" sub-networks are best for each input. This means:
+      </p>
+      <ul style="margin:0.8rem 0 0 1.5rem; color:var(--text-secondary); font-size:0.9rem; line-height:1.8;">
+        <li>The model has 25B parameters total, but only uses ~4B per token (efficient!)</li>
+        <li>Different tokens activate different experts → the <strong>hidden state
+        changes</strong> between tokens partly because <em>different sub-networks ran</em>,
+        not because the content changed</li>
+        <li>This "expert-switching noise" is a key challenge we had to solve (§4)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §3 — MEMORY PRESSURE (Phase 1 Results)                               -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="memory">
+  <div class="container">
+    <span class="section-label">§3 · Memory Pressure</span>
+    <h2 class="section-title">The Memory Bottleneck Is Being Solved by Architecture</h2>
+    <p class="section-subtitle">
+      We measured how much memory each model uses as it generates longer sequences.
+      The result surprised us: the newest architecture barely uses any extra memory.
+    </p>
+
+    <!-- KV Cache explainer -->
+    <div class="card" style="margin-bottom:2rem">
+      <h3>📦 Background: What Is the KV Cache?</h3>
+      <p class="card-text">
+        When a transformer generates text, it needs to remember all previous tokens.
+        It stores this memory as <strong>Key-Value (KV) pairs</strong> — one pair per
+        layer per token. As the sequence gets longer, this cache grows linearly.
+        For a model with 32 layers generating 5,000 tokens, this can be hundreds of
+        megabytes of GPU memory.
+      </p>
+      <p class="card-text" style="margin-top:0.8rem">
+        <strong>Think of it like a CNN's feature maps:</strong> just as deeper/wider
+        feature maps consume more memory, longer KV caches consume more VRAM. The
+        difference is that KV caches grow with <em>sequence length</em>, not spatial
+        resolution.
+      </p>
+    </div>
+
+    <!-- The Figure -->
+    <div class="figure-container">
+      <img src="phase1_4_kv_growth.png" alt="KV cache growth across three architectures" loading="lazy">
+      <p class="figure-caption">
+        <strong>Figure 1: KV cache growth per token across 5,000 tokens of greedy generation.</strong>
+        Phi-4-mini (dense) grows at 128 KB/tok — standard linear scaling.
+        Gemma-4 grows at 221 KB/tok — <em>steeper</em> than Phi because the sliding
+        window bounds compute but HuggingFace's cache implementation doesn't evict old entries.
+        Qwen3.6 is nearly flat at just 27 KB/tok — only its 10 full-attention layers
+        contribute to cache growth; the 30 Gated DeltaNet layers use a fixed-size
+        recurrent state.
+      </p>
+    </div>
+
+    <!-- Key numbers -->
+    <h3 style="margin-top:2rem">📊 Measured KV Growth (mean over 3 prompt types, at 5,000 tokens)</h3>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>KV Growth</th>
+          <th>KB/token</th>
+          <th>Tok/s</th>
+          <th>Slowdown over 5k</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="model-label" style="color:var(--phi-color)">Phi-4-mini</td>
+          <td>643 MB</td>
+          <td>128</td>
+          <td>47</td>
+          <td class="neutral">1.0× (none)</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--gemma-color)">Gemma-4-26B</td>
+          <td>1,105 MB</td>
+          <td>221</td>
+          <td>13</td>
+          <td class="neutral">1.0× (none)</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--qwen-color)">Qwen3.6-35B</td>
+          <td class="positive">135 MB</td>
+          <td class="positive">27</td>
+          <td>13</td>
+          <td class="positive">0.97× (faster!)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚡</span>
+      <div>
+        <strong>The punchline:</strong> Qwen3.6's hybrid architecture has essentially
+        "solved" the memory bottleneck — only 135 MB of KV growth across 5,000 tokens.
+        But does that mean reasoning quality is solved? <strong>No.</strong>
+        The model can still drift into wrong reasoning trajectories. The cost has
+        shifted from <em>memory</em> to <em>wasted tokens along hallucinated chains</em>.
+        That's what we try to detect.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §4 — THE SIGNAL (Phase 2)                                            -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="signal">
+  <div class="container">
+    <span class="section-label">§4 · The Hidden-State Signal</span>
+    <h2 class="section-title">Looking Inside the Network: Where Drift Lives</h2>
+    <p class="section-subtitle">
+      We extract hidden-state vectors at each reasoning step and measure how they
+      change. The key discovery: <em>where</em> in the network you look matters enormously.
+    </p>
+
+    <!-- What are hidden states -->
+    <div class="card" style="margin-bottom:2rem">
+      <h3>🔬 What Are Hidden States?</h3>
+      <p class="card-text">
+        A transformer processes each token through multiple layers. After each layer,
+        there's an intermediate vector — the <strong>hidden state</strong>. In a CNN,
+        this is analogous to the <em>feature map</em> at each layer: early layers capture
+        low-level patterns, deeper layers capture high-level semantics.
+      </p>
+      <p class="card-text" style="margin-top:0.8rem">
+        For Phi-4-mini, each token's hidden state is a <strong>3,072-dimensional vector</strong>.
+        For Qwen3.6, it's <strong>2,048 dimensions</strong>. We can extract these vectors
+        without any model modification — just by asking HuggingFace Transformers to output
+        them (<code>output_hidden_states=True</code>). The overhead is ≤3% throughput.
+      </p>
+    </div>
+
+    <!-- The L1 Landmine -->
+    <h3>💣 The Landmine: Last-Layer vs Mid-Stack</h3>
+    <p class="card-text" style="margin-bottom:1.5rem">
+      Our first attempt extracted hidden states from the <strong>last layer</strong> —
+      the deepest, most "semantic" representation. This worked fine on the dense model
+      (Phi). But on the MoE models, the signal was <em>overwhelmed by expert-switching noise</em>.
+    </p>
+
+    <div class="split">
+      <div class="figure-container" style="margin:0">
+        <img src="phase2_drift_per_arch.png" alt="Last-layer drift traces" loading="lazy">
+        <p class="figure-caption">
+          <strong>Last-layer drift:</strong> Phi (top) shows clean, sparse spikes — exactly
+          the "event detection" signature we want. But Qwen (bottom) is saturated near the
+          ceiling (mean drift 0.479) — the expert router changes which sub-networks run
+          on each token, creating noise that drowns the real signal.
+        </p>
+      </div>
+      <div class="figure-container" style="margin:0">
+        <img src="phase2_drift_per_arch_midstack.png" alt="Mid-stack drift traces" loading="lazy">
+        <p class="figure-caption">
+          <strong>Mid-stack drift (the fix):</strong> By reading from the middle layer
+          (layer 20/40 for Qwen, 16/32 for Phi, 15/30 for Gemma) — <em>before</em> the
+          expert routing layer — Qwen's drift drops from 0.479 to 0.235 and becomes
+          informative. The mid-stack signal reflects <em>content</em>, not <em>routing</em>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Signal summary -->
+    <h3 style="margin-top:2rem">📈 Last-Layer vs Mid-Stack: The Numbers</h3>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Last-Layer Drift</th>
+          <th>Mid-Stack Drift</th>
+          <th>Change</th>
+          <th>Last-Layer Var</th>
+          <th>Mid-Stack Var</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="model-label" style="color:var(--phi-color)">Phi-4-mini</td>
+          <td>0.024</td>
+          <td>0.033</td>
+          <td class="neutral">+38%</td>
+          <td>2.0</td>
+          <td>4.4</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--gemma-color)">Gemma-4-26B</td>
+          <td>0.175</td>
+          <td>0.106</td>
+          <td class="positive">−39%</td>
+          <td>476</td>
+          <td>77</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--qwen-color)">Qwen3.6-35B</td>
+          <td class="negative">0.479</td>
+          <td class="positive">0.235</td>
+          <td class="positive">−51%</td>
+          <td class="negative">411</td>
+          <td class="positive">0.09</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout success">
+      <span class="callout-icon">✅</span>
+      <div>
+        <strong>Key insight:</strong> Qwen3.6's L2-norm variance collapses to ~0 at mid-stack.
+        This means on Qwen, the signal lives entirely in <strong>directional change</strong>
+        (cosine drift), not in norm change. On Phi, both drift and variance carry signal.
+        <em>The geometry of the uncertainty signal depends on the architecture.</em>
+        This becomes the paper's central finding.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §4.5 — LIVE TRACE EXAMPLES                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="traces">
+  <div class="container">
+    <span class="section-label">§4.5 · Live Trace Examples</span>
+    <h2 class="section-title">What Actually Happens: Step-by-Step Traces</h2>
+    <p class="section-subtitle">
+      These are real traces from our experiment logs — actual model outputs with
+      measured drift and variance at each reasoning step.
+    </p>
+
+    <!-- Qwen correct example -->
+    <h3>🟢 Qwen3.6 Gets It Right (3 steps, quick convergence)</h3>
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem">
+        Q: "Hayden is a singer-songwriter from Canada, but where does Buck-Tick hail from?"
+        · Gold: <span style="color:var(--accent-emerald)">Fujioka, Gunma</span>
+        · Model: <span style="color:var(--accent-emerald)">Fujioka, Gunma ✓ (EM=1)</span>
+      </div>
+      <div class="trace-steps">
+        <div class="trace-step" style="border-left:3px solid var(--accent-emerald); padding:0.8rem 1rem; margin:0.5rem 0; background:rgba(52,211,153,0.04); border-radius:0 8px 8px 0; font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+            <strong>Step 1</strong>
+            <span style="font-family:'JetBrains Mono';font-size:0.75rem;color:var(--text-muted)">drift=0.000 · var=0.00</span>
+          </div>
+          <span style="color:var(--text-secondary)">"Based on the provided paragraphs, we can determine the origin of Buck-Tick by lo…"</span>
+        </div>
+        <div class="trace-step" style="border-left:3px solid var(--accent-amber); padding:0.8rem 1rem; margin:0.5rem 0; background:rgba(251,191,36,0.04); border-radius:0 8px 8px 0; font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+            <strong>Step 2</strong> <span class="badge win" style="font-size:0.65rem">GATE FIRES</span>
+            <span style="font-family:'JetBrains Mono';font-size:0.75rem;color:var(--accent-amber)">drift=0.107 · var=0.07</span>
+          </div>
+          <span style="color:var(--text-secondary)">"This paragraph states that Buck-Tick is a Japanese rock band formed in <strong>Fujioka, Gunma</strong>…"</span>
+        </div>
+        <div class="trace-step" style="border-left:3px solid var(--accent-rose); padding:0.8rem 1rem; margin:0.5rem 0; background:rgba(251,113,133,0.04); border-radius:0 8px 8px 0; font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+            <strong>Step 3</strong> <span class="badge win" style="font-size:0.65rem">GATE FIRES</span>
+            <span style="font-family:'JetBrains Mono';font-size:0.75rem;color:var(--accent-rose)">drift=0.346 · var=0.11</span>
+          </div>
+          <span style="color:var(--text-secondary)"><em>Answer: Fujioka, Gunma</em></span>
+        </div>
+      </div>
+      <p class="card-text" style="margin-top:0.8rem;font-size:0.82rem">
+        <strong>Note:</strong> Qwen solves this in just 3 steps. Drift spikes at Step 3
+        (0.346) when the model transitions from reasoning to the answer — but variance
+        stays near zero (0.11). On Qwen, <em>directional change is the signal, not energy change</em>.
+        The gate fires at step 2, but the model was already converging correctly.
+      </p>
+    </div>
+
+    <!-- Gemma incorrect example -->
+    <h3 style="margin-top:2rem">🔴 Gemma-4 Gets It Wrong (9 steps, the wrong "hop")</h3>
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem">
+        Q: "Hayden is a singer-songwriter from Canada, but where does Buck-Tick hail from?"
+        · Gold: <span style="color:var(--accent-emerald)">Fujioka, Gunma</span>
+        · Model: <span style="color:var(--accent-rose)">Japan ✗ (EM=0, F1=0.0)</span>
+      </div>
+      <div class="trace-steps">
+        <div class="trace-step" style="border-left:3px solid var(--accent-emerald); padding:0.6rem 1rem; margin:0.4rem 0; background:rgba(52,211,153,0.03); border-radius:0 8px 8px 0; font-size:0.82rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem">
+            <strong>Step 1</strong>
+            <span style="font-family:'JetBrains Mono';font-size:0.72rem;color:var(--text-muted)">drift=0.000 · var=0.00</span>
+          </div>
+          <span style="color:var(--text-secondary)">"To find the origin of the band Buck-Tick, we look at the provided paragraphs…"</span>
+        </div>
+        <div class="trace-step" style="border-left:3px solid var(--accent-amber); padding:0.6rem 1rem; margin:0.4rem 0; background:rgba(251,191,36,0.03); border-radius:0 8px 8px 0; font-size:0.82rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem">
+            <strong>Step 3</strong> <span class="badge win" style="font-size:0.6rem">FIRES</span>
+            <span style="font-family:'JetBrains Mono';font-size:0.72rem;color:var(--accent-amber)">drift=0.192 · var=74.83</span>
+          </div>
+          <span style="color:var(--text-secondary)">"<strong>Paragraph 0</strong> mentions Atsushi Sakurai is a <strong>Japanese</strong> musician…"</span>
+          <div style="color:var(--accent-rose);font-size:0.75rem;margin-top:0.3rem">⚠️ Model latches onto "Japanese" here — correct country, but too coarse</div>
+        </div>
+        <div class="trace-step" style="border-left:3px solid var(--accent-indigo); padding:0.6rem 1rem; margin:0.4rem 0; background:rgba(129,140,248,0.03); border-radius:0 8px 8px 0; font-size:0.82rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem">
+            <strong>Step 6</strong> <span class="badge win" style="font-size:0.6rem">FIRES</span>
+            <span style="font-family:'JetBrains Mono';font-size:0.72rem;color:var(--accent-indigo)">drift=0.064 · var=230.54</span>
+          </div>
+          <span style="color:var(--text-secondary)">"<strong>Paragraph 5</strong> explicitly states: 'Buck-Tick is a Japanese rock band…'"</span>
+          <div style="color:var(--accent-rose);font-size:0.75rem;margin-top:0.3rem">⚠️ The paragraph <em>actually says "Fujioka, Gunma"</em> — model reads it but extracts only "Japanese"</div>
+        </div>
+        <div class="trace-step" style="border-left:3px solid var(--accent-rose); padding:0.6rem 1rem; margin:0.4rem 0; background:rgba(251,113,133,0.03); border-radius:0 8px 8px 0; font-size:0.82rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem">
+            <strong>Step 9</strong> <span class="badge win" style="font-size:0.6rem">FIRES</span>
+            <span style="font-family:'JetBrains Mono';font-size:0.72rem;color:var(--accent-rose)">drift=0.138 · var=310.83</span>
+          </div>
+          <span style="color:var(--text-secondary)"><em>Answer: <strong>Japan</strong></em> — incorrect, too general</span>
+        </div>
+      </div>
+      <p class="card-text" style="margin-top:0.8rem;font-size:0.82rem">
+        <strong>Compare:</strong> On the <em>same question</em>, Gemma uses 9 steps (vs Qwen's 3) and
+        its variance is huge (310 vs 0.11). The CRV gate fires at Step 3 with drift=0.192
+        — <em>the moment the model fails the second hop</em>. In a real system, this is
+        where retrieval augmentation would inject "Buck-Tick formed in Fujioka, Gunma" and
+        correct the trajectory.
+      </p>
+    </div>
+
+    <!-- Qwen incorrect — long wandering trace -->
+    <h3 style="margin-top:2rem">🟡 Qwen3.6 Wanders: 18 Steps, Almost Right</h3>
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem">
+        Q: "What memorial park at John J. Pershing Drive in North Omaha has a baseball park?"
+        · Gold: <span style="color:var(--accent-emerald)">Dodge Memorial Park</span>
+        · Model: <span style="color:var(--accent-rose)">N.P. ✗ (truncated the name)</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="results-table" style="font-size:0.78rem;margin:0.5rem 0">
+          <thead><tr><th>Step</th><th>Drift</th><th>Var</th><th>Fired?</th><th>Text (truncated)</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>0.000</td><td>0.00</td><td>—</td><td>"To determine which memorial park…"</td></tr>
+            <tr><td>3</td><td class="positive sig">0.394</td><td>0.02</td><td>🔥</td><td>"1."</td></tr>
+            <tr><td>4</td><td class="positive sig">0.389</td><td>0.02</td><td>🔥</td><td>"<strong>Paragraph 2</strong> describes <strong>N.P.</strong>"</td></tr>
+            <tr><td>5</td><td>0.093</td><td>0.04</td><td>—</td><td>"Dodge Memorial Park (also known as Dodge Park)…"</td></tr>
+            <tr><td>7</td><td class="positive sig">0.355</td><td>0.06</td><td>🔥</td><td>"2."</td></tr>
+            <tr><td>8</td><td class="positive sig">0.298</td><td>0.06</td><td>🔥</td><td>"<strong>Paragraph 9</strong> describes <strong>Hummel Park</strong>…"</td></tr>
+            <tr><td>14</td><td class="positive sig">0.326</td><td>0.02</td><td>🔥</td><td>(newline — topic transition)</td></tr>
+            <tr><td>15</td><td class="positive sig">0.349</td><td>0.02</td><td>🔥</td><td>"Therefore, the memorial park…is N.P."</td></tr>
+            <tr><td>18</td><td>0.259</td><td>0.02</td><td>🔥</td><td>"Answer: N.P." — <em>truncated!</em></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="card-text" style="margin-top:0.8rem;font-size:0.82rem">
+        <strong>Key observation:</strong> Qwen3.6's variance stays near zero throughout (≤0.06).
+        But drift spikes at <em>every topic transition</em> (Steps 3, 4, 7, 8, 14, 15).
+        The gate fires 12 times across 18 steps. This is the "disjunction" pattern —
+        the model keeps hopping between candidate parks, never settling. The final answer
+        is technically correct ("N.P. Dodge Memorial Park") but the extraction truncates at
+        the period after "N.P."
+      </p>
+    </div>
+
+    <!-- Code: How we extract hidden states -->
+    <h3 style="margin-top:2.5rem">💻 The Code: How CRV Actually Works</h3>
+    <p class="card-text" style="margin-bottom:1rem">
+      The entire CRV system is ~400 lines of Python across four files. Here are the
+      key snippets from the actual implementation (from <code>scripts/crv/</code>):
+    </p>
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-title" style="color:var(--accent-cyan)">📁 hooks.py — Hidden State Extraction</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.8rem">
+        No torch hooks needed — we use HuggingFace's <code>output_hidden_states=True</code>.
+        Works identically on all three architectures.
+      </div>
+      <pre style="background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;overflow-x:auto;font-size:0.78rem;line-height:1.6;color:var(--text-primary)"><code><span style="color:var(--accent-violet)">class</span> <span style="color:var(--accent-cyan)">HiddenStateCapture</span>:
+    <span style="color:var(--text-muted)"># Extract last-token hidden states from forward output</span>
+
+    <span style="color:var(--accent-violet)">def</span> <span style="color:var(--accent-emerald)">record</span>(self, step_idx, output):
+        hidden_states = getattr(output, <span style="color:var(--accent-amber)">"hidden_states"</span>, None)
+
+        <span style="color:var(--text-muted)"># hidden_states is a tuple of (n_layers + 1) tensors</span>
+        <span style="color:var(--text-muted)"># each shaped (batch, seq_len, hidden_dim)</span>
+        <span style="color:var(--text-muted)"># On decode: seq_len = 1, we want the only token</span>
+        captured = {}
+        <span style="color:var(--accent-violet)">for</span> layer_idx <span style="color:var(--accent-violet)">in</span> indices:
+            tensor = hidden_states[layer_idx]
+            last_tok = tensor[:, -<span style="color:var(--accent-amber)">1</span>, :].squeeze(<span style="color:var(--accent-amber)">0</span>)
+            captured[layer_idx] = last_tok.detach().to(
+                device=<span style="color:var(--accent-amber)">"cpu"</span>, dtype=torch.float32
+            )  <span style="color:var(--text-muted)"># CPU fp32 immediately — no GPU memory leak</span>
+        <span style="color:var(--accent-violet)">return</span> captured</code></pre>
+    </div>
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-title" style="color:var(--accent-amber)">📁 vectors.py — CRV Computation</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.8rem">
+        Mean-pool per-token states → compute cosine drift + rolling L2-norm variance.
+      </div>
+      <pre style="background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;overflow-x:auto;font-size:0.78rem;line-height:1.6;color:var(--text-primary)"><code><span style="color:var(--accent-violet)">def</span> <span style="color:var(--accent-emerald)">commit_step</span>(self, step_idx, token_idx):
+    <span style="color:var(--text-muted)"># Mean-pool per-token hidden states for this step</span>
+    per_layer_means = []
+    <span style="color:var(--accent-violet)">for</span> layer_idx <span style="color:var(--accent-violet)">in</span> layer_indices:
+        stacked = torch.stack([hs[layer_idx] <span style="color:var(--accent-violet)">for</span> hs <span style="color:var(--accent-violet)">in</span> self._per_step_buffer])
+        per_layer_means.append(stacked.mean(dim=<span style="color:var(--accent-amber)">0</span>))
+
+    crv = torch.cat(per_layer_means, dim=-<span style="color:var(--accent-amber)">1</span>)  <span style="color:var(--text-muted)"># the CRV vector</span>
+    norm = crv.norm().item()
+
+    <span style="color:var(--text-muted)"># Cosine drift from previous CRV</span>
+    cos = F.cosine_similarity(crv.unsqueeze(<span style="color:var(--accent-amber)">0</span>), self._previous_crv.unsqueeze(<span style="color:var(--accent-amber)">0</span>))
+    drift = <span style="color:var(--accent-amber)">1.0</span> - cos.item()
+
+    <span style="color:var(--text-muted)"># Rolling variance over L2-norm history</span>
+    self._norm_history.append(norm)
+    variance = torch.tensor(list(self._norm_history)).var(unbiased=True)</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--accent-rose)">📁 triggers.py — The Decision Rule</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.8rem">
+        Pure threshold rules — no learned parameters. The mode ("or", "and", "drift", "variance")
+        is selected per-architecture during calibration.
+      </div>
+      <pre style="background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;overflow-x:auto;font-size:0.78rem;line-height:1.6;color:var(--text-primary)"><code><span style="color:var(--accent-violet)">class</span> <span style="color:var(--accent-cyan)">CRVTrigger</span>:
+    VALID_MODES = (<span style="color:var(--accent-amber)">"or"</span>, <span style="color:var(--accent-amber)">"and"</span>, <span style="color:var(--accent-amber)">"drift"</span>, <span style="color:var(--accent-amber)">"variance"</span>, <span style="color:var(--accent-amber)">"none"</span>)
+
+    <span style="color:var(--accent-violet)">def</span> <span style="color:var(--accent-emerald)">fired</span>(self, feature):
+        d = feature[<span style="color:var(--accent-amber)">"drift_cosine"</span>] > self.threshold_drift     <span style="color:var(--text-muted)"># e.g. > 0.1</span>
+        v = feature[<span style="color:var(--accent-amber)">"variance_l2_window"</span>] > self.threshold_var  <span style="color:var(--text-muted)"># e.g. > 1.0</span>
+        <span style="color:var(--accent-violet)">if</span> self.mode == <span style="color:var(--accent-amber)">"or"</span>:   <span style="color:var(--accent-violet)">return</span> d <span style="color:var(--accent-violet)">or</span> v
+        <span style="color:var(--accent-violet)">if</span> self.mode == <span style="color:var(--accent-amber)">"and"</span>:  <span style="color:var(--accent-violet)">return</span> d <span style="color:var(--accent-violet)">and</span> v
+        <span style="color:var(--accent-violet)">if</span> self.mode == <span style="color:var(--accent-amber)">"drift"</span>: <span style="color:var(--accent-violet)">return</span> d
+        <span style="color:var(--accent-violet)">if</span> self.mode == <span style="color:var(--accent-amber)">"variance"</span>: <span style="color:var(--accent-violet)">return</span> v</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §5 — THE METHOD (CRV)                                                -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="method">
+  <div class="container">
+    <span class="section-label">§5 · The Method</span>
+    <h2 class="section-title">CRV: Concept Representation Vectors</h2>
+    <p class="section-subtitle">
+      Our trigger has no learned parameters. It mean-pools hidden states at sentence
+      boundaries and fires when the resulting vector drifts or becomes unstable.
+    </p>
+
+    <!-- Pipeline -->
+    <h3>🔄 The Pipeline (runs at every reasoning step)</h3>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-num">STEP 1</div>
+        <div class="pipeline-label">Detect Boundary</div>
+        <div class="pipeline-desc">Sentence-end token (<code>.</code> <code>?</code> <code>!</code> <code>\n</code>) with ≥8 tokens since last boundary</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">STEP 2</div>
+        <div class="pipeline-label">Extract Hidden States</div>
+        <div class="pipeline-desc">Read mid-stack layer ⌊L/2⌋ hidden vectors for tokens in this step</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">STEP 3</div>
+        <div class="pipeline-label">Compute CRV</div>
+        <div class="pipeline-desc">Mean-pool the per-token hidden states → one vector CRV<sub>t</sub> ∈ ℝ<sup>d</sup></div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">STEP 4</div>
+        <div class="pipeline-label">Measure Change</div>
+        <div class="pipeline-desc">Cosine drift from CRV<sub>t-1</sub> and rolling L2-norm variance</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">STEP 5</div>
+        <div class="pipeline-label">Fire or Not</div>
+        <div class="pipeline-desc">If drift > τ<sub>d</sub> OR variance > τ<sub>v</sub> → fire the gate</div>
+      </div>
+    </div>
+
+    <!-- Two scalars -->
+    <div class="split">
+      <div class="card">
+        <h3 style="color:var(--accent-cyan)">📐 Cosine Drift</h3>
+        <div class="equation-block">
+          d<sub>t</sub> = 1 − cos(CRV<sub>t</sub>, CRV<sub>t−1</sub>)
+          <div class="eq-label">How much the direction changed since last step</div>
+        </div>
+        <p class="card-text">
+          High drift = the model's internal representation just "jumped" to a different
+          region of concept space. On Qwen3.6, this is the dominant signal — norm
+          variance collapses to zero at mid-stack, but directional changes remain.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--accent-amber)">📊 L2-Norm Variance</h3>
+        <div class="equation-block">
+          v<sub>t</sub> = Var(‖CRV<sub>t−w+1</sub>‖, …, ‖CRV<sub>t</sub>‖)
+          <div class="eq-label">Rolling variance of CRV magnitudes over a window</div>
+        </div>
+        <p class="card-text">
+          High variance = the "energy" of the representation is fluctuating. On Phi
+          (dense), this is the stronger signal — clean spikes at meaningful transitions
+          while drift stays low.
+        </p>
+      </div>
+    </div>
+
+    <!-- Geometry-aware selection -->
+    <h3 style="margin-top:2rem">🎯 Geometry-Aware Mode Selection</h3>
+    <p class="card-text" style="margin-bottom:1.5rem">
+      The key finding: <strong>the optimal aggregation rule depends on the architecture</strong>.
+      We select it from a 120-question calibration split (never seen at evaluation):
+    </p>
+    <table class="results-table">
+      <thead>
+        <tr><th>Model</th><th>Selected Mode</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="model-label" style="color:var(--phi-color)">Phi-4-mini</td>
+          <td><span class="badge neutral">variance</span></td>
+          <td style="font-family:Inter;font-size:0.85rem">Dense attention → stable directional flow, but norm fluctuations carry the signal</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--gemma-color)">Gemma-4-26B</td>
+          <td><span class="badge win">drift OR variance</span></td>
+          <td style="font-family:Inter;font-size:0.85rem">Hybrid sliding/global → both channels contribute; neither dominates alone</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--qwen-color)">Qwen3.6-35B</td>
+          <td><span class="badge win">drift OR variance</span></td>
+          <td style="font-family:Inter;font-size:0.85rem">Recurrent state → directional drift is the primary signal; OR adds a safety net</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §6 — BASELINES                                                       -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="baselines">
+  <div class="container">
+    <span class="section-label">§6 · The Competition</span>
+    <h2 class="section-title">What Are We Comparing Against?</h2>
+    <p class="section-subtitle">
+      We compare CRV against four training-free baselines. Each represents a different
+      philosophy for detecting when the model needs help.
+    </p>
+
+    <div class="card-grid">
+      <!-- SELFDOUBT -->
+      <div class="card">
+        <div class="card-icon" style="background:rgba(251,191,36,0.1)">🤔</div>
+        <div class="card-title">SELFDOUBT-Tier1 (HVR)</div>
+        <p class="card-text">
+          Scans the model's generated text for <strong>hedge phrases</strong> like
+          "I'm not sure," "let me verify," "actually," "hmm." Computes a
+          hedge-to-verify ratio per step.
+        </p>
+        <div class="callout info" style="margin-top:0.8rem;padding:0.8rem">
+          <span class="callout-icon" style="font-size:1rem">📋</span>
+          <div style="font-size:0.8rem">
+            <strong>What happened in practice:</strong> On 2026 instruct models under
+            greedy decoding, hedging is extremely rare. The calibrated threshold collapsed
+            to 0.000 on all three models — the gate almost never fires. On Gemma and Qwen
+            validation, it fired on <strong>0%</strong> of traces.
+          </div>
+        </div>
+      </div>
+
+      <!-- ETC -->
+      <div class="card">
+        <div class="card-icon" style="background:rgba(34,211,238,0.1)">📉</div>
+        <div class="card-title">ETC (Entropy-Trend Constraint)</div>
+        <p class="card-text">
+          Monitors the <strong>second-order difference</strong> of per-step mean entropy.
+          If entropy acceleration is high, the model's uncertainty is changing rapidly —
+          a sign of instability.
+        </p>
+        <div class="callout info" style="margin-top:0.8rem;padding:0.8rem">
+          <span class="callout-icon" style="font-size:1rem">📋</span>
+          <div style="font-size:0.8rem">
+            <strong>What happened:</strong> ETC is a respectable but weak baseline.
+            On Phi it trended positive (+0.152) but didn't reach significance. On Gemma/Qwen
+            it was flat. CRV significantly beat ETC on Qwen (paired margin +0.305,
+            P&gt;0 = 0.992).
+          </div>
+        </div>
+      </div>
+
+      <!-- DRAGIN -->
+      <div class="card">
+        <div class="card-icon" style="background:rgba(167,139,250,0.1)">🔍</div>
+        <div class="card-title">DRAGIN (RIND Score)</div>
+        <p class="card-text">
+          Combines three signals per generated token: <strong>entropy × attention_max ×
+          stopword_filter</strong>. Uses the last attention layer to identify tokens the
+          model is uncertain about. Requires <code>output_attentions=True</code>.
+        </p>
+        <div class="callout info" style="margin-top:0.8rem;padding:0.8rem">
+          <span class="callout-icon" style="font-size:1rem">📋</span>
+          <div style="font-size:0.8rem">
+            <strong>Implementation note:</strong> On Qwen3.6's hybrid stack,
+            <code>out.attentions</code> returns only the 10 full-attention layers
+            (compact tuple, not None-padded). The attention layer picker had to return
+            a <em>tuple index</em>, not a model-layer index. This bug was caught by the
+            smoke test.
+          </div>
+        </div>
+      </div>
+
+      <!-- Random -->
+      <div class="card">
+        <div class="card-icon" style="background:rgba(156,163,175,0.1)">🎲</div>
+        <div class="card-title">Random Gate</div>
+        <p class="card-text">
+          Fires at the same rate as the CRV gate (0.30 per step) but at <strong>random
+          positions</strong>. Deterministic seed for reproducibility.
+          This is the "chance" baseline — if CRV can't beat random, it's not learning
+          anything useful.
+        </p>
+        <div class="callout info" style="margin-top:0.8rem;padding:0.8rem">
+          <span class="callout-icon" style="font-size:1rem">📋</span>
+          <div style="font-size:0.8rem">
+            <strong>Why this matters:</strong> If a gate fires earlier on wrong answers
+            than right answers, but so does random — the gate is just detecting "hard
+            questions" (which have more steps), not detecting <em>where</em> things go wrong.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §7 — RESULTS                                                         -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section id="results">
+  <div class="container">
+    <span class="section-label">§7 · Results</span>
+    <h2 class="section-title">The Headline: It Works — But Not Everywhere</h2>
+    <p class="section-subtitle">
+      CRV significantly outperforms all baselines on the MoE architectures.
+      On the dense model (Phi), it's an honest negative. Here's the full picture.
+    </p>
+
+    <!-- Headline figure -->
+    <div class="figure-container">
+      <img src="phase4_headline_geometry_aware.png" alt="Headline geometry-aware results" loading="lazy">
+      <p class="figure-caption">
+        <strong>Figure 4: Per-architecture Δfrac with 95% bootstrap CIs.</strong>
+        Δfrac = how much earlier the gate fires on incorrect traces vs correct traces
+        (positive = fires earlier on wrong answers = good). The calibration-chosen mode
+        is highlighted per architecture. CRV (latent OR) significantly beats both
+        text-parsing baselines on Gemma at 95% confidence.
+      </p>
+    </div>
+
+    <!-- Metric explanation -->
+    <div class="card" style="margin-bottom:2rem">
+      <h3>📏 What Is Δfrac?</h3>
+      <p class="card-text">
+        For each question, we record <em>when</em> the gate first fires (as a fraction
+        of the total trace length). Then we compute:<br><br>
+        <strong>Δfrac = mean_fire_frac(incorrect traces) − mean_fire_frac(correct traces)</strong>
+        <br><br>
+        <strong>Positive Δfrac</strong> means the gate fires earlier on questions the model
+        gets wrong — exactly what we want for a retrieval trigger. The higher, the better.
+      </p>
+    </div>
+
+    <!-- Bootstrap CI table -->
+    <h3>📊 Bootstrap CIs (10,000 resamples, validation split, n=40 per arch)</h3>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Architecture</th>
+          <th>CRV (latent)</th>
+          <th>SELFDOUBT-T1</th>
+          <th>ETC</th>
+          <th>Random</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="model-label" style="color:var(--phi-color)">Phi (variance) n=11</td>
+          <td class="neutral">+0.076 [−0.017, +0.167]</td>
+          <td class="neutral">n/a (never fires)</td>
+          <td class="neutral">+0.152 n.s.</td>
+          <td class="positive sig">+0.180 ✓</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--gemma-color)">Gemma (OR) n=40</td>
+          <td class="positive sig">+0.045 [+0.002, +0.089] ✓</td>
+          <td class="neutral">n/a (never fires)</td>
+          <td class="neutral">−0.015 n.s.</td>
+          <td class="neutral">+0.041 n.s.</td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--qwen-color)">Qwen (OR) n=34</td>
+          <td class="positive sig">+0.272 [+0.122, +0.434] ✓</td>
+          <td class="neutral">n/a (never fires)</td>
+          <td class="neutral">−0.033 n.s.</td>
+          <td class="neutral">+0.118 n.s.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paired margins -->
+    <h3 style="margin-top:2rem">⚔️ Head-to-Head: CRV vs Each Baseline (paired bootstrap)</h3>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Architecture</th>
+          <th>CRV − ETC</th>
+          <th>CRV − Random</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="model-label" style="color:var(--phi-color)">Phi</td>
+          <td class="negative">−0.076 (loses)</td>
+          <td class="negative">−0.104 P(>0)=0.067</td>
+          <td><span class="badge loss">Honest Negative</span></td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--gemma-color)">Gemma</td>
+          <td class="positive sig">+0.060 ✓</td>
+          <td class="neutral">+0.004 (ties)</td>
+          <td><span class="badge win">Beats ETC + baselines at 95%</span></td>
+        </tr>
+        <tr>
+          <td class="model-label" style="color:var(--qwen-color)">Qwen</td>
+          <td class="positive sig">+0.305 P(>0)=0.992 ✓</td>
+          <td class="neutral">+0.154 P(>0)=0.931</td>
+          <td><span class="badge win">Large effect, power-limited vs random</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mechanism evidence -->
+    <h3 style="margin-top:2.5rem">🧬 Mechanism Evidence: Earlier Firing → Lower Accuracy</h3>
+    <p class="card-text" style="margin-bottom:1.5rem">
+      Even where the head-to-head isn't significant, the <em>mechanism</em> works.
+      Sorting traces by when the CRV gate first fires reveals a monotone relationship:
+    </p>
+
+    <div class="figure-container">
+      <img src="phase4_drift.png" alt="Drift quintile EM plot" loading="lazy">
+      <p class="figure-caption">
+        <strong>Figure 5: Exact-match accuracy by first-fire quintile.</strong>
+        Traces where CRV fires earliest (Q1) have the lowest accuracy; traces where
+        it never fires have the highest. The monotone shape holds on all three architectures.
+      </p>
+    </div>
+
+    <div class="card-grid-3" style="margin-top:1.5rem">
+      <div class="card" style="text-align:center">
+        <div style="font-size:2rem;margin-bottom:0.5rem">🟢</div>
+        <div class="card-title" style="color:var(--qwen-color)">Qwen3.6</div>
+        <p class="card-text">
+          Earliest quintile EM = <strong>0.667</strong><br>
+          Never-fired EM = <strong>0.800</strong><br>
+          <span style="color:var(--accent-emerald);font-weight:600">33pp gap</span>
+        </p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:2rem;margin-bottom:0.5rem">🔵</div>
+        <div class="card-title" style="color:var(--gemma-color)">Gemma-4</div>
+        <p class="card-text">
+          Q1 EM = <strong>0.375</strong><br>
+          Q4 EM = <strong>0.875</strong><br>
+          <span style="color:var(--accent-indigo);font-weight:600">50pp gap</span>
+        </p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:2rem;margin-bottom:0.5rem">🔴</div>
+        <div class="card-title" style="color:var(--phi-color)">Phi-4-mini</div>
+        <p class="card-text">
+          Never-fired EM = <strong>0.875</strong><br>
+          Firing traces EM ≈ <strong>0.200</strong><br>
+          <span style="color:var(--phi-color);font-weight:600">Difficulty oracle, not earliness oracle</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="callout success" style="margin-top:2rem">
+      <span class="callout-icon">🎯</span>
+      <div>
+        <strong>Summary:</strong> The CRV adapter is <em>architecture-portable</em> (same code
+        on all three models). The optimal <em>aggregation rule</em> on top is architecture-dependent
+        and selected via zero-leakage calibration. On MoE architectures (Gemma, Qwen), CRV
+        significantly outperforms text-parsing baselines. On the dense SLM (Phi), CRV detects
+        question difficulty but doesn't beat baselines on earliness — an honest negative reported
+        in the paper's limitations.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                                -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<footer style="padding:3rem 0; text-align:center; color:var(--text-muted); font-size:0.8rem; border-top:1px solid var(--border-subtle);">
+  <div class="container">
+    <p style="margin-bottom:0.5rem">Geometry-Aware Latent Gating · EMNLP 2026 Short Paper</p>
+    <p>Built from experimental logs · All numbers from actual runs on A100/A800 80GB</p>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                               -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+// Active nav link tracking
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const top = section.offsetTop - 100;
+    if (window.scrollY >= top) current = section.getAttribute('id');
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

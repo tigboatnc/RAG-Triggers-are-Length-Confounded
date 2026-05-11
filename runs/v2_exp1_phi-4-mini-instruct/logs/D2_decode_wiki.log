@@ -27,3 +27,7 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..]  70/500  em=32/70  steps=  1  tok=  96  wall=7.1s  elapsed=17.6min
 [..]  75/500  em=34/75  steps=  2  tok= 224  wall=16.2s  elapsed=18.7min
 [..]  80/500  em=38/80  steps=  1  tok=  80  wall=7.0s  elapsed=19.4min
+[..]  85/500  em=40/85  steps=  1  tok=  80  wall=7.1s  elapsed=20.3min
+[..]  90/500  em=40/90  steps=  2  tok=  80  wall=11.1s  elapsed=21.4min
+[..]  95/500  em=41/95  steps=  1  tok=  48  wall=6.0s  elapsed=22.4min
+[..] 100/500  em=46/100  steps=  0  tok=  48  wall=1.6s  elapsed=23.1min

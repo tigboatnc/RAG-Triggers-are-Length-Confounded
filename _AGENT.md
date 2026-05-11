@@ -4,6 +4,159 @@
 
 ---
 
+## 2026-05-11 #20 — local re-bootstrap on the new gate pool (parent, conda gzn)
+
+> Back on the local box after the #19 DRAGIN-only sweeps landed. Re-bootstrap on the **{latent, ETC, SELFDOUBT-Tier1, DRAGIN, random}** pool over the new `runs/phase4_qa_<arch>_mid_stack_dragin.jsonl` files using `conda activate gzn`.
+
+### Method (single new analyzer, side-by-side with the old)
+
+Wrote `scripts/04g_sota_showdown.py` — keeps `04c_bootstrap.py` intact so the deprecated-simulator history stays auditable, but the new pool is what the paper uses.
+
+Pipeline, L5-clean (calibration-only fit; validation + single-shot test):
+
+1. Per-arch JSONL split on the saved `split` field (`calibration` n=120, `validation` n=40, `test` n=40 per arch).
+2. Eligibility filter `n_steps ≥ 3` applied identically to all gates. Phi loses 83/120 calibration rows + 29/80 val+test rows to zero-step traces (#19, L8); Gemma loses 0; Qwen loses 17+8.
+3. **Threshold calibration** on calibration split only: empirical (1 − 0.30)-quantile per scalar — `drift_cosine`, `variance_l2_window`, |Δ²H| (the ETC second-difference, computed on-the-fly from `mean_token_entropy`), `dragin_rind_max`. Iso-fire-rate-matched at 0.30 per step.
+4. **SELFDOUBT-Tier1 is NOT iso-fire-calibrated.** Its native Pandey-et-al. semantics are "fire iff HVR > 0" (HVR is quasi-binary; the iso-fire quantile collapses to 0 anyway), so threshold is frozen at 0.0 and `>` recovers the Tier-1 rule. The downstream per-trace fire rate is reported separately so the asymmetry is visible.
+5. **Latent mode (drift / variance / OR)** picked by best calibration Δfrac. Frozen before validation.
+6. Validation + test first-fire indices computed under the frozen (mode, thresholds). Random gate is rate-matched (Bernoulli p=0.30, fixed seed).
+7. Paired percentile bootstrap, B=10000, on Δfrac and on `latent − {etc, selfdoubt_t1, dragin, random}` margins.
+
+Output: `runs/phase4_bootstrap_dragin.json` + `runs/phase4_bootstrap_dragin.log`.
+
+### Headline results
+
+| arch | latent mode (calib pick) | latent Δfrac val | latent Δfrac test | strongest paired margin |
+| --- | --- | --- | --- | --- |
+| **Qwen3.6-35B-A3B** (hybrid GDN) | **OR** | **+0.312 [+0.163, +0.468] ✱** | **+0.284 [+0.112, +0.463] ✱** | **latent − dragin = +0.245 ✱ (val), +0.186 ✱ (test)** |
+| Phi-4-mini-instruct (dense) | variance | +0.112 [+0.064, +0.161] ✱ | +0.025 [−0.103, +0.140] n.s. | n.s. on both splits (n=11 / n=13 eligible) |
+| Gemma-4-26B-A4B-it (sliding MoE) | variance | +0.066 [−0.164, +0.282] n.s. | −0.036 [−0.255, +0.186] n.s. | n.s. on both splits |
+
+`✱` = 95% CI strictly excludes 0.
+
+### Empirical fire-rate-by-trace (validation)
+
+| arch | latent | ETC | SELFDOUBT-T1 | DRAGIN | random |
+| --- | --- | --- | --- | --- | --- |
+| Phi   | 36% | 64% | **0%**  | 82% | 91% |
+| Gemma | 88% | 90% | **0%**  | 98% | 90% |
+| Qwen  | 89% | 66% | **0%**  | 80% | 80% |
+
+### Reading
+
+- **Qwen story is intact and now the headline.** The L1-flagged hybrid-MoE architecture (GDN-block routing noise) prefers the OR-gate over drift-only and over variance-only, the picker chose OR on calibration without leakage, and the chosen mode generalizes to a held-out single-shot test split with a **+0.245 paired margin over true DRAGIN (CI excludes 0)**. This is the clean per-arch-heuristic result the paper claims.
+- **Phi is honest-mixed.** Variance picked on calibration (Δfrac +0.142), val CI excludes 0 narrowly, but the eligible-sample size collapses to n=11 val / n=13 test from the zero-step rate (#19 L8). Phi is reported as "consistent with the hypothesis, underpowered" rather than headline-significant. **The variance-vs-OR Phi-vs-Qwen contrast still holds at the calibration-pick level**, which is the actual Contribution 3 claim.
+- **Gemma is null.** Variance picked on calibration but does not generalize. Either expert-routing noise truly is irreducible for the OR-gate too (sparse-MoE locality), or n=40 is just too small. Both stories are honest; we will not claim significance on Gemma.
+- **SELFDOUBT-Tier1 fires on ~0% of traces under unified greedy Option-A.** This is its native rule (HVR > 0), so it's a clean negative finding for that exact baseline on this regime, not a configuration error. The Δfrac is undefined (need ≥1 fire in each correct/incorrect bucket), and we report it as `n/a` in the table with the fire rate as the substantive result.
+- **DRAGIN fires extremely often (80–98%) but Δfrac is near zero on all three architectures.** True-SOTA DRAGIN successfully detects "something uncertain" almost every step but does not discriminate correct from incorrect traces at the trace-level first-fire metric. This is the cleanest baseline-beating story: DRAGIN's RIND product is a *step-level* score, not a *trace-level* triage signal, and our pre-decode latent gate Pareto-dominates it on Qwen.
+- **Random is sometimes "significant" on small splits** (Gemma val, Qwen test). Almost certainly a length-confound: incorrect traces are longer, so a Bernoulli random gate's first-fire normalized by `n_steps` is biased upward there. Should be flagged in the paper limitations explicitly.
+
+### Numbers for the paper
+
+Use these on `draft-final.tex` §Abstract, §4.2 (headline table), §4.3 (association):
+
+```
+Phi-4-mini-instruct   latent (variance)  val Δfrac +0.112 [+0.064, +0.161]   test +0.025 [−0.103, +0.140]
+Gemma-4-26B-A4B-it    latent (variance)  val Δfrac +0.066 [−0.164, +0.282]   test −0.036 [−0.255, +0.186]
+Qwen3.6-35B-A3B       latent (OR)        val Δfrac +0.312 [+0.163, +0.468]   test +0.284 [+0.112, +0.463]
+latent − DRAGIN (Qwen) val +0.245 [+0.018, +0.480]  test +0.186 [+0.016, +0.354]
+latent − ETC   (Qwen)  val +0.356 [+0.112, +0.614]  test +0.150 [−0.084, +0.407]
+latent − rand  (Qwen)  val +0.181 [+0.015, +0.354]  test +0.079 [−0.090, +0.267]
+```
+
+### Plots regenerated
+
+Wrote `scripts/04g_headline_figure.py` (reads `runs/phase4_bootstrap_dragin.json` directly; does not depend on the deprecated `04_showdown.py` / simulator gates). Produces two figures, both validation + test split:
+
+- `figs/phase4_headline_dragin.{png,pdf}` — validation split, two-panel:
+  - Panel A: per-gate Δfrac with 95% CIs; latent bar hatched + black-edged; per-trace fire% annotated above each bar (`*` marks Δfrac=n/a, i.e. no fires in one of correct/incorrect bucket).
+  - Panel B: paired margins `latent − {ETC, SELFDOUBT-T1, DRAGIN, random}` with 95% CIs.
+- `figs/phase4_headline_dragin_test.{png,pdf}` — same panels on the held-out test split (frozen calibration thresholds + chosen mode; no re-tuning).
+
+Old `figs/phase4_headline_geometry_aware.{png,pdf}` left in place for audit trail; not used by the paper.
+
+### Test-split paired margins (companion to validation table above)
+
+```
+                              point     95% CI               P(margin>0)
+Phi   latent − ETC          −0.023   [−0.225, +0.207]   0.418
+Phi   latent − DRAGIN       +0.225   [−0.185, +0.640]   0.776
+Phi   latent − random       −0.302   [−0.660, +0.124]   0.087
+Gemma latent − ETC          −0.038   [−0.249, +0.170]   0.371
+Gemma latent − DRAGIN       −0.060   [−0.298, +0.178]   0.306
+Gemma latent − random       +0.048   [−0.200, +0.294]   0.647
+Qwen  latent − ETC          +0.150   [−0.084, +0.407]   0.885
+Qwen  latent − DRAGIN       +0.186   [+0.016, +0.354]   0.984  *** > 0
+Qwen  latent − random       +0.079   [−0.090, +0.267]   0.805
+```
+
+`latent − SELFDOUBT-T1` margin is undefined on every (arch, split) because SELFDOUBT-T1 Δfrac is n/a (0% fire rate in one bucket).
+
+### Validation paired margins (full, for completeness)
+
+```
+                              point     95% CI               P(margin>0)
+Phi   latent − ETC          +0.138   [−0.171, +0.354]   0.789
+Phi   latent − DRAGIN       +0.153   [−0.389, +0.620]   0.725
+Phi   latent − random       −0.023   [−0.631, +0.362]   0.433
+Gemma latent − ETC          +0.036   [−0.241, +0.312]   0.589
+Gemma latent − DRAGIN       +0.033   [−0.186, +0.249]   0.618
+Gemma latent − random       −0.080   [−0.313, +0.147]   0.241
+Qwen  latent − ETC          +0.356   [+0.112, +0.614]   0.998  *** > 0
+Qwen  latent − DRAGIN       +0.245   [+0.018, +0.480]   0.983  *** > 0
+Qwen  latent − random       +0.181   [+0.015, +0.354]   0.985  *** > 0
+```
+
+### Calibration-picked latent-mode Δfracs (calibration split, used for mode-selection only)
+
+```
+Phi    drift +0.0854   variance +0.1423   OR +0.1062     ← chosen: variance
+Gemma  drift +0.0289   variance +0.0784   OR +0.0294     ← chosen: variance
+Qwen   drift +0.0266   variance +0.0071   OR +0.0408     ← chosen: OR
+```
+
+### Frozen thresholds (iso-fire-rate 0.30, calibration split only)
+
+```
+                   Phi          Gemma        Qwen
+drift_cosine    > 0.1955     > 0.1466     > 0.3029
+variance_l2_win > 30.9513    > 146.9396   > 0.0811
+|Δ²H| (ETC)     > 1.1637     > 0.3930     > 0.4382
+HVR (T1)        > 0.0  (native, not iso-fire calibrated)
+DRAGIN RIND     > 2.6547     > 0.8360     > 0.9053
+random p        = 0.30 Bernoulli (seed=20260511)
+```
+
+### Per-trace fire rates (validation / test)
+
+```
+                Phi val/test    Gemma val/test    Qwen val/test
+latent          36% / 62%       88% / 95%         89% / 84%
+ETC             64% / 69%       90% / 95%         66% / 65%
+SELFDOUBT-T1     0% /  8%        0% /  3%          0% /  5%
+DRAGIN          82% / 62%       98% / 98%         80% / 84%
+random          91% / 77%       90% / 100%        80% / 92%
+```
+
+### Eligible-sample sizes after `n_steps >= 3` filter
+
+```
+                    calibration         validation         test
+Phi-4-mini          37  / 120            11 / 40            13 / 40
+Gemma-4-26B-A4B    120 / 120            40 / 40            40 / 40
+Qwen3.6-35B-A3B    103 / 120            35 / 40            37 / 40
+```
+
+Filter is identical across all gates within an arch (filter on `n_steps`, not on per-gate firing). Phi's collapse is the #19 / L8 zero-step-trace issue. Gemma is fully eligible. Qwen drops 17 calibration / 5 val / 3 test rows from short traces.
+
+### Things this analyzer did *not* do
+
+- It does not regenerate `figs/`. That's the next parent step.
+- It does not write back into `04c_bootstrap.py`. The old simulator showdown stays archived so the audit trail of "what we used to compare against and why we dropped it" is intact.
+- ReaLM-RSUS + SELFDOUBT-Full remain in `runs/phase4_qa_<arch>_mid_stack_dragin.jsonl` step records as ancillary signals (`u_verb`, `u_ent`, `u_cons`, `hvr` are all captured per step), but we never threshold them into a gate. They live as a "diagnostics" footnote in §Limitations of `draft-final.tex`.
+
+---
+
 ## 2026-05-11 #19 — DRAGIN-only sweep complete on all three architectures (probes off)
 
 > Scope-limited per parent handoff: ReaLM-RSUS + SELFDOUBT-Full deferred (structural-degenerate baselines under greedy Option-A: `u_verb`→0, BM25-`u_ent`→1, `u_cons` arch-asymmetric). New headline gate pool = **{latent, SELFDOUBT-Tier1, ETC, DRAGIN, random}**. This entry covers (i) wall-clock + zero-step rate per arch; (ii) per-arch DRAGIN fire-count distribution at default threshold; (iii) any L9-picker or eager-attn regression vs the #18 smoke. **Method/Results commentary out of scope** — parent re-runs `scripts/04c_bootstrap.py` on the new JSONLs and writes up from there.

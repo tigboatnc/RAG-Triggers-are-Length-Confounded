@@ -1,0 +1,124 @@
+[..] re-bootstrap on the ['latent', 'etc', 'selfdoubt_t1', 'dragin', 'random'] pool
+     target_fire_rate=0.3  B=10000  min_steps=3  seed=20260511
+
+[arch] phi-4-mini-instruct
+  rows: calibration=120 (elig 37)  validation=40 (elig 11)  test=40 (elig 13)
+  thresholds (iso-fire 0.3):
+    drift         > 0.1955
+    variance      > 30.9513
+    etc           > 1.1637
+    selfdoubt_t1  > 0.0000
+    dragin        > 2.6547
+  latent_mode_scores (calibration Δfrac per mode):
+    drift     ->  +0.0854
+    variance  ->  +0.1423
+    or        ->  +0.1062
+  latent_mode_chosen = variance
+
+  --- VALIDATION (n=11) ---
+    gate            fire%   point      95% CI                 sig
+    latent           36.4   +0.1121   [ +0.0635,  +0.1607]   *** > 0
+    etc              63.6   -0.0260   [ -0.3492,  +0.2698]   n.s.
+    selfdoubt_t1      0.0       n/a   [     n/a,      n/a]   n/a
+    dragin           81.8   -0.0409   [ -0.4794,  +0.4750]   n.s.
+    random           90.9   +0.1355   [ -0.2644,  +0.7268]   n.s.
+    --- paired margins (latent − baseline) ---
+    latent-etc             +0.1381   [ -0.1712,  +0.3542]   P(>0)=0.789   n.s.
+    latent-selfdoubt_t1        n/a   [     n/a,      n/a]   n/a   n/a
+    latent-dragin          +0.1530   [ -0.3891,  +0.6202]   P(>0)=0.725   n.s.
+    latent-random          -0.0234   [ -0.6309,  +0.3622]   P(>0)=0.433   n.s.
+
+  --- TEST (n=13) ---
+    gate            fire%   point      95% CI                 sig
+    latent           61.5   +0.0252   [ -0.1032,  +0.1400]   n.s.
+    etc              69.2   +0.0478   [ -0.2292,  +0.3188]   n.s.
+    selfdoubt_t1      7.7       n/a   [     n/a,      n/a]   n/a
+    dragin           61.5   -0.2000   [ -0.5952,  +0.2000]   n.s.
+    random           76.9   +0.3268   [ -0.1363,  +0.7452]   n.s.
+    --- paired margins (latent − baseline) ---
+    latent-etc             -0.0226   [ -0.2250,  +0.2067]   P(>0)=0.418   n.s.
+    latent-selfdoubt_t1        n/a   [     n/a,      n/a]   n/a   n/a
+    latent-dragin          +0.2252   [ -0.1852,  +0.6399]   P(>0)=0.776   n.s.
+    latent-random          -0.3015   [ -0.6602,  +0.1244]   P(>0)=0.087   n.s.
+
+[arch] gemma-4-26b-a4b-it
+  rows: calibration=120 (elig 120)  validation=40 (elig 40)  test=40 (elig 40)
+  thresholds (iso-fire 0.3):
+    drift         > 0.1466
+    variance      > 146.9396
+    etc           > 0.3930
+    selfdoubt_t1  > 0.0000
+    dragin        > 0.8360
+  latent_mode_scores (calibration Δfrac per mode):
+    drift     ->  +0.0289
+    variance  ->  +0.0784
+    or        ->  +0.0294
+  latent_mode_chosen = variance
+
+  --- VALIDATION (n=40) ---
+    gate            fire%   point      95% CI                 sig
+    latent           87.5   +0.0660   [ -0.1643,  +0.2815]   n.s.
+    etc              90.0   +0.0305   [ -0.1208,  +0.1866]   n.s.
+    selfdoubt_t1      0.0       n/a   [     n/a,      n/a]   n/a
+    dragin           97.5   +0.0329   [ -0.0024,  +0.0708]   n.s.
+    random           90.0   +0.1464   [ +0.0590,  +0.2416]   *** > 0
+    --- paired margins (latent − baseline) ---
+    latent-etc             +0.0355   [ -0.2406,  +0.3118]   P(>0)=0.589   n.s.
+    latent-selfdoubt_t1        n/a   [     n/a,      n/a]   n/a   n/a
+    latent-dragin          +0.0331   [ -0.1855,  +0.2491]   P(>0)=0.618   n.s.
+    latent-random          -0.0803   [ -0.3130,  +0.1466]   P(>0)=0.241   n.s.
+
+  --- TEST (n=40) ---
+    gate            fire%   point      95% CI                 sig
+    latent           95.0   -0.0359   [ -0.2545,  +0.1864]   n.s.
+    etc              95.0   +0.0023   [ -0.1261,  +0.1306]   n.s.
+    selfdoubt_t1      2.5       n/a   [     n/a,      n/a]   n/a
+    dragin           97.5   +0.0240   [ -0.0601,  +0.1098]   n.s.
+    random          100.0   -0.0834   [ -0.2604,  +0.0888]   n.s.
+    --- paired margins (latent − baseline) ---
+    latent-etc             -0.0382   [ -0.2486,  +0.1695]   P(>0)=0.371   n.s.
+    latent-selfdoubt_t1        n/a   [     n/a,      n/a]   n/a   n/a
+    latent-dragin          -0.0599   [ -0.2982,  +0.1775]   P(>0)=0.306   n.s.
+    latent-random          +0.0475   [ -0.1996,  +0.2944]   P(>0)=0.647   n.s.
+
+[arch] qwen3.6-35b-a3b-instruct
+  rows: calibration=120 (elig 103)  validation=40 (elig 35)  test=40 (elig 37)
+  thresholds (iso-fire 0.3):
+    drift         > 0.3029
+    variance      > 0.0811
+    etc           > 0.4382
+    selfdoubt_t1  > 0.0000
+    dragin        > 0.9053
+  latent_mode_scores (calibration Δfrac per mode):
+    drift     ->  +0.0266
+    variance  ->  +0.0071
+    or        ->  +0.0408
+  latent_mode_chosen = or
+
+  --- VALIDATION (n=35) ---
+    gate            fire%   point      95% CI                 sig
+    latent           88.6   +0.3116   [ +0.1626,  +0.4680]   *** > 0
+    etc              65.7   -0.0446   [ -0.2697,  +0.1896]   n.s.
+    selfdoubt_t1      0.0       n/a   [     n/a,      n/a]   n/a
+    dragin           80.0   +0.0668   [ -0.1299,  +0.2406]   n.s.
+    random           80.0   +0.1307   [ -0.0414,  +0.3149]   n.s.
+    --- paired margins (latent − baseline) ---
+    latent-etc             +0.3562   [ +0.1118,  +0.6137]   P(>0)=0.998   *** > 0
+    latent-selfdoubt_t1        n/a   [     n/a,      n/a]   n/a   n/a
+    latent-dragin          +0.2448   [ +0.0181,  +0.4802]   P(>0)=0.983   *** > 0
+    latent-random          +0.1809   [ +0.0150,  +0.3540]   P(>0)=0.985   *** > 0
+
+  --- TEST (n=37) ---
+    gate            fire%   point      95% CI                 sig
+    latent           83.8   +0.2840   [ +0.1117,  +0.4632]   *** > 0
+    etc              64.9   +0.1335   [ -0.1178,  +0.3601]   n.s.
+    selfdoubt_t1      5.4       n/a   [     n/a,      n/a]   n/a
+    dragin           83.8   +0.0975   [ -0.0345,  +0.2301]   n.s.
+    random           91.9   +0.2049   [ +0.0171,  +0.3772]   *** > 0
+    --- paired margins (latent − baseline) ---
+    latent-etc             +0.1504   [ -0.0837,  +0.4070]   P(>0)=0.885   n.s.
+    latent-selfdoubt_t1        n/a   [     n/a,      n/a]   n/a   n/a
+    latent-dragin          +0.1864   [ +0.0158,  +0.3543]   P(>0)=0.984   *** > 0
+    latent-random          +0.0791   [ -0.0897,  +0.2670]   P(>0)=0.805   n.s.
+
+[ok] wrote runs/phase4_bootstrap_dragin.json

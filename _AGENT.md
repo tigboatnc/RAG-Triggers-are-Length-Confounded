@@ -4,6 +4,391 @@
 
 ---
 
+## 2026-05-11 #24 — HANDOFF STATE (paused mid-iteration, end of session)
+
+Status at the time of pause:
+
+- **Method-iteration loop is closed offline.** #22 (Tier 1 LR fusion) + #22b (5-variant robustness check) confirmed the parameter-free OR rule `latent = drift_cosine > τ_d OR variance_l2_window > τ_v` cannot be improved by a linear combiner on existing JSONLs. All variants (`latent_fused_balanced`, `latent_fused_f1opt`, `latent_or_drift_entropy`, `latent_or_drift_hiddennorm`, `latent_entropy_only`) fail to beat the OR with paired significance on Qwen-test. Disjoint-firing mechanism interpretation logged.
+- **Δfrac alone is insufficient.** First-principles audit identified two problems: (a) fire-rate confound (Random gate reaches Δfrac=+0.205 ✱ on Qwen-test at 92% fire rate; paired margin `latent − random = +0.080`, n.s.); (b) published baselines (DRAGIN, ETC, SELFDOUBT-T1) were not designed against Δfrac, so the "all-baselines-fail" picture reads as metric mismatch to reviewers.
+- **#23 pre-registered.** Downstream-QA utility experiment: oracle-retrieve re-decode of all 200 HotpotQA-distractor questions on Qwen, then per-policy {EM, F1} comparison against #20's calibrated gate-fire decisions. Pre-registration includes primary + sensitivity eligibility filter, smoke-test gate criteria, success/failure/inconclusive criteria. Scripts ready and parsing clean.
+- **External advisor recommended a "Geometry-Aware Latent Gating" narrative** built from #14–#15 numbers. Diagnosed in the chat: those numbers come from the deprecated v2 simulator pool (ReaLM-sim, GRIP-sim) that was retired in #16 as a category error. Advisor's structural framing (per-arch mode from calibration, ruthless cuts) is sound and worth applying; advisor's empirical claims about Gemma beating ReaLM/GRIP do not survive the SOTA-pool rebuild. Conclusion: take the structure, keep the rebuilt pool + add the utility metric.
+
+### What is blocked on the compute box
+
+#23 oracle-retrieve decode. Local PC has no GPU and `data/hotpotqa_distractor_200.jsonl` is gitignored, so the re-decode has to happen on the compute box.
+
+Runbook (also in #23 below, repeated here for handoff visibility):
+
+```bash
+# 1. Smoke (5 questions, ~2 min). Validate the 4 criteria in #23 §smoke-test gate.
+python scripts/04l_oracle_retrieve_decode.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/hotpotqa_distractor_200.jsonl \
+    --out runs/phase4_qa_qwen3.6-35b-a3b-instruct_oracle_retrieve_smoke.jsonl \
+    --limit 5 2>&1 | tee runs/04l_smoke.log
+
+# 2. Full 200 (~30-60 min on A100). Abort if smoke failed any criterion.
+python scripts/04l_oracle_retrieve_decode.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/hotpotqa_distractor_200.jsonl \
+    --out runs/phase4_qa_qwen3.6-35b-a3b-instruct_oracle_retrieve.jsonl \
+    2>&1 | tee runs/04l_full.log
+
+# 3. Pull the JSONL back to the workspace (or check it in via git), then locally:
+/Users/sanegi/miniconda3/envs/gzn/bin/python scripts/04m_utility_scoring.py \
+    --model qwen3.6-35b-a3b-instruct                  # primary, full 200
+/Users/sanegi/miniconda3/envs/gzn/bin/python scripts/04m_utility_scoring.py \
+    --model qwen3.6-35b-a3b-instruct --min-steps 3   # sensitivity, matches Δfrac cohort
+```
+
+### What happens when #23 results return
+
+Three branches, pre-specified per #23 success/failure criteria:
+
+1. **Headline win** (`gate_latent − never F1` ✱>0 AND `gate_latent − random F1` trending positive):
+   - Prep #25 = last-layer-Qwen ablation script (one compute run).
+   - Rewrite `draft-final.tex` around Narrative A (case-study mechanism-forward) per the merged advisor + utility plan.
+2. **Inconclusive** (`gate_latent − never F1` n.s.):
+   - Drop the utility claim; paper stays Δfrac-only with explicit fire-rate-confound discussion. Reconsider venue (Findings / workshop).
+3. **Failure** (`gate_latent − always F1` ✱<0 AND `gate_latent − never F1` ≤ 0):
+   - Honest-negative writeup; mechanism story (mid-stack drift correlates with incorrectness) remains, utility claim retracted. Strongly favor workshop venue.
+
+### Open decisions still on the table
+
+- Adopt advisor's title — *"Geometry-Aware Latent Gating for Retrieval Need: A Case Study on 2026 Edge LLMs"* — vs current *"Pre-Decode Mid-Stack Drift Detects Retrieval Need in Hybrid Linear-Attention LLMs"*. Lean: advisor's title with appended scope clause.
+- Whether last-layer-on-Qwen ablation (#25) is required for main-short framing or can be cited from prior work. Lean: required if going main-short with mechanism-forward framing.
+- Whether to keep Gemma + Phi as a §6 architecture-dependence table or cut them entirely. Lean: keep as one consolidated table + one paragraph; cutting entirely loses the methodological contribution (per-arch mode selection).
+
+### Files added/modified in this session (uncommitted)
+
+```
+M  _AGENT.md
+?? scripts/04j_fused_gate.py            # Tier 1 multi-feature fusion (#22)
+?? scripts/04k_method_variants.py       # 5-variant robustness check (#22b)
+?? scripts/04l_oracle_retrieve_decode.py # oracle-retrieve decode (#23, compute-box)
+?? scripts/04m_utility_scoring.py       # per-policy utility scoring (#23, local)
+```
+
+All four scripts parse + import + entry-point smoke OK. `04l` has been corrected to use `models/<model>` (project convention) not `/data/models/<model>`.
+
+Bootstrap-CI / JSON outputs from #22 and #22b are on disk:
+- `runs/phase4_fused_gate.json`, `runs/04j_fused_gate.log`
+- `runs/phase4_method_variants.json`, `runs/04k_method_variants.log`
+
+### One concrete sanity ping before the full sweep
+
+The `04l` smoke test (step 1 in the runbook above) emits per-row lines like:
+
+```
+[  1] id=...  em=0  f1=0.62  tok=187  reason=answer_marker  n_sup=2/10
+```
+
+If `tok` is consistently <30 or `reason=max_tokens`, that's the 2Wiki-style under-generation re-appearing on HotpotQA under `enable_thinking=False`. We did not see it in #20 on HotpotQA, but it's the one failure mode worth eyeballing before committing 30-60 min of compute. If it happens, ping; I'll add `enable_thinking=True` as a protocol-amendment variant in #23 before the full sweep.
+
+---
+
+## 2026-05-11 #23 — PRE-REGISTRATION: Downstream-QA utility evaluation (Qwen, HotpotQA-distractor)
+
+> **Pre-registration.** Written before the oracle-retrieve decode is run on the compute box. The decode protocol, the policy-comparison set, the eligibility filter, the metric, and the success/failure criteria are committed here. Subsequent entries that report utility numbers must reference #23 so the audit trail shows the analysis was specified before the data was opened.
+
+### Motivation (why this experiment, in one paragraph)
+
+The #20 / #22b results evaluate gates with Δfrac — the calibration proxy "fires earlier on incorrect than on correct traces". Three problems surfaced on introspection. (a) Δfrac is fire-rate-confounded: a Random gate at 92% fire rate reaches ✱ on Qwen-test because the metric collapses to a length-vs-correctness correlation when the gate is dense; the paired margin (`latent − random`) is +0.080, n.s. (b) The three published baselines (DRAGIN, ETC, SELFDOUBT-T1) all fail to reach Δfrac significance on any architecture; they were each designed against downstream-QA accuracy, not against Δfrac, so the all-baselines-fail result is more likely a metric mismatch than a method failure — and reviewers will read it that way. (c) Our paper currently has no causal-utility evidence: we never show that triggering retrieval *where the gate fires* converts wrong answers to right. This experiment addresses all three.
+
+HotpotQA-distractor is uniquely suited to a low-cost utility test: every question already ships with gold supporting paragraphs mixed into 10 distractors. "Retrieval" reduces to a paragraph filter — no retriever, no embedding model, no extra compute beyond a re-decode. The closed-book EM/F1 is already on disk from #20; the oracle-retrieve EM/F1 from this re-decode completes the 2×N table needed to score any gate policy.
+
+### Scope
+
+- **Model**: Qwen3.6-35B-A3B-instruct only. Phi (test n=13, underpowered) and Gemma (Δfrac null on all gates — separate mechanism story, deferred to Future Work per #22b) excluded.
+- **Dataset**: HotpotQA-distractor 200-question slice (calibration=120, validation=40, test=40).
+- **Bound**: Δfrac analyses (#20, #22, #22b) untouched. This is an additive experiment.
+
+### Oracle-retrieve construction
+
+For each of the 200 questions, build a re-prompt identical to the closed-book prompt **except** the 10-paragraph block is filtered to only those paragraphs whose `title` appears in `supporting_facts`. Order preserved from the dataset (no shuffling). System role, user payload template, chat-template kwargs all identical to #20 Option A.
+
+Known caveat (logged here so it's not a reviewer surprise): HotpotQA supporting paragraphs contain non-supporting sentences in addition to the supporting ones, so this is *paragraph-level oracle*, not sentence-level oracle. Sentence-level oracle would leak the gold answer span into the prompt and is not a useful baseline. Paragraph-level oracle is the strongest legitimate upper bound that does not trivially solve the task.
+
+### Decoding protocol (frozen from #20 Option A)
+
+```
+chat_template_kwargs = {"enable_thinking": False}    (Qwen-only)
+repetition_penalty   = 1.0                            (Qwen-only)
+sampling             = greedy (argmax)
+max_new_tokens       = 1024
+early_stop           = EOS OR matched `Answer:\s*<text>\n` regex
+output_hidden_states = False                          (utility-only; no CRV needed)
+```
+
+`enable_thinking=False` empirical sanity (justification for not flipping it):
+- #20 produced 200 successful HotpotQA traces under this setting, median `n_steps`≈4-5, model produces real reasoning chains.
+- The 2Wiki under-generation seen in the #21 smoke was domain-specific (terser question style); HotpotQA does not exhibit it.
+- The re-decode logs `tokens_generated` per trace; the scorer will flag any collapse vs the closed-book distribution.
+
+### Scripts (committed to git before run)
+
+- **`scripts/04l_oracle_retrieve_decode.py`** — runs on the compute box. Reads `data/hotpotqa_distractor_200.jsonl`, re-decodes all 200 with supporting-only paragraphs, writes `runs/phase4_qa_qwen3.6-35b-a3b-instruct_oracle_retrieve.jsonl`. No CRV capture (faster).
+- **`scripts/04m_utility_scoring.py`** — runs locally. Joins #20 closed-book traces + #23 oracle answers, computes per-policy {EM, F1} with paired bootstrap.
+
+### Policies evaluated (frozen list)
+
+| policy            | answer source per trace                                                       | role                |
+|-------------------|-------------------------------------------------------------------------------|---------------------|
+| `never`           | closed-book always                                                            | floor (no-retrieval)|
+| `always`          | oracle-retrieve always                                                        | ceiling (oracle RAG)|
+| `gate_latent`     | oracle if `latent` (drift OR variance, #20 thresholds) fires; else closed-book | ours                |
+| `gate_etc`        | oracle if `etc` (#20 threshold) fires; else closed-book                       | baseline 1          |
+| `gate_selfdoubt_t1` | oracle if `hvr > 0` fires; else closed-book                                  | baseline 2          |
+| `gate_dragin`     | oracle if `dragin_rind_max` (#20 threshold) fires; else closed-book           | baseline 3          |
+| `gate_random`     | oracle if random Bernoulli (#20 `random_p`, seed 20260511) fires; else closed-book | baseline 4     |
+
+Thresholds + latent mode read at runtime from `runs/phase4_bootstrap_dragin.json` → `per_arch."qwen3.6-35b-a3b-instruct"`. No 2WikiMultiHopQA-style re-fitting permitted.
+
+### Statistics
+
+- **Primary** eligibility: full 200 traces, no filter. Rationale: traces where the closed-book model EOS'd quickly are exactly the "easy, no retrieval needed" cases that selective retrieval is supposed to handle correctly; filtering them away biases against `never_retrieve` and inflates `always_retrieve`'s apparent advantage. For traces with `n_steps < 3`, no gate can fire by construction, so the policy automatically selects closed-book — this is the correct, conservative behaviour.
+- **Sensitivity** eligibility: `n_steps >= 3` (matches the Δfrac analyses in #20 / #22 / #22b). Should be directionally identical; reported alongside the primary so the audit trail is unambiguous.
+- *(Amended in this entry before opening test. The pre-reg discipline is satisfied because no utility numbers have been computed yet — the oracle JSONL does not exist at the time of this amendment.)*
+- Bootstrap: **10,000-resample paired percentile**, paired on the trace index. Each replicate samples 200 trace indices with replacement and computes the policy F1 / EM under each policy on the resampled cohort.
+- Reported: per-policy {EM, F1} point estimate + 95% CI on each split; **paired F1 margins** for each `gate_X − never` (cost-or-benefit of triggering only when the gate fires) and `gate_X − always` (selectivity penalty vs the oracle ceiling).
+- Headline split: **test** (n=40). Validation and calibration also reported for the audit trail.
+
+### Pre-specified success criteria (committed before opening test)
+
+1. **Primary (Qwen test, F1):** `gate_latent − never` is positive with `P(>0) >= 0.95` AND `gate_latent − always` is not significantly negative at 95% CI.
+   - Interpretation if met: the latent gate captures most of the oracle's lift while abstaining on traces where retrieval is unnecessary. Headline win.
+2. **Secondary (Qwen test, F1):** `gate_latent − gate_random` is positive with `P(>0) >= 0.95`.
+   - This is the test that survives the Δfrac fire-rate-confound critique — same metric, paired.
+3. **Tertiary (Qwen test, F1):** `gate_latent − gate_dragin` and `gate_latent − gate_etc` each have `P(>0) >= 0.90` (paired margin trending positive).
+   - Stronger claim: ours dominates published gates on their native metric.
+
+### Pre-specified failure / inconclusive outcomes (committed before opening test)
+
+- **Inconclusive A:** `gate_latent − never` is non-significant (CI straddles 0). The gate fires often enough to not look like never_retrieve, but it doesn't actually help — report as honest negative, and the paper has to drop the utility claim.
+- **Inconclusive B:** `gate_random − never` matches `gate_latent − never` within paired-margin noise. The signal is being driven by the always-retrieve ceiling effect (large gap, high fire rate of all gates → all policies converge toward `always`). Report and re-design.
+- **Failure:** `gate_latent − always` is significantly negative AND `gate_latent − never` is also non-positive. Means selective retrieval is strictly worse than both endpoints — possible if our gate fires on cases where retrieval *hurts* (oracle paragraphs lack the answer because the question is multi-hop in a way the paragraph filter doesn't cover). Report as failure, propose per-question paragraph-set inspection in Future Work.
+
+### Smoke-test gate (commit before full run)
+
+Before the 200-question sweep, run with `--limit 5` and verify on stdout:
+1. `n_supporting_paragraphs` is 2-3 for each of the 5 (HotpotQA has 2 gold paragraphs by spec; 3 occurs occasionally).
+2. `tokens_generated` >= 60 on at least 3 of 5 (rule out 2Wiki-style under-generation).
+3. At least one of `eos`, `answer_marker` is the `early_stop_reason` on all 5 (no `max_tokens` runaways).
+4. No `error` field set on any of the 5 records.
+
+Abort the full sweep if any criterion fails.
+
+### Compute-box runbook
+
+```bash
+# 1. Smoke test (5 questions, ~2 min)
+python scripts/04l_oracle_retrieve_decode.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/hotpotqa_distractor_200.jsonl \
+    --out runs/phase4_qa_qwen3.6-35b-a3b-instruct_oracle_retrieve_smoke.jsonl \
+    --limit 5 \
+    2>&1 | tee runs/04l_smoke.log
+
+# 2. Eyeball the 5 records. If all four criteria pass, proceed.
+
+# 3. Full 200-question sweep (~30-60 min on A100)
+python scripts/04l_oracle_retrieve_decode.py \
+    --model qwen3.6-35b-a3b-instruct \
+    --dataset data/hotpotqa_distractor_200.jsonl \
+    --out runs/phase4_qa_qwen3.6-35b-a3b-instruct_oracle_retrieve.jsonl \
+    2>&1 | tee runs/04l_full.log
+
+# 4. Pull the JSONL back to the workspace box, then locally:
+python scripts/04m_utility_scoring.py --model qwen3.6-35b-a3b-instruct
+```
+
+---
+
+## 2026-05-11 #22 — First-principles audit of the CRV trigger; Tier 1 multi-feature fusion experiment (no compute)
+
+> Context: smoke on the #21 OOD pre-registration revealed that Qwen3.6 under `enable_thinking=False` under-generates on 2WikiMultiHopQA (~30-token responses, no Answer: line, no reasoning chain). Rather than adapt the protocol or hot-swap datasets (both considered, both have real costs in a 4-page short paper), parent pivoted to iterating the method itself from first principles. The audit below identifies what the current CRV trigger leaves on the table; Tier 1 is the cheapest test (offline-only, no compute) of the most consequential improvement.
+
+### What the per-step record actually carries (audit of the on-disk schema)
+
+Inspected one calibration row from `runs/phase4_qa_qwen3.6-35b-a3b-instruct_mid_stack_dragin.jsonl`. Every step record carries **eleven scalars**. The current OR latent gate uses **two**.
+
+| feature                  | source                          | used by                          | role |
+|--------------------------|---------------------------------|----------------------------------|---|
+| `drift_cosine`           | CRV (mid-stack, mean-pool)      | latent (drift / OR)              | core |
+| `variance_l2_window`     | CRV (rolling 10-step var)       | latent (variance / OR)           | core |
+| `hidden_norm`            | CRV (`||CRV_t||_2`)             | **nothing**                      | captured, unused |
+| `mean_token_entropy`     | logits over step                | ETC (via `|Δ²H|`)                | not in latent gate |
+| `boundary_token_entropy` | logits at the commitment token  | **nothing**                      | captured, unused |
+| `n_tokens_in_step`       | step structural                 | **nothing**                      | captured, unused |
+| `dragin_rind_max`        | DRAGIN (per-token RIND product) | DRAGIN baseline                  | not fused into latent |
+| `hvr`                    | hedge/verify text counts        | SELFDOUBT-T1                     | not fused into latent |
+| `u_verb`                 | verbalized-confidence KV-fork   | nothing (saturates → excluded #20) | captured, unused |
+| `u_ent`                  | spaCy NER + BM25                | nothing (degenerate channel)     | captured, unused |
+| `u_cons`                 | K-sample consistency            | nothing (degenerate channel)     | captured, unused |
+
+### Where the current trigger leaves signal on the table
+
+Three structural information-theoretic losses in the current OR-of-two-thresholds rule:
+
+1. **Binarization before fusion.** Each continuous scalar is collapsed to a single bit before being combined.
+2. **Asymmetric, untuned fusion.** The OR weights drift and variance equally regardless of their relative discriminability per architecture.
+3. **Dropped channels.** Nine of eleven captured scalars never enter the latent gate.
+
+### Menu of improvements, ranked by leverage-per-compute-dollar
+
+**Tier 1 — fully offline on existing JSONLs, no GPU, runnable on this PC.**
+
+- **A. Multi-feature fusion via per-arch L2-regularized logistic regression on calibration labels.** Features: `drift_cosine`, `variance_l2_window`, `hidden_norm`, `mean_token_entropy`, `boundary_token_entropy`. 6 fitted scalars per architecture (5 weights + intercept). 5-fold CV on the calibration split selects the regularization. Threshold for iso-fire-rate 0.30 calibrated on calibration only. Headlined as a **new gate in the comparison pool**, not a replacement for CRV-OR — so the existing #20 headline is preserved as a side-by-side baseline.
+- **B. Trajectory-anchor drift from CRV_0.** Requires per-step CRV vectors on disk; the .npz files are not on this PC. Moved to Tier 2.
+- **C. Boundary-token entropy as third channel.** Absorbed into A.
+- **D. Per-trace z-normalisation of features.** Variant of A; reports both raw and z-normalised.
+- **E. 2-of-3 consecutive-step fire rule (over A's score).** False-positive suppressor; reports both single-step and 2-of-3 variants.
+
+**Tier 2 — cheap re-compute on existing infrastructure (deferred unless Tier 1 underdelivers).**
+
+- **F. L2 drift (`||CRV_t − CRV_{t-1}||_2`) alongside cosine.** Tracker already supports `drift_metric="l2"`; one Qwen re-sweep (~2 h).
+- **G. Multi-layer concat mode** (already supported in `CRVTracker`). Requires multi-layer capture re-sweep.
+
+**Tier 3 — speculative, NOT pursued for this paper.**
+
+- H. Attention-weighted token pooling at boundary.
+- I. Joint fire-rate + threshold optimisation (overfitting risk).
+
+### Tier 1 framing implications (must be confirmed *before* running, not after)
+
+The "parameter-free" claim weakens to *"no model fine-tuning; thresholds and 5-feature linear weights fit on a 120-trace held-out calibration split."* Defensible — DRAGIN, ETC, and SELFDOUBT-Full all fit calibration-time parameters; we stay inside the standard. But the abstract sentence shifts.
+
+If A lifts Phi to test-significance or Gemma above 0 at 95%, the 3-model paper (no-OOD) discussed in chat becomes meaningfully stronger and *Contribution 3 upgrades* from "per-arch mode pick (drift / variance / OR)" to "per-arch *feature-weight pattern*" — which carries more information per page than the mode pick, because it tells the reader *which forward-pass channels each architectural class leaks discriminative signal through*.
+
+If A fails to generalise to test, no harm done — the current OR gate stays the headline and we report A as a negative methods-side ablation.
+
+### Pre-commit configuration (frozen before any numbers are read)
+
+- **Features (Variant 1 — geometry-only)**: `drift_cosine`, `variance_l2_window`, `hidden_norm`, `mean_token_entropy`, `boundary_token_entropy`.
+- **Features (Variant 2 — geometry-plus-text)**: above + `hvr`. Reports a side-by-side comparison to test the "hidden-state-only vs hidden-state-plus-text" question; informational, not the headline.
+- **Eligibility filter**: same as #20 — `n_steps ≥ 3`.
+- **Classifier**: `sklearn.linear_model.LogisticRegressionCV(penalty='l2', cv=5, scoring='neg_log_loss', max_iter=2000)`. 5-fold CV chooses the L2 regularization on the calibration split only.
+- **Per-step labels**: each step inherits its trace-level `label_correct_em` (True = correct → label 0; False = incorrect → label 1, the "is_incorrect" target).
+- **Threshold**: iso-fire-rate 0.30 quantile of the calibration-split predicted probabilities.
+- **Bootstrap**: 10,000-resample paired percentile, same recipe as #20.
+- **Seed**: 20260511 (matches #20).
+- **Splits opened**: calibration for fitting; validation for headline; test as single-shot replication (just like #20).
+- **Gate name in the pool**: `latent_fused` (Variant 1) and `latent_fused_plus` (Variant 2). Both reported alongside `latent` (the current OR gate) so the comparison is fully transparent.
+
+### What this entry does NOT authorize
+
+- Replacing the CRV-OR `latent` gate with the fused gate as the *only* headline. Both are reported.
+- Re-running the calibration split's threshold-fit on any non-#20 data.
+- Reading the test split before the calibration-fit + validation-Δfrac numbers are committed.
+
+### Tier 1 results (run locally, `gzn` env, `runs/phase4_fused_gate.json` + `runs/04j_fused_gate.log`)
+
+**Headline: Tier 1 did NOT improve the gate on any architecture, and significantly degraded Qwen.** Logged here so the negative result is auditable. See the chat-side analysis for full interpretation; key numbers below.
+
+Per-arch comparison (Δfrac, 95% CI from 10,000-resample paired percentile bootstrap):
+
+```
+                                 validation                     test
+                                 point      95% CI              point      95% CI
+Phi    latent (variance, #20)    +0.112  [+0.064, +0.161] ✱     +0.025  [−0.103, +0.140] n.s.
+Phi    latent_fused              +0.122  [−0.353, +0.558] n.s.  +0.121  [−0.141, +0.537] n.s.
+Phi    latent_fused_plus         +0.122  [−0.364, +0.552] n.s.  +0.121  [−0.138, +0.528] n.s.
+
+Gemma  latent (variance, #20)    +0.066  [−0.162, +0.283] n.s.  −0.036  [−0.258, +0.183] n.s.
+Gemma  latent_fused              +0.051  [−0.141, +0.248] n.s.  −0.092  [−0.236, +0.053] n.s.
+Gemma  latent_fused_plus         +0.051  [−0.144, +0.243] n.s.  −0.082  [−0.224, +0.063] n.s.
+
+Qwen   latent (OR, #20)          +0.312  [+0.164, +0.472] ✱     +0.284  [+0.115, +0.462] ✱
+Qwen   latent_fused              +0.163  [−0.093, +0.390] n.s.  +0.054  [−0.205, +0.286] n.s.
+Qwen   latent_fused_plus         +0.181  [−0.075, +0.419] n.s.  +0.063  [−0.147, +0.265] n.s.
+```
+
+Key paired margin: `latent_fused − latent` on Qwen test = **−0.230 [−0.534, +0.079], P(>0)=0.075**. CI does not strictly exclude 0 but trends to negative significance. Fusion is *worse* on Qwen with high probability.
+
+Sample sizes after `n_steps ≥ 3` filter: Phi (cal=37, val=11, test=13), Gemma (cal=120, val=40, test=40), Qwen (cal=103, val=35, test=37).
+
+#### Fitted weights (after standardisation; +ve → fires on INCORRECT)
+
+```
+feature                  Phi        Gemma     Qwen
+drift_cosine            +0.0006   −0.0504   −0.0569
+variance_l2_window      +0.0003   +0.1075   −0.3531   ← negative on Qwen!
+hidden_norm             +0.0001   +0.1063   +0.2670
+mean_token_entropy      +0.0012   +0.0913   +0.3119
+boundary_token_entropy  +0.0004   −0.0107   +0.0589
+C_chosen                1e-4      6e-3      5e-2
+```
+
+- **Phi:** C=1e-4 means CV-selected maximum regularisation — n=37 calibration steps is too few to fit 5 features, classifier punted to a constant. Real data-side ceiling, not a method bug.
+- **Gemma:** weak weights, mildly sensible direction, did not generalise. Calibration → test null both directions.
+- **Qwen:** `variance_l2_window` is **strongly negative** (high variance ↔ correctness, the OPPOSITE of what the OR gate assumes). `mean_token_entropy` and `hidden_norm` are the strongest positive predictors. The classifier learned to treat variance as a *correctness* signal, which is the opposite of the OR gate's interpretation.
+
+#### Mechanism interpretation
+
+The OR gate's structural advantage is **disjoint firing**: drift and variance fire on *different subsets* of incorrect traces, and the OR-union catches both. The LR forces them onto a single linear axis with consistent signs, which then *competes* drift's positive contribution against variance's negative weight on Qwen — destroying the disjoint-firing gain.
+
+This is a falsifiable mechanism prediction: the OR rule's advantage over a linear combiner should grow with how *uncorrelated* drift and variance are on a given architecture. It is also a substantive defence of the OR rule as a deliberate methodological choice rather than a calibration artifact.
+
+#### Paper implication
+
+**The negative Tier 1 result strengthens the paper.** It is the natural ablation a careful reviewer would ask for ("did you try fitting a classifier?"), it directly defends Contribution 3, and it provides a concrete mechanism (disjoint firing) for why drift + variance shouldn't be fused linearly. Plan: include as a one-paragraph methods ablation in §4 of the revised draft, citing the LR weights directly.
+
+#### Variants NOT yet tried (next iteration if user wants)
+
+- **F1-optimal threshold** instead of iso-fire-rate 0.30. Robustness check.
+- **Class-balanced LR** to address ~62% correct rate. Robustness check.
+- **(drift, mean_token_entropy) OR** — replace `variance_l2_window` with `mean_token_entropy` in the OR rule. Both signals are positively aligned with incorrectness on Qwen; could outperform the (drift, variance) OR if positivity > disjoint-firing benefit. **This is the most promising follow-up.**
+
+### Tier 1 follow-up: robustness checks + alternative OR variants (#22b)
+
+> Five additional gates pre-registered in the `scripts/04k_method_variants.py` docstring **before** the test split was opened on any of them. Reuses the same #20 zero-leakage pool (calibrate on calibration only; iso-fire-rate 0.30 unless stated; 10,000-resample paired percentile bootstrap; `n_steps ≥ 3` filter). Artefacts: `runs/phase4_method_variants.json` + `runs/04k_method_variants.log`.
+
+| gate                         | description                                                                                                  | role                  |
+|------------------------------|--------------------------------------------------------------------------------------------------------------|-----------------------|
+| `latent_fused_balanced`      | 5-feature L2 LR with `class_weight="balanced"`; iso-fire-rate 0.30                                           | R1: imbalance check   |
+| `latent_fused_f1opt`         | 5-feature L2 LR (unbalanced); threshold = argmax step-level F1 on calibration                                 | R2: threshold check   |
+| `latent_or_drift_entropy`    | OR of (`drift_cosine`, `mean_token_entropy`) at iso-fire-rate 0.30 each                                       | V1: alt-OR (entropy)  |
+| `latent_or_drift_hiddennorm` | OR of (`drift_cosine`, `hidden_norm`) at iso-fire-rate 0.30 each                                              | V2: alt-OR (norm)     |
+| `latent_entropy_only`        | single-threshold on `mean_token_entropy` at iso-fire-rate 0.30                                                | V3: entropy alone     |
+
+Headline (Qwen, test, n=37; Δfrac, 95% CI):
+
+```
+gate                          point   95% CI               vs latent (#20)              vs DRAGIN
+latent (#20, drift OR var)   +0.284  [+0.116, +0.460] ✱   —                            +0.187 [−0.034, +0.395] n.s.
+latent_fused_balanced        +0.054  [−0.195, +0.288] n.s. −0.230 [−0.533, +0.080] n.s. −0.044 [−0.322, +0.231] n.s.
+latent_fused_f1opt           +0.077  [+0.025, +0.126] ✱   −0.207 [−0.356, −0.059] ✱<0   −0.021 [−0.135, +0.094] n.s.
+latent_or_drift_entropy      +0.199  [+0.044, +0.360] ✱   −0.085 [−0.196, +0.020] n.s. +0.102 [−0.052, +0.259] n.s.
+latent_or_drift_hiddennorm   +0.313  [+0.148, +0.478] ✱   +0.029 [−0.074, +0.138] n.s. +0.215 [+0.043, +0.382] ✱>0
+latent_entropy_only          +0.068  [−0.150, +0.272] n.s. −0.216 [−0.450, +0.009] n.s. −0.029 [−0.237, +0.154] n.s.
+```
+
+Interpretation per pre-registered question:
+
+1. **R1 — Is the negative Tier 1 result an artifact of class imbalance?** No. The balanced LR's Qwen-test Δfrac (+0.054, n.s.) is in fact slightly *worse* than the unbalanced Tier 1 LR (+0.054 ≈ +0.063 from #22). Balanced fitting reinforces the same wrong-signed `variance_l2_window` weight (−0.362) and intercept; class imbalance was not the cause. Both LR variants are dominated by `latent` with P(>0) ≤ 0.10.
+
+2. **R2 — Is it an artifact of the iso-fire-rate 0.30 threshold?** No. F1-optimal calibration drives every architecture to a 100% fire rate (because step-level recall is the dominant F1 term at this base rate) and the resulting Δfrac is **significantly worse than `latent`** on Qwen-test (`latent_fused_f1opt − latent = −0.207`, CI [−0.356, −0.059], P(>0)=0.003, ✱<0). The pretty-tight CI on the gate itself is a fire-rate-saturation artefact, not signal — when everything fires, traces only differ by their *first* step, and the dispersion collapses. Verdict: even the best-case threshold for the fused LR does not recover the simple-OR baseline.
+
+3. **V1 — Does (drift, mean_token_entropy) flip the headline?** No. On Qwen-test, `latent_or_drift_entropy = +0.199 (✱>0)` but the paired margin vs the current `latent` is **−0.085 [−0.196, +0.020], P(>0)=0.057** — i.e., the alt-OR is *marginally* worse, not better. Validation tells the same story: margin = −0.147 (✱<0). Hypothesis falsified: entropy does not strictly dominate variance as the second feature in the OR.
+
+4. **V2 — Does (drift, hidden_norm) flip the headline?** Tied on Qwen-test (point estimate +0.313 vs +0.284 for current `latent`; paired margin = +0.029 [−0.074, +0.138], P(>0)=0.699, n.s.) and **significantly better than DRAGIN** (paired margin +0.215 [+0.043, +0.382], ✱>0 — the current `latent` only beats DRAGIN with P=0.85, not ✱). On validation the picture inverts (margin vs `latent` = −0.140, n.s.). Net: not better than `latent` with paired significance on either split; a *tie* at the point-estimate level, not a flip. Worth mentioning as a robustness footnote but not as a replacement headline.
+
+5. **V3 — Is entropy carrying everything?** No. `latent_entropy_only` is a null gate on Qwen-test (+0.068, n.s.); the paired-margin vs current `latent` is **−0.216**, P(>0)=0.029. Confirms entropy alone is weak and the V1 result above is the entropy + drift co-firing.
+
+Mechanism reinforcement. The disjoint-firing prediction from #22 generalises: any time the second feature has a wrong-signed or low-magnitude LR weight on a given arch, a single-axis linear combiner under-performs OR. Hidden_norm and entropy both have the *right* sign on Qwen, but neither produces a paired-significance flip — consistent with `variance_l2_window` already capturing the residual signal those features would contribute via the OR rule. The OR rule is robust precisely because each contributor pulls a disjoint pool of incorrect traces, not because (drift, variance) is uniquely good.
+
+Sanity readings on Phi and Gemma (test):
+- Phi (n=13, severely underpowered): all five new gates n.s. with very wide CIs; consistent with #22's Phi conclusion (calibration n=37 below the floor for any 5-feature method).
+- Gemma (n=40): all five new gates n.s.; alt-OR variants drift down to ~0.0; LR variants ≤ 0. No flip.
+
+Paper implication. The #22 single negative ablation now becomes a **five-row ablation table** (LR fusion × 3 configurations + alt-OR × 2 + `latent_entropy_only`) that pre-empts every "did you try …?" reviewer question. The paragraph cited from §4 can read: "We tested five variants of the latent gate — class-balanced LR fusion, F1-thresholded LR fusion, OR over (drift, mean_token_entropy), OR over (drift, hidden_norm), and entropy alone. None achieves a positive paired margin against the (drift OR variance) baseline on Qwen-test at α=0.05; the F1-thresholded fused gate is significantly worse (margin −0.21, P=0.003). We interpret this as evidence that the OR rule's advantage comes from disjoint firing of its two signals rather than from a learnable linear combination, and accordingly retain the parameter-free OR rule as the headline gate."
+
+#### Status of the iteration
+
+Method-iteration loop converges here: every cheap variant that would have been a "did you try …?" review trap has been tested, and the original drift-OR-variance rule survives. No further offline gate variants are planned for the EMNLP submission. Next action is paper-writing (Narrative A with the ablation table) unless parent reopens the design.
+
+---
+
 ## 2026-05-11 #21 — PRE-REGISTRATION: OOD transfer test on 2WikiMultiHopQA-distractor (Qwen only)
 
 > **This entry is a pre-registration.** It is written *before* the 2Wiki traces are generated. The configuration, the frozen thresholds, the analysis pool, and the success/failure criteria are committed here. Subsequent entries that report 2Wiki numbers must reference this entry by id (#21) so the audit trail shows the analysis was specified before the data was opened.

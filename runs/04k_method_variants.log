@@ -1,0 +1,254 @@
+[..] #22 follow-up: robustness checks + alternative OR variants
+     new gates: ['latent_fused_balanced', 'latent_fused_f1opt', 'latent_or_drift_entropy', 'latent_or_drift_hiddennorm', 'latent_entropy_only']
+     target_fire_rate=0.3  B=10000  min_steps=3  seed=20260511  include_test=True
+
+[arch] phi-4-mini-instruct
+  n_calib=37  n_val=11  n_test=13
+  tau_drift_iso30          = 0.1955
+  tau_mean_entropy_iso30   = 0.9558
+  tau_hidden_norm_iso30    = 44.7357
+  thr_fused_balanced_iso30 = 0.5003
+  thr_fused_unb_f1opt      = 0.7089
+  balanced LR weights (after standardisation):
+    drift_cosine             = +0.0007
+    variance_l2_window       = +0.0004
+    hidden_norm              = +0.0001
+    mean_token_entropy       = +0.0015
+    boundary_token_entropy   = +0.0005
+  balanced C_chosen = 0.0001
+
+  --- VALIDATION (n=11) ---
+    gate                              fire%   point      95% CI                 sig
+    latent                             36.4   +0.1121   [ +0.0635,  +0.1607]   *** > 0
+    etc                                63.6   -0.0260   [ -0.3492,  +0.2698]   n.s.
+    selfdoubt_t1                        0.0       n/a   [     n/a,      n/a]   n/a
+    dragin                             81.8   -0.0409   [ -0.4794,  +0.4750]   n.s.
+    random                             90.9   +0.1355   [ -0.2644,  +0.7268]   n.s.
+    latent_fused_balanced              72.7   +0.1215   [ -0.3528,  +0.5583]   n.s.
+    latent_fused_f1opt                100.0   -0.0194   [ -0.1230,  +0.0796]   n.s.
+    latent_or_drift_entropy            72.7   -0.0944   [ -0.5519,  +0.3156]   n.s.
+    latent_or_drift_hiddennorm         63.6   +0.2393   [ -0.0113,  +0.6875]   n.s.
+    latent_entropy_only                63.6   +0.0657   [ -0.5349,  +0.6599]   n.s.
+    --- key paired margins (new − baseline) ---
+    latent_fused_balanced-latent          +0.0094   [ -0.4083,  +0.4507]   P(>0)=0.564   n.s.
+    latent_fused_balanced-dragin          +0.1624   [ -0.2330,  +0.5875]   P(>0)=0.789   n.s.
+    latent_fused_balanced-etc             +0.1475   [ -0.1237,  +0.4104]   P(>0)=0.859   n.s.
+    latent_fused_balanced-random          -0.0140   [ -0.4090,  +0.3836]   P(>0)=0.477   n.s.
+    latent_fused_f1opt-latent          -0.1315   [ -0.2524,  -0.0228]   P(>0)=0.008   *** < 0
+    latent_fused_f1opt-dragin          +0.0214   [ -0.5324,  +0.4806]   P(>0)=0.550   n.s.
+    latent_fused_f1opt-etc             +0.0066   [ -0.2746,  +0.2553]   P(>0)=0.512   n.s.
+    latent_fused_f1opt-random          -0.1550   [ -0.7401,  +0.2022]   P(>0)=0.342   n.s.
+    latent_or_drift_entropy-latent          -0.2065   [ -0.5911,  +0.1889]   P(>0)=0.164   n.s.
+    latent_or_drift_entropy-dragin          -0.0535   [ -0.6828,  +0.5334]   P(>0)=0.442   n.s.
+    latent_or_drift_entropy-etc             -0.0683   [ -0.3140,  +0.1646]   P(>0)=0.243   n.s.
+    latent_or_drift_entropy-random          -0.2299   [ -0.9154,  +0.3806]   P(>0)=0.259   n.s.
+    latent_or_drift_hiddennorm-latent          +0.1272   [ -0.1498,  +0.3903]   P(>0)=0.619   n.s.
+    latent_or_drift_hiddennorm-dragin          +0.2802   [ -0.4615,  +0.9647]   P(>0)=0.783   n.s.
+    latent_or_drift_hiddennorm-etc             +0.2654   [ -0.1585,  +0.6358]   P(>0)=0.851   n.s.
+    latent_or_drift_hiddennorm-random          +0.1038   [ -0.7120,  +0.8316]   P(>0)=0.634   n.s.
+    latent_entropy_only-latent          -0.0464   [ -0.6893,  +0.5757]   P(>0)=0.477   n.s.
+    latent_entropy_only-dragin          +0.1065   [ -0.2993,  +0.5506]   P(>0)=0.691   n.s.
+    latent_entropy_only-etc             +0.0917   [ -0.4335,  +0.5398]   P(>0)=0.670   n.s.
+    latent_entropy_only-random          -0.0698   [ -0.5241,  +0.3903]   P(>0)=0.375   n.s.
+
+  --- TEST (n=13) ---
+    gate                              fire%   point      95% CI                 sig
+    latent                             61.5   +0.0252   [ -0.1011,  +0.1429]   n.s.
+    etc                                69.2   +0.0478   [ -0.2263,  +0.3170]   n.s.
+    selfdoubt_t1                        7.7       n/a   [     n/a,      n/a]   n/a
+    dragin                             61.5   -0.2000   [ -0.5885,  +0.2041]   n.s.
+    random                             76.9   +0.3268   [ -0.1358,  +0.7333]   n.s.
+    latent_fused_balanced              69.2   +0.1205   [ -0.1357,  +0.5095]   n.s.
+    latent_fused_f1opt                100.0   +0.1688   [ -0.0563,  +0.5257]   n.s.
+    latent_or_drift_entropy            84.6   +0.2697   [ -0.0283,  +0.5838]   n.s.
+    latent_or_drift_hiddennorm         61.5   +0.0126   [ -0.0524,  +0.0714]   n.s.
+    latent_entropy_only                69.2   +0.2177   [ -0.3286,  +0.7042]   n.s.
+    --- key paired margins (new − baseline) ---
+    latent_fused_balanced-latent          +0.0952   [ -0.1483,  +0.3943]   P(>0)=0.608   n.s.
+    latent_fused_balanced-dragin          +0.3205   [ -0.1876,  +0.9825]   P(>0)=0.847   n.s.
+    latent_fused_balanced-etc             +0.0727   [ -0.1119,  +0.3043]   P(>0)=0.769   n.s.
+    latent_fused_balanced-random          -0.2063   [ -0.6008,  +0.0809]   P(>0)=0.096   n.s.
+    latent_fused_f1opt-latent          +0.1436   [ -0.0977,  +0.4590]   P(>0)=0.777   n.s.
+    latent_fused_f1opt-dragin          +0.3688   [ -0.1378,  +0.9127]   P(>0)=0.894   n.s.
+    latent_fused_f1opt-etc             +0.1210   [ -0.1187,  +0.3748]   P(>0)=0.837   n.s.
+    latent_fused_f1opt-random          -0.1579   [ -0.5650,  +0.1373]   P(>0)=0.178   n.s.
+    latent_or_drift_entropy-latent          +0.2445   [ -0.0457,  +0.5071]   P(>0)=0.946   n.s.
+    latent_or_drift_entropy-dragin          +0.4697   [ -0.1327,  +1.0750]   P(>0)=0.919   n.s.
+    latent_or_drift_entropy-etc             +0.2219   [ -0.0397,  +0.4782]   P(>0)=0.954   n.s.
+    latent_or_drift_entropy-random          -0.0571   [ -0.3539,  +0.1917]   P(>0)=0.350   n.s.
+    latent_or_drift_hiddennorm-latent          -0.0126   [ -0.0708,  +0.0512]   P(>0)=0.329   n.s.
+    latent_or_drift_hiddennorm-dragin          +0.2126   [ -0.1875,  +0.6150]   P(>0)=0.770   n.s.
+    latent_or_drift_hiddennorm-etc             -0.0352   [ -0.2614,  +0.2064]   P(>0)=0.391   n.s.
+    latent_or_drift_hiddennorm-random          -0.3142   [ -0.6904,  +0.1343]   P(>0)=0.083   n.s.
+    latent_entropy_only-latent          +0.1924   [ -0.3808,  +0.6641]   P(>0)=0.758   n.s.
+    latent_entropy_only-dragin          +0.4177   [ -0.4458,  +1.1698]   P(>0)=0.804   n.s.
+    latent_entropy_only-etc             +0.1698   [ -0.3604,  +0.6000]   P(>0)=0.762   n.s.
+    latent_entropy_only-random          -0.1091   [ -0.5105,  +0.2972]   P(>0)=0.272   n.s.
+
+[arch] gemma-4-26b-a4b-it
+  n_calib=120  n_val=40  n_test=40
+  tau_drift_iso30          = 0.1466
+  tau_mean_entropy_iso30   = 0.1990
+  tau_hidden_norm_iso30    = 122.8762
+  thr_fused_balanced_iso30 = 0.5152
+  thr_fused_unb_f1opt      = 0.5069
+  balanced LR weights (after standardisation):
+    drift_cosine             = -0.0521
+    variance_l2_window       = +0.1077
+    hidden_norm              = +0.1086
+    mean_token_entropy       = +0.0947
+    boundary_token_entropy   = -0.0112
+  balanced C_chosen = 0.005995
+
+  --- VALIDATION (n=40) ---
+    gate                              fire%   point      95% CI                 sig
+    latent                             87.5   +0.0660   [ -0.1596,  +0.2854]   n.s.
+    etc                                90.0   +0.0305   [ -0.1183,  +0.1886]   n.s.
+    selfdoubt_t1                        0.0       n/a   [     n/a,      n/a]   n/a
+    dragin                             97.5   +0.0329   [ -0.0029,  +0.0733]   n.s.
+    random                            100.0   +0.0020   [ -0.1076,  +0.1042]   n.s.
+    latent_fused_balanced              87.5   +0.0709   [ -0.1241,  +0.2713]   n.s.
+    latent_fused_f1opt                100.0   +0.0117   [ -0.0041,  +0.0269]   n.s.
+    latent_or_drift_entropy           100.0   +0.0156   [ -0.0170,  +0.0466]   n.s.
+    latent_or_drift_hiddennorm        100.0   +0.0267   [ -0.0172,  +0.0678]   n.s.
+    latent_entropy_only                95.0   -0.0330   [ -0.1620,  +0.1089]   n.s.
+    --- key paired margins (new − baseline) ---
+    latent_fused_balanced-latent          +0.0049   [ -0.1738,  +0.1813]   P(>0)=0.525   n.s.
+    latent_fused_balanced-dragin          +0.0380   [ -0.1577,  +0.2335]   P(>0)=0.641   n.s.
+    latent_fused_balanced-etc             +0.0404   [ -0.2141,  +0.2972]   P(>0)=0.620   n.s.
+    latent_fused_balanced-random          +0.0689   [ -0.1476,  +0.2856]   P(>0)=0.725   n.s.
+    latent_fused_f1opt-latent          -0.0543   [ -0.2713,  +0.1718]   P(>0)=0.309   n.s.
+    latent_fused_f1opt-dragin          -0.0212   [ -0.0613,  +0.0170]   P(>0)=0.143   n.s.
+    latent_fused_f1opt-etc             -0.0188   [ -0.1720,  +0.1307]   P(>0)=0.409   n.s.
+    latent_fused_f1opt-random          +0.0097   [ -0.0899,  +0.1150]   P(>0)=0.561   n.s.
+    latent_or_drift_entropy-latent          -0.0504   [ -0.2591,  +0.1711]   P(>0)=0.332   n.s.
+    latent_or_drift_entropy-dragin          -0.0173   [ -0.0584,  +0.0242]   P(>0)=0.204   n.s.
+    latent_or_drift_entropy-etc             -0.0149   [ -0.1696,  +0.1355]   P(>0)=0.429   n.s.
+    latent_or_drift_entropy-random          +0.0137   [ -0.0942,  +0.1267]   P(>0)=0.590   n.s.
+    latent_or_drift_hiddennorm-latent          -0.0394   [ -0.2595,  +0.1884]   P(>0)=0.354   n.s.
+    latent_or_drift_hiddennorm-dragin          -0.0063   [ -0.0621,  +0.0506]   P(>0)=0.415   n.s.
+    latent_or_drift_hiddennorm-etc             -0.0038   [ -0.1670,  +0.1494]   P(>0)=0.489   n.s.
+    latent_or_drift_hiddennorm-random          +0.0247   [ -0.0683,  +0.1244]   P(>0)=0.687   n.s.
+    latent_entropy_only-latent          -0.0991   [ -0.3278,  +0.1251]   P(>0)=0.199   n.s.
+    latent_entropy_only-dragin          -0.0660   [ -0.1861,  +0.0560]   P(>0)=0.132   n.s.
+    latent_entropy_only-etc             -0.0635   [ -0.2356,  +0.1217]   P(>0)=0.245   n.s.
+    latent_entropy_only-random          -0.0350   [ -0.2118,  +0.1615]   P(>0)=0.346   n.s.
+
+  --- TEST (n=40) ---
+    gate                              fire%   point      95% CI                 sig
+    latent                             95.0   -0.0359   [ -0.2587,  +0.1906]   n.s.
+    etc                                95.0   +0.0023   [ -0.1263,  +0.1285]   n.s.
+    selfdoubt_t1                        2.5       n/a   [     n/a,      n/a]   n/a
+    dragin                             97.5   +0.0240   [ -0.0586,  +0.1096]   n.s.
+    random                             97.5   +0.0864   [ -0.0316,  +0.2073]   n.s.
+    latent_fused_balanced              85.0   -0.0916   [ -0.2348,  +0.0533]   n.s.
+    latent_fused_f1opt                100.0   -0.0002   [ -0.0171,  +0.0166]   n.s.
+    latent_or_drift_entropy           100.0   +0.0163   [ -0.0201,  +0.0493]   n.s.
+    latent_or_drift_hiddennorm        100.0   -0.0167   [ -0.0578,  +0.0239]   n.s.
+    latent_entropy_only                95.0   +0.0435   [ -0.0380,  +0.1316]   n.s.
+    --- key paired margins (new − baseline) ---
+    latent_fused_balanced-latent          -0.0557   [ -0.2454,  +0.1249]   P(>0)=0.282   n.s.
+    latent_fused_balanced-dragin          -0.1156   [ -0.2868,  +0.0589]   P(>0)=0.096   n.s.
+    latent_fused_balanced-etc             -0.0939   [ -0.2579,  +0.0614]   P(>0)=0.124   n.s.
+    latent_fused_balanced-random          -0.1780   [ -0.3451,  -0.0122]   P(>0)=0.019   *** < 0
+    latent_fused_f1opt-latent          +0.0357   [ -0.1826,  +0.2495]   P(>0)=0.626   n.s.
+    latent_fused_f1opt-dragin          -0.0242   [ -0.1093,  +0.0608]   P(>0)=0.292   n.s.
+    latent_fused_f1opt-etc             -0.0025   [ -0.1215,  +0.1119]   P(>0)=0.491   n.s.
+    latent_fused_f1opt-random          -0.0866   [ -0.2032,  +0.0271]   P(>0)=0.069   n.s.
+    latent_or_drift_entropy-latent          +0.0522   [ -0.1587,  +0.2679]   P(>0)=0.683   n.s.
+    latent_or_drift_entropy-dragin          -0.0077   [ -0.0943,  +0.0813]   P(>0)=0.415   n.s.
+    latent_or_drift_entropy-etc             +0.0140   [ -0.0972,  +0.1289]   P(>0)=0.604   n.s.
+    latent_or_drift_entropy-random          -0.0702   [ -0.1775,  +0.0314]   P(>0)=0.090   n.s.
+    latent_or_drift_hiddennorm-latent          +0.0192   [ -0.1904,  +0.2282]   P(>0)=0.575   n.s.
+    latent_or_drift_hiddennorm-dragin          -0.0407   [ -0.1313,  +0.0523]   P(>0)=0.187   n.s.
+    latent_or_drift_hiddennorm-etc             -0.0189   [ -0.1354,  +0.0963]   P(>0)=0.374   n.s.
+    latent_or_drift_hiddennorm-random          -0.1031   [ -0.2235,  +0.0111]   P(>0)=0.038   n.s.
+    latent_entropy_only-latent          +0.0794   [ -0.1435,  +0.3003]   P(>0)=0.757   n.s.
+    latent_entropy_only-dragin          +0.0195   [ -0.0897,  +0.1350]   P(>0)=0.634   n.s.
+    latent_entropy_only-etc             +0.0412   [ -0.0657,  +0.1559]   P(>0)=0.769   n.s.
+    latent_entropy_only-random          -0.0429   [ -0.1487,  +0.0531]   P(>0)=0.204   n.s.
+
+[arch] qwen3.6-35b-a3b-instruct
+  n_calib=103  n_val=35  n_test=37
+  tau_drift_iso30          = 0.3029
+  tau_mean_entropy_iso30   = 0.2453
+  tau_hidden_norm_iso30    = 3.1258
+  thr_fused_balanced_iso30 = 0.5626
+  thr_fused_unb_f1opt      = 0.4283
+  balanced LR weights (after standardisation):
+    drift_cosine             = -0.0566
+    variance_l2_window       = -0.3619
+    hidden_norm              = +0.2740
+    mean_token_entropy       = +0.3085
+    boundary_token_entropy   = +0.0574
+  balanced C_chosen = 0.04642
+
+  --- VALIDATION (n=35) ---
+    gate                              fire%   point      95% CI                 sig
+    latent                             88.6   +0.3116   [ +0.1597,  +0.4695]   *** > 0
+    etc                                65.7   -0.0446   [ -0.2842,  +0.1911]   n.s.
+    selfdoubt_t1                        0.0       n/a   [     n/a,      n/a]   n/a
+    dragin                             80.0   +0.0668   [ -0.1292,  +0.2357]   n.s.
+    random                             97.1   -0.0159   [ -0.2555,  +0.2048]   n.s.
+    latent_fused_balanced              77.1   +0.1935   [ -0.0688,  +0.4320]   n.s.
+    latent_fused_f1opt                100.0   +0.0701   [ -0.0029,  +0.1347]   n.s.
+    latent_or_drift_entropy            88.6   +0.1642   [ -0.0125,  +0.3435]   n.s.
+    latent_or_drift_hiddennorm        100.0   +0.1715   [ -0.0812,  +0.3932]   n.s.
+    latent_entropy_only                80.0   +0.1873   [ -0.0001,  +0.3708]   n.s.
+    --- key paired margins (new − baseline) ---
+    latent_fused_balanced-latent          -0.1181   [ -0.4164,  +0.1635]   P(>0)=0.211   n.s.
+    latent_fused_balanced-dragin          +0.1267   [ -0.1049,  +0.3521]   P(>0)=0.863   n.s.
+    latent_fused_balanced-etc             +0.2381   [ -0.0590,  +0.5440]   P(>0)=0.941   n.s.
+    latent_fused_balanced-random          +0.2094   [ -0.0457,  +0.4677]   P(>0)=0.947   n.s.
+    latent_fused_f1opt-latent          -0.2415   [ -0.3704,  -0.1183]   P(>0)=0.000   *** < 0
+    latent_fused_f1opt-dragin          +0.0033   [ -0.1671,  +0.1970]   P(>0)=0.497   n.s.
+    latent_fused_f1opt-etc             +0.1147   [ -0.1080,  +0.3345]   P(>0)=0.851   n.s.
+    latent_fused_f1opt-random          +0.0860   [ -0.1274,  +0.3056]   P(>0)=0.782   n.s.
+    latent_or_drift_entropy-latent          -0.1474   [ -0.2963,  -0.0309]   P(>0)=0.004   *** < 0
+    latent_or_drift_entropy-dragin          +0.0974   [ -0.1157,  +0.3328]   P(>0)=0.800   n.s.
+    latent_or_drift_entropy-etc             +0.2088   [ -0.0183,  +0.4469]   P(>0)=0.964   n.s.
+    latent_or_drift_entropy-random          +0.1802   [ -0.0821,  +0.4453]   P(>0)=0.915   n.s.
+    latent_or_drift_hiddennorm-latent          -0.1401   [ -0.3607,  +0.0341]   P(>0)=0.077   n.s.
+    latent_or_drift_hiddennorm-dragin          +0.1048   [ -0.1524,  +0.3817]   P(>0)=0.780   n.s.
+    latent_or_drift_hiddennorm-etc             +0.2161   [ -0.0617,  +0.4933]   P(>0)=0.937   n.s.
+    latent_or_drift_hiddennorm-random          +0.1875   [ -0.0869,  +0.4617]   P(>0)=0.915   n.s.
+    latent_entropy_only-latent          -0.1243   [ -0.3298,  +0.0640]   P(>0)=0.104   n.s.
+    latent_entropy_only-dragin          +0.1205   [ -0.0668,  +0.3386]   P(>0)=0.885   n.s.
+    latent_entropy_only-etc             +0.2319   [ +0.0313,  +0.4520]   P(>0)=0.988   *** > 0
+    latent_entropy_only-random          +0.2032   [ -0.0540,  +0.4602]   P(>0)=0.938   n.s.
+
+  --- TEST (n=37) ---
+    gate                              fire%   point      95% CI                 sig
+    latent                             83.8   +0.2840   [ +0.1164,  +0.4603]   *** > 0
+    etc                                64.9   +0.1335   [ -0.1080,  +0.3544]   n.s.
+    selfdoubt_t1                        5.4       n/a   [     n/a,      n/a]   n/a
+    dragin                             83.8   +0.0975   [ -0.0342,  +0.2317]   n.s.
+    random                            100.0   +0.2283   [ +0.0861,  +0.3692]   *** > 0
+    latent_fused_balanced              70.3   +0.0538   [ -0.1952,  +0.2877]   n.s.
+    latent_fused_f1opt                100.0   +0.0770   [ +0.0246,  +0.1264]   *** > 0
+    latent_or_drift_entropy            94.6   +0.1990   [ +0.0439,  +0.3595]   *** > 0
+    latent_or_drift_hiddennorm         91.9   +0.3125   [ +0.1477,  +0.4775]   *** > 0
+    latent_entropy_only                78.4   +0.0682   [ -0.1502,  +0.2719]   n.s.
+    --- key paired margins (new − baseline) ---
+    latent_fused_balanced-latent          -0.2302   [ -0.5334,  +0.0802]   P(>0)=0.075   n.s.
+    latent_fused_balanced-dragin          -0.0438   [ -0.3223,  +0.2310]   P(>0)=0.369   n.s.
+    latent_fused_balanced-etc             -0.0798   [ -0.3786,  +0.2318]   P(>0)=0.293   n.s.
+    latent_fused_balanced-random          -0.1746   [ -0.4442,  +0.1005]   P(>0)=0.104   n.s.
+    latent_fused_f1opt-latent          -0.2069   [ -0.3561,  -0.0591]   P(>0)=0.003   *** < 0
+    latent_fused_f1opt-dragin          -0.0205   [ -0.1353,  +0.0937]   P(>0)=0.359   n.s.
+    latent_fused_f1opt-etc             -0.0565   [ -0.2759,  +0.1806]   P(>0)=0.294   n.s.
+    latent_fused_f1opt-random          -0.1513   [ -0.2830,  -0.0137]   P(>0)=0.016   *** < 0
+    latent_or_drift_entropy-latent          -0.0850   [ -0.1962,  +0.0202]   P(>0)=0.057   n.s.
+    latent_or_drift_entropy-dragin          +0.1015   [ -0.0522,  +0.2585]   P(>0)=0.900   n.s.
+    latent_or_drift_entropy-etc             +0.0655   [ -0.1766,  +0.3252]   P(>0)=0.685   n.s.
+    latent_or_drift_entropy-random          -0.0293   [ -0.2114,  +0.1630]   P(>0)=0.377   n.s.
+    latent_or_drift_hiddennorm-latent          +0.0285   [ -0.0744,  +0.1378]   P(>0)=0.699   n.s.
+    latent_or_drift_hiddennorm-dragin          +0.2149   [ +0.0425,  +0.3822]   P(>0)=0.992   *** > 0
+    latent_or_drift_hiddennorm-etc             +0.1789   [ -0.0655,  +0.4532]   P(>0)=0.920   n.s.
+    latent_or_drift_hiddennorm-random          +0.0842   [ -0.1107,  +0.2811]   P(>0)=0.801   n.s.
+    latent_entropy_only-latent          -0.2157   [ -0.4498,  +0.0090]   P(>0)=0.029   n.s.
+    latent_entropy_only-dragin          -0.0293   [ -0.2372,  +0.1541]   P(>0)=0.395   n.s.
+    latent_entropy_only-etc             -0.0653   [ -0.2131,  +0.0790]   P(>0)=0.175   n.s.
+    latent_entropy_only-random          -0.1601   [ -0.3870,  +0.0605]   P(>0)=0.082   n.s.
+
+[ok] wrote runs/phase4_method_variants.json

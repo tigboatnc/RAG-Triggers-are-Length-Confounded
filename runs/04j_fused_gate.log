@@ -1,0 +1,220 @@
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1780: FutureWarning: The default value for l1_ratios will change from None to (0.0,) in version 1.10. From version 1.10 onwards, only array-like with values in [0, 1] will be allowed, None will be forbidden. To avoid this warning, explicitly set a value, e.g. l1_ratios=(0,).
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1811: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratios' instead. Use l1_ratios=(0,) instead of penalty='l2'  and l1_ratios=(1,) instead of penalty='l1'.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1823: FutureWarning: The fitted attributes of LogisticRegressionCV will be simplified in scikit-learn 1.10 to remove redundancy. Set`use_legacy_attributes=False` to enable the new behavior now, or set it to `True` to silence this warning during the transition period while keeping the deprecated behavior for the time being. The default value of use_legacy_attributes will change from True to False in scikit-learn 1.10. See the docstring of LogisticRegressionCV for more details.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1780: FutureWarning: The default value for l1_ratios will change from None to (0.0,) in version 1.10. From version 1.10 onwards, only array-like with values in [0, 1] will be allowed, None will be forbidden. To avoid this warning, explicitly set a value, e.g. l1_ratios=(0,).
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1811: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratios' instead. Use l1_ratios=(0,) instead of penalty='l2'  and l1_ratios=(1,) instead of penalty='l1'.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1823: FutureWarning: The fitted attributes of LogisticRegressionCV will be simplified in scikit-learn 1.10 to remove redundancy. Set`use_legacy_attributes=False` to enable the new behavior now, or set it to `True` to silence this warning during the transition period while keeping the deprecated behavior for the time being. The default value of use_legacy_attributes will change from True to False in scikit-learn 1.10. See the docstring of LogisticRegressionCV for more details.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1780: FutureWarning: The default value for l1_ratios will change from None to (0.0,) in version 1.10. From version 1.10 onwards, only array-like with values in [0, 1] will be allowed, None will be forbidden. To avoid this warning, explicitly set a value, e.g. l1_ratios=(0,).
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1811: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratios' instead. Use l1_ratios=(0,) instead of penalty='l2'  and l1_ratios=(1,) instead of penalty='l1'.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1823: FutureWarning: The fitted attributes of LogisticRegressionCV will be simplified in scikit-learn 1.10 to remove redundancy. Set`use_legacy_attributes=False` to enable the new behavior now, or set it to `True` to silence this warning during the transition period while keeping the deprecated behavior for the time being. The default value of use_legacy_attributes will change from True to False in scikit-learn 1.10. See the docstring of LogisticRegressionCV for more details.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1780: FutureWarning: The default value for l1_ratios will change from None to (0.0,) in version 1.10. From version 1.10 onwards, only array-like with values in [0, 1] will be allowed, None will be forbidden. To avoid this warning, explicitly set a value, e.g. l1_ratios=(0,).
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1811: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratios' instead. Use l1_ratios=(0,) instead of penalty='l2'  and l1_ratios=(1,) instead of penalty='l1'.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1823: FutureWarning: The fitted attributes of LogisticRegressionCV will be simplified in scikit-learn 1.10 to remove redundancy. Set`use_legacy_attributes=False` to enable the new behavior now, or set it to `True` to silence this warning during the transition period while keeping the deprecated behavior for the time being. The default value of use_legacy_attributes will change from True to False in scikit-learn 1.10. See the docstring of LogisticRegressionCV for more details.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1780: FutureWarning: The default value for l1_ratios will change from None to (0.0,) in version 1.10. From version 1.10 onwards, only array-like with values in [0, 1] will be allowed, None will be forbidden. To avoid this warning, explicitly set a value, e.g. l1_ratios=(0,).
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1811: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratios' instead. Use l1_ratios=(0,) instead of penalty='l2'  and l1_ratios=(1,) instead of penalty='l1'.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1823: FutureWarning: The fitted attributes of LogisticRegressionCV will be simplified in scikit-learn 1.10 to remove redundancy. Set`use_legacy_attributes=False` to enable the new behavior now, or set it to `True` to silence this warning during the transition period while keeping the deprecated behavior for the time being. The default value of use_legacy_attributes will change from True to False in scikit-learn 1.10. See the docstring of LogisticRegressionCV for more details.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1780: FutureWarning: The default value for l1_ratios will change from None to (0.0,) in version 1.10. From version 1.10 onwards, only array-like with values in [0, 1] will be allowed, None will be forbidden. To avoid this warning, explicitly set a value, e.g. l1_ratios=(0,).
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1811: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratios' instead. Use l1_ratios=(0,) instead of penalty='l2'  and l1_ratios=(1,) instead of penalty='l1'.
+  warnings.warn(
+/Users/sanegi/miniconda3/envs/gzn/lib/python3.12/site-packages/sklearn/linear_model/_logistic.py:1823: FutureWarning: The fitted attributes of LogisticRegressionCV will be simplified in scikit-learn 1.10 to remove redundancy. Set`use_legacy_attributes=False` to enable the new behavior now, or set it to `True` to silence this warning during the transition period while keeping the deprecated behavior for the time being. The default value of use_legacy_attributes will change from True to False in scikit-learn 1.10. See the docstring of LogisticRegressionCV for more details.
+  warnings.warn(
+[..] Tier 1: multi-feature fusion gate (entry #22)
+     features (geom-only)  = ['drift_cosine', 'variance_l2_window', 'hidden_norm', 'mean_token_entropy', 'boundary_token_entropy']
+     features (geom+text)  = ['drift_cosine', 'variance_l2_window', 'hidden_norm', 'mean_token_entropy', 'boundary_token_entropy', 'hvr']
+     target_fire_rate=0.3  B=10000  min_steps=3  seed=20260511
+     include_test=True
+
+[arch] phi-4-mini-instruct
+  n_calib=37  n_val=11  n_test=13
+  threshold_iso_fire (geom): 0.7095
+  geom weights (after standardisation; sign: +ve => fires on INCORRECT):
+    drift_cosine             = +0.0006
+    variance_l2_window       = +0.0003
+    hidden_norm              = +0.0001
+    mean_token_entropy       = +0.0012
+    boundary_token_entropy   = +0.0004
+  geom C_chosen = 0.0001
+  geom+text weights:
+    drift_cosine             = +0.0006
+    variance_l2_window       = +0.0003
+    hidden_norm              = +0.0001
+    mean_token_entropy       = +0.0012
+    boundary_token_entropy   = +0.0004
+    hvr                      = +0.0000
+  geom+text C_chosen = 0.0001
+
+  --- VALIDATION (n=11) ---
+    gate                    fire%   point      95% CI                 sig
+    latent                   36.4   +0.1121   [ +0.0635,  +0.1607]   *** > 0
+    etc                      63.6   -0.0260   [ -0.3492,  +0.2698]   n.s.
+    selfdoubt_t1              0.0       n/a   [     n/a,      n/a]   n/a
+    dragin                   81.8   -0.0409   [ -0.4794,  +0.4750]   n.s.
+    random                   90.9   +0.1355   [ -0.2644,  +0.7268]   n.s.
+    latent_fused             72.7   +0.1215   [ -0.3528,  +0.5583]   n.s.
+    latent_fused_2of3         0.0       n/a   [     n/a,      n/a]   n/a
+    latent_fused_plus        72.7   +0.1215   [ -0.3642,  +0.5520]   n.s.
+    --- key paired margins (fused − baseline) ---
+    latent_fused-latent          +0.0094   [ -0.4095,  +0.4540]   P(>0)=0.552   n.s.
+    latent_fused-dragin          +0.1624   [ -0.2330,  +0.5875]   P(>0)=0.789   n.s.
+    latent_fused-etc             +0.1475   [ -0.1254,  +0.4179]   P(>0)=0.859   n.s.
+    latent_fused-random          -0.0140   [ -0.4154,  +0.3834]   P(>0)=0.477   n.s.
+    latent_fused_plus-latent          +0.0094   [ -0.4076,  +0.4571]   P(>0)=0.558   n.s.
+    latent_fused_plus-dragin          +0.1624   [ -0.2576,  +0.5817]   P(>0)=0.784   n.s.
+    latent_fused_plus-etc             +0.1475   [ -0.1296,  +0.4174]   P(>0)=0.856   n.s.
+    latent_fused_plus-random          -0.0140   [ -0.4107,  +0.3800]   P(>0)=0.474   n.s.
+
+  --- TEST (n=13) ---
+    gate                    fire%   point      95% CI                 sig
+    latent                   61.5   +0.0252   [ -0.1025,  +0.1429]   n.s.
+    etc                      69.2   +0.0478   [ -0.2293,  +0.3238]   n.s.
+    selfdoubt_t1              7.7       n/a   [     n/a,      n/a]   n/a
+    dragin                   61.5   -0.2000   [ -0.6000,  +0.2000]   n.s.
+    random                   76.9   +0.3268   [ -0.1260,  +0.7438]   n.s.
+    latent_fused             69.2   +0.1205   [ -0.1410,  +0.5367]   n.s.
+    latent_fused_2of3         0.0       n/a   [     n/a,      n/a]   n/a
+    latent_fused_plus        69.2   +0.1205   [ -0.1381,  +0.5283]   n.s.
+    --- key paired margins (fused − baseline) ---
+    latent_fused-latent          +0.0952   [ -0.1482,  +0.3828]   P(>0)=0.608   n.s.
+    latent_fused-dragin          +0.3205   [ -0.2044,  +0.9539]   P(>0)=0.836   n.s.
+    latent_fused-etc             +0.0727   [ -0.1113,  +0.3023]   P(>0)=0.767   n.s.
+    latent_fused-random          -0.2063   [ -0.5923,  +0.0883]   P(>0)=0.099   n.s.
+    latent_fused_plus-latent          +0.0952   [ -0.1502,  +0.3943]   P(>0)=0.622   n.s.
+    latent_fused_plus-dragin          +0.3205   [ -0.2094,  +0.9567]   P(>0)=0.838   n.s.
+    latent_fused_plus-etc             +0.0727   [ -0.1176,  +0.3071]   P(>0)=0.766   n.s.
+    latent_fused_plus-random          -0.2063   [ -0.5983,  +0.0839]   P(>0)=0.092   n.s.
+
+[arch] gemma-4-26b-a4b-it
+  n_calib=120  n_val=40  n_test=40
+  threshold_iso_fire (geom): 0.6285
+  geom weights (after standardisation; sign: +ve => fires on INCORRECT):
+    drift_cosine             = -0.0504
+    variance_l2_window       = +0.1075
+    hidden_norm              = +0.1063
+    mean_token_entropy       = +0.0913
+    boundary_token_entropy   = -0.0107
+  geom C_chosen = 0.005995
+  geom+text weights:
+    drift_cosine             = -0.0499
+    variance_l2_window       = +0.1069
+    hidden_norm              = +0.1058
+    mean_token_entropy       = +0.0905
+    boundary_token_entropy   = -0.0111
+    hvr                      = +0.0281
+  geom+text C_chosen = 0.005995
+
+  --- VALIDATION (n=40) ---
+    gate                    fire%   point      95% CI                 sig
+    latent                   87.5   +0.0660   [ -0.1621,  +0.2828]   n.s.
+    etc                      90.0   +0.0305   [ -0.1142,  +0.1873]   n.s.
+    selfdoubt_t1              0.0       n/a   [     n/a,      n/a]   n/a
+    dragin                   97.5   +0.0329   [ -0.0023,  +0.0710]   n.s.
+    random                  100.0   +0.0101   [ -0.1282,  +0.1476]   n.s.
+    latent_fused             87.5   +0.0512   [ -0.1414,  +0.2483]   n.s.
+    latent_fused_2of3         0.0       n/a   [     n/a,      n/a]   n/a
+    latent_fused_plus        87.5   +0.0512   [ -0.1441,  +0.2431]   n.s.
+    --- key paired margins (fused − baseline) ---
+    latent_fused-latent          -0.0149   [ -0.1949,  +0.1635]   P(>0)=0.436   n.s.
+    latent_fused-dragin          +0.0182   [ -0.1685,  +0.2064]   P(>0)=0.569   n.s.
+    latent_fused-etc             +0.0207   [ -0.2257,  +0.2651]   P(>0)=0.566   n.s.
+    latent_fused-random          +0.0411   [ -0.1874,  +0.2695]   P(>0)=0.645   n.s.
+    latent_fused_plus-latent          -0.0149   [ -0.1972,  +0.1648]   P(>0)=0.434   n.s.
+    latent_fused_plus-dragin          +0.0182   [ -0.1710,  +0.2066]   P(>0)=0.579   n.s.
+    latent_fused_plus-etc             +0.0207   [ -0.2180,  +0.2670]   P(>0)=0.564   n.s.
+    latent_fused_plus-random          +0.0411   [ -0.1874,  +0.2665]   P(>0)=0.647   n.s.
+
+  --- TEST (n=40) ---
+    gate                    fire%   point      95% CI                 sig
+    latent                   95.0   -0.0359   [ -0.2582,  +0.1831]   n.s.
+    etc                      95.0   +0.0023   [ -0.1238,  +0.1278]   n.s.
+    selfdoubt_t1              2.5       n/a   [     n/a,      n/a]   n/a
+    dragin                   97.5   +0.0240   [ -0.0599,  +0.1114]   n.s.
+    random                  100.0   -0.0307   [ -0.2084,  +0.1320]   n.s.
+    latent_fused             85.0   -0.0916   [ -0.2356,  +0.0531]   n.s.
+    latent_fused_2of3         0.0       n/a   [     n/a,      n/a]   n/a
+    latent_fused_plus        85.0   -0.0820   [ -0.2239,  +0.0625]   n.s.
+    --- key paired margins (fused − baseline) ---
+    latent_fused-latent          -0.0557   [ -0.2425,  +0.1182]   P(>0)=0.279   n.s.
+    latent_fused-dragin          -0.1156   [ -0.2910,  +0.0590]   P(>0)=0.095   n.s.
+    latent_fused-etc             -0.0939   [ -0.2603,  +0.0614]   P(>0)=0.125   n.s.
+    latent_fused-random          -0.0609   [ -0.2354,  +0.1087]   P(>0)=0.243   n.s.
+    latent_fused_plus-latent          -0.0460   [ -0.2342,  +0.1308]   P(>0)=0.315   n.s.
+    latent_fused_plus-dragin          -0.1060   [ -0.2780,  +0.0692]   P(>0)=0.112   n.s.
+    latent_fused_plus-etc             -0.0842   [ -0.2538,  +0.0826]   P(>0)=0.162   n.s.
+    latent_fused_plus-random          -0.0512   [ -0.2329,  +0.1311]   P(>0)=0.291   n.s.
+
+[arch] qwen3.6-35b-a3b-instruct
+  n_calib=103  n_val=35  n_test=37
+  threshold_iso_fire (geom): 0.6338
+  geom weights (after standardisation; sign: +ve => fires on INCORRECT):
+    drift_cosine             = -0.0569
+    variance_l2_window       = -0.3531
+    hidden_norm              = +0.2670
+    mean_token_entropy       = +0.3119
+    boundary_token_entropy   = +0.0589
+  geom C_chosen = 0.04642
+  geom+text weights:
+    drift_cosine             = -0.0570
+    variance_l2_window       = -0.3530
+    hidden_norm              = +0.2685
+    mean_token_entropy       = +0.3072
+    boundary_token_entropy   = +0.0607
+    hvr                      = +0.0591
+  geom+text C_chosen = 0.04642
+
+  --- VALIDATION (n=35) ---
+    gate                    fire%   point      95% CI                 sig
+    latent                   88.6   +0.3116   [ +0.1637,  +0.4723]   *** > 0
+    etc                      65.7   -0.0446   [ -0.2753,  +0.1916]   n.s.
+    selfdoubt_t1              0.0       n/a   [     n/a,      n/a]   n/a
+    dragin                   80.0   +0.0668   [ -0.1328,  +0.2440]   n.s.
+    random                   80.0   +0.1205   [ -0.0202,  +0.2607]   n.s.
+    latent_fused             77.1   +0.1627   [ -0.0932,  +0.3898]   n.s.
+    latent_fused_2of3         0.0       n/a   [     n/a,      n/a]   n/a
+    latent_fused_plus        77.1   +0.1812   [ -0.0746,  +0.4187]   n.s.
+    --- key paired margins (fused − baseline) ---
+    latent_fused-latent          -0.1490   [ -0.4446,  +0.1229]   P(>0)=0.147   n.s.
+    latent_fused-dragin          +0.0959   [ -0.1242,  +0.3137]   P(>0)=0.804   n.s.
+    latent_fused-etc             +0.2073   [ -0.0861,  +0.5053]   P(>0)=0.917   n.s.
+    latent_fused-random          +0.0422   [ -0.2504,  +0.3000]   P(>0)=0.638   n.s.
+    latent_fused_plus-latent          -0.1304   [ -0.4253,  +0.1434]   P(>0)=0.180   n.s.
+    latent_fused_plus-dragin          +0.1144   [ -0.1037,  +0.3269]   P(>0)=0.858   n.s.
+    latent_fused_plus-etc             +0.2258   [ -0.0552,  +0.5254]   P(>0)=0.940   n.s.
+    latent_fused_plus-random          +0.0607   [ -0.2284,  +0.3145]   P(>0)=0.674   n.s.
+
+  --- TEST (n=37) ---
+    gate                    fire%   point      95% CI                 sig
+    latent                   83.8   +0.2840   [ +0.1150,  +0.4622]   *** > 0
+    etc                      64.9   +0.1335   [ -0.1118,  +0.3572]   n.s.
+    selfdoubt_t1              5.4       n/a   [     n/a,      n/a]   n/a
+    dragin                   83.8   +0.0975   [ -0.0320,  +0.2301]   n.s.
+    random                   89.2   +0.1646   [ +0.0115,  +0.3140]   *** > 0
+    latent_fused             70.3   +0.0538   [ -0.2049,  +0.2862]   n.s.
+    latent_fused_2of3         0.0       n/a   [     n/a,      n/a]   n/a
+    latent_fused_plus        73.0   +0.0634   [ -0.1469,  +0.2646]   n.s.
+    --- key paired margins (fused − baseline) ---
+    latent_fused-latent          -0.2302   [ -0.5342,  +0.0794]   P(>0)=0.075   n.s.
+    latent_fused-dragin          -0.0438   [ -0.3229,  +0.2307]   P(>0)=0.374   n.s.
+    latent_fused-etc             -0.0798   [ -0.3810,  +0.2424]   P(>0)=0.294   n.s.
+    latent_fused-random          -0.1108   [ -0.4104,  +0.2114]   P(>0)=0.240   n.s.
+    latent_fused_plus-latent          -0.2205   [ -0.5076,  +0.0656]   P(>0)=0.066   n.s.
+    latent_fused_plus-dragin          -0.0341   [ -0.2865,  +0.2147]   P(>0)=0.390   n.s.
+    latent_fused_plus-etc             -0.0701   [ -0.3546,  +0.2237]   P(>0)=0.305   n.s.
+    latent_fused_plus-random          -0.1011   [ -0.3700,  +0.1928]   P(>0)=0.236   n.s.
+
+[ok] wrote runs/phase4_fused_gate.json

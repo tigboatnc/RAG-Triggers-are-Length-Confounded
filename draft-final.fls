@@ -1,0 +1,13 @@
+PWD /Users/sanegi/Documents/projects/recollection.local
+INPUT /usr/local/texlive/2025/texmf.cnf
+INPUT /usr/local/texlive/2025/texmf-dist/web2c/texmf.cnf
+INPUT /usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt
+INPUT /Users/sanegi/Documents/projects/recollection.local/draft-final.tex
+OUTPUT draft-final.log
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/article.cls
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/article.cls
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/size11.clo
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/size11.clo
+INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/base/size11.clo
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map
+INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr10.tfm

@@ -461,3 +461,13 @@
 [457] id=5abb07e95542992ccd8e7ec4  em=0  f1=0.500  tok=144  reason=answer_marker  n_sup=2/10
 [458] id=5a7e1f5655429965cec5ea81  em=0  f1=0.800  tok=96  reason=answer_marker  n_sup=2/10
 [459] id=5adff34555429942ec259baa  em=0  f1=0.000  tok=96  reason=answer_marker  n_sup=2/10
+[460] id=5ae3281a5542991a06ce9939  em=1  f1=1.000  tok=192  reason=answer_marker  n_sup=2/10
+[461] id=5ab4ec2755429942dd415fa6  em=0  f1=0.800  tok=64  reason=answer_marker  n_sup=2/10
+[462] id=5a8b7dab5542997f31a41d4c  em=0  f1=0.571  tok=128  reason=answer_marker  n_sup=2/10
+[463] id=5a7621bb554299109176e650  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[464] id=5ac3d68f554299076e296ca6  em=0  f1=0.667  tok=32  reason=answer_marker  n_sup=2/10
+[465] id=5a74cfc75542996c70cfadfe  em=0  f1=0.111  tok=288  reason=answer_marker  n_sup=2/10
+[466] id=5abbf8bc5542993f40c73c35  em=0  f1=0.000  tok=80  reason=answer_marker  n_sup=2/3
+[467] id=5adfb790554299603e418389  em=0  f1=0.125  tok=48  reason=answer_marker  n_sup=2/10
+[468] id=5ae69cfe55429908198fa65f  em=0  f1=0.727  tok=112  reason=answer_marker  n_sup=2/10
+[469] id=5ab28156554299449642c8ce  em=0  f1=0.286  tok=176  reason=answer_marker  n_sup=2/10

@@ -467,3 +467,17 @@
 [463] id=d1fd885008b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=54  reason=eos  n_sup=2/10
 [464] id=4e3802420bdd11eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
 [465] id=bb275b6808a011ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=208  reason=answer_marker  n_sup=4/10
+[466] id=cbbcad9a08d511ebbd98ac1f6bf848b6  em=0  f1=0.000  tok=192  reason=answer_marker  n_sup=4/10
+[467] id=783b1724087611ebbd67ac1f6bf848b6  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=4/10
+[468] id=10f93d880bdd11eba7f7acde48001122  em=1  f1=1.000  tok=48  reason=answer_marker  n_sup=2/10
+[469] id=93b5fedc0bdd11eba7f7acde48001122  em=0  f1=0.000  tok=80  reason=answer_marker  n_sup=2/10
+[470] id=09e7fffe08b311ebbd86ac1f6bf848b6  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[471] id=f927d5420bdd11eba7f7acde48001122  em=0  f1=0.000  tok=48  reason=answer_marker  n_sup=2/10
+[472] id=2f6aa3ba0bb011ebab90acde48001122  em=0  f1=0.200  tok=48  reason=answer_marker  n_sup=2/10
+[473] id=20701b460bde11eba7f7acde48001122  em=0  f1=0.667  tok=80  reason=answer_marker  n_sup=2/10
+[474] id=02940204087811ebbd67ac1f6bf848b6  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=2/10
+[475] id=ec4d02500bda11eba7f7acde48001122  em=1  f1=1.000  tok=64  reason=answer_marker  n_sup=2/10
+[476] id=8729520c0bda11eba7f7acde48001122  em=0  f1=0.000  tok=80  reason=answer_marker  n_sup=2/10
+[477] id=bc61bfd608d311ebbd96ac1f6bf848b6  em=0  f1=0.000  tok=96  reason=answer_marker  n_sup=4/10
+[478] id=da9eb08e0bdb11eba7f7acde48001122  em=0  f1=0.800  tok=80  reason=answer_marker  n_sup=2/10
+[479] id=fbf8fd9e0bda11eba7f7acde48001122  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10

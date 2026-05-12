@@ -10,3 +10,4 @@
 [..] writing runs/v2_xarch_gemma-4-26b-a4b-it/C_pilot_hotpot.jsonl
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8708.19it/s]
+[..]   5/50  em=4/5  steps= 20  tok= 269  wall=218.4s  elapsed=11.4min

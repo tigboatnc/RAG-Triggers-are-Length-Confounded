@@ -14,3 +14,4 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..]  10/50  em=7/10  steps= 11  tok= 174  wall=113.0s  elapsed=23.6min
 [..]  15/50  em=9/15  steps= 18  tok= 256  wall=200.5s  elapsed=39.7min
 [..]  20/50  em=9/20  steps= 21  tok= 309  wall=240.4s  elapsed=58.3min
+[..]  25/50  em=12/25  steps= 13  tok= 171  wall=141.3s  elapsed=75.1min

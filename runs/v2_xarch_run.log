@@ -43,3 +43,4 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8708.19it/s]
 [..]   5/50  em=4/5  steps= 20  tok= 269  wall=218.4s  elapsed=11.4min
 [..]  10/50  em=7/10  steps= 11  tok= 174  wall=113.0s  elapsed=23.6min
+[..]  15/50  em=9/15  steps= 18  tok= 256  wall=200.5s  elapsed=39.7min

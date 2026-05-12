@@ -779,3 +779,465 @@ Trigger to run: after the v2 D/E run completes and freed GPU, or in parallel
 if the GPU has the headroom (Phi v2 occupies ~16 GB of 80 GB during the
 D parallel block; Gemma is 47 GB and Qwen is 69 GB, so neither fits while
 v2 D is still running — wait for D/E to finish).
+
+---
+
+## 2026-05-12 #v2-5 — Standstill / pivot deliberation; 2-pronged plan
+
+**State of mind (user).** The single-arch Phi `u_cons.max` result, while
+internally clean (4/5 pre-registered claims landed, Bonferroni-clear
+in-domain paired beat over DRAGIN, deployment 3.3× lift at 5% fire-rate
+with zero observed harm), does **not feel like enough** for an EMNLP-short
+submission to the user. Two concerns: (1) single-model evidence is fragile
+relative to the 2025-2026 literature, where every comparable detection /
+dynamic-RAG paper reports either >1 architecture or full-vs-OOD with
+matched gates; (2) `u_cons.max` as headline competes against a thick prior
+literature on stochastic-consistency uncertainty (SelfCheckGPT, Semantic
+Entropy, ARS) that already covers the trace-level version of the same
+idea — the step-boundary specialization is novel but not weight-bearing
+on its own.
+
+**Assistant assessment (from the prior turn, retained for the log).** I
+argued the current paper is writeable, but the user's counter-argument is
+that *exploratory phase* is the right framing — we still have compute and
+time, so scoping wider strengthens both the current result and any new
+claim. **The user's call (correctly, on reflection) is that breadth
+across the 3 archs we already understand intimately beats depth on a
+single new mechanism on Phi alone.**
+
+**Two-pronged plan (this campaign).**
+
+1. **Strengthen-current prong.** Idea 1 (temporal early/late uncertainty
+   spike, Wu / Song framing) is free against the existing on-disk D1/D2/
+   E1/E2 traces. Code it, run it, see whether the spike-location signal
+   decomposes lift+1 (factual gap, fixable by retrieval) from lift−1
+   (logical collapse, unrecoverable). If yes → it's the OOD-rescue we
+   need for `u_cons.max`'s biggest weakness (the 2Wiki lift-conditional
+   AUROC 0.504 / chance result), and a Song-style "detection dilemma"
+   narrative section is added to the paper. If no → it's a clean
+   negative result worth one paragraph and we don't lose anything since
+   the analysis is free.
+
+2. **Broaden-evidence prong.** Defer Idea 2 (latent noise injection JSD,
+   O(1)) and Idea 3 (cross-layer trajectory shape) — both require new
+   capture and bet new compute on σ / layer-pair calibration on Phi
+   alone. Instead, **invest the GPU budget in re-running the Phi v2
+   pipeline on Gemma-4-26B-A4B-it and Qwen3.6-35B-A3B-Instruct** so
+   `u_cons.max`, the legacy DRAGIN/ETC/SELFDOUBT/random gates, AND
+   whatever Idea-1 spike features land become a *3-architecture*
+   comparison, not a one-arch case study. We already have:
+   - frozen Option A decoding protocol per arch (`_MODEL.md §3`)
+   - mid-stack capture layer per arch (Phi L16, Gemma L15, Qwen L20)
+   - oracle re-decode driver
+   - bootstrap / paired-McNemar analysis pipeline
+   This is the "highest information-per-compute" expansion available.
+
+**Key user heuristic:** "I would rather have a thing work or be tested on
+varied models than work great on 1." Logged here as the campaign-level
+guidance.
+
+### Literature anchoring for v2 going forward
+
+User-supplied 20-source lit review (2026-05-12) clusters into 5 themes
+that the paper must situate within. Recording the directional anchors
+here so the writeup and the analysis ordering keep them in view.
+
+**A. Theoretical foundation for trajectory-based detection.**
+- Atkinson — *Tethered (Helix)*: hidden-state trajectory divergence as
+  the geometric definition of hallucination. → Backs CRV-trajectory
+  features (variance/monoton, hidden_norm/range).
+- Chen — *INSIDE / EigenScore*: covariance-eigenvalue dispersion of
+  sentence embeddings. → Backs L2 variance / spectral-dispersion lineage.
+- 4387 — *Self-Aware spectral dispersion (Gram matrix)*: same family.
+- Zhang — *ICR Score (cross-layer evolution)*: argues against static
+  hidden-state probing. → Directly motivates Idea 3 (cross-layer
+  trajectory) if we still pursue it.
+- Chen — *Deep-Thinking Ratio (JSD intermediate vs final layer)*: depth-
+  wise JSD of layer distributions. → Sibling motivation for Idea 3.
+- Hao — *Coconut (continuous-latent reasoning)*: latent reasoning avoids
+  premature semantic commitment. → Cited motivation for evaluating
+  internal state before token decode.
+
+**B. Step-boundary / logical-boundary triggering (closest neighbors).**
+- Guo — *ReaLM-Retrieve / RSUS*: reasoning-step granularity uncertainty.
+  → Closest published cousin to `u_cons.max`. Their score is
+  uncertainty-of-current-step; ours is K=3-resample agreement at the
+  boundary. Both share the "logical boundary > token interval" claim.
+- Zhang — *ARS (Answer-agreement Representation Shaping)*: latent
+  perturbation at trace boundaries → counterfactual answer agreement.
+  → Theoretical sibling of `u_cons.max`'s K=3 stochastic agreement,
+  swapping textual resampling for latent intervention. Idea 2 (latent
+  noise injection) is closer to ARS than `u_cons.max` is. **This is the
+  main "why not just ARS?" question reviewers will pose.**
+- Correa — *Entropy-Guided Loop*: OR-rule on perplexity + max entropy +
+  low-conf-count at "critical decision points." → Pre-existing argument
+  for boundary triggering; we cite, not compete.
+- Asai — *Self-RAG*: trained reflection tokens. → Supervised alternative;
+  we're the training-free one.
+- Jiang — *FLARE*: predicts upcoming sentence's low-conf tokens. →
+  Token-probability strategy; we contrast.
+
+**C. Direct gate baselines (we benchmark against).**
+- Su — *DRAGIN / RIND*: token uncertainty + semantic significance +
+  attention. → Primary baseline; we beat it in-domain AUROC (paired
+  Bonferroni-clear) and tie on lift-conditional.
+- Pandey — *SELFDOUBT / HVR*: text-based hedge-to-verify ratio,
+  O(1) post-decode. → Secondary baseline; we beat its native rule on
+  AUROC (#v2-2 try files).
+- Li — *ETC (Entropy-Trend Constraint, 1st/2nd-order entropy diffs)*. →
+  Tertiary baseline; ETC carries some signal but loses Bonferroni at our n.
+- Manakul — *SelfCheckGPT (trace-level stochastic consistency)*. → The
+  uncle of `u_cons.max`; our innovation is step-boundary, not trace.
+- Farquhar — *Semantic Entropy*. → Same lineage as SelfCheckGPT.
+- Kossen — *Semantic Entropy Probes*. → Hidden-state probe version.
+- Shapiro — *HALT (logprob time-series)*. → Trajectory-shape-of-logprobs
+  family; close cousin to our trajectory-shape features.
+- Bazarova — *MTop-DivG topological divergence on attention graphs*. →
+  Structural-feature family.
+
+**D. OOD / detection-dilemma / unrecoverable framing.**
+- Song — *Detection Dilemma*: internal-state probing detects factual
+  errors, misses logical errors; CoT verification flips it. → **This is
+  the headline citation for Idea 1.** Our 2Wiki lift-conditional 0.504
+  result IS the detection dilemma in our data. The early/late spike
+  decomposition is the proposed resolution.
+- Li — *PAR² (premature commitment)*: early low-recall trajectories lock
+  in. → Theoretical backing for "early-spike-fixable / late-spike-
+  unrecoverable" split.
+- Wu — *Inverted-U CoT length*: long reasoning amplifies errors. →
+  Co-headline citation for Idea 1; predicts the temporal-location
+  signal should exist.
+- Servedio — *SAPLMA probes fail OOD on realistic data*. → Our random
+  noise-floor finding and Δfrac inadequacy at n=500 maps onto this.
+- Fu — *CoT inflates self-confidence*: logprobs are unreliable in
+  flawed reasoning. → Backs preference for consistency over probability.
+
+**E. Cross-architecture / efficiency context.**
+- Manik — *Gemma / Qwen / dense vs MoE eval*: prompt sensitivity,
+  latency, memory differ by arch. → Backs the breadth-prong (the second
+  campaign-level pivot). Our 3-arch evaluation matched at active-param
+  scale is novel relative to most detection papers (which test 1-2
+  archs typically of the same family).
+- Jiang — *GainRAG (relevance ≠ helpful)*: even relevant passages can
+  hurt. → Reinforces that lift_em = +1 vs −1 vs 0 is a non-trivial
+  label and worth analyzing as we do.
+
+### Burden-of-proof scoreboard going into the campaign
+
+Per `_AGENT.md` #26 and `_agent_v2.md` Carry-over D, the v2 floor is
+n=300+ per dataset, ≥2 datasets, Bonferroni-corrected paired tests,
+OOD with frozen thresholds. **Current status:**
+
+| burden                                | status                                          |
+|---                                    |---                                              |
+| n ≥ 300/dataset                       | ✓ 393 (Hot), 452 (Wiki) usable                  |
+| ≥ 2 datasets                          | ✓ HotpotQA + 2Wiki                              |
+| ≥ 1 in-domain + 1 OOD                 | ✓ (HotpotQA in, 2Wiki OOD)                      |
+| paired bootstrap + Bonferroni         | ✓ B=10k, k=4, α=0.0125                          |
+| ≥ 2 architectures                     | **✗** — only Phi; the broaden-evidence prong    |
+| frozen thresholds across OOD          | ✓                                               |
+| compute audit                         | ✓ logged in `_AGENT.md` and per-run JSONs       |
+
+The remaining unmet burden is **cross-architecture**. That, plus Idea 1's
+detection-dilemma decomposition, is the v2-5 work plan.
+
+### Plan v2-5 — concrete sequence
+
+1. **(local, free)** Idea 1 — `analysis/idea1_temporal_spike.py`:
+   - For each of u_cons, mean_token_entropy, drift_cosine,
+     variance_l2_window, dragin_rind_max, hidden_norm, compute the
+     normalized step-position of the per-trace max, ∈ [0,1].
+   - AUROC on three targets: (a) closed-book INCORRECT, (b) lift_em=+1
+     among incorrect ("fixable"), (c) lift_em=−1 vs lift_em=+1 ("harm
+     vs help"), (d) early-vs-late split conditional on `*.max > q70`.
+   - Stratify by n_steps tertile (Wu inverted-U: if signal lives only
+     in the long-trace tertile, that's the framing).
+   - Report two paired-bootstrap comparisons: u_cons.max alone vs
+     u_cons.max × early-spike-indicator (compound gate).
+2. **(compute, ≈ 4 h Gemma + ≈ 5 h Qwen + ≈ 30 min analysis)** Broaden
+   prong, *if* Idea 1 lands or is at least non-falsifying:
+   - Build 200-row HotpotQA-distractor + 200-row 2WikiMHQA-distractor
+     slices (fresh seed, disjoint from all prior cohorts), or reuse
+     v2's 500-row test slices.
+   - Run Phi-pipeline (`scripts/run_exp1_phi.sh` adapted; v2 driver
+     already arch-agnostic except for the loaded checkpoint) on Gemma
+     and Qwen at the same n. Capture mid-stack hidden states, K=3
+     consistency sampler, DRAGIN attention, ETC entropy.
+   - Oracle re-decode if compute permits; otherwise headline shifts to
+     closed-book AUROC + paired bootstrap.
+   - Pre-registered cross-arch claim: at least one of {Gemma, Qwen}
+     reproduces the u_cons.max ≥ DRAGIN.max AUROC ordering in-domain.
+
+If neither prong lands the second leg of the story, write the paper as
+honest negative on cross-arch portability with the single-arch result as
+the case study. **Both prongs are falsifiable; both will be reported on
+their merits.**
+
+### Idea 1 — Temporal spike result (`analysis/idea1_temporal_spike.py`, `.out`)
+
+Filter for this analysis: `n_steps ≥ 2` (single-step traces have no
+meaningful argmax-position). Filtered cohort: **HotpotQA n=249**, **2Wiki
+n=261**. Helpful base rates 0.145 (Hot) / 0.176 (Wiki).
+
+#### Headline AUROC of normalised spike position `pos = argmax_step / (n_feat_steps−1)`
+
+`pos → lift_em=+1 | INCORRECT` ("which incorrect traces are fixable?"):
+
+| feature                | Hot AUROC | 2Wiki AUROC |
+|---                     |---:       |---:         |
+| u_cons                 | 0.526     | 0.522       |
+| mean_token_entropy     | **0.642** | 0.587       |
+| boundary_token_entropy | **0.622** | 0.568       |
+| dragin_rind_max        | 0.556     | **0.612**   |
+| drift_cosine           | 0.457     | 0.465       |
+| variance_l2_window     | 0.400     | 0.469       |
+| hidden_norm            | 0.500     | 0.491       |
+
+`pos → lift_em=−1 (harm) vs lift_em=+1 (help)` (within the lift-tagged
+subset; high pos → harmful):
+
+| feature                | Hot AUROC | 2Wiki AUROC |
+|---                     |---:       |---:         |
+| variance_l2_window     | **0.578** | 0.504       |
+| drift_cosine           | 0.541     | 0.521       |
+| u_cons                 | 0.479     | 0.543       |
+| mean_token_entropy     | 0.412     | 0.454       |
+
+#### Decision-relevant findings
+
+1. **`u_cons` spike-position is at chance** on both datasets (0.522-0.526
+   for fix|incorrect, 0.479-0.543 for harm-vs-help). **Idea 1 does NOT
+   rescue u_cons's OOD lift-conditional weakness.** The temporal location
+   of the K=3 boundary disagreement carries no extra signal beyond its
+   magnitude (`u_cons.max`).
+2. **The signal that actually moves with spike-position is entropy-family,
+   not consistency-family.** `mean_token_entropy.pos → fix|incorrect`
+   AUROC 0.642 in-domain and 0.587 OOD; `boundary_token_entropy.pos` is
+   close behind. This is the Song "detection-dilemma" mapping: an *early*
+   entropy spike marks a factual gap that retrieval can fix.
+3. **DRAGIN's spike-position carries OOD signal** where its magnitude
+   already won: `dragin_rind_max.pos → fix|incorrect` 0.556 (Hot) /
+   **0.612** (Wiki). On 2Wiki this is the strongest spike-position signal
+   in the table, slightly above the magnitude `dragin_rind_max.max` AUROC
+   for lift+1 (≈0.594, iter6/iter7).
+4. **Wu inverted-U partially supported but not as advertised.** On
+   HotpotQA short-tertile (n_steps≤3, n=143): `mean_token_entropy.pos →
+   fix|incorrect` AUROC **0.710**. On long-tertile (n=106): drops to
+   0.602. The signal in incorrect-but-fixable LIVES in short traces
+   (early entropy spike = recoverable factual gap), and DEGRADES on long
+   traces — consistent with PAR² / Wu (long reasoning locks into
+   trajectory commitment regardless of where the spike was).
+5. **Compound deployment gate (`feat.max > q70` AND early-third pos)** —
+   high precision, very low fire rate, mixed clinical value:
+   - Hot, `u_cons.max ∧ pos<1/3`: 12 fires, **P(help|F)=0.500** (vs base
+     0.145, lift 3.4×), P(harm|F)=0.083.
+   - Hot, `dragin_rind_max.max ∧ pos<1/3`: 8 fires, **P(help|F)=0.375**,
+     **P(harm|F)=0.000**.
+   - 2Wiki, `dragin_rind_max.max ∧ pos<1/3`: 5 fires, P(help|F)=0.400,
+     P(harm|F)=0.000.
+   These cells are clean but n_fire is too small to claim significance.
+   - Paired-bootstrap shows the compound `u_cons.max × early-pos`
+     **LOSES** AUROC for lift+1 vs `u_cons.max` alone (Δ −0.184, 95% CI
+     [−0.319, −0.034]). Composition-via-intersection drops fires too
+     aggressively to be a like-for-like win.
+
+#### What this means for the paper
+
+- **The "Song detection-dilemma" decomposition story HAS empirical legs
+  — but with entropy-family features (mean_token_entropy,
+  boundary_token_entropy, dragin_rind_max), not with `u_cons.max`.**
+- The Idea-1 decomposition contradicts the "u_cons is the gate" framing
+  of #v2-3 / #v2-4 in one specific way: u_cons.max tells you the trace
+  is risky, but does NOT tell you whether retrieval will help vs harm.
+  An *entropy-spike-position* feature does.
+- For an EMNLP-short, this is a *real* secondary section: "We further
+  decompose detection signal by spike timing and find that the
+  recoverability of an incorrect trace is predicted by the *position*
+  of the early-step entropy peak (AUROC 0.642 in-domain, 0.587 OOD),
+  not by the magnitude of the consistency-sampler disagreement, which
+  is at chance on this task." This re-aligns the paper toward Song
+  and away from a stand-alone u_cons claim.
+- Practical pivot for the paper structure:
+  - Headline result becomes a **two-feature complementary detector**:
+    u_cons.max for incorrectness, mean_token_entropy.argmax_pos for
+    fixability. This is more nuanced and harder to dismiss as
+    re-doing SelfCheckGPT.
+  - Idea-1 is now a load-bearing third section, not optional.
+- **Weakness flagged**: with `n_steps ≥ 2` filter the cohort drops from
+  393 → 249 (Hot) and 452 → 261 (Wiki). Many Phi traces are 1-step
+  (immediately emits `Answer: ...`). Spike-position is undefined for
+  those, so any spike-based paper claim must caveat the eligible
+  subset. (Single-step traces had `u_cons.max` AUROC and lift base
+  rates almost identical to the multi-step subset per a side check —
+  noted, fine; the claim is scoped to multi-step.)
+
+#### What still needs running
+
+- **Cross-architecture replication of Idea 1 on Gemma + Qwen.** If
+  `mean_token_entropy.argmax_pos → fix|incorrect` holds AUROC ≥ 0.60 on
+  any second arch, the two-feature detector becomes the paper.
+- v2 traces for Gemma/Qwen don't exist yet; need a fresh decode pass
+  with the v2 capture (K=3 sampler + mid-stack + DRAGIN attn + entropy).
+  Phi pipeline is arch-agnostic except for the loaded checkpoint and
+  the `_MODEL.md §3` Option A protocol kwargs — already pinned.
+
+
+---
+
+## 2026-05-12 #v2-6 — Cross-arch broaden-evidence prong: HANDOFF
+
+This is the compute-box-to-analysis-box handoff packet for the v2-5 plan's
+second prong (cross-arch replication on Gemma + Qwen).
+
+### TL;DR
+
+Run `bash scripts/run_xarch_full.sh` on the compute box, push the resulting
+JSONLs, then run `python analysis/xarch_summary.py` on the analysis box.
+That's it; the orchestrator and analyzer are checked in.
+
+### What lands on disk after a successful run
+
+```
+runs/v2_xarch_gemma-4-26b-a4b-it/
+  B_smoke_hotpot.jsonl     (n=5,   Phase B sanity check)
+  C_pilot_hotpot.jsonl     (n=50,  Phase C pilot)
+  D1_closed_hotpot.jsonl   (n=200, full closed-book HotpotQA)
+  D2_closed_wiki.jsonl     (n=200, full closed-book 2Wiki)
+  E1_oracle_hotpot.jsonl   (n=200, oracle re-decode HotpotQA)
+  E2_oracle_wiki.jsonl     (n=200, oracle re-decode 2Wiki)
+  logs/                    (one file per phase)
+runs/v2_xarch_qwen3.6-35b-a3b-instruct/
+  …same layout…
+runs/v2_xarch_preflight.log
+```
+
+### Compute-box setup (fresh box, if needed)
+
+If you're on the already-warm compute box, skip 1–4 and start at step 5.
+
+1. `bash scripts/setup.sh`                                   # ~3-4 min
+2. `bash scripts/download_models.sh phase1.4`                # all 3 models; ~5-15 min for Gemma+Qwen if not cached (~70 GB Qwen + ~50 GB Gemma)
+3. `python scripts/sysinfo.py`                               # confirm CUDA, ≥80 GB VRAM card
+4. `python scripts/04b_protocol_smoke.py`                    # must print `[ok] all 3 models pass Option A protocol smoke`
+5. Confirm test slices exist (they should, since v2 Phi already ran):
+   - `data/hotpotqa_distractor_500_v2test.jsonl`             (500 rows; reused, --limit 200 at decode)
+   - `data/2wikimultihop_distractor_500_v2test.jsonl`        (500 rows; same)
+   If either is missing, the orchestrator hard-fails at preflight and prints
+   the exact `python scripts/04_dataset.py ...` command to rebuild it.
+
+### Compute-box execution
+
+Single command runs both archs end-to-end:
+
+```bash
+bash scripts/run_xarch_full.sh
+```
+
+Knobs (all optional):
+
+- `ARCHS="gemma-4-26b-a4b-it"`           — only Gemma (default: gemma + qwen)
+- `ARCHS="qwen3.6-35b-a3b-instruct"`     — only Qwen
+- `N_FULL=100`                            — smaller cohort (default 200)
+- `N_PILOT=25`                            — quicker pilot (default 50)
+
+Idempotent: re-running with the same `N_FULL` skips already-completed
+phases (each `04f_run_qa_sota.py` / `04l_oracle_retrieve_decode.py` invocation
+resumes from its output JSONL's line count, and the orchestrator skips
+entirely if the file already has ≥ N rows).
+
+Expected wall clock per arch on A800 PCIe 80 GB (per `_MODEL.md §6`
+canonical tok/s and #v2-4's K=3 sampler overhead estimate):
+
+| arch  | smoke | pilot | D1 | D2 | E1 | E2 | total |
+|---    |---    |---    |---:|---:|---:|---:|---:   |
+| Gemma | ~3 min| ~25 min | ~70 min | ~70 min | ~40 min | ~40 min | **~4-4.5 h** |
+| Qwen  | ~4 min| ~30 min | ~85 min | ~85 min | ~50 min | ~50 min | **~5-5.5 h** |
+
+Serial total: ~9-10 h. Cannot parallelise — Gemma is 50 GB + Qwen is 68 GB,
+no co-fit on one 80 GB card.
+
+Per-phase failure modes & how the orchestrator handles them:
+
+- **Phase B smoke** hard-fails if < 2 traces are multi-step-with-answer
+  (logs the failing traces and aborts before pilot). Same gate as v1 #21
+  and Phi v2 Phase B.
+- **Phase B warning** (not failure) if > 50% of smoke traces are
+  1-step — flags that Idea-1 spike-position won't be defined on that
+  fraction of the cohort. Compute continues; the analyst handles it.
+- **2Wiki under-generation on Qwen** (v1 #20 trap): if D2 lands with
+  median `tokens_generated < 60`, the analyzer will report `lift+1`
+  base rates that don't match Phi/Gemma. Mitigation: Option A protocol
+  already pins `enable_thinking=False` (`_MODEL.md §3`), which was the
+  v1 fix; re-confirm by inspecting `runs/v2_xarch_qwen.../logs/D2_*.log`
+  if 2Wiki Qwen numbers look off.
+- **MoE L1 landmine** on Gemma/Qwen: not a concern here — we capture at
+  `--layer-mode mid_stack`, which `_AGENT.md` Phase 2 established as
+  mitigation (`_agent_v2.md` Carry-over B).
+
+### After compute lands — analysis-box workflow
+
+1. Push from compute → pull on analysis box:
+   ```
+   git add runs/v2_xarch_*/D{1,2}_*.jsonl runs/v2_xarch_*/E{1,2}_*.jsonl
+   git add runs/v2_xarch_*/logs/00_master.log
+   git commit -m "v2-xarch: gemma+qwen full n=200 closed+oracle"
+   git push
+   ```
+   (Skip pushing `*.smoke.jsonl` and `C_pilot_*.jsonl` — they're
+   intermediate, useful only on the compute box.)
+
+2. On the analysis box (`gzn` env or any Python 3.10+):
+   ```bash
+   git pull
+   python analysis/xarch_summary.py | tee analysis/xarch_summary.out
+   ```
+
+   This produces a 3-arch × 2-dataset grid:
+   - AUROC(u_cons.max → INCORRECT)
+   - AUROC(dragin_rind_max.max → INCORRECT)
+   - Paired bootstrap u_cons − dragin (95% CI + Bonferroni flag)
+   - AUROC(u_cons.max → lift_em=+1)
+   - **Idea-1 AUROC(mean_token_entropy.argmax_pos → lift+1 | INCORRECT)**
+   - q70/q90/q95 deployment tables for both u_cons.max and dragin.max
+
+   `analysis/xarch_summary_phi_only.out` is the **reference output before
+   any cross-arch decode lands** — produced from already-on-disk Phi data
+   only, so you can diff against it as Gemma/Qwen rows fill in.
+
+3. Optional follow-ups (free, all reuse existing helpers in `_common.py`):
+   - `python analysis/idea1_temporal_spike.py` — already in repo; runs
+     per-dataset for Phi only; can be retargeted by editing the
+     `DATASETS` list to point at the xarch run dirs.
+   - `python analysis/iter6_lift_conditional.py` — existing Phi-only
+     deployment table; extend by editing `RUN_DIR` to one of the
+     xarch dirs.
+
+### Pre-registered go/no-go decision (locked here, run on the xarch output)
+
+Decision rule for `xarch_summary.py` output, applied per arch ∈ {gemma, qwen}:
+
+| outcome (per arch)                                                                       | meaning                                          |
+|---                                                                                       |---                                               |
+| `u_cons.max → INCORRECT` AUROC ≥ 0.58 **AND** paired beat over `dragin` CI > 0 in-domain | **portable**: arch enters the headline grid       |
+| AUROC in [0.50, 0.58]                                                                    | **borderline**: report descriptively; no claim   |
+| AUROC < 0.50                                                                             | **negative**: report honestly as cross-arch failure |
+
+For Idea 1's `ent_pos → fix|inc` AUROC, threshold is ≥ 0.55 to be reported
+as a positive secondary finding; below that it's a negative.
+
+The paper's final claim form depends on the matrix outcome:
+
+- **All 3 archs portable in-domain** → headline "consistency-sampler step-boundary uncertainty generalizes across edge-class dense + MoE + hybrid SSM-Transformer architectures."
+- **2 of 3 portable** → headline "generalizes to {Phi, X}; we report negative on {Y} and characterize the architectural difference."
+- **Only Phi portable** → original single-arch paper; cross-arch is reported as a falsifying experiment in the limitations section.
+
+In every case, Idea 1's entropy-spike-position finding is a separate
+secondary section with its own AUROC table.
+
+### Commit hygiene
+
+- Do **not** add `runs/v2_xarch_*/C_pilot_*.jsonl`,
+  `runs/v2_xarch_*/B_smoke_*.jsonl`, or per-phase compute logs other than
+  `00_master.log` — they're large and not needed for analysis.
+- `.gitignore` rules already cover model weights and dataset blobs.
+

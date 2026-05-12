@@ -1,0 +1,47 @@
+
+========================================================================================
+=== phi-4-mini-instruct  (dir: runs/v2_exp1_phi-4-mini-instruct) ===
+
+  --- HotpotQA  (in-domain)  n=393  incorrect=245  lift+1=42  lift-1=43  multi-step=249 ---
+    AUROC →INCORRECT:  u_cons.max=0.635   dragin.max=0.542
+    AUROC →lift+1:     u_cons.max=0.706   dragin.max=0.732
+    PAIRED u_cons − dragin (→INCORRECT): +0.093  95% CI [+0.030, +0.156]  P(>0)=0.999  ✓ Bonf
+    PAIRED u_cons − dragin (→lift+1):    -0.027  95% CI [-0.114, +0.055]  P(>0)=0.253  —
+    IDEA-1 (multi-step n=249, incorrect-only n=164):
+      AUROC(ent_pos → fix|inc)     = 0.642
+      AUROC(dragin_pos → fix|inc)  = 0.556
+      AUROC(u_cons_pos → fix|inc)  = 0.526
+    DEPLOYMENT (u_cons.max gate, base_help=0.107):
+      target=0.05  fire=  5.1%  P(help|F)=0.350  P(harm|F)=0.000  Δprec=+0.243
+      target=0.10  fire= 10.2%  P(help|F)=0.325  P(harm|F)=0.025  Δprec=+0.218
+      target=0.30  fire= 30.0%  P(help|F)=0.212  P(harm|F)=0.068  Δprec=+0.105
+    DEPLOYMENT (dragin.max gate):
+      target=0.05  fire=  5.1%  P(help|F)=0.350  P(harm|F)=0.100  Δprec=+0.243
+      target=0.10  fire= 10.2%  P(help|F)=0.275  P(harm|F)=0.150  Δprec=+0.168
+      target=0.30  fire= 30.0%  P(help|F)=0.229  P(harm|F)=0.093  Δprec=+0.122
+
+  --- 2WikiMHQA (OOD)  n=452  incorrect=262  lift+1=75  lift-1=54  multi-step=261 ---
+    AUROC →INCORRECT:  u_cons.max=0.616   dragin.max=0.597
+    AUROC →lift+1:     u_cons.max=0.504   dragin.max=0.594
+    PAIRED u_cons − dragin (→INCORRECT): +0.018  95% CI [-0.041, +0.079]  P(>0)=0.723  —
+    PAIRED u_cons − dragin (→lift+1):    -0.089  95% CI [-0.169, -0.007]  P(>0)=0.020  ✓ Bonf
+    IDEA-1 (multi-step n=261, incorrect-only n=166):
+      AUROC(ent_pos → fix|inc)     = 0.587
+      AUROC(dragin_pos → fix|inc)  = 0.612
+      AUROC(u_cons_pos → fix|inc)  = 0.522
+    DEPLOYMENT (u_cons.max gate, base_help=0.166):
+      target=0.05  fire=  5.1%  P(help|F)=0.304  P(harm|F)=0.087  Δprec=+0.138
+      target=0.10  fire= 10.2%  P(help|F)=0.239  P(harm|F)=0.087  Δprec=+0.073
+      target=0.30  fire= 30.1%  P(help|F)=0.184  P(harm|F)=0.103  Δprec=+0.018
+    DEPLOYMENT (dragin.max gate):
+      target=0.05  fire=  5.1%  P(help|F)=0.304  P(harm|F)=0.087  Δprec=+0.138
+      target=0.10  fire= 10.2%  P(help|F)=0.261  P(harm|F)=0.087  Δprec=+0.095
+      target=0.30  fire= 30.1%  P(help|F)=0.243  P(harm|F)=0.125  Δprec=+0.077
+
+========================================================================================
+=== gemma-4-26b-a4b-it  (dir: runs/v2_xarch_gemma-4-26b-a4b-it) ===
+  [SKIP] arch run dir missing
+
+========================================================================================
+=== qwen3.6-35b-a3b-instruct  (dir: runs/v2_xarch_qwen3.6-35b-a3b-instruct) ===
+  [SKIP] arch run dir missing

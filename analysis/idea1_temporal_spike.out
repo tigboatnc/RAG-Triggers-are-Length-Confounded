@@ -1,0 +1,102 @@
+
+================================================================================
+=== HotpotQA  (in-domain)  n=249  ===
+  incorrect=164 (0.659)  lift+1=36  lift0=189  lift-1=24  base_help=0.145
+
+  --- AUROC of normalised argmax-position (pos = argmax_step / (n-1)) ---
+  feature                    →INCORRECT    →lift+1   →lift+1|inc   →harm vs help
+  u_cons                          0.527      0.535         0.526           0.479
+  mean_token_entropy              0.445      0.606         0.642           0.412
+  drift_cosine                    0.434      0.436         0.457           0.541
+  variance_l2_window              0.447      0.389         0.400           0.578
+  dragin_rind_max                 0.457      0.534         0.556           0.505
+  hidden_norm                     0.523      0.510         0.500           0.436
+  boundary_token_entropy          0.482      0.604         0.622           0.441
+
+  --- Compound deployment gate:  fire ⇔ (feat.max > q70) AND (pos in early/late third) ---
+  base helpful = 0.145   base incorrect = 0.659
+  feature                  half   n_fire   frac  P(help|F)  P(harm|F)  P(inc|F)
+  u_cons                   early      12  0.048      0.500      0.083     0.833
+  u_cons                   late       46  0.185      0.261      0.043     0.804
+  mean_token_entropy       early      10  0.040      0.200      0.100     0.800
+  mean_token_entropy       late       49  0.197      0.224      0.122     0.653
+  drift_cosine             early      35  0.141      0.257      0.086     0.800
+  drift_cosine             late        7  0.028      0.286      0.143     0.571
+  variance_l2_window       early      37  0.149      0.243      0.108     0.784
+  variance_l2_window       late        5  0.020      0.200      0.200     0.200
+  dragin_rind_max          early       8  0.032      0.375      0.000     0.875
+  dragin_rind_max          late       50  0.201      0.240      0.100     0.660
+  hidden_norm              early      69  0.277      0.174      0.145     0.681
+  hidden_norm              late        4  0.016      0.250      0.250     0.250
+  boundary_token_entropy   early      22  0.088      0.136      0.091     0.727
+  boundary_token_entropy   late       38  0.153      0.289      0.053     0.684
+
+  --- Wu inverted-U: AUROC by n_steps tertile (split at <=3 / >=4) ---
+  tertile=short  n=143  helpful=13  incorrect=84
+    u_cons                 max→help=0.618  pos→help=0.548  pos→fix|inc=0.559  (n_inc=84)
+    mean_token_entropy     max→help=0.482  pos→help=0.654  pos→fix|inc=0.710  (n_inc=84)
+    drift_cosine           max→help=0.388  pos→help=0.546  pos→fix|inc=0.557  (n_inc=84)
+  tertile=mid  n=0  helpful=0  incorrect=0
+    u_cons                 max→help=nan  pos→help=nan  pos→fix|inc=nan  (n_inc=0)
+    mean_token_entropy     max→help=nan  pos→help=nan  pos→fix|inc=nan  (n_inc=0)
+    drift_cosine           max→help=nan  pos→help=nan  pos→fix|inc=nan  (n_inc=0)
+  tertile=long  n=106  helpful=23  incorrect=80
+    u_cons                 max→help=0.685  pos→help=0.503  pos→fix|inc=0.468  (n_inc=80)
+    mean_token_entropy     max→help=0.705  pos→help=0.621  pos→fix|inc=0.602  (n_inc=80)
+    drift_cosine           max→help=0.590  pos→help=0.480  pos→fix|inc=0.479  (n_inc=80)
+
+  --- Paired bootstrap: AUROC for lift_em=+1, key feature × early-spike (pos<1/3) ---
+    u_cons                 max alone=0.696  early×max=0.513  Δ=-0.184  95% CI [-0.319, -0.034]
+    mean_token_entropy     max alone=0.657  early×max=0.434  Δ=-0.223  95% CI [-0.366, -0.076]
+    drift_cosine           max alone=0.586  early×max=0.570  Δ=-0.015  95% CI [-0.108, +0.074]
+
+================================================================================
+=== 2WikiMHQA (OOD)  n=261  ===
+  incorrect=166 (0.636)  lift+1=46  lift0=183  lift-1=32  base_help=0.176
+
+  --- AUROC of normalised argmax-position (pos = argmax_step / (n-1)) ---
+  feature                    →INCORRECT    →lift+1   →lift+1|inc   →harm vs help
+  u_cons                          0.475      0.508         0.522           0.543
+  mean_token_entropy              0.537      0.592         0.587           0.454
+  drift_cosine                    0.507      0.472         0.465           0.521
+  variance_l2_window              0.517      0.479         0.469           0.504
+  dragin_rind_max                 0.552      0.619         0.612           0.367
+  hidden_norm                     0.557      0.517         0.491           0.516
+  boundary_token_entropy          0.499      0.559         0.568           0.520
+
+  --- Compound deployment gate:  fire ⇔ (feat.max > q70) AND (pos in early/late third) ---
+  base helpful = 0.176   base incorrect = 0.636
+  feature                  half   n_fire   frac  P(help|F)  P(harm|F)  P(inc|F)
+  u_cons                   early       6  0.023      0.000      0.167     0.667
+  u_cons                   late       55  0.211      0.218      0.109     0.764
+  mean_token_entropy       early      10  0.038      0.000      0.100     0.700
+  mean_token_entropy       late       55  0.211      0.236      0.109     0.709
+  drift_cosine             early      16  0.061      0.188      0.188     0.562
+  drift_cosine             late       41  0.157      0.098      0.122     0.634
+  variance_l2_window       early      21  0.080      0.286      0.048     0.667
+  variance_l2_window       late       35  0.134      0.229      0.171     0.600
+  dragin_rind_max          early       5  0.019      0.400      0.000     0.800
+  dragin_rind_max          late       61  0.234      0.295      0.115     0.770
+  hidden_norm              early      39  0.149      0.256      0.128     0.641
+  hidden_norm              late       30  0.115      0.133      0.167     0.600
+  boundary_token_entropy   early      29  0.111      0.138      0.207     0.517
+  boundary_token_entropy   late       42  0.161      0.167      0.143     0.667
+
+  --- Wu inverted-U: AUROC by n_steps tertile (split at <=2 / >=4) ---
+  tertile=short  n=125  helpful=23  incorrect=78
+    u_cons                 max→help=0.489  pos→help=0.513  pos→fix|inc=0.528  (n_inc=78)
+    mean_token_entropy     max→help=0.569  pos→help=0.582  pos→fix|inc=0.591  (n_inc=78)
+    drift_cosine           max→help=0.618  pos→help=0.500  pos→fix|inc=0.500  (n_inc=78)
+  tertile=mid  n=48  helpful=6  incorrect=31
+    u_cons                 max→help=0.615  pos→help=0.500  pos→fix|inc=0.527  (n_inc=31)
+    mean_token_entropy     max→help=0.659  pos→help=0.778  pos→fix|inc=0.760  (n_inc=31)
+    drift_cosine           max→help=0.310  pos→help=0.595  pos→fix|inc=0.553  (n_inc=31)
+  tertile=long  n=88  helpful=17  incorrect=57
+    u_cons                 max→help=0.505  pos→help=0.534  pos→fix|inc=0.529  (n_inc=57)
+    mean_token_entropy     max→help=0.431  pos→help=0.511  pos→fix|inc=0.485  (n_inc=57)
+    drift_cosine           max→help=0.579  pos→help=0.386  pos→fix|inc=0.386  (n_inc=57)
+
+  --- Paired bootstrap: AUROC for lift_em=+1, key feature × early-spike (pos<1/3) ---
+    u_cons                 max alone=0.508  early×max=0.489  Δ=-0.020  95% CI [-0.160, +0.117]
+    mean_token_entropy     max alone=0.535  early×max=0.411  Δ=-0.124  95% CI [-0.246, -0.004]
+    drift_cosine           max alone=0.545  early×max=0.513  Δ=-0.032  95% CI [-0.114, +0.049]

@@ -1,0 +1,120 @@
+
+================================================================================
+=== HotpotQA  n=393 ===
+================================================================================
+
+  AUROC for predicting lift_em=+1:
+    u_cons_max      AUROC = 0.706  (n+=42/n-=351)
+    var_max         AUROC = 0.654  (n+=42/n-=351)
+    dragin_max      AUROC = 0.732  (n+=42/n-=351)
+    drift_last      AUROC = 0.647  (n+=42/n-=351)
+    hn_range        AUROC = 0.674  (n+=42/n-=351)
+
+  AUROC for predicting INCORRECTNESS:
+    u_cons_max      AUROC = 0.635
+    var_max         AUROC = 0.546
+    dragin_max      AUROC = 0.542
+    drift_last      AUROC = 0.574
+    hn_range        AUROC = 0.556
+
+  Paired AUROC differences (vs DRAGIN, B=1000 bootstrap):
+    u_cons_max      Δ=-0.025  95% CI [-0.103, +0.053]  P(>0)=0.270
+    var_max         Δ=-0.077  95% CI [-0.160, -0.000]  P(>0)=0.025  -
+    drift_last      Δ=-0.084  95% CI [-0.172, +0.003]  P(>0)=0.028
+    hn_range        Δ=-0.058  95% CI [-0.140, +0.020]  P(>0)=0.070
+
+  DEPLOYMENT TABLE for v1 LATENT (variance_l2_window/max):
+    base helpful=0.107, base incorrect=0.623
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.8%      0.105  0.98×      0.158     0.632     +0.008
+     0.10    9.9%      0.179  1.68×      0.154     0.667     +0.043
+     0.15   14.8%      0.155  1.45×      0.103     0.672     +0.049
+     0.20   19.8%      0.141  1.32×      0.141     0.641     +0.018
+     0.30   29.8%      0.162  1.52×      0.128     0.650     +0.026
+
+  DEPLOYMENT TABLE for u_cons.max:
+    base helpful=0.107, base incorrect=0.623
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.8%      0.316  2.95×      0.000     0.947     +0.324
+     0.10    9.9%      0.333  3.12×      0.026     0.897     +0.274
+     0.15   14.8%      0.293  2.74×      0.052     0.862     +0.239
+     0.20   19.8%      0.244  2.28×      0.064     0.795     +0.171
+     0.30   29.8%      0.214  2.00×      0.068     0.752     +0.129
+
+  DEPLOYMENT TABLE for DRAGIN.max:
+    base helpful=0.107, base incorrect=0.623
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.8%      0.368  3.45×      0.105     0.737     +0.113
+     0.10    9.9%      0.282  2.64×      0.154     0.718     +0.095
+     0.15   14.8%      0.241  2.26×      0.103     0.672     +0.049
+     0.20   19.8%      0.244  2.28×      0.090     0.718     +0.095
+     0.30   29.8%      0.231  2.16×      0.094     0.684     +0.060
+
+  DEPLOYMENT TABLE for drift_cosine/last (CRV at commitment moment):
+    base helpful=0.107, base incorrect=0.623
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.8%      0.158  1.48×      0.105     0.684     +0.061
+     0.10    9.9%      0.179  1.68×      0.103     0.692     +0.069
+     0.15   14.8%      0.155  1.45×      0.121     0.690     +0.066
+     0.20   19.8%      0.141  1.32×      0.090     0.718     +0.095
+     0.30   29.8%      0.171  1.60×      0.120     0.718     +0.095
+
+================================================================================
+=== 2WikiMHQA  n=452 ===
+================================================================================
+
+  AUROC for predicting lift_em=+1:
+    u_cons_max      AUROC = 0.504  (n+=75/n-=377)
+    var_max         AUROC = 0.513  (n+=75/n-=377)
+    dragin_max      AUROC = 0.594  (n+=75/n-=377)
+    drift_last      AUROC = 0.525  (n+=75/n-=377)
+    hn_range        AUROC = 0.519  (n+=75/n-=377)
+
+  AUROC for predicting INCORRECTNESS:
+    u_cons_max      AUROC = 0.616
+    var_max         AUROC = 0.564
+    dragin_max      AUROC = 0.597
+    drift_last      AUROC = 0.592
+    hn_range        AUROC = 0.569
+
+  Paired AUROC differences (vs DRAGIN, B=1000 bootstrap):
+    u_cons_max      Δ=-0.091  95% CI [-0.171, -0.007]  P(>0)=0.018  -
+    var_max         Δ=-0.081  95% CI [-0.146, -0.012]  P(>0)=0.009  -
+    drift_last      Δ=-0.071  95% CI [-0.131, -0.001]  P(>0)=0.025  -
+    hn_range        Δ=-0.075  95% CI [-0.137, -0.007]  P(>0)=0.013  -
+
+  DEPLOYMENT TABLE for v1 LATENT (variance_l2_window/max):
+    base helpful=0.166, base incorrect=0.580
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.9%      0.182  1.10×      0.136     0.682     +0.102
+     0.10   10.0%      0.244  1.47×      0.178     0.600     +0.020
+     0.15   14.8%      0.194  1.17×      0.164     0.597     +0.017
+     0.20   19.9%      0.167  1.00×      0.133     0.633     +0.054
+     0.30   29.9%      0.156  0.94×      0.133     0.615     +0.035
+
+  DEPLOYMENT TABLE for u_cons.max:
+    base helpful=0.166, base incorrect=0.580
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.9%      0.318  1.92×      0.091     0.864     +0.284
+     0.10   10.0%      0.222  1.34×      0.089     0.844     +0.265
+     0.15   14.8%      0.194  1.17×      0.119     0.806     +0.226
+     0.20   19.9%      0.167  1.00×      0.122     0.722     +0.143
+     0.30   29.9%      0.178  1.07×      0.104     0.719     +0.139
+
+  DEPLOYMENT TABLE for DRAGIN.max:
+    base helpful=0.166, base incorrect=0.580
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.9%      0.318  1.92×      0.091     0.864     +0.284
+     0.10   10.0%      0.267  1.61×      0.067     0.844     +0.265
+     0.15   14.8%      0.269  1.62×      0.134     0.761     +0.182
+     0.20   19.9%      0.244  1.47×      0.156     0.689     +0.109
+     0.30   29.9%      0.244  1.47×      0.126     0.689     +0.109
+
+  DEPLOYMENT TABLE for drift_cosine/last (CRV at commitment moment):
+    base helpful=0.166, base incorrect=0.580
+    target   fire  P(help|F)  lift  P(harm|F)  P(inc|F)  Δprec_inc
+     0.05    4.9%      0.136  0.82×      0.227     0.636     +0.057
+     0.10   10.0%      0.133  0.80×      0.156     0.644     +0.065
+     0.15   14.8%      0.134  0.81×      0.119     0.716     +0.137
+     0.20   19.9%      0.178  1.07×      0.133     0.700     +0.120
+     0.30   29.9%      0.185  1.12×      0.096     0.696     +0.117

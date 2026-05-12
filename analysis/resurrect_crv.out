@@ -1,0 +1,174 @@
+Loaded: HOT n=393 (lift+1=42, base=0.107)
+        WIKI n=452 (lift+1=75, base=0.166)
+
+
+================================================================================
+TRY R1: hidden_norm trajectory geometry (Atkinson-aligned)
+================================================================================
+
+  TARGET: closed-book INCORRECTNESS
+  hidden_norm/monoton                               Hot 0.531 (n+=164/n-=85)    Wiki 0.560 (n+=166/n-=95)  
+  hidden_norm/slope                                 Hot 0.512 (n+=164/n-=85)    Wiki 0.530 (n+=166/n-=95)  
+  hidden_norm/range                                 Hot 0.556 (n+=245/n-=148)    Wiki 0.569 (n+=262/n-=190)  
+  hidden_norm/last                                  Hot 0.462 (n+=245/n-=148)    Wiki 0.441 (n+=262/n-=190)  
+  hidden_norm/terminal_growth                       Hot 0.508 (n+=80/n-=26)    Wiki 0.477 (n+=57/n-=31)  
+
+  TARGET: LIFT_EM=+1 (deployment metric)
+  hidden_norm/monoton                               Hot 0.499 (n+=36/n-=213)    Wiki 0.517 (n+=46/n-=215)  
+  hidden_norm/slope                                 Hot 0.534 (n+=36/n-=213)    Wiki 0.492 (n+=46/n-=215)  
+  hidden_norm/range                                 Hot 0.674 (n+=42/n-=351)    Wiki 0.519 (n+=75/n-=377)  
+  hidden_norm/last                                  Hot 0.535 (n+=42/n-=351)    Wiki 0.425 (n+=75/n-=377)  
+  hidden_norm/terminal_growth                       Hot 0.513 (n+=23/n-=83)    Wiki 0.404 (n+=17/n-=71)  
+
+================================================================================
+TRY R2: variance_l2_window trajectory geometry — lift-conditional
+================================================================================
+
+  TARGET: closed-book INCORRECTNESS
+  variance_l2_window/monoton                        Hot 0.454 (n+=164/n-=85)    Wiki 0.543 (n+=166/n-=95)  
+  variance_l2_window/slope                          Hot 0.398 (n+=164/n-=85)    Wiki 0.479 (n+=166/n-=95)  
+  variance_l2_window/range                          Hot 0.546 (n+=245/n-=148)    Wiki 0.564 (n+=262/n-=190)  
+  variance_l2_window/terminal_growth                Hot 0.384 (n+=80/n-=26)    Wiki 0.465 (n+=57/n-=31)  
+
+  TARGET: LIFT_EM=+1 (deployment metric)
+  variance_l2_window/monoton                        Hot 0.415 (n+=36/n-=213)    Wiki 0.503 (n+=46/n-=215)  
+  variance_l2_window/slope                          Hot 0.376 (n+=36/n-=213)    Wiki 0.428 (n+=46/n-=215)  
+  variance_l2_window/range                          Hot 0.654 (n+=42/n-=351)    Wiki 0.513 (n+=75/n-=377)  
+  variance_l2_window/terminal_growth                Hot 0.453 (n+=23/n-=83)    Wiki 0.394 (n+=17/n-=71)  
+
+================================================================================
+TRY R3: drift_cosine at the answer-commitment moment (last steps)
+================================================================================
+
+  TARGET: LIFT_EM=+1
+  drift_cosine/last                                 Hot 0.647 (n+=42/n-=351)    Wiki 0.525 (n+=75/n-=377)  
+  drift_cosine/penult                               Hot 0.546 (n+=36/n-=213)    Wiki 0.500 (n+=46/n-=215)  
+  drift_cosine/last2_mean                           Hot 0.530 (n+=36/n-=213)    Wiki 0.516 (n+=46/n-=215)  
+  drift_cosine/acceleration                         Hot 0.532 (n+=27/n-=139)    Wiki 0.366 (n+=23/n-=113)  
+
+================================================================================
+TRY R4: latent × DRAGIN complementarity — Chen INSIDE-style fusion
+================================================================================
+
+  Hot:
+    variance/max alone        AUROC(lift+1) = 0.654
+    dragin/max alone          AUROC(lift+1) = 0.732
+    variance/monoton alone    AUROC(lift+1) = 0.415
+    variance/max + dragin     AUROC(lift+1) = 0.693
+    variance/monoton + dragin AUROC(lift+1) = 0.692
+    var/max + var/monoton + dragin AUROC(lift+1) = 0.634
+
+  Wiki:
+    variance/max alone        AUROC(lift+1) = 0.513
+    dragin/max alone          AUROC(lift+1) = 0.594
+    variance/monoton alone    AUROC(lift+1) = 0.503
+    variance/max + dragin     AUROC(lift+1) = 0.585
+    variance/monoton + dragin AUROC(lift+1) = 0.579
+    var/max + var/monoton + dragin AUROC(lift+1) = 0.591
+
+================================================================================
+TRY R5: multi-scalar CRV composite — Kossen-style internal probe
+================================================================================
+
+  Hot:
+    hidden_monoton                  AUROC = 0.499
+    var_monoton                     AUROC = 0.415
+    hidden_terminal_growth          AUROC = 0.513
+    var_terminal_growth             AUROC = 0.453
+    drift_last                      AUROC = 0.647
+    COMPOSITE                       AUROC = 0.635
+
+  Wiki:
+    hidden_monoton                  AUROC = 0.517
+    var_monoton                     AUROC = 0.503
+    hidden_terminal_growth          AUROC = 0.404
+    var_terminal_growth             AUROC = 0.394
+    drift_last                      AUROC = 0.525
+    COMPOSITE                       AUROC = 0.617
+
+================================================================================
+TRY R6: cross-step coherence matrix — internal trajectory consistency
+================================================================================
+
+  TARGET: LIFT_EM=+1
+  hidden_norm pairwise mean diff                    Hot 0.455 (n+=27/n-=139)    Wiki 0.497 (n+=23/n-=113)  
+  variance pairwise mean diff                       Hot 0.444 (n+=27/n-=139)    Wiki 0.477 (n+=23/n-=113)  
+  drift_cosine pairwise mean diff                   Hot 0.419 (n+=27/n-=139)    Wiki 0.467 (n+=23/n-=113)  
+
+================================================================================
+TRY R7: Is CRV selective for FIXABLE (lift+1) within incorrect class?
+================================================================================
+
+  Hot (within incorrect class only):
+    hidden_norm/monoton             AUROC(lift+1 | incorrect) = 0.483  (n+=36, n-=128)
+    variance/monoton                AUROC(lift+1 | incorrect) = 0.425  (n+=36, n-=128)
+    drift_cosine/last               AUROC(lift+1 | incorrect) = 0.622  (n+=42, n-=203)
+    hidden_norm/terminal_growth     AUROC(lift+1 | incorrect) = 0.510  (n+=23, n-=57)
+    hidden_norm/last                AUROC(lift+1 | incorrect) = 0.552  (n+=42, n-=203)
+
+  Wiki (within incorrect class only):
+    hidden_norm/monoton             AUROC(lift+1 | incorrect) = 0.489  (n+=46, n-=120)
+    variance/monoton                AUROC(lift+1 | incorrect) = 0.480  (n+=46, n-=120)
+    drift_cosine/last               AUROC(lift+1 | incorrect) = 0.472  (n+=75, n-=187)
+    hidden_norm/terminal_growth     AUROC(lift+1 | incorrect) = 0.399  (n+=17, n-=40)
+    hidden_norm/last                AUROC(lift+1 | incorrect) = 0.452  (n+=75, n-=187)
+
+================================================================================
+TRY R8: hidden_norm AT the answer step — geometric commitment
+================================================================================
+
+  TARGET: LIFT_EM=+1
+  hidden_norm last / early-mean                     Hot 0.478 (n+=27/n-=139)    Wiki 0.346 (n+=23/n-=113)  
+  hidden_norm last                                  Hot 0.535 (n+=42/n-=351)    Wiki 0.425 (n+=75/n-=377)  
+  hidden_norm last − early-mean                     Hot 0.487 (n+=36/n-=213)    Wiki 0.400 (n+=46/n-=215)  
+
+================================================================================
+TRY R9: shape-conditioned OR rule (v1 #22 revisited with shape features)
+================================================================================
+
+v1 OR rule: fire if drift>τ_drift OR variance>τ_var (pointwise).
+Replace with: fire if (variance monoton > q) OR (hidden_norm monoton > q).
+
+  TARGET: INCORRECTNESS
+  OR(var_monoton, hidden_monoton) max               Hot 0.441 (n+=164/n-=85)    Wiki 0.548 (n+=166/n-=95)  
+
+  TARGET: LIFT_EM=+1
+  OR(var_monoton, hidden_monoton) max               Hot 0.423 (n+=36/n-=213)    Wiki 0.499 (n+=46/n-=215)  
+
+================================================================================
+TRY R10: deployment evaluation at 5% / 10% / 20% fire-rate
+================================================================================
+
+For each candidate latent feature, deployment-edge precision:
+
+  Feature: variance_l2_window/monoton
+    Hot  target    5%  fire=  5.2%  P(help|fire)=0.462 (base 0.145, lift 3.19×)  harm=1/13
+    Hot  target   10%  fire= 11.2%  P(help|fire)=0.321 (base 0.145, lift 2.22×)  harm=4/28
+    Hot  target   20%  fire= 35.7%  P(help|fire)=0.135 (base 0.145, lift 0.93×)  harm=12/89
+    Wiki  target    5%  fire= 60.5%  P(help|fire)=0.171 (base 0.176, lift 0.97×)  harm=18/158
+    Wiki  target   10%  fire= 60.5%  P(help|fire)=0.171 (base 0.176, lift 0.97×)  harm=18/158
+    Wiki  target   20%  fire= 60.5%  P(help|fire)=0.171 (base 0.176, lift 0.97×)  harm=18/158
+
+  Feature: hidden_norm/monoton
+    Hot  target    5%  fire= 30.1%  P(help|fire)=0.107 (base 0.145, lift 0.74×)  harm=8/75
+    Hot  target   10%  fire= 30.1%  P(help|fire)=0.107 (base 0.145, lift 0.74×)  harm=8/75
+    Hot  target   20%  fire= 30.1%  P(help|fire)=0.107 (base 0.145, lift 0.74×)  harm=8/75
+    Wiki  target    5%  fire= 13.8%  P(help|fire)=0.194 (base 0.176, lift 1.10×)  harm=6/36
+    Wiki  target   10%  fire= 13.8%  P(help|fire)=0.194 (base 0.176, lift 1.10×)  harm=6/36
+    Wiki  target   20%  fire= 21.5%  P(help|fire)=0.179 (base 0.176, lift 1.01×)  harm=8/56
+
+  Feature: hidden_norm/terminal_growth
+    Hot  target    5%  fire=  4.7%  P(help|fire)=0.200 (base 0.217, lift 0.92×)  harm=1/5
+    Hot  target   10%  fire=  9.4%  P(help|fire)=0.500 (base 0.217, lift 2.30×)  harm=2/10
+    Hot  target   20%  fire= 19.8%  P(help|fire)=0.381 (base 0.217, lift 1.76×)  harm=2/21
+    Wiki  target    5%  fire=  4.5%  P(help|fire)=0.750 (base 0.193, lift 3.88×)  harm=0/4
+    Wiki  target   10%  fire=  9.1%  P(help|fire)=0.500 (base 0.193, lift 2.59×)  harm=0/8
+    Wiki  target   20%  fire= 19.3%  P(help|fire)=0.294 (base 0.193, lift 1.52×)  harm=3/17
+
+  Feature: drift_cosine/last
+    Hot  target    5%  fire=  4.8%  P(help|fire)=0.158 (base 0.107, lift 1.48×)  harm=2/19
+    Hot  target   10%  fire=  9.9%  P(help|fire)=0.179 (base 0.107, lift 1.68×)  harm=4/39
+    Hot  target   20%  fire= 19.8%  P(help|fire)=0.141 (base 0.107, lift 1.32×)  harm=7/78
+    Wiki  target    5%  fire=  4.9%  P(help|fire)=0.136 (base 0.166, lift 0.82×)  harm=5/22
+    Wiki  target   10%  fire= 10.0%  P(help|fire)=0.133 (base 0.166, lift 0.80×)  harm=7/45
+    Wiki  target   20%  fire= 19.9%  P(help|fire)=0.178 (base 0.166, lift 1.07×)  harm=12/90

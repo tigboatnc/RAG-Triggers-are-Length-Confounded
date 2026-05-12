@@ -1,0 +1,108 @@
+{
+  "timestamp_utc": "20260512T055809Z",
+  "option": "A",
+  "protocol_used": {
+    "phi-4-mini-instruct": {
+      "chat_template_kwargs": {},
+      "repetition_penalty": 1.05,
+      "thinking_expected": false,
+      "card_url": "https://huggingface.co/microsoft/Phi-4-mini-instruct"
+    },
+    "gemma-4-26b-a4b-it": {
+      "chat_template_kwargs": {},
+      "repetition_penalty": 1.0,
+      "thinking_expected": false,
+      "card_url": "https://huggingface.co/google/gemma-4-26B-A4B-it"
+    },
+    "qwen3.6-35b-a3b-instruct": {
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      },
+      "repetition_penalty": 1.0,
+      "thinking_expected": false,
+      "card_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B"
+    }
+  },
+  "results": [
+    {
+      "model": "phi-4-mini-instruct",
+      "protocol": {
+        "chat_template_kwargs": {},
+        "repetition_penalty": 1.05,
+        "thinking_expected": false,
+        "card_url": "https://huggingface.co/microsoft/Phi-4-mini-instruct"
+      },
+      "fail_reasons": [],
+      "probe1_chat_template": {
+        "rendered_len": 383,
+        "rendered_tail_300": "tep, and answer the question concisely. End your response with a single line of the form 'Answer: <your answer>' where <your answer> is as short as possible (typically 1-5 words).<|end|><|user|>Question: What is the capital of France?\n\nReason briefly, then end with 'Answer: ...'.<|end|><|assistant|>",
+        "open_thinking_blocks": []
+      },
+      "probe2_short_factual": {
+        "tokens_generated": 256,
+        "wall_s": 5.96,
+        "tok_per_s": 42.98,
+        "early_stop": "max_tokens",
+        "text": "The capital of France is the city where its government and administrative functions are centered. It has historical significance, being a hub for culture, politics, and economy in Europe.\n\nAnswer: ParisParis is known as the capital of France due to its role as the center of French government, history, and cultural influence within Europe. The city's prominence in these areas justifies it being recognized as the nation's capital. Answer: ParisThe question asks about the capital of France; however, this requires not only knowledge but also an understanding that capitals serve as political, economic, and often cultural centers. In considering why Paris holds this status, one must recognize its long-standing position since the Middle Ages when it became the seat of power during the reign of King Philip II. Over time, Paris developed into a major European metropolis with significant contributions to art, science, philosophy, and literature, further solidifying its importance on both national and international stages. Additionally, Paris hosts numerous iconic landmarks such as the Eiffel Tower, Notre-Dame Cathedral, and the Louvre Museum, which attract millions of visitors annually, contributing significantly to tourism revenue—a key aspect of any modern capital's function. Furthermore, Paris plays a pivotal role in global diplomacy through institutions like the United Nations Educational, Scientific and Cultural Organization (",
+        "answer_marker_seen": true,
+        "thinking_opener_seen": null,
+        "repetition_substring": null,
+        "contains_paris": true
+      }
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "protocol": {
+        "chat_template_kwargs": {},
+        "repetition_penalty": 1.0,
+        "thinking_expected": false,
+        "card_url": "https://huggingface.co/google/gemma-4-26B-A4B-it"
+      },
+      "fail_reasons": [],
+      "probe1_chat_template": {
+        "rendered_len": 426,
+        "rendered_tail_300": "sely. End your response with a single line of the form 'Answer: <your answer>' where <your answer> is as short as possible (typically 1-5 words).<turn|>\n<|turn>user\nQuestion: What is the capital of France?\n\nReason briefly, then end with 'Answer: ...'.<turn|>\n<|turn>model\n<|channel>thought\n<channel|>",
+        "open_thinking_blocks": []
+      },
+      "probe2_short_factual": {
+        "tokens_generated": 40,
+        "wall_s": 3.18,
+        "tok_per_s": 12.58,
+        "early_stop": "answer_marker",
+        "text": "The question asks for the capital of France. Based on general knowledge, Paris is the capital and largest city of France.\n\nAnswer: Paris**Answer: Paris**\nthought\n",
+        "answer_marker_seen": true,
+        "thinking_opener_seen": null,
+        "repetition_substring": null,
+        "contains_paris": true
+      }
+    },
+    {
+      "model": "qwen3.6-35b-a3b-instruct",
+      "protocol": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "repetition_penalty": 1.0,
+        "thinking_expected": false,
+        "card_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B"
+      },
+      "fail_reasons": [],
+      "probe1_chat_template": {
+        "rendered_len": 437,
+        "rendered_tail_300": "our response with a single line of the form 'Answer: <your answer>' where <your answer> is as short as possible (typically 1-5 words).<|im_end|>\n<|im_start|>user\nQuestion: What is the capital of France?\n\nReason briefly, then end with 'Answer: ...'.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+        "open_thinking_blocks": []
+      },
+      "probe2_short_factual": {
+        "tokens_generated": 16,
+        "wall_s": 1.64,
+        "tok_per_s": 9.74,
+        "early_stop": "eos",
+        "text": "Paris is the capital and most populous city of France.\n\nAnswer: Paris",
+        "answer_marker_seen": true,
+        "thinking_opener_seen": null,
+        "repetition_substring": null,
+        "contains_paris": true
+      }
+    }
+  ]
+}

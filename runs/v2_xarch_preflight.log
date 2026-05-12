@@ -1,0 +1,8 @@
+[2026-05-12T05:58:20Z] === xarch full pipeline starting ===
+[2026-05-12T05:58:20Z] git rev: 02761a7
+[2026-05-12T05:58:20Z] python:  Python 3.11.15
+[2026-05-12T05:58:20Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-12T05:58:20Z] ARCHS=gemma-4-26b-a4b-it qwen3.6-35b-a3b-instruct
+[2026-05-12T05:58:20Z] N_SMOKE=5  N_PILOT=50  N_FULL=200
+[2026-05-12T05:58:20Z] HOTPOT_TEST_SLICE=data/hotpotqa_distractor_500_v2test.jsonl
+[2026-05-12T05:58:20Z] WIKI_TEST_SLICE=data/2wikimultihop_distractor_500_v2test.jsonl

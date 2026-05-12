@@ -1,0 +1,32 @@
+[2026-05-12T05:58:20Z] === xarch full pipeline starting ===
+[2026-05-12T05:58:20Z] git rev: 02761a7
+[2026-05-12T05:58:20Z] python:  Python 3.11.15
+[2026-05-12T05:58:20Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-12T05:58:20Z] ARCHS=gemma-4-26b-a4b-it qwen3.6-35b-a3b-instruct
+[2026-05-12T05:58:20Z] N_SMOKE=5  N_PILOT=50  N_FULL=200
+[2026-05-12T05:58:20Z] HOTPOT_TEST_SLICE=data/hotpotqa_distractor_500_v2test.jsonl
+[2026-05-12T05:58:20Z] WIKI_TEST_SLICE=data/2wikimultihop_distractor_500_v2test.jsonl
+[2026-05-12T05:58:20Z] [gemma-4-26b-a4b-it] ==== PRE: gemma-4-26b-a4b-it ====
+[2026-05-12T05:58:20Z] [gemma-4-26b-a4b-it] MODEL_DIR=models/gemma-4-26b-a4b-it
+[2026-05-12T05:58:20Z] [gemma-4-26b-a4b-it] RUN_DIR=runs/v2_xarch_gemma-4-26b-a4b-it
+[2026-05-12T05:58:20Z] [gemma-4-26b-a4b-it] ==== B: smoke decode (n=5 on HotpotQA) ====
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 1/1013 [00:00<02:08,  7.87it/s]Loading weights:   0%|          | 4/1013 [00:00<01:23, 12.15it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:18, 53.07it/s]Loading weights:   5%|▍         | 47/1013 [00:00<00:14, 64.79it/s]Loading weights:   7%|▋         | 70/1013 [00:01<00:13, 72.04it/s]Loading weights:   9%|▉         | 91/1013 [00:01<00:09, 95.14it/s]Loading weights:  10%|█         | 103/1013 [00:01<00:10, 87.41it/s]Loading weights:  11%|█▏        | 114/1013 [00:01<00:12, 70.42it/s]Loading weights:  13%|█▎        | 134/1013 [00:01<00:09, 92.90it/s]Loading weights:  14%|█▍        | 146/1013 [00:01<00:10, 84.95it/s]Loading weights:  15%|█▌        | 157/1013 [00:02<00:12, 67.45it/s]Loading weights:  18%|█▊        | 178/1013 [00:02<00:09, 92.08it/s]Loading weights:  19%|█▉        | 191/1013 [00:02<00:09, 87.98it/s]Loading weights:  20%|█▉        | 202/1013 [00:02<00:11, 68.29it/s]Loading weights:  22%|██▏       | 222/1013 [00:02<00:08, 89.23it/s]Loading weights:  23%|██▎       | 234/1013 [00:03<00:09, 82.37it/s]Loading weights:  24%|██▍       | 245/1013 [00:03<00:11, 67.38it/s]Loading weights:  26%|██▌       | 265/1013 [00:03<00:08, 89.84it/s]Loading weights:  27%|██▋       | 277/1013 [00:03<00:08, 84.25it/s]Loading weights:  28%|██▊       | 288/1013 [00:03<00:10, 68.73it/s]Loading weights:  31%|███       | 309/1013 [00:04<00:09, 72.84it/s]Loading weights:  33%|███▎      | 332/1013 [00:04<00:08, 78.22it/s]Loading weights:  35%|███▍      | 353/1013 [00:04<00:08, 79.82it/s]Loading weights:  37%|███▋      | 375/1013 [00:04<00:06, 97.43it/s]Loading weights:  38%|███▊      | 387/1013 [00:04<00:07, 89.20it/s]Loading weights:  39%|███▉      | 397/1013 [00:05<00:08, 71.88it/s]Loading weights:  41%|████▏     | 419/1013 [00:05<00:07, 77.47it/s]Loading weights:  44%|████▎     | 441/1013 [00:05<00:07, 81.24it/s]Loading weights:  46%|████▌     | 463/1013 [00:05<00:06, 81.13it/s]Loading weights:  48%|████▊     | 485/1013 [00:06<00:06, 83.36it/s]Loading weights:  50%|█████     | 507/1013 [00:06<00:05, 84.54it/s]Loading weights:  52%|█████▏    | 527/1013 [00:06<00:04, 100.80it/s]Loading weights:  53%|█████▎    | 539/1013 [00:06<00:05, 89.80it/s] Loading weights:  54%|█████▍    | 550/1013 [00:06<00:06, 73.88it/s]Loading weights:  56%|█████▋    | 571/1013 [00:07<00:04, 95.72it/s]Loading weights:  58%|█████▊    | 583/1013 [00:07<00:04, 90.85it/s]Loading weights:  59%|█████▊    | 594/1013 [00:07<00:05, 72.72it/s]Loading weights:  61%|██████    | 615/1013 [00:07<00:05, 73.82it/s]Loading weights:  63%|██████▎   | 638/1013 [00:08<00:04, 79.48it/s]Loading weights:  78%|███████▊  | 792/1013 [00:08<00:00, 307.53it/s]Loading weights:  97%|█████████▋| 983/1013 [00:08<00:00, 599.74it/s]Loading weights: 100%|██████████| 1013/1013 [00:08<00:00, 122.88it/s]
+[ok] loaded in 15.97s | rss 1.142 GB | VRAM 49881 MB
+[..] layer_mode=mid_stack  capture_subset=[15]
+[..] dragin_attn_layer_idx=29 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=3, T=0.6, top_p=0.9)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_xarch_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8460.40it/s]
+[..]   5/5  em=4/5  steps= 20  tok= 269  wall=217.8s  elapsed=11.5min
+[ok] wrote 5 rows to runs/v2_xarch_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
+[ok] em rate: 4/5 = 0.800
+[B-check] n_traces=5 n_steps=[15, 10, 8, 10, 20] ans_len=[25, 25, 2, 2, 21] tok_gen=[224, 192, 142, 134, 269]
+[B-check] n_usable_multistep=5/5
+[B-check] PASS
+[2026-05-12T06:10:11Z] [gemma-4-26b-a4b-it] ==== C: pilot decode (n=50 on HotpotQA) ====
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 50 questions (split filter: all; limit 50)

@@ -73,7 +73,7 @@ nvidia-nvtx==13.0.85
 nvidia-nvtx-cu12==12.4.127
 overrides==7.7.0
 packaging @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_packaging_1777103621/work
-pandas==3.0.2
+pandas==3.0.3
 pillow==12.2.0
 propcache==0.5.2
 psutil==7.2.2
@@ -85,7 +85,7 @@ pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 PyYAML==6.0.3
 regex==2026.5.9
-requests==2.33.1
+requests==2.34.0
 rich==15.0.0
 safetensors==0.7.0
 scikit-learn==1.8.0

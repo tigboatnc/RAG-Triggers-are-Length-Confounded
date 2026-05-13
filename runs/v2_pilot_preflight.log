@@ -47,3 +47,11 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
      mirror             = voidful/2WikiMultihopQA/validation
      per-type in slice  = {'inference': 3, 'bridge_comparison': 5, 'compositional': 11, 'comparison': 6}
      manifest           = data/2wikimultihop_distractor_25_pilot.manifest.json
+[2026-05-13T13:14:54Z] === RQ1 Experiment P0 starting ===
+[2026-05-13T13:14:54Z] git rev: fadecc9
+[2026-05-13T13:14:54Z] python:  Python 3.11.15
+[2026-05-13T13:14:54Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T13:14:54Z] ARCHS=phi-4-mini-instruct gemma-4-26b-a4b-it qwen3.6-35b-a3b-instruct
+[2026-05-13T13:14:54Z] N_SMOKE=5  N_PILOT=25  CONS_K=5  PILOT_SEED=20260513
+[2026-05-13T13:14:54Z] slice data/hotpotqa_distractor_25_pilot.jsonl already present (n=25)
+[2026-05-13T13:14:54Z] slice data/2wikimultihop_distractor_25_pilot.jsonl already present (n=25)

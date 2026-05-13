@@ -1,0 +1,5 @@
+[2026-05-13T13:14:54Z] [qwen3.6-35b-a3b-instruct] ==== PRE: qwen3.6-35b-a3b-instruct ====
+[2026-05-13T13:14:54Z] [qwen3.6-35b-a3b-instruct] MODEL_DIR=models/qwen3.6-35b-a3b-instruct
+[2026-05-13T13:14:54Z] [qwen3.6-35b-a3b-instruct] RUN_DIR=runs/v2_pilot_qwen3.6-35b-a3b-instruct
+[2026-05-13T13:14:54Z] [qwen3.6-35b-a3b-instruct] ==== B: smoke decode (n=5 on HotpotQA pilot slice, K=5 sampler + sample dumps) ====
+[2026-05-13T13:15:46Z] [qwen3.6-35b-a3b-instruct] ABORT @ line 178 (last cmd: tee -a "${LOG_DIR}/B_smoke.log")

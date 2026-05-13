@@ -4,3 +4,28 @@
 [2026-05-13T09:16:30Z] [gemma-4-26b-a4b-it] ==== B: smoke decode (n=5 on HotpotQA pilot slice, K=5 sampler + sample dumps) ====
 [2026-05-13T09:39:41Z] [gemma-4-26b-a4b-it] ==== D: D1_closed_hotpot closed-book decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
 [2026-05-13T11:15:59Z] [gemma-4-26b-a4b-it] ==== D: D2_closed_wiki closed-book decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[2026-05-13T13:03:47Z] [gemma-4-26b-a4b-it] ==== E: E1_oracle_hotpot oracle decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
+[2026-05-13T13:09:15Z] [gemma-4-26b-a4b-it] ==== E: E2_oracle_wiki oracle decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it] ==== gemma-4-26b-a4b-it done. Outputs: ====
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it]   B_smoke_hotpot: 5 rows
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it]   D1_closed_hotpot: 25 rows
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it]   D2_closed_wiki: 25 rows
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it]   E1_oracle_hotpot: 25 rows
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it]   E2_oracle_wiki: 25 rows
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it] elapsed=15308s budget=10800s
+[2026-05-13T13:14:33Z] [gemma-4-26b-a4b-it] ABORT: wall-clock cap (3 h) exceeded; remaining archs not run
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] ==== PRE: gemma-4-26b-a4b-it ====
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] MODEL_DIR=models/gemma-4-26b-a4b-it
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] RUN_DIR=runs/v2_pilot_gemma-4-26b-a4b-it
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] B: smoke already done (n=5), skipping
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] D: D1_closed_hotpot already done (n=25), skipping
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] D: D2_closed_wiki already done (n=25), skipping
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] E: E1_oracle_hotpot already done (n=25), skipping
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] E: E2_oracle_wiki already done (n=25), skipping
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] ==== gemma-4-26b-a4b-it done. Outputs: ====
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it]   B_smoke_hotpot: 5 rows
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it]   D1_closed_hotpot: 25 rows
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it]   D2_closed_wiki: 25 rows
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it]   E1_oracle_hotpot: 25 rows
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it]   E2_oracle_wiki: 25 rows
+[2026-05-13T13:14:54Z] [gemma-4-26b-a4b-it] elapsed=0s budget=43200s

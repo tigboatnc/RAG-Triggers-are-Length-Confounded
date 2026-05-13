@@ -1,0 +1,34 @@
+{
+  "model": "gemma-4-26b-a4b-it",
+  "n_pilot": 25,
+  "cons_k": 5,
+  "pilot_seed": 20260513,
+  "ts_utc": "2026-05-13T13:14:54Z",
+  "files": [
+    {
+      "name": "B_smoke_hotpot.jsonl",
+      "rows": 5,
+      "sha256_16": "e5e2ec32858fa3d3"
+    },
+    {
+      "name": "D1_closed_hotpot.jsonl",
+      "rows": 25,
+      "sha256_16": "4831f17560dc6cbc"
+    },
+    {
+      "name": "D2_closed_wiki.jsonl",
+      "rows": 25,
+      "sha256_16": "c863a6537991a0b6"
+    },
+    {
+      "name": "E1_oracle_hotpot.jsonl",
+      "rows": 25,
+      "sha256_16": "67d12e87df3129b1"
+    },
+    {
+      "name": "E2_oracle_wiki.jsonl",
+      "rows": 25,
+      "sha256_16": "72e45a73a12b1d8e"
+    }
+  ]
+}

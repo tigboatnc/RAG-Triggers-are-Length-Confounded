@@ -1,0 +1,31 @@
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:45, 22.38it/s]Loading weights:   1%|          | 6/1013 [00:00<00:39, 25.42it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:13, 73.95it/s]Loading weights:   5%|▍         | 47/1013 [00:00<00:09, 99.68it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:07, 121.85it/s]Loading weights:   9%|▉         | 91/1013 [00:00<00:06, 143.20it/s]Loading weights:  10%|█         | 106/1013 [00:00<00:07, 128.99it/s]Loading weights:  12%|█▏        | 120/1013 [00:01<00:08, 106.83it/s]Loading weights:  13%|█▎        | 135/1013 [00:01<00:08, 98.59it/s] Loading weights:  15%|█▌        | 157/1013 [00:01<00:08, 104.30it/s]Loading weights:  18%|█▊        | 179/1013 [00:01<00:07, 110.38it/s]Loading weights:  20%|█▉        | 201/1013 [00:01<00:07, 114.85it/s]Loading weights:  22%|██▏       | 223/1013 [00:02<00:06, 123.42it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:06, 124.49it/s]Loading weights:  26%|██▋       | 266/1013 [00:02<00:05, 125.62it/s]Loading weights:  28%|██▊       | 288/1013 [00:02<00:09, 79.79it/s] Loading weights:  31%|███       | 310/1013 [00:03<00:07, 90.96it/s]Loading weights:  33%|███▎      | 332/1013 [00:03<00:07, 96.18it/s]Loading weights:  35%|███▍      | 354/1013 [00:03<00:06, 106.22it/s]Loading weights:  37%|███▋      | 376/1013 [00:03<00:05, 109.56it/s]Loading weights:  39%|███▉      | 396/1013 [00:03<00:04, 124.64it/s]Loading weights:  41%|████      | 411/1013 [00:03<00:04, 125.32it/s]Loading weights:  42%|████▏     | 425/1013 [00:03<00:04, 117.87it/s]Loading weights:  44%|████▎     | 441/1013 [00:04<00:05, 109.76it/s]Loading weights:  46%|████▌     | 463/1013 [00:04<00:04, 111.54it/s]Loading weights:  48%|████▊     | 485/1013 [00:04<00:04, 122.42it/s]Loading weights:  50%|█████     | 507/1013 [00:04<00:04, 122.21it/s]Loading weights:  52%|█████▏    | 528/1013 [00:04<00:03, 122.96it/s]Loading weights:  54%|█████▍    | 550/1013 [00:04<00:03, 121.71it/s]Loading weights:  56%|█████▋    | 572/1013 [00:05<00:03, 121.93it/s]Loading weights:  59%|█████▊    | 593/1013 [00:05<00:03, 121.03it/s]Loading weights:  61%|██████    | 616/1013 [00:05<00:03, 132.15it/s]Loading weights:  63%|██████▎   | 638/1013 [00:05<00:02, 134.27it/s]Loading weights:  82%|████████▏ | 829/1013 [00:05<00:00, 504.26it/s]Loading weights: 100%|██████████| 1013/1013 [00:05<00:00, 174.01it/s]
+[ok] loaded in 11.09s | rss 1.143 GB | VRAM 49887 MB
+[  1] id=5ac1b8ee5542994d76dccedc  em=0  f1=0.500  tok=137  reason=eos  n_sup=2/10
+[  2] id=5ac1f4495542991316484bd2  em=0  f1=0.400  tok=159  reason=eos  n_sup=2/10
+[  3] id=5ab2a8b655429929539467ab  em=0  f1=0.571  tok=183  reason=eos  n_sup=2/10
+[  4] id=5a73522d5542994cef4bc541  em=1  f1=1.000  tok=111  reason=eos  n_sup=2/10
+[  5] id=5a8f812755429918e830d245  em=0  f1=0.500  tok=127  reason=eos  n_sup=2/10
+[  6] id=5ae608f2554299546bf83026  em=0  f1=0.286  tok=128  reason=answer_marker  n_sup=2/10
+[  7] id=5a76538d5542992db9473764  em=1  f1=1.000  tok=185  reason=eos  n_sup=2/10
+[  8] id=5ae45b6b55429970de88d943  em=1  f1=1.000  tok=139  reason=eos  n_sup=2/10
+[  9] id=5a7cba005542990527d55516  em=1  f1=1.000  tok=192  reason=eos  n_sup=2/10
+[ 10] id=5a86681c5542991e77181644  em=0  f1=0.800  tok=128  reason=answer_marker  n_sup=2/10
+[ 11] id=5a905cea55429933b8a204f4  em=1  f1=1.000  tok=149  reason=eos  n_sup=2/10
+[ 12] id=5abf30185542990832d3a13f  em=1  f1=1.000  tok=136  reason=eos  n_sup=2/10
+[ 13] id=5a8c5d3f554299585d9e3675  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 14] id=5abec66b5542997ec76fd360  em=0  f1=0.133  tok=172  reason=eos  n_sup=2/10
+[ 15] id=5a8af0a355429950cd6afc1c  em=1  f1=1.000  tok=137  reason=eos  n_sup=2/10
+[ 16] id=5a78ad26554299148911f913  em=0  f1=0.000  tok=416  reason=answer_marker  n_sup=2/10
+[ 17] id=5ab480c45542990594ba9c36  em=0  f1=0.000  tok=135  reason=eos  n_sup=2/10
+[ 18] id=5ac3a2f35542993915413856  em=1  f1=1.000  tok=171  reason=eos  n_sup=2/10
+[ 19] id=5a774a9855429972597f14ea  em=0  f1=0.500  tok=121  reason=eos  n_sup=2/10
+[ 20] id=5a8e0d04554299068b959e3a  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[ 21] id=5a72224755429971e9dc92be  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[ 22] id=5ae0e0125542993d6555ec79  em=0  f1=0.333  tok=144  reason=answer_marker  n_sup=2/10
+[ 23] id=5abb326055429966062416e7  em=1  f1=1.000  tok=120  reason=eos  n_sup=2/10
+[ 24] id=5adbcc085542996e6852523c  em=0  f1=0.941  tok=202  reason=eos  n_sup=2/10
+[ 25] id=5a7fe0b55542994857a76818  em=1  f1=1.000  tok=109  reason=eos  n_sup=2/10
+
+[ok] wrote runs/v2_pilot_gemma-4-26b-a4b-it/E1_oracle_hotpot.jsonl
+     n=25  EM=10/25 (40.0%)  meanF1=0.599

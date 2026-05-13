@@ -13,3 +13,18 @@
 [2026-05-13T09:16:30Z] [phi-4-mini-instruct]   E1_oracle_hotpot: 25 rows
 [2026-05-13T09:16:30Z] [phi-4-mini-instruct]   E2_oracle_wiki: 25 rows
 [2026-05-13T09:16:30Z] [phi-4-mini-instruct] elapsed=1025s budget=10800s
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] ==== PRE: phi-4-mini-instruct ====
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] RUN_DIR=runs/v2_pilot_phi-4-mini-instruct
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] B: smoke already done (n=5), skipping
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] D: D1_closed_hotpot already done (n=25), skipping
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] D: D2_closed_wiki already done (n=25), skipping
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] E: E1_oracle_hotpot already done (n=25), skipping
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] E: E2_oracle_wiki already done (n=25), skipping
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] ==== phi-4-mini-instruct done. Outputs: ====
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct]   D1_closed_hotpot: 25 rows
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct]   D2_closed_wiki: 25 rows
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct]   E1_oracle_hotpot: 25 rows
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct]   E2_oracle_wiki: 25 rows
+[2026-05-13T13:14:54Z] [phi-4-mini-instruct] elapsed=0s budget=43200s

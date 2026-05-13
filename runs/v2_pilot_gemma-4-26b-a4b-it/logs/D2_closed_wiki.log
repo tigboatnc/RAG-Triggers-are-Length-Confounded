@@ -13,3 +13,9 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..]   5/25  em=3/5  steps=  9  tok= 113  wall=134.4s  elapsed=27.9min
 [..]  10/25  em=6/10  steps= 13  tok= 176  wall=189.7s  elapsed=41.8min
 [..]  15/25  em=8/15  steps= 18  tok= 258  wall=297.0s  elapsed=67.2min
+[..]  20/25  em=10/20  steps= 22  tok= 316  wall=379.6s  elapsed=87.5min
+[..]  25/25  em=13/25  steps= 17  tok= 208  wall=296.7s  elapsed=107.5min
+[ok] wrote 25 rows to runs/v2_pilot_gemma-4-26b-a4b-it/D2_closed_wiki.jsonl
+[ok] em rate: 13/25 = 0.520
+[gate2] 25 rows, tokens_generated median=176, p10=139, p90=402
+[gate2] PASS

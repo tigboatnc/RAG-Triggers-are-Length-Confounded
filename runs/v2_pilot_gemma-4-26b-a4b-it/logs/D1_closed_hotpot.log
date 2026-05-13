@@ -12,3 +12,10 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11895.29it/s]
 [..]   5/25  em=1/5  steps= 19  tok= 184  wall=326.5s  elapsed=22.4min
 [..]  10/25  em=4/10  steps= 14  tok= 205  wall=211.4s  elapsed=41.0min
+[..]  15/25  em=7/15  steps= 14  tok= 212  wall=220.1s  elapsed=57.8min
+[..]  20/25  em=7/20  steps= 10  tok= 192  wall=181.8s  elapsed=81.6min
+[..]  25/25  em=9/25  steps=  9  tok= 132  wall=116.5s  elapsed=96.0min
+[ok] wrote 25 rows to runs/v2_pilot_gemma-4-26b-a4b-it/D1_closed_hotpot.jsonl
+[ok] em rate: 9/25 = 0.360
+[gate2] 25 rows, tokens_generated median=184, p10=137, p90=384
+[gate2] PASS

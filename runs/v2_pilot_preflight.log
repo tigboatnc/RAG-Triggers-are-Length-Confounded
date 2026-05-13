@@ -55,3 +55,14 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [2026-05-13T13:14:54Z] N_SMOKE=5  N_PILOT=25  CONS_K=5  PILOT_SEED=20260513
 [2026-05-13T13:14:54Z] slice data/hotpotqa_distractor_25_pilot.jsonl already present (n=25)
 [2026-05-13T13:14:54Z] slice data/2wikimultihop_distractor_25_pilot.jsonl already present (n=25)
+[2026-05-13T14:30:02Z] === RQ1 Experiment P0 starting ===
+[2026-05-13T14:30:02Z] git rev: 2d37e07
+[2026-05-13T14:30:02Z] python:  Python 3.11.15
+[2026-05-13T14:30:02Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T14:30:02Z] ARCHS=qwen2.5-7b-instruct
+[2026-05-13T14:30:02Z] N_SMOKE=5  N_PILOT=25  CONS_K=5  PILOT_SEED=20260513
+[2026-05-13T14:30:02Z] slice data/hotpotqa_distractor_25_pilot.jsonl already present (n=25)
+[2026-05-13T14:30:02Z] slice data/2wikimultihop_distractor_25_pilot.jsonl already present (n=25)
+[2026-05-13T14:50:04Z] === RQ1 P0 pilot complete ===
+[2026-05-13T14:50:04Z] Total wall: 1202 s
+[2026-05-13T14:50:04Z] Next: python analysis/pilot_audit.py | tee analysis/pilot.out

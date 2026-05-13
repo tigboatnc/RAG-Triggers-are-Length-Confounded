@@ -1,0 +1,22 @@
+[..] dataset data/hotpotqa_distractor_25_pilot.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:30, 11.17it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 104.58it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:01, 150.57it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 178.97it/s]Loading weights:  30%|███       | 102/339 [00:00<00:01, 192.63it/s]Loading weights:  37%|███▋      | 126/339 [00:00<00:01, 197.90it/s]Loading weights:  44%|████▍     | 149/339 [00:00<00:00, 202.17it/s]Loading weights:  51%|█████     | 173/339 [00:00<00:00, 208.47it/s]Loading weights:  58%|█████▊    | 198/339 [00:01<00:00, 217.79it/s]Loading weights:  65%|██████▌   | 221/339 [00:01<00:00, 182.40it/s]Loading weights:  72%|███████▏  | 244/339 [00:01<00:00, 176.15it/s]Loading weights:  79%|███████▉  | 268/339 [00:01<00:00, 189.84it/s]Loading weights:  86%|████████▌ | 292/339 [00:01<00:00, 198.47it/s]Loading weights:  92%|█████████▏| 313/339 [00:01<00:00, 196.46it/s]Loading weights:  99%|█████████▊| 334/339 [00:01<00:00, 188.29it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 183.96it/s]
+[ok] loaded in 3.11s | rss 0.942 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_pilot_qwen2.5-7b-instruct/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11315.17it/s]
+[..]   5/5  em=3/5  steps=  7  tok=  96  wall=36.2s  elapsed=2.0min
+[ok] wrote 5 rows to runs/v2_pilot_qwen2.5-7b-instruct/B_smoke_hotpot.jsonl
+[ok] em rate: 3/5 = 0.600
+[B-check] n_traces=5 n_steps=[10, 1, 4, 3, 7] tok_gen=[162, 29, 82, 69, 96] ans_ok=[True, True, True, True, True]
+[B-check] multistep+answer=4/5
+[B-check] new-field population per trace (have/total): [(10, 10), (1, 1), (4, 4), (3, 3), (7, 7)]
+[B-check] capture_schema_version: ['rq1-pilot-v1']
+[B-check] sampler_K: [5]
+[B-check] PASS (gates 1 + 3)

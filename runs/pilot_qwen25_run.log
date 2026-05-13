@@ -1,0 +1,155 @@
+[2026-05-13T14:30:02Z] === RQ1 Experiment P0 starting ===
+[2026-05-13T14:30:02Z] git rev: 2d37e07
+[2026-05-13T14:30:02Z] python:  Python 3.11.15
+[2026-05-13T14:30:02Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T14:30:02Z] ARCHS=qwen2.5-7b-instruct
+[2026-05-13T14:30:02Z] N_SMOKE=5  N_PILOT=25  CONS_K=5  PILOT_SEED=20260513
+[2026-05-13T14:30:02Z] slice data/hotpotqa_distractor_25_pilot.jsonl already present (n=25)
+[2026-05-13T14:30:02Z] slice data/2wikimultihop_distractor_25_pilot.jsonl already present (n=25)
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] ==== PRE: qwen2.5-7b-instruct ====
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] RUN_DIR=runs/v2_pilot_qwen2.5-7b-instruct
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] ==== B: smoke decode (n=5 on HotpotQA pilot slice, K=5 sampler + sample dumps) ====
+[..] dataset data/hotpotqa_distractor_25_pilot.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:30, 11.17it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 104.58it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:01, 150.57it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 178.97it/s]Loading weights:  30%|███       | 102/339 [00:00<00:01, 192.63it/s]Loading weights:  37%|███▋      | 126/339 [00:00<00:01, 197.90it/s]Loading weights:  44%|████▍     | 149/339 [00:00<00:00, 202.17it/s]Loading weights:  51%|█████     | 173/339 [00:00<00:00, 208.47it/s]Loading weights:  58%|█████▊    | 198/339 [00:01<00:00, 217.79it/s]Loading weights:  65%|██████▌   | 221/339 [00:01<00:00, 182.40it/s]Loading weights:  72%|███████▏  | 244/339 [00:01<00:00, 176.15it/s]Loading weights:  79%|███████▉  | 268/339 [00:01<00:00, 189.84it/s]Loading weights:  86%|████████▌ | 292/339 [00:01<00:00, 198.47it/s]Loading weights:  92%|█████████▏| 313/339 [00:01<00:00, 196.46it/s]Loading weights:  99%|█████████▊| 334/339 [00:01<00:00, 188.29it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 183.96it/s]
+[ok] loaded in 3.11s | rss 0.942 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_pilot_qwen2.5-7b-instruct/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11315.17it/s]
+[..]   5/5  em=3/5  steps=  7  tok=  96  wall=36.2s  elapsed=2.0min
+[ok] wrote 5 rows to runs/v2_pilot_qwen2.5-7b-instruct/B_smoke_hotpot.jsonl
+[ok] em rate: 3/5 = 0.600
+[B-check] n_traces=5 n_steps=[10, 1, 4, 3, 7] tok_gen=[162, 29, 82, 69, 96] ans_ok=[True, True, True, True, True]
+[B-check] multistep+answer=4/5
+[B-check] new-field population per trace (have/total): [(10, 10), (1, 1), (4, 4), (3, 3), (7, 7)]
+[B-check] capture_schema_version: ['rq1-pilot-v1']
+[B-check] sampler_K: [5]
+[B-check] PASS (gates 1 + 3)
+[2026-05-13T14:32:14Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
+[..] dataset data/hotpotqa_distractor_25_pilot.jsonl -> 25 questions (split filter: all; limit 25)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<01:00,  5.62it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 122.11it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:01, 169.92it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 192.66it/s]Loading weights:  32%|███▏      | 108/339 [00:00<00:01, 226.79it/s]Loading weights:  40%|███▉      | 134/339 [00:00<00:00, 228.48it/s]Loading weights:  47%|████▋     | 161/339 [00:00<00:00, 232.89it/s]Loading weights:  55%|█████▍    | 186/339 [00:00<00:00, 230.03it/s]Loading weights:  62%|██████▏   | 210/339 [00:01<00:00, 208.29it/s]Loading weights:  68%|██████▊   | 232/339 [00:01<00:00, 208.28it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 214.68it/s]Loading weights:  83%|████████▎ | 282/339 [00:01<00:00, 216.42it/s]Loading weights:  91%|█████████▏| 310/339 [00:01<00:00, 233.94it/s]Loading weights:  99%|█████████▊| 334/339 [00:01<00:00, 233.07it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 211.73it/s]
+[ok] loaded in 2.87s | rss 0.943 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_pilot_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11181.63it/s]
+[..]   5/25  em=3/5  steps=  7  tok=  96  wall=36.1s  elapsed=2.0min
+[..]  10/25  em=6/10  steps= 13  tok= 331  wall=67.5s  elapsed=3.9min
+[..]  15/25  em=7/15  steps=  3  tok=  57  wall=9.1s  elapsed=5.3min
+[..]  20/25  em=8/20  steps=  4  tok=  58  wall=14.9s  elapsed=6.7min
+[..]  25/25  em=9/25  steps=  4  tok=  86  wall=17.5s  elapsed=8.8min
+[ok] wrote 25 rows to runs/v2_pilot_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl
+[ok] em rate: 9/25 = 0.360
+[gate2] 25 rows, tokens_generated median=86, p10=57, p90=184
+[gate2] PASS
+[2026-05-13T14:41:13Z] [qwen2.5-7b-instruct] ==== D: D2_closed_wiki closed-book decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[..] dataset data/2wikimultihop_distractor_25_pilot.jsonl -> 25 questions (split filter: all; limit 25)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:32, 10.49it/s]Loading weights:  10%|█         | 34/339 [00:00<00:02, 141.97it/s]Loading weights:  19%|█▉        | 64/339 [00:00<00:01, 199.59it/s]Loading weights:  26%|██▋       | 89/339 [00:00<00:01, 216.15it/s]Loading weights:  34%|███▎      | 114/339 [00:00<00:00, 226.57it/s]Loading weights:  43%|████▎     | 147/339 [00:00<00:00, 253.99it/s]Loading weights:  51%|█████▏    | 174/339 [00:00<00:00, 245.37it/s]Loading weights:  59%|█████▉    | 200/339 [00:00<00:00, 245.85it/s]Loading weights:  67%|██████▋   | 226/339 [00:01<00:00, 210.53it/s]Loading weights:  76%|███████▌  | 256/339 [00:01<00:00, 233.75it/s]Loading weights:  83%|████████▎ | 281/339 [00:01<00:00, 235.68it/s]Loading weights:  93%|█████████▎| 316/339 [00:01<00:00, 265.06it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 229.93it/s]
+[ok] loaded in 2.73s | rss 0.940 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_pilot_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11956.20it/s]
+[..]   5/25  em=3/5  steps=  5  tok= 129  wall=24.7s  elapsed=1.6min
+[..]  10/25  em=5/10  steps=  4  tok= 129  wall=18.1s  elapsed=2.9min
+[..]  15/25  em=9/15  steps=  5  tok= 104  wall=20.4s  elapsed=4.0min
+[..]  20/25  em=12/20  steps=  3  tok= 113  wall=13.3s  elapsed=5.1min
+[..]  25/25  em=15/25  steps=  8  tok=  98  wall=36.4s  elapsed=6.9min
+[ok] wrote 25 rows to runs/v2_pilot_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+[ok] em rate: 15/25 = 0.600
+[gate2] 25 rows, tokens_generated median=100, p10=60, p90=137
+[gate2] PASS
+[2026-05-13T14:48:19Z] [qwen2.5-7b-instruct] ==== E: E1_oracle_hotpot oracle decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:59,  5.66it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 119.21it/s]Loading weights:  14%|█▎        | 46/339 [00:00<00:02, 140.72it/s]Loading weights:  19%|█▉        | 65/339 [00:00<00:01, 154.93it/s]Loading weights:  26%|██▌       | 88/339 [00:00<00:01, 175.01it/s]Loading weights:  32%|███▏      | 107/339 [00:00<00:01, 173.65it/s]Loading weights:  37%|███▋      | 125/339 [00:00<00:01, 164.43it/s]Loading weights:  44%|████▍     | 149/339 [00:00<00:01, 176.05it/s]Loading weights:  51%|█████     | 173/339 [00:01<00:00, 187.48it/s]Loading weights:  58%|█████▊    | 196/339 [00:01<00:00, 194.77it/s]Loading weights:  64%|██████▎   | 216/339 [00:01<00:00, 170.59it/s]Loading weights:  69%|██████▉   | 234/339 [00:01<00:00, 159.91it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 177.00it/s]Loading weights:  83%|████████▎ | 280/339 [00:01<00:00, 190.63it/s]Loading weights:  88%|████████▊ | 300/339 [00:01<00:00, 189.10it/s]Loading weights:  94%|█████████▍| 320/339 [00:01<00:00, 178.61it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 171.89it/s]
+[ok] loaded in 3.23s | rss 0.940 GB | VRAM 17421 MB
+[  1] id=5ac1b8ee5542994d76dccedc  em=0  f1=0.500  tok=87  reason=eos  n_sup=2/10
+[  2] id=5ac1f4495542991316484bd2  em=0  f1=0.800  tok=73  reason=eos  n_sup=2/10
+[  3] id=5ab2a8b655429929539467ab  em=1  f1=1.000  tok=65  reason=eos  n_sup=2/10
+[  4] id=5a73522d5542994cef4bc541  em=1  f1=1.000  tok=87  reason=eos  n_sup=2/10
+[  5] id=5a8f812755429918e830d245  em=1  f1=1.000  tok=64  reason=eos  n_sup=2/10
+[  6] id=5ae608f2554299546bf83026  em=1  f1=1.000  tok=72  reason=eos  n_sup=2/10
+[  7] id=5a76538d5542992db9473764  em=1  f1=1.000  tok=59  reason=eos  n_sup=2/10
+[  8] id=5ae45b6b55429970de88d943  em=1  f1=1.000  tok=132  reason=eos  n_sup=2/10
+[  9] id=5a7cba005542990527d55516  em=1  f1=1.000  tok=115  reason=eos  n_sup=2/10
+[ 10] id=5a86681c5542991e77181644  em=0  f1=0.800  tok=81  reason=eos  n_sup=2/10
+[ 11] id=5a905cea55429933b8a204f4  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 12] id=5abf30185542990832d3a13f  em=1  f1=1.000  tok=98  reason=eos  n_sup=2/10
+[ 13] id=5a8c5d3f554299585d9e3675  em=0  f1=0.000  tok=69  reason=eos  n_sup=2/10
+[ 14] id=5abec66b5542997ec76fd360  em=0  f1=0.000  tok=42  reason=eos  n_sup=2/10
+[ 15] id=5a8af0a355429950cd6afc1c  em=0  f1=0.667  tok=69  reason=eos  n_sup=2/10
+[ 16] id=5a78ad26554299148911f913  em=0  f1=0.571  tok=128  reason=eos  n_sup=2/10
+[ 17] id=5ab480c45542990594ba9c36  em=0  f1=0.000  tok=102  reason=eos  n_sup=2/10
+[ 18] id=5ac3a2f35542993915413856  em=0  f1=0.857  tok=121  reason=eos  n_sup=2/10
+[ 19] id=5a774a9855429972597f14ea  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[ 20] id=5a8e0d04554299068b959e3a  em=0  f1=0.000  tok=87  reason=eos  n_sup=2/10
+[ 21] id=5a72224755429971e9dc92be  em=0  f1=0.000  tok=88  reason=eos  n_sup=2/10
+[ 22] id=5ae0e0125542993d6555ec79  em=0  f1=0.667  tok=78  reason=eos  n_sup=2/10
+[ 23] id=5abb326055429966062416e7  em=1  f1=1.000  tok=56  reason=eos  n_sup=2/10
+[ 24] id=5adbcc085542996e6852523c  em=1  f1=1.000  tok=106  reason=eos  n_sup=2/10
+[ 25] id=5a7fe0b55542994857a76818  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+
+[ok] wrote runs/v2_pilot_qwen2.5-7b-instruct/E1_oracle_hotpot.jsonl
+     n=25  EM=13/25 (52.0%)  meanF1=0.714
+[2026-05-13T14:49:12Z] [qwen2.5-7b-instruct] ==== E: E2_oracle_wiki oracle decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:56,  5.93it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 121.49it/s]Loading weights:  14%|█▎        | 46/339 [00:00<00:02, 143.77it/s]Loading weights:  19%|█▉        | 65/339 [00:00<00:01, 158.05it/s]Loading weights:  26%|██▌       | 88/339 [00:00<00:01, 160.29it/s]Loading weights:  33%|███▎      | 113/339 [00:00<00:01, 180.36it/s]Loading weights:  40%|████      | 136/339 [00:00<00:01, 189.39it/s]Loading weights:  46%|████▌     | 156/339 [00:00<00:00, 188.46it/s]Loading weights:  52%|█████▏    | 176/339 [00:01<00:00, 179.46it/s]Loading weights:  58%|█████▊    | 197/339 [00:01<00:00, 184.08it/s]Loading weights:  64%|██████▎   | 216/339 [00:01<00:00, 169.24it/s]Loading weights:  69%|██████▉   | 234/339 [00:01<00:00, 152.10it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 166.77it/s]Loading weights:  83%|████████▎ | 280/339 [00:01<00:00, 180.55it/s]Loading weights:  88%|████████▊ | 299/339 [00:01<00:00, 179.70it/s]Loading weights:  94%|█████████▍| 318/339 [00:01<00:00, 171.19it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 170.56it/s]
+[ok] loaded in 3.25s | rss 0.944 GB | VRAM 17421 MB
+[  1] id=5d8037920bb011ebab90acde48001122  em=0  f1=0.800  tok=73  reason=eos  n_sup=2/10
+[  2] id=12c631c1088b11ebbd6fac1f6bf848b6  em=1  f1=1.000  tok=136  reason=eos  n_sup=4/10
+[  3] id=9792990e087511ebbd67ac1f6bf848b6  em=1  f1=1.000  tok=103  reason=eos  n_sup=4/10
+[  4] id=3733d61a0bde11eba7f7acde48001122  em=0  f1=0.000  tok=99  reason=eos  n_sup=2/10
+[  5] id=e9e5c5e608c011ebbd8aac1f6bf848b6  em=1  f1=1.000  tok=115  reason=eos  n_sup=2/10
+[  6] id=6e8f9c180baf11ebab90acde48001122  em=0  f1=0.571  tok=34  reason=eos  n_sup=2/10
+[  7] id=96beb0b3086111ebbd5dac1f6bf848b6  em=1  f1=1.000  tok=78  reason=eos  n_sup=2/10
+[  8] id=e0b50028096f11ebbdb0ac1f6bf848b6  em=1  f1=1.000  tok=92  reason=eos  n_sup=2/10
+[  9] id=7789c7a60bde11eba7f7acde48001122  em=1  f1=1.000  tok=75  reason=eos  n_sup=2/10
+[ 10] id=66ff09e80baf11ebab90acde48001122  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 11] id=8bf901800bdd11eba7f7acde48001122  em=1  f1=1.000  tok=49  reason=eos  n_sup=2/10
+[ 12] id=a12eeeac089511ebbd75ac1f6bf848b6  em=1  f1=1.000  tok=91  reason=eos  n_sup=4/10
+[ 13] id=a970cb54089411ebbd75ac1f6bf848b6  em=0  f1=0.000  tok=94  reason=eos  n_sup=2/10
+[ 14] id=304356f008e111ebbda2ac1f6bf848b6  em=1  f1=1.000  tok=36  reason=eos  n_sup=2/10
+[ 15] id=22fb901e0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[ 16] id=f6a2121e0bd911eba7f7acde48001122  em=1  f1=1.000  tok=134  reason=eos  n_sup=2/10
+[ 17] id=1ee47f380bde11eba7f7acde48001122  em=1  f1=1.000  tok=64  reason=eos  n_sup=2/10
+[ 18] id=699c6cb00bda11eba7f7acde48001122  em=1  f1=1.000  tok=44  reason=eos  n_sup=2/10
+[ 19] id=57f3f0ab089211ebbd73ac1f6bf848b6  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[ 20] id=61de37720bdc11eba7f7acde48001122  em=0  f1=0.400  tok=59  reason=eos  n_sup=2/10
+[ 21] id=1912aaac0bda11eba7f7acde48001122  em=0  f1=0.800  tok=62  reason=eos  n_sup=2/10
+[ 22] id=56fd5a440bdd11eba7f7acde48001122  em=1  f1=1.000  tok=97  reason=eos  n_sup=2/10
+[ 23] id=038d34e608d211ebbd95ac1f6bf848b6  em=1  f1=1.000  tok=93  reason=eos  n_sup=4/10
+[ 24] id=252632880bde11eba7f7acde48001122  em=0  f1=0.500  tok=106  reason=eos  n_sup=2/10
+[ 25] id=1b527f4808e411ebbda4ac1f6bf848b6  em=1  f1=1.000  tok=150  reason=eos  n_sup=4/10
+
+[ok] wrote runs/v2_pilot_qwen2.5-7b-instruct/E2_oracle_wiki.jsonl
+     n=25  EM=18/25 (72.0%)  meanF1=0.843
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct] ==== qwen2.5-7b-instruct done. Outputs: ====
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   D1_closed_hotpot: 25 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   D2_closed_wiki: 25 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   E1_oracle_hotpot: 25 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   E2_oracle_wiki: 25 rows
+manifest written -> runs/v2_pilot_qwen2.5-7b-instruct/checkpoints/slice_manifest.json
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct] elapsed=1202s budget=43200s
+[2026-05-13T14:50:04Z] === RQ1 P0 pilot complete ===
+[2026-05-13T14:50:04Z] Total wall: 1202 s
+[2026-05-13T14:50:04Z] Next: python analysis/pilot_audit.py | tee analysis/pilot.out

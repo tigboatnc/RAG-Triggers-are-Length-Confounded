@@ -1,0 +1,15 @@
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] ==== PRE: qwen2.5-7b-instruct ====
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] RUN_DIR=runs/v2_pilot_qwen2.5-7b-instruct
+[2026-05-13T14:30:02Z] [qwen2.5-7b-instruct] ==== B: smoke decode (n=5 on HotpotQA pilot slice, K=5 sampler + sample dumps) ====
+[2026-05-13T14:32:14Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
+[2026-05-13T14:41:13Z] [qwen2.5-7b-instruct] ==== D: D2_closed_wiki closed-book decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[2026-05-13T14:48:19Z] [qwen2.5-7b-instruct] ==== E: E1_oracle_hotpot oracle decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
+[2026-05-13T14:49:12Z] [qwen2.5-7b-instruct] ==== E: E2_oracle_wiki oracle decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct] ==== qwen2.5-7b-instruct done. Outputs: ====
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   D1_closed_hotpot: 25 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   D2_closed_wiki: 25 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   E1_oracle_hotpot: 25 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct]   E2_oracle_wiki: 25 rows
+[2026-05-13T14:50:04Z] [qwen2.5-7b-instruct] elapsed=1202s budget=43200s

@@ -47,7 +47,7 @@ sys.path.insert(0, str(HERE))
 from _common import auroc
 
 ROOT = HERE.parent
-ARCHS = ["phi-4-mini-instruct", "gemma-4-26b-a4b-it", "qwen3.6-35b-a3b-instruct"]
+ARCHS = ["phi-4-mini-instruct", "gemma-4-26b-a4b-it", "qwen2.5-7b-instruct"]
 DATASETS = [
     ("HotpotQA  (in-domain)", "D1_closed_hotpot.jsonl", "E1_oracle_hotpot.jsonl"),
     ("2WikiMHQA (OOD)",       "D2_closed_wiki.jsonl",   "E2_oracle_wiki.jsonl"),

@@ -1,0 +1,22 @@
+[..] dataset data/2wikimultihop_distractor_25_pilot.jsonl -> 25 questions (split filter: all; limit 25)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:32, 10.49it/s]Loading weights:  10%|█         | 34/339 [00:00<00:02, 141.97it/s]Loading weights:  19%|█▉        | 64/339 [00:00<00:01, 199.59it/s]Loading weights:  26%|██▋       | 89/339 [00:00<00:01, 216.15it/s]Loading weights:  34%|███▎      | 114/339 [00:00<00:00, 226.57it/s]Loading weights:  43%|████▎     | 147/339 [00:00<00:00, 253.99it/s]Loading weights:  51%|█████▏    | 174/339 [00:00<00:00, 245.37it/s]Loading weights:  59%|█████▉    | 200/339 [00:00<00:00, 245.85it/s]Loading weights:  67%|██████▋   | 226/339 [00:01<00:00, 210.53it/s]Loading weights:  76%|███████▌  | 256/339 [00:01<00:00, 233.75it/s]Loading weights:  83%|████████▎ | 281/339 [00:01<00:00, 235.68it/s]Loading weights:  93%|█████████▎| 316/339 [00:01<00:00, 265.06it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 229.93it/s]
+[ok] loaded in 2.73s | rss 0.940 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_pilot_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11956.20it/s]
+[..]   5/25  em=3/5  steps=  5  tok= 129  wall=24.7s  elapsed=1.6min
+[..]  10/25  em=5/10  steps=  4  tok= 129  wall=18.1s  elapsed=2.9min
+[..]  15/25  em=9/15  steps=  5  tok= 104  wall=20.4s  elapsed=4.0min
+[..]  20/25  em=12/20  steps=  3  tok= 113  wall=13.3s  elapsed=5.1min
+[..]  25/25  em=15/25  steps=  8  tok=  98  wall=36.4s  elapsed=6.9min
+[ok] wrote 25 rows to runs/v2_pilot_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+[ok] em rate: 15/25 = 0.600
+[gate2] 25 rows, tokens_generated median=100, p10=60, p90=137
+[gate2] PASS

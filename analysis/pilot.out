@@ -1,0 +1,251 @@
+[..] pilot-audit root=/workspace/recollection.local/runs
+
+============================================================================================
+phi-4-mini-instruct  ::  HotpotQA  (in-domain)   n=23  incorrect=17  lift+1=0 (base=0.000)
+============================================================================================
+[skip] cohort too small for AUROC (23 traces, 0 helpful)
+
+============================================================================================
+phi-4-mini-instruct  ::  2WikiMHQA (OOD)   n=17  incorrect=10  lift+1=1 (base=0.059)
+============================================================================================
+[skip] cohort too small for AUROC (17 traces, 1 helpful)
+
+============================================================================================
+gemma-4-26b-a4b-it  ::  HotpotQA  (in-domain)   n=25  incorrect=16  lift+1=2 (base=0.080)
+============================================================================================
+
+--- (1) RAW headline table — TARGET=lift_em=+1 ---
+  signal                       family                   AUROC   P@10%   P@20%    Δprec@10%   pop
+  tokens_generated             external                 0.293   0.000   0.000       -0.080    25/25
+  wall_clock_s                 external                 0.348   0.000   0.000       -0.080    25/25
+  n_steps                      external                 0.272   0.000   0.000       -0.080    25/25
+  dragin_rind_max.max          internal-attn            0.891   0.500   0.200       +0.420    25/25
+  ent.max                      internal-logit           0.674   0.500   0.200       +0.420    25/25
+  etc (Δ²H max)                internal-logit           0.478   0.000   0.000       -0.080    25/25
+  selfdoubt_t1 (hvr.max)       external-text            0.478   0.000   0.000       -0.080    25/25
+  drift_cosine.max             internal-hidden          0.457   0.000   0.000       -0.080    25/25
+  variance_l2_window.max       internal-hidden          0.609   0.000   0.200       -0.080    25/25
+  hidden_norm.range            internal-hidden          0.652   0.000   0.000       -0.080    25/25
+  u_cons.max                   internal-K3              0.478   0.000   0.200       -0.080    25/25
+  FLARE.min_p (post-rep)       internal-logit           0.478   0.000   0.200       -0.080    25/25
+  FLARE.min_p (pre-rep)        internal-logit           0.478   0.000   0.200       -0.080    25/25
+  SeaKR.K5_logdet              internal-hidden-K5       0.717   0.000   0.200       -0.080    25/25
+  SelfCheckGPT.ngram           internal-K5-text         0.696   0.000   0.000       -0.080    25/25
+  BASE RATE                                                     0.080   0.080
+
+--- (2) LENGTH-RESIDUALIZED (regress on log_tokens) — TARGET=lift+1 ---
+  signal                        raw AUROC  resid AUROC   ΔAUROC
+  wall_clock_s                      0.348        0.435   +0.087
+  n_steps                           0.272        0.283   +0.011
+  dragin_rind_max.max               0.891        0.891   +0.000
+  ent.max                           0.674        0.717   +0.043
+  etc (Δ²H max)                     0.478        0.630   +0.152
+  selfdoubt_t1 (hvr.max)            0.478        0.663   +0.185
+  drift_cosine.max                  0.457        0.457   +0.000
+  variance_l2_window.max            0.609        0.652   +0.043
+  hidden_norm.range                 0.652        0.739   +0.087
+  u_cons.max                        0.478        0.500   +0.022
+  FLARE.min_p (post-rep)            0.478        0.478   +0.000
+  FLARE.min_p (pre-rep)             0.478        0.478   +0.000
+  SeaKR.K5_logdet                   0.717        0.848   +0.130
+  SelfCheckGPT.ngram                0.696        0.761   +0.065
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC →lift+1, B=2000 ---
+  (CIs at n=25 per cell are wide; indicative direction-of-effect only.)
+  wall_clock_s                 Δ= +0.057  [-0.167, +0.261]  P>0=0.67  —
+  n_steps                      Δ= -0.018  [-0.271, +0.208]  P>0=0.42  —
+  dragin_rind_max.max          Δ= +0.602  [+0.409, +0.792]  P>0=1.00  ✓
+  ent.max                      Δ= +0.386  [+0.000, +0.761]  P>0=0.97  —
+  etc (Δ²H max)                Δ= +0.188  [-0.136, +0.500]  P>0=0.83  —
+  selfdoubt_t1 (hvr.max)       Δ= +0.188  [-0.015, +0.370]  P>0=0.96  —
+  drift_cosine.max             Δ= +0.161  [-0.217, +0.565]  P>0=0.75  —
+  variance_l2_window.max       Δ= +0.320  [-0.042, +0.667]  P>0=0.95  —
+  hidden_norm.range            Δ= +0.363  [+0.087, +0.625]  P>0=1.00  ✓
+  u_cons.max                   Δ= +0.193  [-0.261, +0.630]  P>0=0.71  —
+  FLARE.min_p (post-rep)       Δ= +0.193  [-0.273, +0.674]  P>0=0.70  —
+  FLARE.min_p (pre-rep)        Δ= +0.193  [-0.273, +0.674]  P>0=0.70  —
+  SeaKR.K5_logdet              Δ= +0.427  [+0.167, +0.708]  P>0=1.00  ✓
+  SelfCheckGPT.ngram           Δ= +0.406  [+0.196, +0.614]  P>0=1.00  ✓
+
+--- (4) Capture-overhead diagnostic ---
+  per-trace K=5 sampler+hidden capture: mean=198.27s  min=92.49s  max=513.11s  n_with_overhead=25/25
+
+============================================================================================
+gemma-4-26b-a4b-it  ::  2WikiMHQA (OOD)   n=25  incorrect=12  lift+1=4 (base=0.160)
+============================================================================================
+
+--- (1) RAW headline table — TARGET=lift_em=+1 ---
+  signal                       family                   AUROC   P@10%   P@20%    Δprec@10%   pop
+  tokens_generated             external                 0.369   0.000   0.000       -0.160    25/25
+  wall_clock_s                 external                 0.440   0.000   0.000       -0.160    25/25
+  n_steps                      external                 0.429   0.000   0.000       -0.160    25/25
+  dragin_rind_max.max          internal-attn            0.940   0.500   0.600       +0.340    25/25
+  ent.max                      internal-logit           0.702   0.500   0.400       +0.340    25/25
+  etc (Δ²H max)                internal-logit           0.381   0.000   0.000       -0.160    25/25
+  selfdoubt_t1 (hvr.max)       external-text            0.452   0.000   0.000       -0.160    25/25
+  drift_cosine.max             internal-hidden          0.667   0.000   0.400       -0.160    25/25
+  variance_l2_window.max       internal-hidden          0.774   1.000   0.400       +0.840    25/25
+  hidden_norm.range            internal-hidden          0.821   0.500   0.400       +0.340    25/25
+  u_cons.max                   internal-K3              0.500   0.500   0.200       +0.340    25/25
+  FLARE.min_p (post-rep)       internal-logit           0.560   0.000   0.000       -0.160    25/25
+  FLARE.min_p (pre-rep)        internal-logit           0.560   0.000   0.000       -0.160    25/25
+  SeaKR.K5_logdet              internal-hidden-K5       0.631   0.000   0.200       -0.160    25/25
+  SelfCheckGPT.ngram           internal-K5-text         0.643   0.500   0.400       +0.340    25/25
+  BASE RATE                                                     0.160   0.160
+
+--- (2) LENGTH-RESIDUALIZED (regress on log_tokens) — TARGET=lift+1 ---
+  signal                        raw AUROC  resid AUROC   ΔAUROC
+  wall_clock_s                      0.440        0.619   +0.179
+  n_steps                           0.429        0.536   +0.107
+  dragin_rind_max.max               0.940        0.964   +0.024
+  ent.max                           0.702        0.750   +0.048
+  etc (Δ²H max)                     0.381        0.464   +0.083
+  selfdoubt_t1 (hvr.max)            0.452        0.536   +0.083
+  drift_cosine.max                  0.667        0.714   +0.048
+  variance_l2_window.max            0.774        0.774   +0.000
+  hidden_norm.range                 0.821        0.798   -0.024
+  u_cons.max                        0.500        0.607   +0.107
+  FLARE.min_p (post-rep)            0.560        0.643   +0.083
+  FLARE.min_p (pre-rep)             0.560        0.643   +0.083
+  SeaKR.K5_logdet                   0.631        0.833   +0.202
+  SelfCheckGPT.ngram                0.643        0.637   -0.006
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC →lift+1, B=2000 ---
+  (CIs at n=25 per cell are wide; indicative direction-of-effect only.)
+  wall_clock_s                 Δ= +0.072  [-0.068, +0.255]  P>0=0.82  —
+  n_steps                      Δ= +0.060  [-0.146, +0.250]  P>0=0.76  —
+  dragin_rind_max.max          Δ= +0.570  [+0.360, +0.772]  P>0=1.00  ✓
+  ent.max                      Δ= +0.329  [-0.030, +0.635]  P>0=0.96  —
+  etc (Δ²H max)                Δ= +0.012  [-0.329, +0.295]  P>0=0.54  —
+  selfdoubt_t1 (hvr.max)       Δ= +0.084  [-0.119, +0.280]  P>0=0.77  —
+  drift_cosine.max             Δ= +0.295  [-0.125, +0.604]  P>0=0.93  —
+  variance_l2_window.max       Δ= +0.404  [-0.012, +0.708]  P>0=0.97  —
+  hidden_norm.range            Δ= +0.452  [+0.136, +0.717]  P>0=1.00  ✓
+  u_cons.max                   Δ= +0.134  [-0.217, +0.614]  P>0=0.72  —
+  FLARE.min_p (post-rep)       Δ= +0.191  [-0.099, +0.465]  P>0=0.89  —
+  FLARE.min_p (pre-rep)        Δ= +0.191  [-0.099, +0.465]  P>0=0.89  —
+  SeaKR.K5_logdet              Δ= +0.261  [-0.048, +0.571]  P>0=0.94  —
+  SelfCheckGPT.ngram           Δ= +0.271  [-0.375, +0.720]  P>0=0.85  —
+
+--- (4) Capture-overhead diagnostic ---
+  per-trace K=5 sampler+hidden capture: mean=223.86s  min=99.16s  max=592.48s  n_with_overhead=25/25
+
+============================================================================================
+qwen2.5-7b-instruct  ::  HotpotQA  (in-domain)   n=25  incorrect=16  lift+1=4 (base=0.160)
+============================================================================================
+
+--- (1) RAW headline table — TARGET=lift_em=+1 ---
+  signal                       family                   AUROC   P@10%   P@20%    Δprec@10%   pop
+  tokens_generated             external                 0.595   0.500   0.200       +0.340    25/25
+  wall_clock_s                 external                 0.548   0.000   0.200       -0.160    25/25
+  n_steps                      external                 0.518   0.000   0.200       -0.160    25/25
+  dragin_rind_max.max          internal-attn            0.571   0.500   0.400       +0.340    25/25
+  ent.max                      internal-logit           0.464   0.500   0.200       +0.340    25/25
+  etc (Δ²H max)                internal-logit           0.423   0.500   0.200       +0.340    25/25
+  selfdoubt_t1 (hvr.max)       external-text            0.500   0.000   0.000       -0.160    25/25
+  drift_cosine.max             internal-hidden          0.571   0.000   0.200       -0.160    25/25
+  variance_l2_window.max       internal-hidden          0.512   0.000   0.000       -0.160    25/25
+  hidden_norm.range            internal-hidden          0.500   0.000   0.000       -0.160    25/25
+  u_cons.max                   internal-K3              0.536   0.000   0.200       -0.160    25/25
+  FLARE.min_p (post-rep)       internal-logit           0.524   0.500   0.200       +0.340    25/25
+  FLARE.min_p (pre-rep)        internal-logit           0.524   0.500   0.200       +0.340    25/25
+  SeaKR.K5_logdet              internal-hidden-K5       0.381   0.500   0.200       +0.340    25/25
+  SelfCheckGPT.ngram           internal-K5-text         0.357   0.500   0.200       +0.340    25/25
+  BASE RATE                                                     0.160   0.160
+
+--- (2) LENGTH-RESIDUALIZED (regress on log_tokens) — TARGET=lift+1 ---
+  signal                        raw AUROC  resid AUROC   ΔAUROC
+  wall_clock_s                      0.548        0.369   -0.179
+  n_steps                           0.518        0.369   -0.149
+  dragin_rind_max.max               0.571        0.583   +0.012
+  ent.max                           0.464        0.512   +0.048
+  etc (Δ²H max)                     0.423        0.429   +0.006
+  selfdoubt_t1 (hvr.max)            0.500        0.500   +0.000
+  drift_cosine.max                  0.571        0.429   -0.143
+  variance_l2_window.max            0.512        0.440   -0.071
+  hidden_norm.range                 0.500        0.262   -0.238
+  u_cons.max                        0.536        0.429   -0.107
+  FLARE.min_p (post-rep)            0.524        0.512   -0.012
+  FLARE.min_p (pre-rep)             0.524        0.512   -0.012
+  SeaKR.K5_logdet                   0.381        0.179   -0.202
+  SelfCheckGPT.ngram                0.357        0.226   -0.131
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC →lift+1, B=2000 ---
+  (CIs at n=25 per cell are wide; indicative direction-of-effect only.)
+  wall_clock_s                 Δ= -0.049  [-0.174, +0.054]  P>0=0.12  —
+  n_steps                      Δ= -0.080  [-0.227, +0.040]  P>0=0.07  —
+  dragin_rind_max.max          Δ= -0.017  [-0.338, +0.206]  P>0=0.49  —
+  ent.max                      Δ= -0.124  [-0.446, +0.110]  P>0=0.17  —
+  etc (Δ²H max)                Δ= -0.174  [-0.565, +0.060]  P>0=0.09  —
+  selfdoubt_t1 (hvr.max)       Δ= -0.099  [-0.435, +0.354]  P>0=0.27  —
+  drift_cosine.max             Δ= -0.027  [-0.155, +0.121]  P>0=0.27  —
+  variance_l2_window.max       Δ= -0.088  [-0.298, +0.109]  P>0=0.17  —
+  hidden_norm.range            Δ= -0.100  [-0.310, +0.105]  P>0=0.13  —
+  u_cons.max                   Δ= -0.058  [-0.208, +0.087]  P>0=0.15  —
+  FLARE.min_p (post-rep)       Δ= -0.068  [-0.333, +0.208]  P>0=0.28  —
+  FLARE.min_p (pre-rep)        Δ= -0.068  [-0.333, +0.208]  P>0=0.28  —
+  SeaKR.K5_logdet              Δ= -0.210  [-0.488, +0.042]  P>0=0.04  —
+  SelfCheckGPT.ngram           Δ= -0.236  [-0.583, +0.042]  P>0=0.04  —
+
+--- (4) Capture-overhead diagnostic ---
+  per-trace K=5 sampler+hidden capture: mean=17.97s  min=0.60s  max=58.13s  n_with_overhead=25/25
+
+============================================================================================
+qwen2.5-7b-instruct  ::  2WikiMHQA (OOD)   n=25  incorrect=10  lift+1=4 (base=0.160)
+============================================================================================
+
+--- (1) RAW headline table — TARGET=lift_em=+1 ---
+  signal                       family                   AUROC   P@10%   P@20%    Δprec@10%   pop
+  tokens_generated             external                 0.548   0.000   0.000       -0.160    25/25
+  wall_clock_s                 external                 0.536   0.000   0.000       -0.160    25/25
+  n_steps                      external                 0.488   0.000   0.000       -0.160    25/25
+  dragin_rind_max.max          internal-attn            0.452   0.000   0.000       -0.160    25/25
+  ent.max                      internal-logit           0.417   0.000   0.200       -0.160    25/25
+  etc (Δ²H max)                internal-logit           0.512   0.000   0.200       -0.160    25/25
+  selfdoubt_t1 (hvr.max)       external-text            0.476   0.000   0.000       -0.160    25/25
+  drift_cosine.max             internal-hidden          0.655   0.000   0.200       -0.160    25/25
+  variance_l2_window.max       internal-hidden          0.452   0.000   0.000       -0.160    25/25
+  hidden_norm.range            internal-hidden          0.512   0.000   0.200       -0.160    25/25
+  u_cons.max                   internal-K3              0.952   1.000   0.600       +0.840    25/25
+  FLARE.min_p (post-rep)       internal-logit           0.655   0.500   0.200       +0.340    25/25
+  FLARE.min_p (pre-rep)        internal-logit           0.655   0.500   0.200       +0.340    25/25
+  SeaKR.K5_logdet              internal-hidden-K5       0.690   0.500   0.200       +0.340    25/25
+  SelfCheckGPT.ngram           internal-K5-text         0.363   0.000   0.000       -0.160    25/25
+  BASE RATE                                                     0.160   0.160
+
+--- (2) LENGTH-RESIDUALIZED (regress on log_tokens) — TARGET=lift+1 ---
+  signal                        raw AUROC  resid AUROC   ΔAUROC
+  wall_clock_s                      0.536        0.500   -0.036
+  n_steps                           0.488        0.476   -0.012
+  dragin_rind_max.max               0.452        0.452   +0.000
+  ent.max                           0.417        0.417   +0.000
+  etc (Δ²H max)                     0.512        0.500   -0.012
+  selfdoubt_t1 (hvr.max)            0.476        0.417   -0.060
+  drift_cosine.max                  0.655        0.619   -0.036
+  variance_l2_window.max            0.452        0.452   +0.000
+  hidden_norm.range                 0.512        0.500   -0.012
+  u_cons.max                        0.952        0.952   +0.000
+  FLARE.min_p (post-rep)            0.655        0.595   -0.060
+  FLARE.min_p (pre-rep)             0.655        0.595   -0.060
+  SeaKR.K5_logdet                   0.690        0.690   +0.000
+  SelfCheckGPT.ngram                0.363        0.345   -0.018
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC →lift+1, B=2000 ---
+  (CIs at n=25 per cell are wide; indicative direction-of-effect only.)
+  wall_clock_s                 Δ= -0.007  [-0.250, +0.280]  P>0=0.44  —
+  n_steps                      Δ= -0.053  [-0.312, +0.245]  P>0=0.33  —
+  dragin_rind_max.max          Δ= -0.091  [-0.348, +0.174]  P>0=0.23  —
+  ent.max                      Δ= -0.123  [-0.500, +0.260]  P>0=0.24  —
+  etc (Δ²H max)                Δ= -0.030  [-0.333, +0.304]  P>0=0.40  —
+  selfdoubt_t1 (hvr.max)       Δ= -0.068  [-0.312, +0.202]  P>0=0.29  —
+  drift_cosine.max             Δ= +0.116  [-0.232, +0.465]  P>0=0.73  —
+  variance_l2_window.max       Δ= -0.090  [-0.348, +0.196]  P>0=0.23  —
+  hidden_norm.range            Δ= -0.029  [-0.311, +0.311]  P>0=0.39  —
+  u_cons.max                   Δ= +0.409  [+0.100, +0.717]  P>0=0.99  ✓
+  FLARE.min_p (post-rep)       Δ= +0.113  [-0.348, +0.495]  P>0=0.71  —
+  FLARE.min_p (pre-rep)        Δ= +0.113  [-0.348, +0.495]  P>0=0.71  —
+  SeaKR.K5_logdet              Δ= +0.149  [-0.208, +0.476]  P>0=0.81  —
+  SelfCheckGPT.ngram           Δ= -0.180  [-0.492, +0.100]  P>0=0.11  —
+
+--- (4) Capture-overhead diagnostic ---
+  per-trace K=5 sampler+hidden capture: mean=13.75s  min=2.54s  max=33.13s  n_with_overhead=25/25

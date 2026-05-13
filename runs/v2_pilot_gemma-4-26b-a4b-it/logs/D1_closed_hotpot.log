@@ -11,3 +11,4 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11895.29it/s]
 [..]   5/25  em=1/5  steps= 19  tok= 184  wall=326.5s  elapsed=22.4min
+[..]  10/25  em=4/10  steps= 14  tok= 205  wall=211.4s  elapsed=41.0min

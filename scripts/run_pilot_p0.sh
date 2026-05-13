@@ -128,7 +128,7 @@ fi
 # Per-arch pilot
 # ---------------------------------------------------------------------
 T_GLOBAL_START=$(date +%s)
-WALL_CAP_SEC=$((3 * 3600))  # 3 h budget cap
+WALL_CAP_SEC=$((6 * 3600))  # 6 h budget cap (bumped from 3h: A100 80GB observed ~65 s/q on Gemma D, projecting ~2 h/arch for D+E across 2 datasets)
 
 for MODEL_NAME in ${ARCHS}; do
   MODEL_DIR="models/${MODEL_NAME}"

@@ -97,29 +97,42 @@ rows with explicit caveat).
 
 ## Data inventory (what is on disk; the floor for further work)
 
-### Models — final RQ1 pool (post-pilot revision, 2026-05-13)
+### Models — final RQ1 pool (post-pilot revision, 2026-05-13 evening)
 
 | model | generation | architecture | role | status |
 |---|---|---|---|---|
-| **Llama-2-7B-Chat** | 2023 | dense, 32 layers | canonical reference backbone of DRAGIN, SeaKR, Self-RAG | new — not yet downloaded |
-| **Qwen2.5-7B-Instruct** | 2025 | dense, 28 layers, GQA 28Q/4KV | 2025 reassessment-cohort backbone (SR-RAG, DyPRAG family) | new — not yet downloaded |
+| **Qwen2.5-7B-Instruct** | 2025 | dense, 28 layers, GQA 28Q/4KV | 2025 reassessment-cohort backbone (used by SR-RAG, DyPRAG family) | new — not yet downloaded |
 | **Phi-4-mini-instruct** | 2026 | dense edge, 32 layers; mid-stack capture layer 16; DRAGIN tuple-index 31 | frontier dense edge | pilot complete |
 | **Gemma-4-26B-A4B-it** | 2026 | MoE-sliding 5:1, 30 layers; mid-stack layer 15; DRAGIN tuple-index 29 | frontier MoE | pilot complete |
-| ~~Qwen3.6-35B-A3B-Instruct~~ | 2026 | MoE-hybrid GDN 3:1 | excluded | **dropped** — see Qwen3.6 limitation note below |
+| ~~Llama-2-7B-Chat~~ | 2023 | dense | canonical baseline-paper backbone | **dropped** — slow gated download on compute box; transitive comparability via SR-RAG/DyPRAG literature using Qwen2.5; left as optional future addition (instructions retained in handover §) |
+| ~~Qwen3.6-35B-A3B-Instruct~~ | 2026 | MoE-hybrid GDN 3:1 | excluded | **dropped** — Qwen3.6 limitation note below |
 
-Spans 4 backbones across 3 generations and 2 architecture families.
+Final pool: **3 backbones** across 2 generations (2025 + 2026) and
+2 architecture families (dense + MoE-sliding). Tighter table reads
+better for a 4-page short paper than a 4-arch grid.
+
 Excludes Qwen3.6 by principled limitation (chain-of-thought collapses
 under matched-protocol greedy + `enable_thinking=False`); details in
 `_rq1-agent.md` Experiment P0 Qwen failure section. Weights for Qwen3.6
 can be deleted from compute box to free disk.
 
+Llama-2-7B-Chat dropped as a current-campaign model only; the Meta
+gated repo took too long to download on the compute box too. The
+relevant 2024 trigger papers (DRAGIN, SeaKR, Self-RAG) used Llama-2-7B
+as backbone, but Qwen2.5-7B has subsequent literature (SR-RAG 2025;
+DyPRAG 2025 family) that benchmarks DRAGIN/FLARE on it — transitive
+comparability holds. If you ever want to add Llama-2-7B-Chat back,
+the download instructions remain in the handover section under
+"Optional future addition: Llama-2-7B-Chat."
+
 Decoding: Option-A protocol per `_MODEL.md §3` — greedy, per-arch
 repetition penalty (Phi 1.05; others 1.0 unless smoke says otherwise),
 early-stop on `Answer:` regex or EOS, `max_new_tokens` capped.
 
-Llama-2-7B and Qwen2.5-7B protocols are TBD pending the new-model
-smoke (`scripts/04c_new_model_smoke.py`); proposed defaults (rep=1.0,
-no thinking-mode kwargs) are validated by the smoke before any sweep.
+Qwen2.5-7B protocol is TBD pending the new-model smoke
+(`scripts/04c_new_model_smoke.py`); proposed defaults (rep=1.0, no
+thinking-mode kwargs — Qwen 2.5 has no thinking mode) are validated
+by the smoke before any sweep.
 
 ### Datasets
 
@@ -272,40 +285,21 @@ is already on the box from the prior session. The new session needs:
    Documented limitation; pilot data + smoke output kept under
    `runs/v2_pilot_qwen3.6-35b-a3b-instruct/` (small).
 
-2. **Download the two new backbones** under HF token (`HF_TOKEN`
-   already configured on the box):
-   - **Qwen2.5-7B-Instruct** (apache-2.0, ungated):
-     ```bash
-     conda run -n recollection python -c "
-     from huggingface_hub import snapshot_download
-     snapshot_download(
-         repo_id='Qwen/Qwen2.5-7B-Instruct',
-         revision='a09a35458c702b33eeacc393d103063234e8bc28',
-         local_dir='models/qwen2.5-7b-instruct',
-         allow_patterns=['*.safetensors','*.json','*.txt','tokenizer*','LICENSE'],
-         ignore_patterns=['*.bin','*.pth'],
-         max_workers=4,
-     )"
-     echo "a09a35458c702b33eeacc393d103063234e8bc28" > models/qwen2.5-7b-instruct.revision
-     ```
-   - **Llama-2-7B-Chat** (gated; **license must be accepted on**
-     https://huggingface.co/meta-llama/Llama-2-7b-chat-hf first):
-     ```bash
-     conda run -n recollection python -c "
-     from huggingface_hub import snapshot_download
-     snapshot_download(
-         repo_id='meta-llama/Llama-2-7b-chat-hf',
-         revision='f5db02db724555f92da89c216ac04704f23d4590',
-         local_dir='models/llama-2-7b-chat-hf',
-         allow_patterns=['*.safetensors','*.json','*.model','*.txt','tokenizer*','LICENSE*'],
-         ignore_patterns=['*.bin','*.pth'],
-         max_workers=4,
-     )"
-     echo "f5db02db724555f92da89c216ac04704f23d4590" > models/llama-2-7b-chat-hf.revision
-     ```
-     **Fallback if license still pending:** `NousResearch/Llama-2-7b-chat-hf`
-     (ungated mirror; same weights; pinned SHA
-     `351844e75ed0bcbbe3f10671b3c808d2b83894ee`).
+2. **Download Qwen2.5-7B-Instruct** under HF token (`HF_TOKEN`
+   already configured on the box; apache-2.0, ungated, ~14 GB):
+   ```bash
+   conda run -n recollection python -c "
+   from huggingface_hub import snapshot_download
+   snapshot_download(
+       repo_id='Qwen/Qwen2.5-7B-Instruct',
+       revision='a09a35458c702b33eeacc393d103063234e8bc28',
+       local_dir='models/qwen2.5-7b-instruct',
+       allow_patterns=['*.safetensors','*.json','*.txt','tokenizer*','LICENSE'],
+       ignore_patterns=['*.bin','*.pth'],
+       max_workers=4,
+   )"
+   echo "a09a35458c702b33eeacc393d103063234e8bc28" > models/qwen2.5-7b-instruct.revision
+   ```
 
 3. **Run the new-model smoke + paste JSON back to agent** so
    `_MODEL.md` can be updated:
@@ -315,40 +309,65 @@ is already on the box from the prior session. The new session needs:
        --model-dir models/qwen2.5-7b-instruct \
        --thinking-mode na \
        --repetition-penalty 1.0
-   python scripts/04c_new_model_smoke.py \
-       --model llama-2-7b-chat-hf \
-       --model-dir models/llama-2-7b-chat-hf \
-       --thinking-mode na \
-       --repetition-penalty 1.0
    ```
-   Output JSONs land at `runs/04c_new_model_smoke_<model>_<ts>.json`.
-   Each is self-contained (~5 KB); copy contents into the next chat
-   message and the agent will:
+   Output JSON lands at `runs/04c_new_model_smoke_qwen2.5-7b-instruct_<ts>.json`,
+   ~5 KB self-contained. Copy contents into the next chat message and
+   the agent will:
    - Add the §1 / §2 / §3 / §5 / §6 rows to `_MODEL.md`.
-   - Add the per-model entries to `PROTOCOL` in
+   - Add the per-model entry to `PROTOCOL` in
      `scripts/04b_protocol_smoke.py` and `MODEL_PROTOCOL` in
      `scripts/04_run_qa.py`.
    - Update `_rq1-plan.md` Burden 3 model set with confirmed
      `repetition_penalty` and `chat_template_kwargs`.
 
 4. **Once `_MODEL.md` is updated and PROTOCOL dicts are in lockstep,
-   add the two new models to the pilot orchestrator + re-run pilot for
-   the new archs only**:
+   add Qwen2.5 to the pilot orchestrator + re-run pilot for the new
+   arch only**:
    ```bash
-   ARCHS="qwen2.5-7b-instruct llama-2-7b-chat-hf" \
-       bash scripts/run_pilot_p0.sh
+   ARCHS="qwen2.5-7b-instruct" bash scripts/run_pilot_p0.sh
    ```
    Existing Phi + Gemma pilot files are skipped (idempotent). Adds
-   ~50 min wall (2 small dense models, K=5 sampler, 25 questions × 4
-   phases each).
+   ~25 min wall (one small dense model, K=5 sampler, 25 questions × 4
+   phases).
 
 5. **After pilot: pull, run analyzer (CPU), commit:**
    ```bash
    python analysis/pilot_audit.py | tee analysis/pilot.out
    git add runs/v2_pilot_*/ analysis/pilot.out data/*_pilot.jsonl
-   git commit -m "rq1 P0: pilot results across 4-arch pool (Phi+Gemma+Qwen2.5+Llama-2)"
+   git commit -m "rq1 P0: pilot results across 3-arch pool (Phi+Gemma+Qwen2.5)"
    git push
    ```
+
+### Optional future addition: Llama-2-7B-Chat
+
+If you decide later that direct comparability to the canonical 2024
+trigger-paper backbone is worth the extra wall (license-form delay +
+slow gated download), the steps are:
+
+```bash
+# (a) Accept license at https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
+# (b) Download (gated, slow even on compute box):
+conda run -n recollection python -c "
+from huggingface_hub import snapshot_download
+snapshot_download(
+    repo_id='meta-llama/Llama-2-7b-chat-hf',
+    revision='f5db02db724555f92da89c216ac04704f23d4590',
+    local_dir='models/llama-2-7b-chat-hf',
+    allow_patterns=['*.safetensors','*.json','*.model','*.txt','tokenizer*','LICENSE*'],
+    ignore_patterns=['*.bin','*.pth'],
+    max_workers=4,
+)"
+echo "f5db02db724555f92da89c216ac04704f23d4590" > models/llama-2-7b-chat-hf.revision
+
+# Or, faster ungated mirror (same weights):
+#   repo_id='NousResearch/Llama-2-7b-chat-hf'
+#   revision='351844e75ed0bcbbe3f10671b3c808d2b83894ee'
+
+# (c) Smoke + analyzer same as Qwen2.5 above.
+```
+
+Not part of the current campaign. Left here for one-step inclusion
+later if reviewer feedback or scope expansion calls for it.
 
 ### Disk budget on the new box (after the model swap)
 
@@ -356,13 +375,12 @@ is already on the box from the prior session. The new session needs:
 |---|---:|
 | Phi-4-mini-instruct | ~7 GB |
 | Gemma-4-26B-A4B-it | ~49 GB |
-| Qwen3.6-35B-A3B (DELETED) | -67 GB |
+| Qwen3.6-35B-A3B (DELETED) | −67 GB |
 | Qwen2.5-7B-Instruct (NEW) | ~14 GB |
-| Llama-2-7B-Chat (NEW) | ~13.5 GB |
-| **net change** | **−97 GB → ≈83 GB total weights** |
+| **net change** | **−53 GB → ≈70 GB total weights** |
 
 Plus pilot traces (~30 MB), submodule clones (~4 GB), env (~5 GB),
-data slices (~25 MB), HF cache (~5 GB). Comfortable on a 150 GB box.
+data slices (~25 MB), HF cache (~5 GB). Comfortable on a 100 GB box.
 
 ---
 

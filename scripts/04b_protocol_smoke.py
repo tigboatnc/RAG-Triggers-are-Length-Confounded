@@ -68,6 +68,16 @@ PROTOCOL = {
         "thinking_expected": False,
         "card_url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
     },
+    "qwen2.5-7b-instruct": {
+        # No thinking mode in Qwen 2.5; standard ChatML; apache-2.0.
+        # Added 2026-05-13 as RQ1 reference backbone (used by SR-RAG,
+        # DyPRAG family). Smoke 04c_new_model_smoke confirmed clean
+        # Option-A behaviour.
+        "chat_template_kwargs": {},
+        "repetition_penalty": 1.0,
+        "thinking_expected": False,
+        "card_url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct",
+    },
 }
 
 

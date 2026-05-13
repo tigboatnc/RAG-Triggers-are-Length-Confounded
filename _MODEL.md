@@ -37,6 +37,21 @@ in §6 below before trusting any new run.
 | `phi-4-mini-instruct` | `microsoft/Phi-4-mini-instruct` | **Dense SLM** | 3.8 B | 3.8 B | dense decoder, GQA, full attention | ~7.2 GB | `cfbefacb99257ffa30c83adab238a50856ac3083` |
 | `gemma-4-26b-a4b-it` | `google/gemma-4-26B-A4B-it` | **Standard MoE** | 25.2 B | 3.8 B | MoE + 5:1 sliding-window-then-global hybrid | ~49 GB | `462a98a12e28e2cbcfccaf78fe41e3e50235e6ae` |
 | `qwen3.6-35b-a3b-instruct` | `Qwen/Qwen3.6-35B-A3B` | **Hybrid Linear MoE** | 35 B | ~3 B | MoE + 3:1 Gated DeltaNet : full attention | ~67 GB | `995ad96eacd98c81ed38be0c5b274b04031597b0` |
+| `qwen2.5-7b-instruct` | `Qwen/Qwen2.5-7B-Instruct` | **Dense (RQ1 reference, 2025)** | 7.6 B | 7.6 B | dense decoder, GQA 28Q/4KV, full attention all 28 layers | ~14.2 GB | `a09a35458c702b33eeacc393d103063234e8bc28` |
+
+**Qwen3.6 status (RQ1):** dropped from the active model pool —
+`enable_thinking=False` collapses to direct-answer mode on the multi-hop
+QA tasks RQ1 evaluates (n_steps=[2,1,1,1,1] on smoke; tokens 10-32);
+`enable_thinking=True` requires non-greedy sampling per card, breaking
+length-residualization comparability with Phi/Gemma. Documented
+limitation; see `_rq1-agent.md` Experiment P0 Qwen failure section.
+
+**Qwen2.5-7B-Instruct (RQ1, added 2026-05-13):** dense decoder added as
+the canonical 2025 RAG-paper backbone (used by SR-RAG Wu 2025; DyPRAG
+Tan 2025 family). Replaces Qwen3.6 in the active pool. Plays cleanly
+with Option-A greedy + no thinking-mode kwargs. Apache-2.0 license.
+Fits comfortably on 24 GB GPUs (14.5 GB allocated under `eager`-attn
+loader + KV cache).
 
 (Optional 4th — `google/gemma-4-31b-it`, 30.7 B dense, parked under
 `models/gemma-4-31b-it/` for the Phase 4.4 ablation (d) "MoE-vs-dense
@@ -146,6 +161,32 @@ Notes:
   hidden-state output passes through the recurrent block.
 - Unlike Gemma 4, Qwen3.6 is **text-only**, no vision encoder.
 
+### Qwen2.5-7B-Instruct (RQ1 reference, 2025; added 2026-05-13)
+
+| spec | card claim | on-disk config / measured | match? |
+|---|---|---|---|
+| `architectures` | `Qwen2ForCausalLM` (card §"Architecture") | `Qwen2ForCausalLM` | matches |
+| `model_type` | qwen2 | `qwen2` | matches; supported by transformers ≥4.37 |
+| total params | 7.61 B (card "7.61B") | **7,615,616,512** | matches |
+| non-embedding params | 6.53 B (card) | (not separately measured) | derivable |
+| n layers | 28 (card) | `num_hidden_layers=28` | matches |
+| hidden size | — | `hidden_size=3584` | — |
+| GQA | "28 for Q and 4 for KV" (card) | `num_attention_heads=28`, `num_key_value_heads=4` | matches; **7×-compressed KV** vs Q |
+| intermediate size | — | `intermediate_size=18944` | — |
+| layer pattern | dense (card §"Architecture") | `is_hybrid=False`; all 28 layers `full_attention` | matches; **no hybrid stack** |
+| `vocab_size` | — | `152064` (model) / `151643` (tokenizer specials) | — |
+| `max_position_embeddings` | "Full 131,072 tokens" (card §"Introduction") | `32768` natively; YaRN config in card extends to 128K | **on-disk default = 32K** unless rope_scaling YaRN is enabled |
+| `rope_scaling` | YaRN optional (card §"Processing Long Texts") | `{"rope_theta": 1e6, "rope_type": "default"}` | default mode |
+| `tie_word_embeddings` | — | `False` | output head separate from embed |
+| dtype | bf16 native | `torch.bfloat16` | matches |
+
+- DRAGIN attention layer (last full-attn) = **layer 27** (tuple-index
+  27, model-layer 27) — every layer is full attention so the index is
+  just `n_layers - 1`.
+- Mid-stack capture layer for v2 pipeline = **layer 14** (n_layers // 2).
+- No vision encoder, no thinking-mode mechanism, no MoE routing.
+- License: apache-2.0 (free).
+
 ## 3. Chat templates and the prompting protocol (Option A)
 
 Each model's chat template lives at one of two paths:
@@ -202,6 +243,25 @@ Long template; the Option A-relevant tail:
 - `<turn|>` and `<|turn>` are paired delimiter tokens (note the order;
   it's the close-then-open glyph layout, not a typo).
 
+### Qwen2.5-7B-Instruct (RQ1, added 2026-05-13)
+
+Standard ChatML, no thinking-mode mechanism. The chat template's
+generation-prompt tail is just `<|im_start|>assistant\n` — no
+`<think>` tag prefill. Empty `chat_template_kwargs={}` works.
+
+Smoke (`runs/04c_new_model_smoke_qwen2.5-7b-instruct_20260513T142310Z.json`):
+- Rendered prompt tail (300 chars): standard ChatML, ends at
+  `<|im_start|>assistant\n` with no thinking-block prefill.
+- `open_thinking_blocks = []` (none detected).
+- 256-tok greedy probe: 16 tokens, **eos** stop, "Reasoning: ...
+  Answer: Paris" — perfect Option-A format compliance.
+- 3-question HotpotQA-pilot smoke: all 3 reached eos cleanly,
+  emitted `Step 1: ... Answer: ...` chain-of-thought, throughput
+  ~41 tok/s on real-question prompts.
+
+`system` role supported; standard ChatML message format. No
+`enable_thinking`/`preserve_thinking` kwargs apply.
+
 ### Qwen3.6-35B-A3B
 
 Tail (chat_template.jinja lines 147-153):
@@ -238,7 +298,8 @@ Tail (chat_template.jinja lines 147-153):
 | --- | --- | --- | ---: | --- |
 | `phi-4-mini-instruct` | `system` | `{}` | **1.05** | Defensive degeneration guard; greedy alone produces sentence loops on 1500-tok contexts (`_AGENT.md` 2026-05-10 #11). |
 | `gemma-4-26b-a4b-it` | `system` | `{}` | 1.0 | Default = no thinking. |
-| `qwen3.6-35b-a3b-instruct` | `system` | `{"enable_thinking": False}` | 1.0 | Otherwise stuck inside `<think>` until `max_new_tokens` cap. |
+| `qwen3.6-35b-a3b-instruct` | `system` | `{"enable_thinking": False}` | 1.0 | (Excluded from RQ1; under-generation under this kwarg.) |
+| `qwen2.5-7b-instruct` | `system` | `{}` | 1.0 | RQ1 reference backbone. No thinking-mode mechanism; smoke 04c confirmed Option-A behaviour. |
 
 Common: `add_generation_prompt=True`; greedy decode (`argmax` of next
 logits with optional rep penalty); early-stop on `\bAnswer\s*:\s*[^\n]+\n`
@@ -264,6 +325,7 @@ report."
 | Gemma 4 | `temperature=1.0, top_p=0.95` (card §1 line 333) | greedy |
 | Qwen 3.6 (thinking) | `t=1.0, top_p=0.95, top_k=20, min_p=0.0, presence_penalty=1.5, repetition_penalty=1.0` (card line 251) | greedy (mode forced off) |
 | Qwen 3.6 (instruct/no-think) | `t=0.7, top_p=0.80, top_k=20, min_p=0.0, presence_penalty=1.5, repetition_penalty=1.0` (card line 253) | greedy |
+| Qwen 2.5 7B Instruct | `t=0.7, top_p=0.8, top_k=20, repetition_penalty=1.05` (card §"Quickstart" — Qwen2.5 generation_config.json on disk: `temperature=0.7, top_p=0.8, top_k=20, repetition_penalty=1.05`) | greedy + `repetition_penalty=1.0` (matches Phi/Gemma/Qwen3.6 contract; no observed degenerate loops on smoke) |
 
 If a separate sampling-comparison run is ever requested, mirror the card
 recommendations exactly and stamp the divergence in the per-question
@@ -276,6 +338,7 @@ record.
 | Phi-4-mini | `<|endoftext|>` | `<|end|>` (per chat template) | sometimes emits `<|end|>` instead of EOS; smoke caught Phi running to `max_tokens` after a clean `Answer: Paris` (just kept restating itself); answer-line early-stop catches this. |
 | Gemma 4 | `<eos>` (template-defined) | `<turn|>` | clean EOS in our smoke (40 tok, EOS @ answer line). |
 | Qwen 3.6 | `<|im_end|>` (ChatML) | — | clean EOS in our smoke (16 tok, EOS @ answer line). |
+| Qwen 2.5 7B | `<|im_end|>` id=151645 (ChatML) | pad=`<|endoftext|>` id=151643 | clean EOS in 04c smoke (16 tok, EOS @ answer line). 3-question HotpotQA-pilot smoke: all 3 reached EOS cleanly. |
 
 The Phase 4 driver tracks both `eos_seen_at` (token id == eos_id) and
 `answer_marker_seen_at` (regex-matched `Answer:` line). Both get logged.
@@ -293,12 +356,16 @@ fully on `cuda:0`, `transformers 5.8.0`, `torch 2.6.0+cu124`, `bnb 0.49.2`.
 | Phi-4-mini | ~4-9 s | ~1.0 GB | **~8.1 GB** | ~50 ms | **~47 tok/s** |
 | Gemma 4 26B A4B | ~15-20 s | — | **~50 GB** | — | **~13 tok/s** |
 | Qwen 3.6 35B A3B | ~35-40 s | — | **~67-68 GB** (bf16 native) | — | **~10-12 tok/s** |
+| Qwen 2.5 7B Instruct | **~3.4 s** | ~1.0 GB | **~14.5 GB** (allocated) / ~16.6 GB (peak with cache) | ~50 ms | **~21 tok/s** (256-tok smoke; ~41 tok/s on real-question prompts per 04c) |
 
 Qwen also has a fully-quantized NF4 hybrid path (~65 GB / ~8.9 tok/s) as a
 fallback for smaller VRAM cards; bf16 native is the canonical A800 path
 because bnb cannot quantize the grouped `Qwen3_5MoeExperts` tensor and
 the dequant overhead on the small Linear fraction isn't worth it. See
 `_AGENT.md` 2026-05-09 #2c for the upstream bug history.
+
+Qwen 2.5 7B Instruct fits comfortably on a 24 GB GPU (RTX 3090) under
+the eager-attn loader with K=5 sampler in scope.
 
 ### Phase 1.4 KV-pressure (5 000-token uninterrupted generation, mean across 3 prompt classes)
 

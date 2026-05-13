@@ -22,7 +22,7 @@
 
 | id | name | goals | burden ref | compute | status |
 |---|---|---|---|---|---|
-| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, 4-arch pool (Phi + Gemma + **Qwen2.5-7B** + **Llama-2-7B**) × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~3 h on A800 (Phi + Gemma done; Qwen2.5 + Llama-2 pending; Qwen3.6 dropped per limitation)** | **partial: Phi+Gemma done; Qwen2.5+Llama-2 pending on new compute-box session** |
+| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, 3-arch pool (Phi + Gemma + **Qwen2.5-7B**) × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~2.5 h on A800 (Phi + Gemma done; Qwen2.5 pending; Qwen3.6 + Llama-2 dropped)** | **partial: Phi+Gemma done; Qwen2.5 pending on new compute-box session** |
 | E1 | Re-apply audit extensions (SeaKR ln-entropy proxies + 6 aggregator-robustness rows; 11 → 19 signals) | G1 | Burden 1 | 0 (analysis) | not started |
 | E2 | Phi K=20 SeaKR eigen_score + FLARE per-token logprob dump + SelfCheckGPT K=3 sample-text dump (single bundled re-decode) | G1, G2, G3 | Burden 2 + Burden 8-FLARE + Burden 8-SelfCheck | ~12 h | not started |
 | E3 | Cross-arch baseline on Gemma-4-26B-A4B-it (n=200, D + E, full v2 capture + bundled FLARE/SelfCheck dumps) | G1, G3 | Burden 3 (Gemma) | ~4.5 h | not started |
@@ -213,7 +213,7 @@ Direction-of-effect findings:
 **Qwen3.6 P0 SKIPPED — documented limitation.**
 B smoke produced n_steps=[2,1,1,1,1], tokens [10–32]. Under matched-protocol greedy + `enable_thinking=False`, Qwen3.6 collapses to direct-answer mode. Card-recommended thinking-mode protocol requires non-greedy sampling (`t=1.0, top_p=0.95`) which breaks length-residualization comparability with Phi/Gemma. Qwen3.6 weights deletable from compute box (~67 GB freed). Trace evidence preserved at `runs/v2_pilot_qwen3.6-35b-a3b-instruct/B_smoke_hotpot.jsonl` + `logs/B_smoke.log`.
 
-**Pivot: Qwen3.6 → Qwen2.5-7B-Instruct + Llama-2-7B-Chat.** New 4-arch pool (Phi 2026 + Gemma 2026 + Qwen2.5 2025 + Llama-2 2023) spans 3 generations and 2 architecture families. Anchored: Llama-2 = canonical baseline backbone of DRAGIN/SeaKR/Self-RAG papers; Qwen2.5 = current 2025 reassessment-cohort backbone (used by SR-RAG, DyPRAG family).
+**Pivot: Qwen3.6 → Qwen2.5-7B-Instruct.** Final 3-arch pool (Phi 2026 + Gemma 2026 + Qwen2.5 2025) spans 2 generations and 2 architecture families. Llama-2-7B-Chat was considered as a 4th backbone (canonical 2024-trigger-paper baseline) but dropped after the gated download was slow even on the compute box; transitive comparability holds via SR-RAG/DyPRAG 2025 work that benchmarks DRAGIN/FLARE on Qwen2.5. Llama-2-7B remains as an optional future addition with one-step instructions in `_rq1-plan.md`.
 
 ### Status
 
@@ -223,7 +223,7 @@ B smoke produced n_steps=[2,1,1,1,1], tokens [10–32]. Under matched-protocol g
 - `scripts/run_pilot_p0.sh` — orchestrator; idempotent; pre-registered fail-fast gates on smoke / pilot-field population / token median / wall-clock cap.
 - `analysis/pilot_audit.py` — extends `length_audit_v2.py` with FLARE (post + pre rep), SeaKR-K5 proxy (Gram log-det), SelfCheckGPT-Ngram-1. Smoke-verified to reproduce existing v2 numbers exactly; gracefully reports `n/a` on the pilot-only fields when fed v2-schema traces.
 
-**Compute: existing compute box (warm) — new Cursor chat session.** Full handover in `_rq1-plan.md` §"NEW: handover for fresh Cursor chat on compute box (2026-05-13 +)". Linear path on the warm box: drop Qwen3.6 weights → download Qwen2.5-7B + Llama-2-7B at pinned SHAs → run `scripts/04c_new_model_smoke.py` for each new model → paste JSONs into agent chat → agent updates `_MODEL.md` + `PROTOCOL` dicts → `ARCHS="qwen2.5-7b-instruct llama-2-7b-chat-hf" bash scripts/run_pilot_p0.sh` (≈50 min, idempotent on Phi/Gemma) → `python analysis/pilot_audit.py`.
+**Compute: existing compute box (warm) — new Cursor chat session.** Full handover in `_rq1-plan.md` §"NEW: handover for fresh Cursor chat on compute box (2026-05-13 +)". Linear path on the warm box: drop Qwen3.6 weights → download Qwen2.5-7B at pinned SHA → run `scripts/04c_new_model_smoke.py qwen2.5-7b-instruct` → paste JSON into agent chat → agent updates `_MODEL.md` + `PROTOCOL` dicts → `ARCHS="qwen2.5-7b-instruct" bash scripts/run_pilot_p0.sh` (≈25 min, idempotent on Phi/Gemma) → `python analysis/pilot_audit.py`.
 
 ### Run (to be filled when results land)
 

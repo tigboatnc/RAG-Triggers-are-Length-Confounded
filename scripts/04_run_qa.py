@@ -86,6 +86,13 @@ MODEL_PROTOCOL: dict[str, dict[str, Any]] = {
         "chat_template_kwargs": {"enable_thinking": False},
         "repetition_penalty": 1.0,
     },
+    "qwen2.5-7b-instruct": {
+        # No thinking-mode mechanism in Qwen 2.5 chat template;
+        # standard ChatML. Smoke 04c_new_model_smoke (2026-05-13)
+        # confirmed clean Option-A behaviour (16 tok, eos, Answer:Paris).
+        "chat_template_kwargs": {},
+        "repetition_penalty": 1.0,
+    },
 }
 
 import re as _re  # noqa: E402

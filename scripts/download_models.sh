@@ -33,6 +33,8 @@ REV_PHI4MINI="cfbefacb99257ffa30c83adab238a50856ac3083"
 # Gemma 4 family (released ~2026-05-05, transformers 5.8.0 supports `gemma4`):
 REV_GEMMA4_26B_A4B="462a98a12e28e2cbcfccaf78fe41e3e50235e6ae"
 REV_GEMMA4_31B="ba74f5b6c647c0911554e50278d6f6f4477f9010"
+# RQ1 reference backbone (added 2026-05-13). Apache-2.0, ungated.
+REV_QWEN25_7B="a09a35458c702b33eeacc393d103063234e8bc28"
 
 # The bare Qwen3.6-35B-A3B repo IS the instruct variant (chat_template.jinja
 # is bundled). There is no "-Instruct" suffix repo. Architecture tag: qwen3_5_moe.
@@ -43,6 +45,7 @@ REPO_PHI4MINI="microsoft/Phi-4-mini-instruct"
 # AutoModelForCausalLM. Sliding-window + sparse global attention; 256K context.
 REPO_GEMMA4_26B_A4B="google/gemma-4-26B-A4B-it"
 REPO_GEMMA4_31B="google/gemma-4-31B-it"
+REPO_QWEN25_7B="Qwen/Qwen2.5-7B-Instruct"
 
 green() { printf "\033[32m[ok]\033[0m %s\n" "$1"; }
 yellow() { printf "\033[33m[..]\033[0m %s\n" "$1"; }
@@ -122,6 +125,13 @@ case "${1:-}" in
     fetch_snapshot "$REPO_GEMMA4_26B_A4B" "gemma-4-26b-a4b-it" "$REV_GEMMA4_26B_A4B"
     fetch_snapshot "$REPO_GEMMA4_31B" "gemma-4-31b-it" "$REV_GEMMA4_31B"
     fetch_snapshot "$REPO_QWEN" "qwen3.6-35b-a3b-instruct" "$REV_QWEN"
+    ;;
+  rq1)
+    # RQ1 final pool (2026-05-13): Phi + Gemma + Qwen2.5-7B.
+    # Drops Qwen3.6 (chain-of-thought collapses under matched-protocol
+    # greedy + enable_thinking=False; documented limitation).
+    fetch_snapshot "$REPO_GEMMA4_26B_A4B" "gemma-4-26b-a4b-it" "$REV_GEMMA4_26B_A4B"
+    fetch_snapshot "$REPO_QWEN25_7B" "qwen2.5-7b-instruct" "$REV_QWEN25_7B"
     ;;
   "")
     : # phi-only default

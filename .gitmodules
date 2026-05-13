@@ -1,0 +1,18 @@
+[submodule "externalCodeAudits/DRAGIN"]
+	path = externalCodeAudits/DRAGIN
+	url = https://github.com/oneal2000/DRAGIN.git
+[submodule "externalCodeAudits/FLARE"]
+	path = externalCodeAudits/FLARE
+	url = https://github.com/jzbjyb/FLARE.git
+[submodule "externalCodeAudits/MBA"]
+	path = externalCodeAudits/MBA
+	url = https://github.com/FUTUREEEEEE/MBA.git
+[submodule "externalCodeAudits/seakr"]
+	path = externalCodeAudits/seakr
+	url = https://github.com/thu-keg/seakr.git
+[submodule "externalCodeAudits/self-rag"]
+	path = externalCodeAudits/self-rag
+	url = https://github.com/AkariAsai/self-rag.git
+[submodule "externalCodeAudits/selfcheckgpt"]
+	path = externalCodeAudits/selfcheckgpt
+	url = https://github.com/potsawee/selfcheckgpt.git

@@ -195,4 +195,5 @@ runs_setup_a800.log
 snapshots/
 *-snapshot-*.tar.gz
 
-DRAGIN/
+/DRAGIN/
+.tmp_*.sh

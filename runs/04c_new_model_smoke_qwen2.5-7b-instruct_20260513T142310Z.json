@@ -1,0 +1,144 @@
+{
+  "ts_utc": "20260513T142310Z",
+  "model_name": "qwen2.5-7b-instruct",
+  "model_dir": "models/qwen2.5-7b-instruct",
+  "weights_size_gb": 14.19,
+  "pinned_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "load_wall_s": 3.42,
+  "vram": {
+    "available": true,
+    "allocated_mb": 14526,
+    "reserved_mb": 16918,
+    "max_allocated_mb": 16606,
+    "device_name": "NVIDIA A100-SXM4-80GB",
+    "device_total_mb": 81152
+  },
+  "section_1_summary": {
+    "model_type": "qwen2",
+    "n_params_total_M": 7615.6,
+    "weights_gb_on_disk": 14.19
+  },
+  "section_2_architecture": {
+    "model_type": "qwen2",
+    "architectures": [
+      "Qwen2ForCausalLM"
+    ],
+    "n_params_total": 7615616512,
+    "n_params_trainable": 7615616512,
+    "hidden_size": 3584,
+    "num_hidden_layers": 28,
+    "num_attention_heads": 28,
+    "num_key_value_heads": 4,
+    "intermediate_size": 18944,
+    "vocab_size": 152064,
+    "max_position_embeddings": 32768,
+    "rope_theta": null,
+    "rope_scaling": {
+      "rope_theta": 1000000.0,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "torch_dtype": "torch.bfloat16",
+    "layer_types_summary": {
+      "full_attention": 28
+    },
+    "layer_types_first8": [
+      "full_attention",
+      "full_attention",
+      "full_attention",
+      "full_attention",
+      "full_attention",
+      "full_attention",
+      "full_attention",
+      "full_attention"
+    ],
+    "layer_types_last4": [
+      "full_attention",
+      "full_attention",
+      "full_attention",
+      "full_attention"
+    ],
+    "is_hybrid": false
+  },
+  "section_3_chat_template": {
+    "kwargs_passed": {},
+    "kwargs_accepted": true,
+    "kwargs_used_at_render_time": {},
+    "rendered_len_chars": 418,
+    "rendered_tail_300": "on concisely. End your response with a single line of the form 'Answer: <your answer>' where <your answer> is as short as possible (typically 1-5 words).<|im_end|>\n<|im_start|>user\nQuestion: What is the capital of France?\n\nReason briefly, then end with 'Answer: ...'.<|im_end|>\n<|im_start|>assistant\n",
+    "open_thinking_blocks": [],
+    "has_open_thinking_block": false
+  },
+  "section_5_eos_specials": {
+    "eos_token": "<|im_end|>",
+    "eos_token_id": 151645,
+    "bos_token": null,
+    "bos_token_id": null,
+    "pad_token": "<|endoftext|>",
+    "pad_token_id": 151643,
+    "added_special_tokens": [],
+    "vocab_size": 151643
+  },
+  "section_6_decode_probe": {
+    "max_new_tokens": 256,
+    "repetition_penalty": 1.0,
+    "result": {
+      "tokens_generated": 16,
+      "wall_s": 0.76,
+      "tok_per_s": 21.09,
+      "early_stop": "eos",
+      "answer_marker_seen": true,
+      "thinking_opener_in_head_200": null,
+      "text_first_400": "Reasoning: The capital of France is a known fact.\nAnswer: Paris",
+      "text_last_200": "Reasoning: The capital of France is a known fact.\nAnswer: Paris"
+    }
+  },
+  "behavioural_hotpot_smoke": [
+    {
+      "tokens_generated": 102,
+      "wall_s": 2.54,
+      "tok_per_s": 40.23,
+      "early_stop": "eos",
+      "answer_marker_seen": true,
+      "thinking_opener_in_head_200": null,
+      "text_first_400": "Step 1: Identify the filmmakers mentioned in the question question: question: t.\nStep 2: Lev Yilmaz is not mentioned in any of the paragraphs.\nStep 3: Pamela B. Green is not mentioned in any of the paragraphs.\nStep 4: Aryanto Yuniawan is mentioned in the first paragraph and is known for animation.\nStep 5: No other information about Lev Yilmaz or Pamela B. Green in the given paragraphs.\nAnswer: Ary",
+      "text_last_200": "p 4: Aryanto Yuniawan is mentioned in the first paragraph and is known for animation.\nStep 5: No other information about Lev Yilmaz or Pamela B. Green in the given paragraphs.\nAnswer: Aryanto Yuniawan",
+      "q_id": "5ac1b8ee5542994d76dccedc",
+      "gold_answer": "Levni Yilmaz"
+    },
+    {
+      "tokens_generated": 47,
+      "wall_s": 1.13,
+      "tok_per_s": 41.69,
+      "early_stop": "eos",
+      "answer_marker_seen": true,
+      "thinking_opener_in_head_200": null,
+      "text_first_400": "Phil Rosen directed 142 films, while Delmer Daves had a career in screenwriting, directing, and producing. Rosen's scope is broader as he was a cinematographer as well as director.\nAnswer: Phil Rosen",
+      "text_last_200": "Phil Rosen directed 142 films, while Delmer Daves had a career in screenwriting, directing, and producing. Rosen's scope is broader as he was a cinematographer as well as director.\nAnswer: Phil Rosen",
+      "q_id": "5ac1f4495542991316484bd2",
+      "gold_answer": "Delmer Lawrence Daves"
+    },
+    {
+      "tokens_generated": 62,
+      "wall_s": 1.49,
+      "tok_per_s": 41.66,
+      "early_stop": "eos",
+      "answer_marker_seen": true,
+      "thinking_opener_in_head_200": null,
+      "text_first_400": "Step 1: Identify musicians associated with Hiren Roy.\nStep 2: Identify musicians associated with Vilayat Khan.\nStep 3: Find the common musician between the two lists.\nStep 4: Vilayat Khan is mentioned as working with Hiren Roy.\nAnswer: Vilayat Khan",
+      "text_last_200": " Roy.\nStep 2: Identify musicians associated with Vilayat Khan.\nStep 3: Find the common musician between the two lists.\nStep 4: Vilayat Khan is mentioned as working with Hiren Roy.\nAnswer: Vilayat Khan",
+      "q_id": "5ab2a8b655429929539467ab",
+      "gold_answer": "Nikhil Banerjee"
+    }
+  ],
+  "_args": {
+    "model": "qwen2.5-7b-instruct",
+    "model_dir": "models/qwen2.5-7b-instruct",
+    "thinking_mode": "na",
+    "repetition_penalty": 1.0,
+    "dtype": "bfloat16",
+    "max_new_tokens": 256,
+    "skip_hotpot": false,
+    "out_dir": "runs"
+  }
+}

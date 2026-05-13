@@ -1,0 +1,106 @@
+[2026-05-13T15:49:42Z] === RQ1 Run 1 — Headline n=200 starting ===
+[2026-05-13T15:49:42Z] git rev: 5587e2b
+[2026-05-13T15:49:42Z] python:  Python 3.11.15
+[2026-05-13T15:49:42Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T15:49:42Z] ARCHS=phi-4-mini-instruct qwen2.5-7b-instruct gemma-4-26b-a4b-it
+[2026-05-13T15:49:42Z] N=200  N_SMOKE=5  CONS_K=5
+[2026-05-13T15:49:42Z] slice data/hotpotqa_distractor_500_v2test.jsonl: 500 rows
+[2026-05-13T15:49:42Z] slice data/2wikimultihop_distractor_500_v2test.jsonl: 500 rows
+[2026-05-13T15:49:42Z] [phi-4-mini-instruct] ==== START: phi-4-mini-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T15:49:42Z] [phi-4-mini-instruct] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-13T15:49:42Z] [phi-4-mini-instruct] ==== B: smoke decode (n=5, HotpotQA) ====
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:22,  8.44it/s]Loading weights:  14%|█▍        | 28/194 [00:00<00:01, 146.70it/s]Loading weights:  28%|██▊       | 54/194 [00:00<00:00, 195.47it/s]Loading weights:  39%|███▉      | 76/194 [00:00<00:00, 203.63it/s]Loading weights:  53%|█████▎    | 102/194 [00:00<00:00, 221.84it/s]Loading weights:  65%|██████▍   | 126/194 [00:00<00:00, 227.12it/s]Loading weights:  77%|███████▋  | 149/194 [00:00<00:00, 221.43it/s]Loading weights:  89%|████████▊ | 172/194 [00:00<00:00, 193.70it/s]Loading weights:  99%|█████████▉| 193/194 [00:01<00:00, 191.02it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 193.42it/s]
+[ok] loaded in 2.64s | rss 1.030 GB | VRAM 8111 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=16)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_phi-4-mini-instruct/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11525.27it/s]
+[..]   5/5  em=2/5  steps=  4  tok=  80  wall=26.2s  elapsed=3.6min
+[ok] wrote 5 rows to runs/v2_headline_phi-4-mini-instruct/B_smoke_hotpot.jsonl
+[ok] em rate: 2/5 = 0.400
+[B-check] n=5 multistep+answer=4 schema_pop=[(3, 3), (4, 4), (20, 20), (4, 4)]
+[B-check] schema_version=['rq1-pilot-v1']
+[B-check] PASS
+[2026-05-13T15:53:28Z] [phi-4-mini-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 0) ====
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:22,  8.39it/s]Loading weights:  14%|█▍        | 28/194 [00:00<00:01, 141.82it/s]Loading weights:  28%|██▊       | 54/194 [00:00<00:00, 190.24it/s]Loading weights:  40%|███▉      | 77/194 [00:00<00:00, 203.98it/s]Loading weights:  54%|█████▍    | 105/194 [00:00<00:00, 229.32it/s]Loading weights:  67%|██████▋   | 130/194 [00:00<00:00, 226.70it/s]Loading weights:  79%|███████▉  | 153/194 [00:00<00:00, 224.91it/s]Loading weights:  91%|█████████ | 176/194 [00:00<00:00, 199.03it/s]Loading weights: 100%|██████████| 194/194 [00:00<00:00, 196.98it/s]
+[ok] loaded in 2.62s | rss 1.034 GB | VRAM 8111 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=16)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_phi-4-mini-instruct/D1_closed_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11627.95it/s]
+[..]   5/200  em=2/5  steps=  4  tok=  80  wall=25.9s  elapsed=3.6min
+[..]  10/200  em=2/10  steps=  4  tok= 112  wall=26.6s  elapsed=5.1min
+[..]  15/200  em=4/15  steps=  0  tok=  48  wall=1.4s  elapsed=6.0min
+[..]  20/200  em=4/20  steps=  0  tok=  48  wall=1.5s  elapsed=6.9min
+[..]  25/200  em=6/25  steps=  1  tok=  80  wall=8.2s  elapsed=7.6min
+[..]  30/200  em=9/30  steps=  0  tok=  22  wall=0.7s  elapsed=9.3min
+[..]  35/200  em=10/35  steps=  3  tok=  80  wall=20.0s  elapsed=10.6min
+[..]  40/200  em=10/40  steps=  0  tok=  48  wall=1.5s  elapsed=11.3min
+[..]  45/200  em=11/45  steps=  3  tok=  64  wall=19.5s  elapsed=13.7min
+[..]  50/200  em=15/50  steps=  4  tok=  80  wall=25.8s  elapsed=15.1min
+[..]  55/200  em=16/55  steps=  1  tok=  80  wall=8.3s  elapsed=15.6min
+[..]  60/200  em=17/60  steps=  2  tok=  80  wall=14.4s  elapsed=16.6min
+[..]  65/200  em=20/65  steps=  2  tok= 128  wall=14.7s  elapsed=17.8min
+[..]  70/200  em=23/70  steps=  0  tok=  48  wall=1.5s  elapsed=18.5min
+[..]  75/200  em=24/75  steps=  1  tok=  80  wall=7.6s  elapsed=19.2min
+[..]  80/200  em=27/80  steps=  3  tok= 176  wall=22.6s  elapsed=20.6min
+[..]  85/200  em=27/85  steps=  3  tok=  64  wall=19.8s  elapsed=23.9min
+[..]  90/200  em=27/90  steps=  3  tok=  80  wall=20.0s  elapsed=25.1min
+[..]  95/200  em=28/95  steps=  1  tok=  80  wall=8.3s  elapsed=26.5min
+[..] 100/200  em=32/100  steps=  1  tok=  36  wall=5.6s  elapsed=26.8min
+[..] 105/200  em=33/105  steps=  2  tok=  64  wall=13.8s  elapsed=28.4min
+[..] 110/200  em=35/110  steps=  2  tok=  80  wall=14.4s  elapsed=29.4min
+[..] 115/200  em=37/115  steps=  2  tok=  80  wall=13.5s  elapsed=29.9min
+[..] 120/200  em=41/120  steps=  0  tok=  22  wall=0.7s  elapsed=30.5min
+[..] 125/200  em=42/125  steps=  1  tok=  80  wall=8.2s  elapsed=31.1min
+[..] 130/200  em=45/130  steps=  0  tok=  64  wall=2.0s  elapsed=33.1min
+[..] 135/200  em=47/135  steps=  3  tok= 112  wall=22.0s  elapsed=34.3min
+[..] 140/200  em=50/140  steps=  0  tok=  22  wall=0.7s  elapsed=35.3min
+[..] 145/200  em=53/145  steps=  1  tok=  39  wall=5.8s  elapsed=36.8min
+[..] 150/200  em=56/150  steps=  1  tok=  64  wall=8.1s  elapsed=37.7min
+[..] 155/200  em=60/155  steps=  5  tok=  96  wall=32.7s  elapsed=39.3min
+[..] 160/200  em=63/160  steps=  3  tok=  80  wall=20.3s  elapsed=40.4min
+[..] 165/200  em=65/165  steps=  1  tok=  96  wall=9.1s  elapsed=42.1min
+[..] 170/200  em=68/170  steps=  3  tok= 112  wall=21.1s  elapsed=42.9min
+[..] 175/200  em=70/175  steps=  1  tok=  45  wall=5.7s  elapsed=44.2min
+[..] 180/200  em=71/180  steps=  3  tok=  80  wall=21.1s  elapsed=46.0min
+[..] 185/200  em=73/185  steps=  3  tok=  80  wall=20.6s  elapsed=47.3min
+[..] 190/200  em=77/190  steps=  3  tok=  64  wall=20.0s  elapsed=48.9min
+[..] 195/200  em=80/195  steps=  1  tok=  39  wall=4.0s  elapsed=49.6min
+[..] 200/200  em=82/200  steps=  3  tok=  96  wall=20.9s  elapsed=51.9min
+[ok] wrote 200 rows to runs/v2_headline_phi-4-mini-instruct/D1_closed_hotpot.jsonl
+[ok] em rate: 82/200 = 0.410
+[gate] n=200 tok_median=80 p10=38 p90=144
+[gate] OK
+[2026-05-13T16:45:30Z] [phi-4-mini-instruct] ==== D: D2_closed_wiki closed-book (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl, resuming from 0) ====
+[..] dataset data/2wikimultihop_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:24,  8.03it/s]Loading weights:  12%|█▏        | 24/194 [00:00<00:01, 126.51it/s]Loading weights:  24%|██▎       | 46/194 [00:00<00:00, 164.01it/s]Loading weights:  36%|███▌      | 70/194 [00:00<00:00, 186.75it/s]Loading weights:  51%|█████     | 98/194 [00:00<00:00, 214.96it/s]Loading weights:  64%|██████▍   | 124/194 [00:00<00:00, 219.08it/s]Loading weights:  76%|███████▌  | 147/194 [00:00<00:00, 220.28it/s]Loading weights:  88%|████████▊ | 170/194 [00:00<00:00, 197.68it/s]Loading weights:  98%|█████████▊| 191/194 [00:01<00:00, 178.25it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 183.33it/s]
+[ok] loaded in 2.67s | rss 1.033 GB | VRAM 8111 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=16)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_phi-4-mini-instruct/D2_closed_wiki.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11637.66it/s]
+[..]   5/200  em=2/5  steps=  4  tok= 128  wall=26.9s  elapsed=1.0min
+[..]  10/200  em=3/10  steps=  5  tok= 144  wall=33.4s  elapsed=2.9min
+[..]  15/200  em=5/15  steps=  4  tok= 128  wall=27.1s  elapsed=4.6min
+[..]  20/200  em=9/20  steps=  1  tok=  64  wall=7.7s  elapsed=5.6min

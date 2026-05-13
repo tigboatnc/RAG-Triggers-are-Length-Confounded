@@ -1,0 +1,17 @@
+[..] dataset data/2wikimultihop_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:24,  8.03it/s]Loading weights:  12%|█▏        | 24/194 [00:00<00:01, 126.51it/s]Loading weights:  24%|██▎       | 46/194 [00:00<00:00, 164.01it/s]Loading weights:  36%|███▌      | 70/194 [00:00<00:00, 186.75it/s]Loading weights:  51%|█████     | 98/194 [00:00<00:00, 214.96it/s]Loading weights:  64%|██████▍   | 124/194 [00:00<00:00, 219.08it/s]Loading weights:  76%|███████▌  | 147/194 [00:00<00:00, 220.28it/s]Loading weights:  88%|████████▊ | 170/194 [00:00<00:00, 197.68it/s]Loading weights:  98%|█████████▊| 191/194 [00:01<00:00, 178.25it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 183.33it/s]
+[ok] loaded in 2.67s | rss 1.033 GB | VRAM 8111 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=16)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_phi-4-mini-instruct/D2_closed_wiki.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11637.66it/s]
+[..]   5/200  em=2/5  steps=  4  tok= 128  wall=26.9s  elapsed=1.0min
+[..]  10/200  em=3/10  steps=  5  tok= 144  wall=33.4s  elapsed=2.9min
+[..]  15/200  em=5/15  steps=  4  tok= 128  wall=27.1s  elapsed=4.6min
+[..]  20/200  em=9/20  steps=  1  tok=  64  wall=7.7s  elapsed=5.6min

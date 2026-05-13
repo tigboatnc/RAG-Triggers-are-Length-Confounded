@@ -1,0 +1,19 @@
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:22,  8.44it/s]Loading weights:  14%|█▍        | 28/194 [00:00<00:01, 146.70it/s]Loading weights:  28%|██▊       | 54/194 [00:00<00:00, 195.47it/s]Loading weights:  39%|███▉      | 76/194 [00:00<00:00, 203.63it/s]Loading weights:  53%|█████▎    | 102/194 [00:00<00:00, 221.84it/s]Loading weights:  65%|██████▍   | 126/194 [00:00<00:00, 227.12it/s]Loading weights:  77%|███████▋  | 149/194 [00:00<00:00, 221.43it/s]Loading weights:  89%|████████▊ | 172/194 [00:00<00:00, 193.70it/s]Loading weights:  99%|█████████▉| 193/194 [00:01<00:00, 191.02it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 193.42it/s]
+[ok] loaded in 2.64s | rss 1.030 GB | VRAM 8111 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=16)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_phi-4-mini-instruct/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11525.27it/s]
+[..]   5/5  em=2/5  steps=  4  tok=  80  wall=26.2s  elapsed=3.6min
+[ok] wrote 5 rows to runs/v2_headline_phi-4-mini-instruct/B_smoke_hotpot.jsonl
+[ok] em rate: 2/5 = 0.400
+[B-check] n=5 multistep+answer=4 schema_pop=[(3, 3), (4, 4), (20, 20), (4, 4)]
+[B-check] schema_version=['rq1-pilot-v1']
+[B-check] PASS

@@ -1,0 +1,5 @@
+[2026-05-13T15:49:42Z] [phi-4-mini-instruct] ==== START: phi-4-mini-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T15:49:42Z] [phi-4-mini-instruct] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-13T15:49:42Z] [phi-4-mini-instruct] ==== B: smoke decode (n=5, HotpotQA) ====
+[2026-05-13T15:53:28Z] [phi-4-mini-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 0) ====
+[2026-05-13T16:45:30Z] [phi-4-mini-instruct] ==== D: D2_closed_wiki closed-book (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl, resuming from 0) ====

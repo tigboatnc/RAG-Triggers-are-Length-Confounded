@@ -10,3 +10,12 @@
 [..] writing runs/v2_pilot_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 12421.31it/s]
+[..]   5/5  em=1/5  steps= 19  tok= 184  wall=343.2s  elapsed=22.9min
+[ok] wrote 5 rows to runs/v2_pilot_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
+[ok] em rate: 1/5 = 0.200
+[B-check] n_traces=5 n_steps=[11, 12, 29, 10, 19] tok_gen=[206, 192, 384, 137, 184] ans_ok=[True, True, True, True, True]
+[B-check] multistep+answer=5/5
+[B-check] new-field population per trace (have/total): [(11, 11), (12, 12), (29, 29), (10, 10), (19, 19)]
+[B-check] capture_schema_version: ['rq1-pilot-v1']
+[B-check] sampler_K: [5]
+[B-check] PASS (gates 1 + 3)

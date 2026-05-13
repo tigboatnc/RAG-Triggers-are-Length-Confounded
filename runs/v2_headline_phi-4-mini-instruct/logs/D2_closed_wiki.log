@@ -15,3 +15,43 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..]  10/200  em=3/10  steps=  5  tok= 144  wall=33.4s  elapsed=2.9min
 [..]  15/200  em=5/15  steps=  4  tok= 128  wall=27.1s  elapsed=4.6min
 [..]  20/200  em=9/20  steps=  1  tok=  64  wall=7.7s  elapsed=5.6min
+[..]  25/200  em=10/25  steps=  1  tok=  96  wall=8.7s  elapsed=7.6min
+[..]  30/200  em=12/30  steps=  2  tok=  80  wall=13.4s  elapsed=9.0min
+[..]  35/200  em=14/35  steps=  2  tok=  96  wall=14.4s  elapsed=10.0min
+[..]  40/200  em=16/40  steps=  2  tok=  96  wall=14.6s  elapsed=10.8min
+[..]  45/200  em=19/45  steps=  9  tok= 304  wall=61.1s  elapsed=13.0min
+[..]  50/200  em=22/50  steps=  5  tok=  80  wall=31.3s  elapsed=14.1min
+[..]  55/200  em=25/55  steps=  1  tok=  96  wall=8.5s  elapsed=14.8min
+[..]  60/200  em=27/60  steps= 43  tok=1024  wall=281.1s  elapsed=19.7min
+[..]  65/200  em=29/65  steps=  2  tok=  64  wall=13.6s  elapsed=20.7min
+[..]  70/200  em=32/70  steps=  1  tok=  96  wall=8.7s  elapsed=21.3min
+[..]  75/200  em=34/75  steps=  2  tok= 224  wall=18.1s  elapsed=22.6min
+[..]  80/200  em=38/80  steps=  1  tok=  80  wall=8.1s  elapsed=23.6min
+[..]  85/200  em=40/85  steps=  1  tok=  80  wall=8.2s  elapsed=24.7min
+[..]  90/200  em=40/90  steps=  2  tok=  80  wall=14.1s  elapsed=26.1min
+[..]  95/200  em=41/95  steps=  1  tok=  48  wall=7.3s  elapsed=27.3min
+[..] 100/200  em=46/100  steps=  0  tok=  48  wall=1.4s  elapsed=28.2min
+[..] 105/200  em=49/105  steps=  2  tok=  64  wall=13.5s  elapsed=29.4min
+[..] 110/200  em=50/110  steps=  5  tok= 160  wall=33.9s  elapsed=31.0min
+[..] 115/200  em=51/115  steps=  1  tok=  96  wall=8.6s  elapsed=32.0min
+[..] 120/200  em=53/120  steps=  2  tok=  48  wall=13.1s  elapsed=32.9min
+[..] 125/200  em=55/125  steps=  0  tok=  45  wall=1.3s  elapsed=34.2min
+[..] 130/200  em=58/130  steps=  3  tok= 128  wall=20.1s  elapsed=35.0min
+[..] 135/200  em=59/135  steps=  1  tok=  80  wall=8.0s  elapsed=36.2min
+[..] 140/200  em=60/140  steps=  0  tok=  42  wall=1.2s  elapsed=36.8min
+[..] 145/200  em=62/145  steps=  1  tok=  80  wall=8.1s  elapsed=37.6min
+[..] 150/200  em=64/150  steps=  2  tok=  96  wall=14.3s  elapsed=43.3min
+[..] 155/200  em=67/155  steps=  2  tok=  96  wall=14.2s  elapsed=44.1min
+[..] 160/200  em=68/160  steps=  5  tok=  97  wall=22.8s  elapsed=46.2min
+[..] 165/200  em=69/165  steps=  2  tok=  64  wall=13.5s  elapsed=48.1min
+[..] 170/200  em=72/170  steps=  2  tok= 112  wall=14.6s  elapsed=49.6min
+[..] 175/200  em=75/175  steps=  2  tok=  64  wall=13.4s  elapsed=50.4min
+[..] 180/200  em=77/180  steps=  0  tok=  48  wall=1.4s  elapsed=51.4min
+[..] 185/200  em=80/185  steps=  2  tok=  64  wall=13.4s  elapsed=53.0min
+[..] 190/200  em=81/190  steps=  3  tok= 128  wall=20.8s  elapsed=54.5min
+[..] 195/200  em=84/195  steps=  1  tok=  80  wall=8.0s  elapsed=55.5min
+[..] 200/200  em=86/200  steps=  4  tok= 144  wall=27.1s  elapsed=56.7min
+[ok] wrote 200 rows to runs/v2_headline_phi-4-mini-instruct/D2_closed_wiki.jsonl
+[ok] em rate: 86/200 = 0.430
+[gate] n=200 tok_median=80 p10=48 p90=144
+[gate] OK

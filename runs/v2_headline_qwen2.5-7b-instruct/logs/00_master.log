@@ -1,0 +1,8 @@
+[2026-05-13T17:58:14Z] [qwen2.5-7b-instruct] ==== START: qwen2.5-7b-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T17:58:14Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
+[2026-05-13T17:58:14Z] [qwen2.5-7b-instruct] ==== B: smoke decode (n=5, HotpotQA) ====
+[2026-05-13T18:00:07Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 0) ====
+[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] ==== START: qwen2.5-7b-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
+[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] B: smoke present (n=5), skipping
+[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 133) ====

@@ -1,0 +1,11 @@
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:30, 11.10it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 118.60it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:01, 167.01it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 195.82it/s]Loading weights:  31%|███▏      | 106/339 [00:00<00:01, 222.68it/s]Loading weights:  40%|████      | 136/339 [00:00<00:00, 233.68it/s]Loading weights:  48%|████▊     | 162/339 [00:00<00:00, 239.35it/s]Loading weights:  55%|█████▌    | 187/339 [00:01<00:00, 186.98it/s]Loading weights:  61%|██████▏   | 208/339 [00:01<00:00, 149.17it/s]Loading weights:  68%|██████▊   | 232/339 [00:01<00:00, 164.90it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 182.03it/s]Loading weights:  83%|████████▎ | 281/339 [00:01<00:00, 194.99it/s]Loading weights:  90%|████████▉ | 305/339 [00:01<00:00, 206.59it/s]Loading weights:  97%|█████████▋| 329/339 [00:01<00:00, 210.55it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 192.21it/s]
+[ok] loaded in 3.07s | rss 0.948 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl

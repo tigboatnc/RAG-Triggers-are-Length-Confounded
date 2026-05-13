@@ -1,0 +1,3 @@
+[2026-05-13T15:09:53Z] === RQ1 P1 (rq1-pilot-v2 schema) starting ===
+[2026-05-13T15:09:53Z] git rev: cfdfe55
+[2026-05-13T15:09:53Z] ARCHS=gemma-4-26b-a4b-it  N_PILOT=25  CONS_K=5  PREFIX_PROBE_TOKENS=10

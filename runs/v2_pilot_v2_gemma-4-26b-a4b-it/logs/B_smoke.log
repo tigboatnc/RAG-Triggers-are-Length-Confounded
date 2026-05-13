@@ -1,0 +1,22 @@
+[..] dataset data/hotpotqa_distractor_25_pilot.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:50, 19.96it/s]Loading weights:   0%|          | 5/1013 [00:00<01:00, 16.57it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:16, 60.41it/s]Loading weights:   5%|▍         | 47/1013 [00:00<00:12, 78.97it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:10, 91.94it/s]Loading weights:   9%|▉         | 92/1013 [00:01<00:09, 99.21it/s]Loading weights:  11%|█         | 113/1013 [00:01<00:09, 97.52it/s]Loading weights:  13%|█▎        | 135/1013 [00:01<00:08, 99.94it/s]Loading weights:  15%|█▌        | 157/1013 [00:01<00:07, 107.70it/s]Loading weights:  18%|█▊        | 178/1013 [00:01<00:07, 114.13it/s]Loading weights:  20%|█▉        | 201/1013 [00:02<00:07, 115.56it/s]Loading weights:  22%|██▏       | 223/1013 [00:02<00:07, 111.71it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:06, 111.43it/s]Loading weights:  26%|██▋       | 266/1013 [00:02<00:06, 112.59it/s]Loading weights:  28%|██▊       | 288/1013 [00:02<00:06, 113.09it/s]Loading weights:  31%|███       | 310/1013 [00:03<00:06, 115.25it/s]Loading weights:  33%|███▎      | 331/1013 [00:03<00:05, 114.55it/s]Loading weights:  35%|███▍      | 354/1013 [00:03<00:05, 119.78it/s]Loading weights:  37%|███▋      | 376/1013 [00:03<00:05, 118.00it/s]Loading weights:  39%|███▉      | 396/1013 [00:03<00:04, 133.07it/s]Loading weights:  41%|████      | 411/1013 [00:03<00:04, 131.41it/s]Loading weights:  42%|████▏     | 425/1013 [00:04<00:05, 106.59it/s]Loading weights:  44%|████▎     | 441/1013 [00:04<00:05, 99.86it/s] Loading weights:  46%|████▌     | 463/1013 [00:04<00:05, 103.53it/s]Loading weights:  48%|████▊     | 485/1013 [00:04<00:04, 108.25it/s]Loading weights:  50%|█████     | 507/1013 [00:04<00:04, 107.00it/s]Loading weights:  52%|█████▏    | 528/1013 [00:04<00:04, 107.40it/s]Loading weights:  54%|█████▍    | 549/1013 [00:05<00:04, 105.41it/s]Loading weights:  56%|█████▋    | 572/1013 [00:05<00:04, 102.61it/s]Loading weights:  59%|█████▊    | 593/1013 [00:05<00:04, 100.69it/s]Loading weights:  61%|██████    | 616/1013 [00:05<00:03, 104.92it/s]Loading weights:  63%|██████▎   | 638/1013 [00:06<00:03, 104.54it/s]Loading weights:  79%|███████▊  | 796/1013 [00:06<00:00, 355.54it/s]Loading weights:  99%|█████████▊| 998/1013 [00:06<00:00, 680.37it/s]Loading weights: 100%|██████████| 1013/1013 [00:06<00:00, 161.26it/s]
+[ok] loaded in 11.31s | rss 1.149 GB | VRAM 49887 MB
+[..] layer_mode=mid_stack  capture_subset=[15]
+[..] dragin_attn_layer_idx=29 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=15)
+[..] rq1-pilot-v2 ready: prefix_probe_tokens=10, multi_layer_dragin=[29]
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_pilot_v2_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11299.78it/s]
+[..]   5/5  em=1/5  steps= 19  tok= 184  wall=332.3s  elapsed=22.8min
+[ok] wrote 5 rows to runs/v2_pilot_v2_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
+[ok] em rate: 1/5 = 0.200
+[v2-check] n_traces=5 schema=['rq1-pilot-v2']
+[v2-check] attention_sink_frac population: [(11, 11), (12, 12), (29, 29), (10, 10), (19, 19)]
+[v2-check] prefix_answer_now populated on 81/81 steps
+[v2-check] moe_routing_entropy populated on 0/81 steps (None expected on dense)
+[v2-check] multi_layer_dragin layer indices observed: ['layer_29']
+[v2-check] PASS

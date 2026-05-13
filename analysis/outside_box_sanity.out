@@ -1,0 +1,81 @@
+
+============================================================================================
+IDEA 2 — K=3 backtrack signal (normalised position of u_cons.argmax | EM)
+============================================================================================
+  Phi v2 Hot: {'n_correct': 51, 'n_wrong': 115, 'mean_pos_correct': 0.6178104575163399, 'mean_pos_wrong': 0.6173490214336896, 'median_pos_correct': 0.5, 'median_pos_wrong': 0.7142857142857143, 'auroc_pos_pred_wrong': 0.5032395566922421}
+  Phi v2 2Wiki: {'n_correct': 48, 'n_wrong': 88, 'mean_pos_correct': 0.741170634920635, 'mean_pos_wrong': 0.7225333464403922, 'median_pos_correct': 1.0, 'median_pos_wrong': 0.8198924731182795, 'auroc_pos_pred_wrong': 0.47419507575757575}
+
+============================================================================================
+IDEA 4 — Failure-mode taxonomy buckets (Phi v2 Hot + 2Wiki combined)
+============================================================================================
+  early_commit_wrong     n= 177  toks=    74  ent=0.53  u_cons=0.234  dragin=1.95  drift=0.000  hedge=0.0
+  short_correct          n= 306  toks=    65  ent=0.46  u_cons=0.167  dragin=1.80  drift=0.019  hedge=0.0
+  long_rambling_wrong    n=  97  toks=   201  ent=1.49  u_cons=0.519  dragin=3.70  drift=0.192  hedge=0.1
+  long_correct           n=  32  toks=   192  ent=1.37  u_cons=0.417  dragin=3.49  drift=0.192  hedge=0.1
+  ambiguous              n= 388  toks=    90  ent=0.71  u_cons=0.277  dragin=2.45  drift=0.087  hedge=0.0
+
+============================================================================================
+IDEA 5 — V1 cross-architecture failure signatures (HotpotQA-200)
+============================================================================================
+  phi  (n=200, em=0.425, tok_mean=88)
+    correct  n=  85  ent=0.82  dragin=2.61  drift=0.077  var=12.882  hidden=42.86  toks=75
+    wrong    n= 115  ent=0.98  dragin=2.85  drift=0.093  var=15.432  hidden=43.47  toks=97
+  gemma  (n=200, em=0.485, tok_mean=215)
+    correct  n=  97  ent=0.61  dragin=1.57  drift=0.263  var=268.511  hidden=135.56  toks=202
+    wrong    n= 103  ent=0.68  dragin=1.92  drift=0.262  var=293.897  hidden=140.42  toks=228
+  qwen  (n=200, em=0.620, tok_mean=172)
+    correct  n= 124  ent=0.44  dragin=1.32  drift=0.374  var=0.098  hidden=3.27  toks=139
+    wrong    n=  76  ent=0.62  dragin=1.54  drift=0.416  var=0.114  hidden=3.35  toks=225
+
+============================================================================================
+IDEA 6 — Pairwise correlations of multi-signal uncertainty stack (Phi v2 Hot)
+============================================================================================
+  n_traces with all 8 signals populated: 213
+  drift_cosine ↔ variance_l2_window                       r=+0.853  COLLAPSE
+  mean_token_entropy ↔ dragin_rind_max                    r=+0.554  CORR
+  u_cons ↔ mean_token_entropy                             r=+0.536  CORR
+  boundary_token_entropy ↔ dragin_rind_max                r=+0.502  CORR
+  mean_token_entropy ↔ boundary_token_entropy             r=+0.461  CORR
+  u_cons ↔ dragin_rind_max                                r=+0.385  CORR
+  u_cons ↔ u_verb                                         r=+0.371  CORR
+  u_cons ↔ boundary_token_entropy                         r=+0.359  CORR
+  mean_token_entropy ↔ u_verb                             r=+0.294  ORTHOG
+  u_verb ↔ hvr                                            r=+0.267  ORTHOG
+  drift_cosine ↔ mean_token_entropy                       r=+0.263  ORTHOG
+  u_verb ↔ dragin_rind_max                                r=+0.247  ORTHOG
+  u_cons ↔ drift_cosine                                   r=+0.185  ORTHOG
+  variance_l2_window ↔ boundary_token_entropy             r=-0.182  ORTHOG
+  mean_token_entropy ↔ hvr                                r=+0.175  ORTHOG
+  variance_l2_window ↔ dragin_rind_max                    r=-0.168  ORTHOG
+  u_verb ↔ boundary_token_entropy                         r=+0.168  ORTHOG
+  u_cons ↔ hvr                                            r=+0.164  ORTHOG
+  drift_cosine ↔ boundary_token_entropy                   r=-0.126  ORTHOG
+  mean_token_entropy ↔ variance_l2_window                 r=+0.123  ORTHOG
+  dragin_rind_max ↔ hvr                                   r=+0.110  ORTHOG
+  drift_cosine ↔ dragin_rind_max                          r=-0.091  ORTHOG
+  drift_cosine ↔ u_verb                                   r=+0.091  ORTHOG
+  boundary_token_entropy ↔ hvr                            r=+0.077  ORTHOG
+  u_verb ↔ variance_l2_window                             r=-0.063  ORTHOG
+  variance_l2_window ↔ hvr                                r=-0.033  ORTHOG
+  drift_cosine ↔ hvr                                      r=+0.029  ORTHOG
+  u_cons ↔ variance_l2_window                             r=+0.027  ORTHOG
+
+============================================================================================
+IDEA 7 — Wu inverted-U: EM rate by n_steps tertile
+============================================================================================
+  Phi v2 Hot  short≤1 (251) EM=0.442  |  mid (0) EM=nan  |  long≥2 (249) EM=0.341
+  Phi v2 2Wiki  short≤1 (239) EM=0.477  |  mid (0) EM=nan  |  long≥2 (261) EM=0.364
+  V1 phi    short≤1 (109) EM=0.459  |  mid (0) EM=nan  |  long≥2 (91) EM=0.385
+  V1 gemma  short≤11 (77) EM=0.597  |  mid (48) EM=0.438  |  long≥15 (75) EM=0.400
+  V1 qwen   short≤5 (74) EM=0.743  |  mid (44) EM=0.591  |  long≥10 (82) EM=0.524
+
+############################################################################################
+===SUMMARY===
+############################################################################################
+[IDEA 2] u_cons.argmax_pos | correct vs wrong (Phi v2):
+  Hot: correct=0.62  wrong=0.62  Δ=-0.00  AUROC=0.503
+  Wiki: correct=0.74  wrong=0.72  Δ=-0.02  AUROC=0.474
+[IDEA 4] Cluster signatures in `IDEA 4` table above — see if early_commit_wrong has different mean signals than long_rambling_wrong.
+[IDEA 5] Cross-arch raw signals are NOT directly comparable (different scales) — but within-arch correct-vs-wrong differences ARE comparable. Look at the (wrong - correct) signal deltas in IDEA 5.
+[IDEA 6] Most-orthogonal signal pair: u_cons ↔ variance_l2_window (r=+0.027); most-collapsed pair: drift_cosine ↔ variance_l2_window (r=+0.853).
+[IDEA 7] If long-tertile EM is meaningfully lower than short-tertile EM on multiple cells, Wu inverted-U holds in our data.

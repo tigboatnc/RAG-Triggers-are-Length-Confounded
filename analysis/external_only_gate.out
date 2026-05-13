@@ -1,0 +1,138 @@
+
+============================================================================================
+=== HotpotQA  (in-domain)   n=393  incorrect=245  lift+1=42  lift-1=43 ===
+
+  --- SINGLE-FEATURE AUROC ---
+  feature                  →INCORRECT    →lift+1    →lift-1|±1
+  wall_clock_s                  0.610      0.735         0.240
+  tokens_generated              0.645      0.749         0.163
+  n_steps                       0.591      0.720         0.272
+  tokens_per_step               0.483      0.397         0.545
+  step_len_std                  0.568      0.729         0.250
+  hedge_total                   0.509      0.503         0.500
+  verify_total                  0.500      0.500         0.500
+  hvr_max                       0.509      0.503         0.500
+  hedge_per_step                0.509      0.503         0.500
+  u_cons_max                    0.635      0.706         0.238 (INTERNAL)
+  dragin_max                    0.542      0.732         0.286 (INTERNAL)
+  ent_max                       0.540      0.701         0.337 (INTERNAL)
+
+  --- SIGNAL-DISAGREEMENT COEFFICIENT (external only) ---
+  disagreement(all-9-external, q=0.70):  →inc=0.620  →lift+1=0.735  →lift-1|±1=0.216
+  disagreement(5-external-core, q=0.70):  →inc=0.585  →lift+1=0.671  →lift-1|±1=0.288
+  disagreement(4-behavioral, q=0.70):  →inc=0.575  →lift+1=0.663  →lift-1|±1=0.307
+
+  --- FUSED EXTERNAL (equal-weight z-sum) ---
+  fused['wall_clock_s']                                                 →inc=0.610  →lift+1=0.735  →lift-1|±1=0.240
+  fused['tokens_generated']                                             →inc=0.645  →lift+1=0.749  →lift-1|±1=0.163
+  fused['wall_clock_s', 'tokens_generated']                             →inc=0.631  →lift+1=0.751  →lift-1|±1=0.194
+  fused['wall_clock_s', 'hedge_total']                                  →inc=0.612  →lift+1=0.729  →lift-1|±1=0.244
+  fused['wall_clock_s', 'hvr_max']                                      →inc=0.612  →lift+1=0.729  →lift-1|±1=0.244
+  fused['wall_clock_s', 'tokens_generated', 'hvr_max']                  →inc=0.632  →lift+1=0.745  →lift-1|±1=0.200
+  fused['wall_clock_s', 'tokens_generated', 'n_steps', 'tokens_per_step', 'step_len_std', 'hedge_total', 'verify_total', 'hvr_max', 'hedge_per_step']  →inc=0.645  →lift+1=0.774  →lift-1|±1=0.161
+
+  --- GREEDY SEARCH: best external feature combinations (→ lift+1) ---
+  best single:  tokens_generated        AUROC=0.749
+  best pair:    ('step_len_std', 'tokens_generated')  AUROC=0.763
+  best triple:  ('step_len_std', 'tokens_generated', 'n_steps')  AUROC=0.768
+
+  --- DEPLOYMENT (fused external — all 9) ---
+      base helpful = 0.107   base incorrect = 0.623
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   5.1%       0.250       0.050      0.800   +0.143
+         0.10  10.2%       0.350       0.050      0.800   +0.243
+         0.20  20.1%       0.291       0.063      0.785   +0.184
+         0.30  30.0%       0.237       0.051      0.771   +0.130
+
+  --- DEPLOYMENT (best external pair) ---
+      base helpful = 0.107   base incorrect = 0.623
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   5.1%       0.300       0.050      0.750   +0.193
+         0.10  10.2%       0.275       0.050      0.700   +0.168
+         0.20  20.1%       0.291       0.076      0.734   +0.184
+         0.30  30.0%       0.263       0.068      0.737   +0.156
+
+  --- DEPLOYMENT (u_cons.max — INTERNAL baseline) ---
+      base helpful = 0.107   base incorrect = 0.623
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   5.1%       0.350       0.000      0.950   +0.243
+         0.10  10.2%       0.325       0.025      0.900   +0.218
+         0.20  20.1%       0.241       0.063      0.785   +0.134
+         0.30  30.0%       0.212       0.068      0.754   +0.105
+
+  --- DEPLOYMENT (dragin.max — INTERNAL baseline) ---
+      base helpful = 0.107   base incorrect = 0.623
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   5.1%       0.350       0.100      0.750   +0.243
+         0.10  10.2%       0.275       0.150      0.700   +0.168
+         0.20  20.1%       0.241       0.101      0.709   +0.134
+         0.30  30.0%       0.229       0.093      0.686   +0.122
+
+============================================================================================
+=== 2WikiMHQA (OOD)   n=452  incorrect=262  lift+1=75  lift-1=54 ===
+
+  --- SINGLE-FEATURE AUROC ---
+  feature                  →INCORRECT    →lift+1    →lift-1|±1
+  wall_clock_s                  0.596      0.552         0.447
+  tokens_generated              0.571      0.582         0.426
+  n_steps                       0.571      0.526         0.493
+  tokens_per_step               0.456      0.508         0.464
+  step_len_std                  0.569      0.530         0.486
+  hedge_total                   0.509      0.515         0.490
+  verify_total                  0.500      0.500         0.500
+  hvr_max                       0.509      0.515         0.489
+  hedge_per_step                0.509      0.515         0.489
+  u_cons_max                    0.616      0.504         0.478 (INTERNAL)
+  dragin_max                    0.597      0.594         0.421 (INTERNAL)
+  ent_max                       0.631      0.547         0.469 (INTERNAL)
+
+  --- SIGNAL-DISAGREEMENT COEFFICIENT (external only) ---
+  disagreement(all-9-external, q=0.70):  →inc=0.563  →lift+1=0.535  →lift-1|±1=0.488
+  disagreement(5-external-core, q=0.70):  →inc=0.555  →lift+1=0.483  →lift-1|±1=0.515
+  disagreement(4-behavioral, q=0.70):  →inc=0.549  →lift+1=0.502  →lift-1|±1=0.513
+
+  --- FUSED EXTERNAL (equal-weight z-sum) ---
+  fused['wall_clock_s']                                                 →inc=0.596  →lift+1=0.552  →lift-1|±1=0.447
+  fused['tokens_generated']                                             →inc=0.571  →lift+1=0.582  →lift-1|±1=0.426
+  fused['wall_clock_s', 'tokens_generated']                             →inc=0.589  →lift+1=0.565  →lift-1|±1=0.436
+  fused['wall_clock_s', 'hedge_total']                                  →inc=0.599  →lift+1=0.553  →lift-1|±1=0.444
+  fused['wall_clock_s', 'hvr_max']                                      →inc=0.599  →lift+1=0.553  →lift-1|±1=0.444
+  fused['wall_clock_s', 'tokens_generated', 'hvr_max']                  →inc=0.591  →lift+1=0.565  →lift-1|±1=0.434
+  fused['wall_clock_s', 'tokens_generated', 'n_steps', 'tokens_per_step', 'step_len_std', 'hedge_total', 'verify_total', 'hvr_max', 'hedge_per_step']  →inc=0.582  →lift+1=0.586  →lift-1|±1=0.424
+
+  --- GREEDY SEARCH: best external feature combinations (→ lift+1) ---
+  best single:  tokens_generated        AUROC=0.582
+  best pair:    ('tokens_generated', 'verify_total')  AUROC=0.582
+  best triple:  no improvement over pair
+
+  --- DEPLOYMENT (fused external — all 9) ---
+      base helpful = 0.166   base incorrect = 0.580
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   5.1%       0.217       0.087      0.696   +0.051
+         0.10  10.2%       0.217       0.152      0.565   +0.051
+         0.20  20.1%       0.187       0.143      0.637   +0.021
+         0.30  30.1%       0.213       0.118      0.676   +0.047
+
+  --- DEPLOYMENT (best external pair) ---
+      base helpful = 0.166   base incorrect = 0.580
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   4.9%       0.136       0.136      0.636   -0.030
+         0.10  10.0%       0.200       0.133      0.533   +0.034
+         0.20  14.2%       0.172       0.141      0.578   +0.006
+         0.30  27.9%       0.198       0.135      0.659   +0.032
+
+  --- DEPLOYMENT (u_cons.max — INTERNAL baseline) ---
+      base helpful = 0.166   base incorrect = 0.580
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   5.1%       0.304       0.087      0.870   +0.138
+         0.10  10.2%       0.239       0.087      0.848   +0.073
+         0.20  20.1%       0.165       0.121      0.725   -0.001
+         0.30  30.1%       0.184       0.103      0.721   +0.018
+
+  --- DEPLOYMENT (dragin.max — INTERNAL baseline) ---
+      base helpful = 0.166   base incorrect = 0.580
+       target   fire   P(help|F)   P(harm|F)   P(inc|F)    Δprec
+         0.05   5.1%       0.304       0.087      0.870   +0.138
+         0.10  10.2%       0.261       0.087      0.826   +0.095
+         0.20  20.1%       0.253       0.154      0.692   +0.087
+         0.30  30.1%       0.243       0.125      0.691   +0.077

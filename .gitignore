@@ -194,3 +194,5 @@ runs_setup_a800.log
 # /workspace/snapshots/ (outside the repo) so this is mostly defensive.
 snapshots/
 *-snapshot-*.tar.gz
+
+DRAGIN/

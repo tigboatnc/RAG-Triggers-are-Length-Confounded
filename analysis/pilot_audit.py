@@ -37,6 +37,7 @@ import argparse
 import json
 import math
 import random
+import re
 import statistics
 import sys
 from collections import defaultdict
@@ -193,6 +194,73 @@ def selfcheck_ngram_max_over_trace(r):
 
 
 # --------------------------------------------------------------------- #
+# AID (Answer Instability Detection) — novel trigger family
+# --------------------------------------------------------------------- #
+_ANSWER_RE = re.compile(r"\bAnswer\s*:\s*(.+?)(?:[\n.]|$)", re.IGNORECASE)
+
+
+def _extract_step_answers(step):
+    """Extract normalized answer set from K=5 sample texts at a step."""
+    samples = step.get("samples")
+    if not samples:
+        return set()
+    answers = set()
+    for samp in samples:
+        text = samp.get("text", "")
+        m = _ANSWER_RE.search(text)
+        if m:
+            ans = re.sub(r"[^a-z0-9 ]+", "", m.group(1).strip().lower())[:30].strip()
+            if ans:
+                answers.add(ans)
+    return answers
+
+
+def aid_flip_rate(r):
+    """AID flip_rate: fraction of answer-bearing step transitions where the
+    answer set changes. Higher = more reasoning instability."""
+    steps = r.get("steps") or []
+    answer_steps = [_extract_step_answers(s) for s in steps]
+    bearing = [a for a in answer_steps if a]
+    if len(bearing) < 2:
+        return None
+    flips = sum(1 for i in range(1, len(bearing)) if bearing[i] != bearing[i - 1])
+    return flips / (len(bearing) - 1)
+
+
+def aid_flip_count(r):
+    """AID flip_count: total number of answer flips."""
+    steps = r.get("steps") or []
+    answer_steps = [_extract_step_answers(s) for s in steps]
+    bearing = [a for a in answer_steps if a]
+    if len(bearing) < 2:
+        return None
+    return float(sum(1 for i in range(1, len(bearing)) if bearing[i] != bearing[i - 1]))
+
+
+def aid_late_flips(r):
+    """AID late_flips: flips in the last 50% of steps only."""
+    steps = r.get("steps") or []
+    n = len(steps)
+    if n < 4:
+        return None
+    mid = n // 2
+    answer_steps = [_extract_step_answers(s) for s in steps[mid:]]
+    bearing = [a for a in answer_steps if a]
+    if len(bearing) < 2:
+        return 0.0
+    return float(sum(1 for i in range(1, len(bearing)) if bearing[i] != bearing[i - 1]))
+
+
+def dragin_peak_position(r):
+    """Position of DRAGIN maximum as fraction of trace (0=first, 1=last step)."""
+    vs = [v for v in step_vals(r, "dragin_rind_max") if v is not None]
+    if len(vs) < 2:
+        return None
+    import numpy as np
+    return float(np.argmax(vs)) / max(1, len(vs) - 1)
+
+
+# --------------------------------------------------------------------- #
 # Pair load + feature dump
 # --------------------------------------------------------------------- #
 def load_paired(cp: Path, op: Path):
@@ -230,6 +298,11 @@ def load_paired(cp: Path, op: Path):
             "flare_pre":  flare_max_over_trace(c, "per_token_max_logprob_alt"),
             "seakr_k5":   seakr_k5_max_over_trace(c),
             "sc_ngram":   selfcheck_ngram_max_over_trace(c),
+            # AID (Answer Instability Detection) — novel trigger family
+            "aid_flip_rate":  aid_flip_rate(c),
+            "aid_flip_count": aid_flip_count(c),
+            "aid_late_flips": aid_late_flips(c),
+            "dragin_late":    dragin_peak_position(c),
             # Bookkeeping
             "schema":     c.get("capture_schema_version", "v2"),
             "K":          int(c.get("sampler_K") or 0),
@@ -314,6 +387,11 @@ SIGNAL_DEFS = (
     ("flare_pre",     "FLARE.min_p (pre-rep)",     "internal-logit",  False),
     ("seakr_k5",      "SeaKR.K5_logdet",           "internal-hidden-K5", False),
     ("sc_ngram",      "SelfCheckGPT.ngram",        "internal-K5-text", False),
+    # AID (Answer Instability Detection) — novel trigger family
+    ("aid_flip_rate",  "AID.flip_rate",            "internal-K5-ans", False),
+    ("aid_flip_count", "AID.flip_count",           "internal-K5-ans", False),
+    ("aid_late_flips", "AID.late_flips",           "internal-K5-ans", False),
+    ("dragin_late",    "DRAGIN.peak_position",     "internal-attn",   False),
 )
 
 
@@ -389,18 +467,23 @@ def report_cell(label, rows):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT / "runs"),
-                    help="Pilot run-dir root (default: <repo>/runs)")
+                    help="Run-dir root (default: <repo>/runs)")
+    ap.add_argument("--prefix", default="v2_pilot",
+                    help="Run-dir prefix (default: v2_pilot; use v2_headline for n=200)")
+    ap.add_argument("--bootstrap-b", type=int, default=2000,
+                    help="Bootstrap iterations (2000 for pilot; 10000 for headline)")
     ap.add_argument("--with-nli", action="store_true",
                     help="Also compute SelfCheckGPT-NLI (DeBERTa-v3-large-MNLI; "
                          "needs ~1.5 GB GPU). Off by default.")
     args = ap.parse_args()
 
     runs_root = Path(args.root)
-    print(f"[..] pilot-audit root={runs_root}")
+    prefix = args.prefix
+    print(f"[..] audit root={runs_root}  prefix={prefix}  B={args.bootstrap_b}")
 
     any_data = False
     for arch in ARCHS:
-        run_dir = runs_root / f"v2_pilot_{arch}"
+        run_dir = runs_root / f"{prefix}_{arch}"
         if not run_dir.exists():
             print(f"[--] {arch}: no run dir at {run_dir}; skipping")
             continue
@@ -414,7 +497,8 @@ def main():
             report_cell(f"{arch}  ::  {label}", rows)
 
     if not any_data:
-        print("[!!] no pilot run dirs found. Run scripts/run_pilot_p0.sh first.")
+        print(f"[!!] no run dirs found with prefix '{prefix}'. "
+              f"Check --root and --prefix flags.")
         sys.exit(1)
 
     if args.with_nli:

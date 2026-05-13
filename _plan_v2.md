@@ -90,6 +90,29 @@ If the box does not match the §6 hardware row in `_MODEL.md` — different driv
 
 These decisions land in `_agent_v2.md` entries as parent specifies them.
 
+---
+
+## RQ1 campaign (2026-05-13+) — supersedes v2 CRV-only framing
+
+The project pivoted to **RQ1: length-controlled evaluation of the full
+dynamic-RAG trigger pool** after v2 pilot data showed CRV signals (drift,
+variance) are consistently beaten by published baselines (DRAGIN, FLARE).
+
+All forward-looking plan, experiment log, and compute allocation now lives in:
+- **`_rq1-plan.md`** — design, burden table, data inventory, handover instructions.
+- **`_rq1-agent.md`** — experiment log (P0, P0.5, P0.6, R1, R2).
+
+**Current state (2026-05-13 late):** P0 pilot complete (3 archs × 2 datasets ×
+n=25). Deep exploratory analysis discovered **Answer Instability Detection (AID)**
+— a novel trigger family (flip_rate AUROC=0.733 for retrieval helpfulness, zero
+length correlation). Headline run R1 (n=200 × 3 archs × 2 datasets) prepped and
+ready for compute box launch.
+
+`_plan_v2.md` and `_agent_v2.md` are retained as historical context for the CRV
+work that preceded RQ1. No new entries expected here.
+
+---
+
 ## Workflow contract for `_agent_v2.md`
 
 Experiment-first, not pre-registration-first. Each experiment is logged in two parts:

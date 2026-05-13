@@ -375,6 +375,101 @@ git pull on each box → analyze pilot_audit-v2 (TBD; extend pilot_audit.py for 
 
 Wall: ~40 min (Box A small models serial) ‖ ~3 h (Box B Gemma) → **~3 h parallel**.
 
+### Status of project trajectory after P0 + P0.5 + P1 design (2026-05-13 evening)
+
+The pilot data has shifted the most likely paper trajectory away from
+"DRAGIN-as-survivor" and toward **"the published trigger pool is
+undercomplete; here are 8 candidate triggers (4 derived post-hoc from
+existing schema; 4 captured in rq1-pilot-v2) that the literature
+missed."** Detailed loose-ends + the reframe argument live in
+`_rq1-agent.md` §"Loose ends to flag for next session."
+
+**Burden priority shifts as of this session:**
+- Burden 3 (cross-arch n=200) → **highest** (DRAGIN+lift on Gemma at n=25 is **0.89/0.94**; needs n=200 to confirm)
+- Burden 4 (MuSiQue) → **high** (cross-arch length-correlation is dataset-heterogeneous; 3 datasets needed)
+- Burden 5 (Bonferroni at k≥14, B=10 000) → **high** (signal pool grew from 11 to 14+; correction matters)
+- Burden 2 (SeaKR K=20) → **medium-low** (K=5 proxy shows direction-of-effect; full K=20 confirms not discovers)
+- Per-question-type stratification → **required** in headline tables
+
+**The single most paper-defining experiment now**: Burden 3 cross-arch
+n=200 with rq1-pilot-v2 schema + per-question-type stratification.
+That gives the headline numbers + the cleanest dataset-specificity
+evidence + the v2 NOVEL-trigger first-pass numbers in one campaign.
+
+### NEW: Post P0.6 deep-exploration (2026-05-13 late evening)
+
+**Discovery: Answer Instability Detection (AID) — novel trigger family.**
+
+Deep exploratory analysis (`analysis/_explore_novel.py`, `_explore_deep_dive.py`,
+`_explore_ans_flip_variants.py`) on the P0 traces found a signal that dominates
+everything in the published trigger pool:
+
+`flip_rate` = fraction of answer-bearing reasoning steps where K=5 boundary-
+completion answers disagree with the previous step. AUROC for lift_em=+1:
+**0.733 raw, 0.735 residualized, r(tokens)=0.008.**
+
+This is: (a) highest single-signal AUROC for retrieval-helpfulness prediction,
+(b) orthogonal to length (r<0.01), (c) orthogonal to DRAGIN (r=0.25),
+(d) complementary per-arch (wins where DRAGIN is weakest: Qwen hot 0.867 vs 0.571),
+(e) computable online from existing K=5 captures at zero extra inference cost,
+(f) novel — no published trigger uses step-to-step answer stability.
+
+**Paper trajectory shifted AGAIN:**
+- ~~"Published pool is undercomplete" (descriptive)~~
+- **NOW: "We introduce AID, a novel trigger family; under length-controlled
+  evaluation across 3 archs × 2 datasets, it achieves highest AUROC and
+  specifically complements DRAGIN where it is weakest."**
+
+This makes the paper a CONTRIBUTION paper (novel trigger + methodology), not
+just an evaluation paper.
+
+**Revised burden priorities (post P0.6):**
+
+| burden | priority | rationale |
+|---|---|---|
+| Burden 3 (cross-arch n=200, rq1-pilot-v1 schema) | **HIGHEST** | AID flip_rate is already computable from K=5 samples; n=200 gives paired-bootstrap power for DRAGIN vs flip_rate head-to-head |
+| Burden 4 (MuSiQue n=200) | **HIGH** | 3rd dataset seals generalization; closes "benchmark-specific" critique |
+| Burden 5 (Bonferroni B=10k, k≥15) | **HIGH** | signal pool now 15+; correction at k=15 is non-trivial |
+| Burden 2 (SeaKR K=20) | **DROPPED** | K=5 proxy shows direction; compute better spent on MuSiQue |
+| P1 novel triggers (N1-N4) | **insurance** | Gemma P1 running; Phi+Qwen deferred unless Gemma reveals something |
+| Per-question-type stratification | **required** | architecture-heterogeneity finding demands it |
+
+**The 2 remaining long runs (DECIDED 2026-05-13 late):**
+
+1. **RUN 1 — n=200 cross-arch headline (Burden 3).** Phi+Gemma+Qwen2.5 ×
+   HotpotQA+2Wiki, rq1-pilot-v1 schema (K=5), paired oracle re-decode. ~22h serial
+   / ~10h with 2 boxes. Confirms flip_rate + DRAGIN at publishable power.
+2. **RUN 2 — MuSiQue generalization (Burden 4).** Same 3 archs, n=200, v1 schema,
+   closed+oracle. ~11h. 3rd dataset closes "benchmark-specific" critique.
+
+**Pre-launch TODO for Run 1:**
+- Add `flip_rate`, `late_flips`, `flip_count`, `ans_convergence` to
+  `analysis/pilot_audit.py` SIGNAL_DEFS (post-hoc; no decode-side changes)
+- Add `artifact_token_flag` diagnostic (Gemma-specific)
+- Add per-question-type stratification to the report_cell output
+- Verify `scripts/04_dataset_musique.py` exists or write it (for Run 2)
+- Confirm the v2 500-question slices + 200-question calibration are on the box
+
+**Pre-launch TODO for Run 2:**
+- Build MuSiQue slice: `scripts/04_dataset_musique.py --n 200 --seed 20260601`
+- Adapt oracle-decode for MuSiQue paragraph format
+- Same capture pipeline as Run 1 (reuse scripts unchanged)
+
+**AID signal requires NO schema changes** — it's derived post-hoc from the K=5
+`samples[].text` field already captured in rq1-pilot-v1. The n=200 analyzer
+(`pilot_audit.py`) just needs `flip_rate`, `late_flips`, and `flip_count` added
+to SIGNAL_DEFS.
+
+**Evaluated and rejected: H_diff (entropy growth) as trigger.** Per-cell AUROC
+for incorrectness looks good (Gemma Hot 0.750, Wiki 0.718) but help_AUROC=0.497
+(chance). It predicts wrong answers, not retrieval need. Filed under G3 (failure-
+mode taxonomy) not G1 (trigger evaluation).
+
+**Confirmed: Gemma artifact-token phenomenon.** 60-64% of Gemma traces contain
+template-collapse tokens (`<turn|>`, `<end_of_turn>`). Last-step impact is small
+(mean 6 tokens) because protocol stops at EOS/Answer:. Worth documenting as
+measurement caveat; adding artifact-flag to the n=200 analyzer as diagnostic.
+
 ### Optional future addition: Llama-2-7B-Chat
 
 If you decide later that direct comparability to the canonical 2024

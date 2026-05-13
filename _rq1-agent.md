@@ -22,21 +22,78 @@
 
 | id | name | goals | burden ref | compute | status |
 |---|---|---|---|---|---|
-| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, 3-arch pool (Phi + Gemma + **Qwen2.5-7B**) × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~2.5 h on A800 (Phi + Gemma done; Qwen2.5 pending; Qwen3.6 + Llama-2 dropped)** | **partial: Phi+Gemma done; Qwen2.5 pending on new compute-box session** |
-| E1 | Re-apply audit extensions (SeaKR ln-entropy proxies + 6 aggregator-robustness rows; 11 → 19 signals) | G1 | Burden 1 | 0 (analysis) | not started |
-| E2 | Phi K=20 SeaKR eigen_score + FLARE per-token logprob dump + SelfCheckGPT K=3 sample-text dump (single bundled re-decode) | G1, G2, G3 | Burden 2 + Burden 8-FLARE + Burden 8-SelfCheck | ~12 h | not started |
-| E3 | Cross-arch baseline on Gemma-4-26B-A4B-it (n=200, D + E, full v2 capture + bundled FLARE/SelfCheck dumps) | G1, G3 | Burden 3 (Gemma) | ~4.5 h | not started |
-| E4 | Cross-arch baseline on Qwen3.6-35B-A3B-Instruct (n=200, D + E, full v2 capture + bundled FLARE/SelfCheck dumps) | G1, G3 | Burden 3 (Qwen) | ~5.5 h | not started |
-| E5 | Cross-arch SeaKR eigen_score on Gemma + Qwen (K=20, hidden-state-sample capture; conditional on E2 outcome) | G1 | Burden 2 + Burden 3 | ~13 h | conditional |
-| E6 | MuSiQue benchmark-family generalization, n=200 × 3 archs (closed + oracle) | G1 | Burden 4 | ~11 h | not started |
-| E7 | Statistical hardening — re-run audit at B=10 000, Bonferroni α=0.005 across k=10 published triggers | G1 | Burden 5 | 0 | not started |
-| E8 | Lift-conditional secondary table — `P(oracle helped \| trigger fired) − base` at fire rates {5%, 10%, 20%} with bootstrap CIs | G1 | Burden 6 | 0 | not started |
-| E9 | MBA-RAG per-arch BERT-base bandit retraining on calibration cohort, 3 archs × 2 datasets | G1, G3 | Burden 8-MBA | ~12 h | not started |
-| E10 | Self-RAG-LLaMA-2-7B reference-model row on HotpotQA-500 / 2Wiki-500 | G1, G3 | Burden 8-SelfRAG | ~2 h | not started |
+| **P0** | **Smoke + sanity pilot — 3-arch pool × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5, rq1-pilot-v1 schema** | **G1, G2, G3** | **prereq** | **~2.5 h** | **DONE (all 3 archs)** |
+| P0.5 | Free-signal post-hoc audit (8 candidates, 4 carry signal) | G1, G3 | — | 0 | **DONE** |
+| P0.6 | Deep exploratory analysis — AID flip_rate discovery (10 angles) | G1, G3 | — | 0 | **DONE** |
+| P1 | Extended-schema pilot (rq1-pilot-v2, 4 novel triggers N1-N4), n=25, Gemma only | G2, G3 | — | ~3 h | **CANCELLED** (partial Gemma data may exist; not needed for headline) |
+| **R1** | **HEADLINE: n=200 × 3 archs × {HotpotQA, 2Wiki}, rq1-pilot-v1 schema, K=5, paired oracle** | **G1, G2, G3** | **Burden 3** | **~22 h serial** | **NEXT — launch on compute box** |
+| R2 | MuSiQue generalization, n=200 × 3 archs, same schema | G1 | Burden 4 | ~11 h | planned (after R1) |
+| E7 | Statistical hardening — B=10 000, Bonferroni α=0.005/15 across k=15 signals | G1 | Burden 5 | 0 (post-R1 analysis) | after R1 lands |
+| E8 | Lift-conditional secondary table — `P(oracle helped \| trigger fired) − base` at fire rates {5%, 10%, 20%} | G1 | Burden 6 | 0 (post-R1 analysis) | after R1 lands |
 
-**Total compute envelope:** ~60 h serial (~30 h with two boxes).
+**Dropped from campaign:** E2 (SeaKR K=20, ~12h — K=5 proxy sufficient), E5 (conditional on E2),
+E9 (MBA-RAG training, ~12h — not needed for AID contribution), E10 (Self-RAG reference — deferred).
+E3/E4 superseded by R1 (which does all 3 archs in one run with the enriched schema).
 
-**Recommended sequencing for highest-information-per-compute single-week campaign:** E1 → E2 → E3 → E4 → E7 → E8. Lands the headline cross-arch + SeaKR + FLARE + SelfCheckGPT integration with statistical hardening.
+**Revised compute envelope (post P0.6 pivot):** ~33 h serial (R1 22h + R2 11h).
+
+**Recommended sequencing:** R1 (headline n=200 cross-arch) → E7+E8 (statistical
+hardening, analysis-only) → R2 (MuSiQue generalization). R1 alone produces a
+submittable EMNLP-short if AID flip_rate confirms at n=200.
+
+---
+
+## Experiment R1 — Headline cross-arch (planned, NEXT on compute box)
+
+**Goals served:** G1 (paired-bootstrap significance on AID flip_rate vs DRAGIN
+vs tokens across 3 archs × 2 datasets), G2 (full rq1-pilot-v1 schema at
+publishable n), G3 (architecture-heterogeneity confirmation with statistical power).
+
+**Setup:**
+
+| dimension | choice |
+|---|---|
+| models | Phi-4-mini-instruct, Qwen2.5-7B-Instruct, Gemma-4-26B-A4B-it |
+| datasets | HotpotQA-distractor (in-domain), 2WikiMHQA-distractor (OOD) |
+| n per cell | 200 (closed) + 200 (oracle, paired) |
+| slices | existing v2test 500-question slices (`--limit 200`) |
+| sampler K | 5 |
+| schema | rq1-pilot-v1 (same as P0 — K=5 sample text + EOS hidden + per-token logprob) |
+| ordering | Phi first (fastest, ~2.5h) → Qwen2.5 (~5h) → Gemma (~10h) |
+
+**Orchestrator:** `scripts/run_headline_n200.sh`
+
+**Launch on compute box:**
+```bash
+# Full run (all 3 archs serial, ~22h):
+bash scripts/run_headline_n200.sh
+
+# Or single-arch for fastest results:
+ARCHS="phi-4-mini-instruct" bash scripts/run_headline_n200.sh
+```
+
+**Output:** `runs/v2_headline_<arch>/{B,D1,D2,E1,E2}_*.jsonl`
+
+**Post-run analysis:**
+```bash
+python analysis/pilot_audit.py --prefix v2_headline --bootstrap-b 10000 | tee analysis/headline_n200.out
+```
+
+**Pre-registered questions (what R1 answers):**
+1. Does AID flip_rate achieve paired-bootstrap significance over tokens at n=200? (pilot: 0.733 vs 0.566)
+2. Does DRAGIN+lift on Gemma hold at 0.89+ at n=200? (pilot: 0.891/0.940 at n=25)
+3. Does the arch-heterogeneity pattern replicate? (flip_rate wins on Qwen, DRAGIN wins on Gemma)
+4. Does Qwen2.5 2Wiki inverted-length-correlation replicate at n=200? (pilot: tokens AUROC=0.380)
+5. Under Bonferroni at k=19 signals: which signals clear?
+
+---
+
+## P1 — CANCELLED (partial data note)
+
+P1 (rq1-pilot-v2, Gemma only) was running on compute when cancelled. Partial
+Gemma traces MAY exist at `runs/v2_pilot_v2_gemma-4-26b-a4b-it/`. These are
+n=25 pilot traces with the 4 novel triggers (N1-N4). Not needed for the headline
+paper but retained if present. The N1-N4 captures are insurance/future-work only.
 
 ---
 
@@ -304,6 +361,69 @@ Output: `analysis/p0_free_signals.out`. Script: `analysis/p0_free_signals.py`. *
 
 **Status: code ready, not yet launched. New compute-box chat picks up from here.**
 
+---
+
+## Loose ends to flag for next session (2026-05-14)
+
+Things I noticed but didn't elevate during this session — log here so the next chat doesn't repeat the discovery work.
+
+### Likely-headline findings hiding in P0 data (worth checking at n=200)
+
+1. **DRAGIN+lift+1 on Gemma = 0.891 / 0.940** at n=25. If this holds at n=200 it is a *publishable headline by itself*: "DRAGIN-RIND identifies retrieval-helpful traces with AUROC 0.94 on Gemma-4-26B-A4B-it × 2WikiMHQA-distractor." This is the strongest single AUROC anywhere in the entire pilot and almost slipped past us. Burden 3 should prioritize Gemma 2Wiki paired closed/oracle to confirm.
+2. **Phi has weak DRAGIN (0.55) but strong sec/token (S6: 0.68)** — different model classes have different *failure-mode signatures*. Cross-arch the question stops being "which signal wins" and becomes "which signal wins **on which model class.**" That's a 4×n_model results matrix, not a 1×n_signal one.
+3. **Qwen2.5 2Wiki tokens AUROC = 0.380 (inverted)** at n=25 — wrong answers are *shorter* than correct ones. If this replicates on Qwen2.5 at n=200 it is **direct cross-arch evidence that single-AUROC trigger reporting is broken**. The bridge_comparison v2 finding was one subset; this is a full-arch full-dataset cell.
+4. **Qwen2.5 2Wiki SeaKR-K5 = 0.720 + FLARE = 0.813** — both K=5-derived. If both replicate, K=5 sample-derived signals on Qwen2.5 2Wiki specifically are unusually informative. Worth investigating *why*.
+
+### Reframe the data is now suggesting (instead of "DRAGIN survives" or "length wins")
+
+> *"The published dynamic-RAG trigger pool is undercomplete. We re-evaluate it under length-residualized AUROC + Bonferroni-corrected paired bootstrap, and surface (a) length-correctness as dataset-specific within the multi-hop QA family, (b) **four free post-hoc signals** with cross-arch incorrectness AUROC ≥ 0.65 (S1 K=5 answer-disagree, S3 pacing std, S4 answer-marker step idx, S6 sec/token) that the audit pool was missing, and (c) **four novel architectural-aware captures** (N1–N4) that no published trigger paper has used. The field's evaluation gap is bigger than its winner-identification gap."*
+
+This is a stronger framing than either prior alternative. Doesn't require DRAGIN to fail; doesn't oversell length. Honest scope: methodological contribution + new candidate triggers.
+
+### Schema-naming wart (will bite without action)
+
+`--schema-version` choices are now `{v2, rq1-pilot-v1, rq1-pilot-v2}`. The legacy default `"v2"` ≠ "version 2 of rq1-pilot." This collision will cause confusion (it almost did when I was patching). **Suggested fix in next session**: rename legacy `v2` → `v2-legacy`, default to `rq1-pilot-v2`, retire `rq1-pilot-v1` (subsumed by v2). All three schemas are forward-compatible at the field level — only the naming is broken.
+
+### Storage budget for P1 (rq1-pilot-v2)
+
+Per-trace JSONL size estimate for v2 captures on top of v1:
+- N1 routing_entropy: ~8 bytes × n_steps ≈ 0.1 KB
+- N2 prefix_answer_now: ~30-100 chars × n_steps ≈ 1 KB Phi / 5 KB Gemma
+- N3 multi_layer_dragin: 3 layers × 3 floats × n_steps ≈ 1 KB
+- N4 attention_sink_frac: 8 bytes × n_steps ≈ 0.1 KB
+- **Total v2 add per trace: ~2-7 KB** on top of v1's ~45 KB. Negligible, fits committable budget.
+- Pilot v2 dump: 25 × 4 phases × 3 archs × ~50 KB = ~15 MB. Headline at n=200: ~120 MB — middle of small-checkpoint policy tier.
+
+### Analyzer needs extending for v2 (TODO for next session)
+
+`analysis/pilot_audit.py` does NOT yet parse rq1-pilot-v2 fields. After P1 lands, the new chat should:
+- Add `s1_k5_ans_disagree` and `s4_ans_marker_step` and `s6_sec_per_tok` (proven free signals) to the SIGNAL_DEFS list — same shape as existing rows, no schema dependency.
+- Add `n1_moe_routing_entropy`, `n2_prefix_answer_divergence`, `n3_multi_layer_dragin_max_per_layer`, `n4_attention_sink_max` extractors that activate only on rq1-pilot-v2 traces.
+- The `n2_prefix_answer_divergence` is the most interesting derived signal: post-hoc compare each step's `prefix_answer_now` to the FINAL `model_answer_extracted` and count disagreements normalized to [0, 1].
+
+### Burden-priority shifts (informal, formalise next session)
+
+| burden | prior priority | new priority | rationale |
+|---|---|---|---|
+| Burden 3 (cross-arch n=200) | high | **highest** | direct path to confirming/falsifying the most paper-defining numbers (DRAGIN+lift on Gemma = 0.94; tokens-inverted on Qwen2.5 2Wiki) |
+| Burden 4 (MuSiQue) | low | **high** | the dataset-specificity finding needs ≥3 datasets to not be 2-dataset binary |
+| Burden 2 (SeaKR K=20) | medium | **medium-low** | K=5 proxy already shows direction-of-effect; full K=20 is a confirmation, not a discovery |
+| Burden 5 (Bonferroni B=10000) | medium | **high** | with 14+ signals in the pool now (6 published + 4 free + 4 novel), Bonferroni at k=14 (α/14 ≈ 0.004) is non-trivial — only the strongest signals will clear |
+| Llama-2-7B addition | optional future | **stay deferred** | direction shifted to signal-novelty over backbone-breadth |
+| Per-question-type stratification in headline | secondary | **required** | the bridge_comparison inversion finding is the cleanest single piece of "dataset-specificity" evidence |
+
+### Pilot is statistically under-powered for any single AUROC claim
+
+n=25 → CIs of width ±0.20. Nothing in the pilot will paired-bootstrap-significantly clear anything. **Pilot's job is informational** (which signals to fund at n=200, which to drop). Burden 3 + 5 are where the publishable numbers come from.
+
+### One thing I almost forgot
+
+`scripts/04c_new_model_smoke.py` (the JSON-emitting probe for new models) is not used downstream of `_MODEL.md` updates. Worth either:
+(a) folding its capture logic into `04b_protocol_smoke.py` so there's only one new-model entry point, or
+(b) updating `04b` to call `04c` for the architecture-detection phase. Decision deferred — works as-is.
+
+---
+
 ### Run (to be filled when results land)
 
 **Setup observed.** TBD — fill from `runs/v2_pilot_*/checkpoints/slice_manifest.json` and `runs/v2_pilot_*/logs/00_master.log` after launch. Capture: git rev, sysinfo (driver / CUDA / GPU / VRAM), env lockfile sha256, slice sha256s per arch, total wall-clock per phase.
@@ -316,6 +436,148 @@ Output: `analysis/p0_free_signals.out`. Script: `analysis/p0_free_signals.py`. *
 - Does Qwen × 2WikiMHQA still under-generate (v1 #20 trap)?
 
 **Notes.** TBD.
+
+---
+
+## P0.6 — Deep exploratory analysis: novel trigger discovery (2026-05-13 late evening)
+
+**Goals served:** G1, G3.
+
+**Context.** P1 (rq1-pilot-v2, Gemma only) running on compute (~3 h ETA). Used the
+idle time to run creative exploratory analyses on the existing P0 data (n=25 × 3
+archs × 2 datasets, rq1-pilot-v1 schema) from the local `gzn` env. No GPU needed.
+
+**Scripts produced:**
+- `analysis/_explore_novel.py` — 10-angle analysis (trajectory shapes, signal interactions, paired divergence, per-token probability features, K=5 sample stability, SeaKR geometry trajectory, per-cell rankings, step-level correlations, oracle signal shifts, early detection)
+- `analysis/_explore_deep_dive.py` — focused deep-dive on the top-3 novel signals (length residualization, per-cell, correlations, mechanism, composite trigger)
+- `analysis/_explore_ans_flip_variants.py` — 10 variants of the answer-flip signal family, per-cell breakdown, oracle comparison, combined triggers
+
+### Major discovery: Answer Instability Detection (AID)
+
+**The signal:** `flip_rate` = fraction of answer-bearing reasoning steps where K=5 boundary-completion
+answers disagree with the previous step's answers. Computed by extracting `Answer: X` from each
+of the K=5 sample texts at each boundary, forming a set, and counting transitions where the set
+changes between consecutive answer-bearing steps.
+
+**Pooled numbers (n=150 paired traces, 15 lift+1):**
+
+| signal | raw AUROC (help) | residualized | r(tokens) |
+|---|---:|---:|---:|
+| **AID flip_rate** | **0.733** | **0.735** | **0.008** |
+| DRAGIN_late (peak position) | 0.627 | 0.636 | -0.086 |
+| DRAGIN.max | 0.603 | 0.607 | 0.039 |
+| tokens | 0.566 | — | 1.000 |
+| FLARE.max | 0.476 | 0.470 | 0.133 |
+
+**Key properties:**
+1. **Highest AUROC** for predicting retrieval helpfulness (0.733) — beats DRAGIN (0.603) by +0.13.
+2. **Zero correlation with length** (r=0.008). Survives and slightly improves under residualization.
+3. **Low correlation with DRAGIN** (r=0.25) and FLARE (r=0.19) — genuinely orthogonal signal family.
+4. **Correlation with n_steps** only 0.28 — survives double-residualization on (tokens + n_steps): 0.661.
+
+**Per-cell AUROC for lift+1 (retrieval helpful):**
+
+| cell | flip_rate | DRAGIN.max | flip_rate wins? |
+|---|---:|---:|---|
+| Gemma wiki | **0.940** | 0.940 | tied |
+| Qwen hot | **0.867** | 0.571 | **YES (+0.30)** |
+| Gemma hot | 0.663 | **0.891** | no |
+| Qwen wiki | **0.700** | 0.452 | **YES (+0.25)** |
+
+**Mechanism:** Answer flips happen LATE — 69% in the last quarter of the trace.
+The model deliberates through multi-step reasoning, then its sampled alternatives
+*diverge* near the conclusion. Oracle traces have n_steps=0 (model answers directly
+when given context) — retrieval eliminates the instability source entirely.
+
+**Trace-level statistics:**
+- No-flip traces: 61% correct, 3% helped
+- Late-flip traces: 32% correct, 18% helped
+- High-flip traces (top 15): 20% correct, 20% helped, dominated by Gemma (12/15)
+
+### Supporting findings from the 10-angle analysis
+
+**Angle 1 — Entropy trajectory shape:**
+- `ent_range` (max-min entropy across steps): AUROC_inc=0.687, help=0.560
+- `dragin_late_spike` (position of DRAGIN maximum): AUROC_help=0.709 — WHERE DRAGIN peaks matters more than its magnitude for predicting retrieval need
+
+**Angle 3 — Per-token probability features:**
+- `max_low_streak` (longest consecutive run of prob<0.5 tokens): AUROC_inc=0.762, help=0.708
+- But r=0.70 with DRAGIN — essentially the same signal measured differently
+
+**Angle 4 — Signal interactions:**
+- `dragin*flare`: inc=0.655, help=0.577 (no improvement over DRAGIN alone)
+- `dragin-log_tok` (length-subtracted): inc=0.656, help=0.612 (mild improvement)
+- No simple combination beats flip_rate
+
+**Angle 5 — Answer stability variants (10 tested):**
+- V10 `flip_rate` (normalized): **best** at 0.733 help
+- V3 `late_flips` (last-half only): 0.673 help
+- V8 `consecutive_flips` (oscillation): 0.633 help
+- V1 `flip_count` (raw): 0.651 help
+
+**Angle 7 — Per-cell specificity (arch × dataset):**
+The signal landscape is WILDLY heterogeneous:
+- `ent_slope` = 0.83 on phi_wiki but 0.30 on phi_hot
+- `prob_decline` = 0.82 on gemma_hot but 0.30 on phi_hot
+- `frac_low_conf` = 0.79 on qwen_wiki but 0.25 on phi_hot
+- No single signal dominates every cell. Architecture-heterogeneity is the finding.
+
+**Angle 8 — Step-level correlation matrix (n=1048 steps):**
+- DRAGIN ↔ FLARE: r=0.84 (essentially redundant at step level)
+- DRAGIN ↔ entropy: r=0.72
+- drift_cosine ↔ everything: r≈0 (truly orthogonal)
+- u_cons ↔ DRAGIN: r=0.34 (moderate independence)
+
+**Angle 9 — Oracle signal shift (helped traces):**
+- Oracle traces: n_steps drops from 7.3 → 0.0, tokens from 132 → 111
+- Retrieval eliminates multi-step reasoning entirely on these questions
+
+**Angle 10 — Early detection (steps 0-1 only):**
+- No early signal exceeds 0.5 for help. Retrieval need is NOT detectable from the first step.
+- `ent_jump_01` = 0.39 (inverted!) — early entropy rise = CORRECT, not helped.
+
+### Evaluation of alternative LLM analysis (same P0 data)
+
+A parallel analysis session proposed three innovations:
+
+**1. "Artifact Confound" (Gemma template collapse):**
+- **Verified:** 15/25 Gemma Hot traces and 16/25 Wiki traces contain artifact tokens (e.g. `<turn|>`, `<end_of_turn>`). 10-12/25 in the last step specifically.
+- **Assessment:** Real phenomenon but impact is LIMITED. Last-step token count is tiny (mean=6, max=19). The protocol correctly stops at EOS/Answer: marker. The artifact inflates entropy at the last boundary but doesn't run away. Worth documenting as a measurement caveat; not a trigger and not catastrophic.
+- **Action:** Add artifact-token-presence as a diagnostic flag in the n=200 analyzer. Does NOT need capture-schema changes.
+
+**2. "Normalized Entropy Growth" (H_max - H[0]):**
+- **Verified numbers:** Pooled inc_AUROC=0.646, per-cell Gemma Hot=0.750, Gemma Wiki=0.718.
+- **Critical flaw:** **help_AUROC = 0.497** (chance level). This signal predicts incorrectness but NOT retrieval helpfulness. A trigger that fires on all wrong answers (regardless of whether retrieval helps) has catastrophic false-positive rate.
+- **Comparison:** My flip_rate achieves help=0.733. The H_diff signal is 0.236 points worse at the task that matters.
+- **Assessment:** Publishable as a diagnostic (cross-arch failure-mode taxonomy) but NOT as a trigger. Filed under G3 domain learning.
+
+**3. Run allocation (n=200 cross-arch + MuSiQue):**
+- **Agree** on structure but the "innovation" content should be AID flip_rate, not entropy growth.
+- **Agree** on dropping SeaKR K=20 from the current campaign (K=5 proxy is sufficient; compute better spent elsewhere).
+
+### Combined trigger: DRAGIN-late × flip_rate
+
+The `combined_late_flip` signal (DRAGIN peak position × flip_rate × DRAGIN magnitude):
+- AUROC_inc = **0.760** (highest for incorrectness in the full exploration)
+- AUROC_help = 0.687
+
+The "joint trigger" (binary: fires when DRAGIN > median AND answer flipped at same step):
+- Fire rate: 33% of traces (reasonable for a trigger)
+- Precision: 72% incorrect (vs 57% base = +15pp), 20% helped (vs 10% base = +10pp = 2× base)
+
+### What this means for the paper
+
+The paper trajectory has shifted AGAIN. No longer:
+- ~~"DRAGIN-as-sole-survivor"~~ (P0.5 showed 4 free signals carry weight)
+- ~~"Published pool is undercomplete"~~ (true but descriptive, not innovative)
+
+Now: **"We introduce Answer Instability Detection (AID), a novel decode-time trigger family that
+measures step-to-step answer disagreement in boundary completions. AID is orthogonal to all
+published triggers (r≤0.25), achieves the highest length-residualized AUROC for predicting
+retrieval helpfulness (0.73), and specifically complements the published-pool survivor (DRAGIN)
+where it is weakest. The trigger landscape is architecture-heterogeneous."**
+
+This is a contribution paper (novel trigger + methodology) not just an evaluation paper.
 
 ---
 

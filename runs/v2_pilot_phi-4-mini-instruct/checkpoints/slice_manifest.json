@@ -1,0 +1,34 @@
+{
+  "model": "phi-4-mini-instruct",
+  "n_pilot": 25,
+  "cons_k": 5,
+  "pilot_seed": 20260513,
+  "ts_utc": "2026-05-13T09:16:30Z",
+  "files": [
+    {
+      "name": "B_smoke_hotpot.jsonl",
+      "rows": 5,
+      "sha256_16": "5095aa6d202dc882"
+    },
+    {
+      "name": "D1_closed_hotpot.jsonl",
+      "rows": 25,
+      "sha256_16": "0874b2c4a7ec902c"
+    },
+    {
+      "name": "D2_closed_wiki.jsonl",
+      "rows": 25,
+      "sha256_16": "46fb404ebb9983c7"
+    },
+    {
+      "name": "E1_oracle_hotpot.jsonl",
+      "rows": 25,
+      "sha256_16": "4a1f7e78b3908a23"
+    },
+    {
+      "name": "E2_oracle_wiki.jsonl",
+      "rows": 25,
+      "sha256_16": "caf3f20c222f209a"
+    }
+  ]
+}

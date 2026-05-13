@@ -12,3 +12,11 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11149.88it/s]
 [..]   5/25  em=3/5  steps=  0  tok=  64  wall=1.8s  elapsed=1.4min
+[..]  10/25  em=4/10  steps=  3  tok=  80  wall=19.4s  elapsed=2.6min
+[..]  15/25  em=6/15  steps=  3  tok= 144  wall=21.9s  elapsed=4.6min
+[..]  20/25  em=8/20  steps=  1  tok=  80  wall=8.1s  elapsed=5.1min
+[..]  25/25  em=11/25  steps=  2  tok=  96  wall=14.2s  elapsed=6.6min
+[ok] wrote 25 rows to runs/v2_pilot_phi-4-mini-instruct/D2_closed_wiki.jsonl
+[ok] em rate: 11/25 = 0.440
+[gate2] 25 rows, tokens_generated median=80, p10=48, p90=288
+[gate2] PASS

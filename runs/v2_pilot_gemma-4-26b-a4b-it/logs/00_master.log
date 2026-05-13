@@ -1,0 +1,4 @@
+[2026-05-13T09:16:30Z] [gemma-4-26b-a4b-it] ==== PRE: gemma-4-26b-a4b-it ====
+[2026-05-13T09:16:30Z] [gemma-4-26b-a4b-it] MODEL_DIR=models/gemma-4-26b-a4b-it
+[2026-05-13T09:16:30Z] [gemma-4-26b-a4b-it] RUN_DIR=runs/v2_pilot_gemma-4-26b-a4b-it
+[2026-05-13T09:16:30Z] [gemma-4-26b-a4b-it] ==== B: smoke decode (n=5 on HotpotQA pilot slice, K=5 sampler + sample dumps) ====

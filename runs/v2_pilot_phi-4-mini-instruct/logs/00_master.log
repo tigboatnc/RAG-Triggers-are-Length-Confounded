@@ -4,3 +4,12 @@
 [2026-05-13T08:59:25Z] [phi-4-mini-instruct] ==== B: smoke decode (n=5 on HotpotQA pilot slice, K=5 sampler + sample dumps) ====
 [2026-05-13T09:01:15Z] [phi-4-mini-instruct] ==== D: D1_closed_hotpot closed-book decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
 [2026-05-13T09:07:40Z] [phi-4-mini-instruct] ==== D: D2_closed_wiki closed-book decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[2026-05-13T09:14:27Z] [phi-4-mini-instruct] ==== E: E1_oracle_hotpot oracle decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
+[2026-05-13T09:15:26Z] [phi-4-mini-instruct] ==== E: E2_oracle_wiki oracle decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====
+[2026-05-13T09:16:29Z] [phi-4-mini-instruct] ==== phi-4-mini-instruct done. Outputs: ====
+[2026-05-13T09:16:29Z] [phi-4-mini-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T09:16:30Z] [phi-4-mini-instruct]   D1_closed_hotpot: 25 rows
+[2026-05-13T09:16:30Z] [phi-4-mini-instruct]   D2_closed_wiki: 25 rows
+[2026-05-13T09:16:30Z] [phi-4-mini-instruct]   E1_oracle_hotpot: 25 rows
+[2026-05-13T09:16:30Z] [phi-4-mini-instruct]   E2_oracle_wiki: 25 rows
+[2026-05-13T09:16:30Z] [phi-4-mini-instruct] elapsed=1025s budget=10800s

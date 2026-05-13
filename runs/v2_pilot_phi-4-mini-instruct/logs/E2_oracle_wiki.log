@@ -1,0 +1,32 @@
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:26,  7.29it/s]Loading weights:  12%|█▏        | 24/194 [00:00<00:01, 120.78it/s]Loading weights:  24%|██▎       | 46/194 [00:00<00:00, 157.08it/s]Loading weights:  35%|███▍      | 67/194 [00:00<00:00, 173.53it/s]Loading weights:  44%|████▍     | 86/194 [00:00<00:00, 178.87it/s]Loading weights:  54%|█████▍    | 105/194 [00:00<00:00, 175.89it/s]Loading weights:  63%|██████▎   | 123/194 [00:00<00:00, 176.02it/s]Loading weights:  73%|███████▎  | 141/194 [00:00<00:00, 172.21it/s]Loading weights:  82%|████████▏ | 159/194 [00:00<00:00, 162.99it/s]Loading weights:  91%|█████████ | 176/194 [00:01<00:00, 149.74it/s]Loading weights:  99%|█████████▉| 192/194 [00:01<00:00, 146.80it/s]Loading weights: 100%|██████████| 194/194 [00:01<00:00, 154.65it/s]
+[ok] loaded in 2.85s | rss 1.030 GB | VRAM 8111 MB
+[  1] id=5d8037920bb011ebab90acde48001122  em=0  f1=0.800  tok=160  reason=answer_marker  n_sup=2/10
+[  2] id=12c631c1088b11ebbd6fac1f6bf848b6  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=4/10
+[  3] id=9792990e087511ebbd67ac1f6bf848b6  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=4/10
+[  4] id=3733d61a0bde11eba7f7acde48001122  em=0  f1=0.667  tok=112  reason=answer_marker  n_sup=2/10
+[  5] id=e9e5c5e608c011ebbd8aac1f6bf848b6  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[  6] id=6e8f9c180baf11ebab90acde48001122  em=0  f1=0.316  tok=48  reason=answer_marker  n_sup=2/10
+[  7] id=96beb0b3086111ebbd5dac1f6bf848b6  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[  8] id=e0b50028096f11ebbdb0ac1f6bf848b6  em=0  f1=0.118  tok=224  reason=answer_marker  n_sup=2/10
+[  9] id=7789c7a60bde11eba7f7acde48001122  em=0  f1=0.000  tok=48  reason=answer_marker  n_sup=2/10
+[ 10] id=66ff09e80baf11ebab90acde48001122  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 11] id=8bf901800bdd11eba7f7acde48001122  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10
+[ 12] id=a12eeeac089511ebbd75ac1f6bf848b6  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=4/10
+[ 13] id=a970cb54089411ebbd75ac1f6bf848b6  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 14] id=304356f008e111ebbda2ac1f6bf848b6  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 15] id=22fb901e0bdb11eba7f7acde48001122  em=0  f1=0.667  tok=112  reason=answer_marker  n_sup=2/10
+[ 16] id=f6a2121e0bd911eba7f7acde48001122  em=0  f1=0.182  tok=96  reason=answer_marker  n_sup=2/10
+[ 17] id=1ee47f380bde11eba7f7acde48001122  em=0  f1=0.500  tok=80  reason=answer_marker  n_sup=2/10
+[ 18] id=699c6cb00bda11eba7f7acde48001122  em=1  f1=1.000  tok=32  reason=answer_marker  n_sup=2/10
+[ 19] id=57f3f0ab089211ebbd73ac1f6bf848b6  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=2/10
+[ 20] id=61de37720bdc11eba7f7acde48001122  em=0  f1=0.400  tok=64  reason=answer_marker  n_sup=2/10
+[ 21] id=1912aaac0bda11eba7f7acde48001122  em=0  f1=0.571  tok=64  reason=answer_marker  n_sup=2/10
+[ 22] id=56fd5a440bdd11eba7f7acde48001122  em=0  f1=0.211  tok=64  reason=answer_marker  n_sup=2/10
+[ 23] id=038d34e608d211ebbd95ac1f6bf848b6  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=4/10
+[ 24] id=252632880bde11eba7f7acde48001122  em=0  f1=0.000  tok=64  reason=answer_marker  n_sup=2/10
+[ 25] id=1b527f4808e411ebbda4ac1f6bf848b6  em=1  f1=1.000  tok=48  reason=answer_marker  n_sup=4/10
+
+[ok] wrote runs/v2_pilot_phi-4-mini-instruct/E2_oracle_wiki.jsonl
+     n=25  EM=9/25 (36.0%)  meanF1=0.537

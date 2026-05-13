@@ -22,7 +22,7 @@
 
 | id | name | goals | burden ref | compute | status |
 |---|---|---|---|---|---|
-| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, all 3 archs × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~2 h on A800 (serial; Phi + Gemma + Qwen)** | **bootstrap on new compute box** |
+| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, 4-arch pool (Phi + Gemma + **Qwen2.5-7B** + **Llama-2-7B**) × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~3 h on A800 (Phi + Gemma done; Qwen2.5 + Llama-2 pending; Qwen3.6 dropped per limitation)** | **partial: Phi+Gemma done; Qwen2.5+Llama-2 pending on new compute-box session** |
 | E1 | Re-apply audit extensions (SeaKR ln-entropy proxies + 6 aggregator-robustness rows; 11 → 19 signals) | G1 | Burden 1 | 0 (analysis) | not started |
 | E2 | Phi K=20 SeaKR eigen_score + FLARE per-token logprob dump + SelfCheckGPT K=3 sample-text dump (single bundled re-decode) | G1, G2, G3 | Burden 2 + Burden 8-FLARE + Burden 8-SelfCheck | ~12 h | not started |
 | E3 | Cross-arch baseline on Gemma-4-26B-A4B-it (n=200, D + E, full v2 capture + bundled FLARE/SelfCheck dumps) | G1, G3 | Burden 3 (Gemma) | ~4.5 h | not started |
@@ -187,15 +187,43 @@ If any gate fails: stop, log the cell, fix in `scripts/04f_run_qa_sota.py` or `s
 - Per-arch capture overhead numbers for K=5 — informs the K=20 budget for E2.
 - Whether 2WikiMHQA still under-generates on Qwen (decision deferred from v2; pilot answers it definitively at small n).
 
+### Status (updated 2026-05-13 evening)
+
+**P0 partial — Phi + Gemma complete, Qwen2.5 + Llama-2 pending, Qwen3.6 dropped.**
+
+Pilot complete cells (compute-box runs `runs/v2_pilot_<arch>/`):
+- Phi-4-mini-instruct: 5 phases × 25 questions, schema rq1-pilot-v1, fields-pop 100% on multistep traces.
+- Gemma-4-26B-A4B-it: 5 phases × 25 questions, schema rq1-pilot-v1, fields-pop 100% on every trace (Gemma is much chattier).
+
+Pilot rough-read (against `closed_em=0`, n small, CIs ±0.20):
+
+| cell | tokens | DRAGIN | ent | FLARE | SeaKR-K5 | u_cons |
+|---|---:|---:|---:|---:|---:|---:|
+| Phi Hot | 0.603 | 0.549 | 0.480 | 0.549 | 0.539 | 0.569 |
+| Phi 2Wiki | 0.494 | 0.557 | 0.600 | 0.543 | **0.729** | 0.629 |
+| Gemma Hot | 0.750 | 0.639 | 0.778 | 0.549 | 0.611 | 0.764 |
+| Gemma 2Wiki | 0.514 | **0.764** | 0.764 | 0.778 | 0.583 | 0.472 |
+
+Direction-of-effect findings:
+- **DRAGIN cross-arch holds** (Gemma 0.639/0.764 — survivor narrative on track).
+- **SeaKR-K5 logdet shows complementary signal** where DRAGIN is weakest (Phi 2Wiki 0.729). Justifies Burden 2 K=20.
+- **Length-confound is heterogeneous across cells** (Phi 2Wiki 0.494, Gemma Hot 0.750) — replicates v2 `bridge_comparison` finding.
+- **K=5 capture overhead = 86% of trace wall on Gemma** — informs K=20 budget for Burden 2/3.
+
+**Qwen3.6 P0 SKIPPED — documented limitation.**
+B smoke produced n_steps=[2,1,1,1,1], tokens [10–32]. Under matched-protocol greedy + `enable_thinking=False`, Qwen3.6 collapses to direct-answer mode. Card-recommended thinking-mode protocol requires non-greedy sampling (`t=1.0, top_p=0.95`) which breaks length-residualization comparability with Phi/Gemma. Qwen3.6 weights deletable from compute box (~67 GB freed). Trace evidence preserved at `runs/v2_pilot_qwen3.6-35b-a3b-instruct/B_smoke_hotpot.jsonl` + `logs/B_smoke.log`.
+
+**Pivot: Qwen3.6 → Qwen2.5-7B-Instruct + Llama-2-7B-Chat.** New 4-arch pool (Phi 2026 + Gemma 2026 + Qwen2.5 2025 + Llama-2 2023) spans 3 generations and 2 architecture families. Anchored: Llama-2 = canonical baseline backbone of DRAGIN/SeaKR/Self-RAG papers; Qwen2.5 = current 2025 reassessment-cohort backbone (used by SR-RAG, DyPRAG family).
+
 ### Status
 
-**Code: ready (commit `97b2dc6`).**
+**Code: ready (commit `97b2dc6` + new-model smoke at `scripts/04c_new_model_smoke.py`).**
 - `scripts/crv/sota_capture.py` — `ConsistencySampler` extended to optionally dump per-sample `{text, n_tokens, finish_reason, eos_hidden}`; v2 schema preserved when flags off.
 - `scripts/04f_run_qa_sota.py` — `--schema-version=rq1-pilot-v1`, `--dump-sample-texts`, `--dump-sample-hidden`. Per-step `per_token_max_logprob` (post + pre repetition penalty); per-trace schema bookkeeping + capture-overhead.
 - `scripts/run_pilot_p0.sh` — orchestrator; idempotent; pre-registered fail-fast gates on smoke / pilot-field population / token median / wall-clock cap.
 - `analysis/pilot_audit.py` — extends `length_audit_v2.py` with FLARE (post + pre rep), SeaKR-K5 proxy (Gram log-det), SelfCheckGPT-Ngram-1. Smoke-verified to reproduce existing v2 numbers exactly; gracefully reports `n/a` on the pilot-only fields when fed v2-schema traces.
 
-**Compute: bootstrap on new A800 box.** The full bootstrap → launch sequence is in `_rq1-plan.md` §"Compute-box handover". Linear path: `git clone` → `git submodule update --init` → `setup.sh` → `download_models.sh phase1.4` → `sysinfo.py` → `04b_protocol_smoke.py` → existing slice rebuilds → `bash scripts/run_pilot_p0.sh` → `python analysis/pilot_audit.py`. ~30 min bootstrap + ~2 h pilot + ~15 min analysis.
+**Compute: existing compute box (warm) — new Cursor chat session.** Full handover in `_rq1-plan.md` §"NEW: handover for fresh Cursor chat on compute box (2026-05-13 +)". Linear path on the warm box: drop Qwen3.6 weights → download Qwen2.5-7B + Llama-2-7B at pinned SHAs → run `scripts/04c_new_model_smoke.py` for each new model → paste JSONs into agent chat → agent updates `_MODEL.md` + `PROTOCOL` dicts → `ARCHS="qwen2.5-7b-instruct llama-2-7b-chat-hf" bash scripts/run_pilot_p0.sh` (≈50 min, idempotent on Phi/Gemma) → `python analysis/pilot_audit.py`.
 
 ### Run (to be filled when results land)
 

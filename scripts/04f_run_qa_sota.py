@@ -197,6 +197,11 @@ def run_one_question_sota(
     generated_token_ids: list[int] = []
     step_token_ids: list[int] = []
     step_token_entropies: list[float] = []
+    # rq1-pilot-v1: per-step lists of per-token max-prob (FLARE input).
+    # Cleared at every commit_step.
+    step_token_max_prob_post_rep: list[float] = []  # prob of emitted tok under post-penalty dist
+    step_token_max_prob_pre_rep: list[float] = []   # max prob under unmodified pre-penalty dist
+    cap_overhead_s: float = 0.0  # cumulative wall-clock spent in K-sample capture
 
     step_records: list[dict] = []
     trigger_rows: list[dict] = []
@@ -218,11 +223,23 @@ def run_one_question_sota(
             )
         next_logits = out.logits[:, -1, :].clone()
         token_entropy = compute_token_entropy_nats(next_logits)
+        # rq1-pilot-v1 (FLARE): max prob under unmodified distribution.
+        if args.schema_version == "rq1-pilot-v1":
+            with torch.inference_mode():
+                _pre = next_logits.detach().to(torch.float32).reshape(-1)
+                _pre_p = torch.softmax(_pre, dim=-1)
+                step_token_max_prob_pre_rep.append(float(_pre_p.max().item()))
 
         next_logits = qa._apply_repetition_penalty(next_logits, generated_token_ids, repetition_penalty)
         next_token = next_logits.argmax(dim=-1, keepdim=True)
         cache = out.past_key_values
         token_id = int(next_token.item())
+        # rq1-pilot-v1 (FLARE): prob of the actually-emitted token under post-penalty dist.
+        if args.schema_version == "rq1-pilot-v1":
+            with torch.inference_mode():
+                _post = next_logits.detach().to(torch.float32).reshape(-1)
+                _post_p = torch.softmax(_post, dim=-1)
+                step_token_max_prob_post_rep.append(float(_post_p[token_id].item()))
 
         # Decode just this token's surface text for the stopword filter.
         token_text = tokenizer.decode([token_id], skip_special_tokens=False)
@@ -301,14 +318,20 @@ def run_one_question_sota(
 
                 u_cons: float | None = None
                 cons_meta: dict[str, Any] = {}
+                step_samples: list[dict[str, Any]] | None = None
                 if not args.no_cons and probes.get("consistency_sampler") is not None:
                     try:
+                        _t_cap = time.perf_counter()
                         c = probes["consistency_sampler"].score(cache, token_id)
+                        cap_overhead_s += time.perf_counter() - _t_cap
                         u_cons = float(c["u_cons"])
                         cons_meta = {
                             "mean_pairwise_cos": c["mean_pairwise_cosine"],
                             "n_samples": c["n_samples"],
                         }
+                        # rq1-pilot-v1: harvest sample texts (+ optional EOS hidden) if dumped.
+                        if "samples" in c:
+                            step_samples = c["samples"]
                     except Exception as exc:  # pragma: no cover
                         u_cons = None
                         cons_meta = {"sampler_error": type(exc).__name__}
@@ -337,7 +360,17 @@ def run_one_question_sota(
                     "u_cons": u_cons,
                     "u_cons_meta": cons_meta,
                 }
+                # rq1-pilot-v1: schema-superset fields. Only emitted when the
+                # pilot schema is requested; v2 traces remain wire-compatible.
+                if args.schema_version == "rq1-pilot-v1":
+                    step_record["per_token_max_logprob"] = list(step_token_max_prob_post_rep)
+                    step_record["per_token_max_logprob_alt"] = list(step_token_max_prob_pre_rep)
+                    if step_samples is not None:
+                        step_record["samples"] = step_samples
                 step_records.append(step_record)
+                # Reset step-local FLARE buffers.
+                step_token_max_prob_post_rep = []
+                step_token_max_prob_pre_rep = []
 
                 for gate in (
                     latent_gate, etc_gate, selfdoubt_t1, dragin_gate,
@@ -391,7 +424,7 @@ def run_one_question_sota(
     em = exact_match(extracted, record["answer"])
     f1 = token_f1(extracted, record["answer"])
 
-    return {
+    out_row: dict[str, Any] = {
         "id": record["id"],
         "split": record.get("split", "unknown"),
         "level": record.get("level", ""),
@@ -432,6 +465,17 @@ def run_one_question_sota(
             "_note": "PLACEHOLDER thresholds for selfdoubt_full/dragin; 04g calibrates on calibration split only.",
         },
     }
+    # rq1-pilot-v1: schema-version + capture-overhead bookkeeping.
+    if args.schema_version == "rq1-pilot-v1":
+        out_row["capture_schema_version"] = "rq1-pilot-v1"
+        out_row["sampler_K"] = int(args.cons_k)
+        out_row["per_step_capture_overhead_s"] = round(cap_overhead_s, 4)
+        out_row["pilot_capture_flags"] = {
+            "dump_sample_texts": bool(args.dump_sample_texts),
+            "dump_sample_hidden": bool(args.dump_sample_hidden),
+            "per_token_max_logprob": True,
+        }
+    return out_row
 
 
 def main() -> None:
@@ -472,7 +516,23 @@ def main() -> None:
     parser.add_argument("--out-suffix", default="_sota")
     parser.add_argument("--progress-every", type=int, default=5)
     parser.add_argument("--inline-system", action="store_true")
+    # rq1-pilot-v1 knobs (off by default; v2 schema preserved).
+    parser.add_argument("--schema-version", default="v2", choices=["v2", "rq1-pilot-v1"],
+                        help="Output schema version. rq1-pilot-v1 adds per_token_max_logprob, "
+                             "samples (text+hidden), schema bookkeeping. See _rq1-agent.md P0.")
+    parser.add_argument("--dump-sample-texts", action="store_true",
+                        help="rq1-pilot-v1 only: also dump K sample completion texts per step.")
+    parser.add_argument("--dump-sample-hidden", action="store_true",
+                        help="rq1-pilot-v1 only: also dump per-sample mid-stack last-token hidden state. "
+                             "Implies --dump-sample-texts. Storage ~40 KB per trace at K=5, dim=2048.")
     args = parser.parse_args()
+    # rq1-pilot-v1 invariants.
+    if args.dump_sample_hidden:
+        args.dump_sample_texts = True
+    if args.schema_version == "rq1-pilot-v1" and (args.dump_sample_texts or args.dump_sample_hidden):
+        if args.no_cons:
+            print("[!!] --dump-sample-* requires the consistency sampler; --no-cons is incompatible.")
+            sys.exit(2)
 
     model_dir = Path(args.model_dir) if args.model_dir else Path("models") / args.model
     if not model_dir.exists():
@@ -520,14 +580,23 @@ def main() -> None:
         probes["verbal_probe"] = VerbalizedConfidenceProbe(model, tokenizer, max_probe_tokens=12)
         print(f"[..] verbalized confidence probe ready (max_probe_tokens=12)")
     if not args.no_cons:
+        # rq1-pilot-v1: pass dump flags + which mid-stack layer to capture
+        # for the per-sample hidden-state dump (only the FIRST capture-subset
+        # layer is dumped; matches single-mid-stack-layer convention).
+        _hidden_layer = capture_subset[0] if (args.dump_sample_hidden and capture_subset) else None
         probes["consistency_sampler"] = ConsistencySampler(
             model, tokenizer,
             n_samples=args.cons_k,
             max_new_tokens=args.cons_max_new,
             temperature=0.6, top_p=0.9,
             seed=args.random_seed,
+            capture_sample_texts=bool(args.dump_sample_texts),
+            capture_sample_hidden=bool(args.dump_sample_hidden),
+            hidden_layer_idx=_hidden_layer,
         )
-        print(f"[..] consistency sampler ready (K={args.cons_k}, T=0.6, top_p=0.9)")
+        print(f"[..] consistency sampler ready (K={args.cons_k}, T=0.6, top_p=0.9; "
+              f"dump_texts={args.dump_sample_texts}, dump_hidden={args.dump_sample_hidden}, "
+              f"hidden_layer={_hidden_layer})")
     if not args.no_ent:
         probes["entity_scorer_factory"] = lambda paragraphs: EntityEntropyScorer(paragraphs)
         # Warm spaCy + sentence-transformers caches early so any missing

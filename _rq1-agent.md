@@ -20,8 +20,9 @@
 
 ## Planned experiments
 
-| id | name | goals | burden ref | compute (single A800) | status |
+| id | name | goals | burden ref | compute | status |
 |---|---|---|---|---|---|
+| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, all 3 archs × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~2 h split: 3090 (Phi) ‖ A800 (Gemma + Qwen serial)** | **not started** |
 | E1 | Re-apply audit extensions (SeaKR ln-entropy proxies + 6 aggregator-robustness rows; 11 → 19 signals) | G1 | Burden 1 | 0 (analysis) | not started |
 | E2 | Phi K=20 SeaKR eigen_score + FLARE per-token logprob dump + SelfCheckGPT K=3 sample-text dump (single bundled re-decode) | G1, G2, G3 | Burden 2 + Burden 8-FLARE + Burden 8-SelfCheck | ~12 h | not started |
 | E3 | Cross-arch baseline on Gemma-4-26B-A4B-it (n=200, D + E, full v2 capture + bundled FLARE/SelfCheck dumps) | G1, G3 | Burden 3 (Gemma) | ~4.5 h | not started |
@@ -36,6 +37,163 @@
 **Total compute envelope:** ~60 h serial (~30 h with two boxes).
 
 **Recommended sequencing for highest-information-per-compute single-week campaign:** E1 → E2 → E3 → E4 → E7 → E8. Lands the headline cross-arch + SeaKR + FLARE + SelfCheckGPT integration with statistical hardening.
+
+---
+
+---
+
+## Experiment P0 — Smoke + sanity pilot (planned)
+
+**Goals served:** G1 (pilot trigger-pool numbers, directional only — not headline), G2 (max-logging schema-superset capture so every method we audit can be computed post-hoc without re-decoding), G3 (cross-arch behavior of FLARE / SeaKR / SelfCheckGPT signals on a fresh dataset).
+
+**Why a pilot.** Before the headline campaign (E2..E10, ~16 h split or ~22–60 h serial), we need a 3-arch × 2-dataset smoke that (a) validates the extended capture schema works on Phi *and* both MoE archs, (b) produces fresh paired (closed × oracle) traces with the new max-logging fields populated for every audited method, (c) yields directional signal numbers per (arch × method × dataset) cell so we can de-risk every Burden 2/3/8 outcome before committing the larger compute. Throw-away if any cell breaks; the schema fixes are the deliverable.
+
+### Setup
+
+| dimension | choice | rationale |
+|---|---|---|
+| **models** | Phi-4-mini-instruct + Gemma-4-26B-A4B-it + Qwen3.6-35B-A3B-Instruct | full RQ1 model pool, frozen Option-A protocol per `_MODEL.md §3` |
+| **datasets** | HotpotQA-distractor (in-domain) + 2WikiMHQA-distractor (OOD) | matches the n=500 v2 test slices; reuse same questions for cohort comparability |
+| **n per cell** | 25 (closed) + 25 (oracle, paired) | enough for sanity-check AUROC point estimates; not enough for paired-bootstrap significance, by design |
+| **slices** | fresh, disjoint from prior cohorts: `data/{hotpotqa,2wiki}_distractor_25_pilot.jsonl` (seed 20260513) | new seed; no leakage from any prior calibration / test set |
+| **sampler K** | **K=5** at every step boundary (vs current K=3) | enough samples for SelfCheckGPT-NLI; cheap proxy for SeaKR eigen_score (full K=20 deferred to E2) |
+| **boundary detector** | spaCy sentence with 32-token fallback | unchanged from v2 |
+| **decoding** | Option-A: greedy, repetition penalty 1.05, early-stop on `Answer:` regex or EOS, `max_new_tokens=512` | unchanged from v2 |
+
+### Capture schema (the G2 deliverable)
+
+**Per step**, in addition to the current schema (`mean_token_entropy`, `boundary_token_entropy`, `dragin_rind_max`, `drift_cosine`, `variance_l2_window`, `hidden_norm`, `hvr`, `hedge_count`, `verify_count`, `u_verb`, `u_ent`, `u_cons`):
+
+- **NEW** — `per_token_max_logprob: List[float]` for the greedy step (max softmax probability of the actually-decoded token) → enables FLARE (`min(prob) < θ`) faithful re-derivation post-hoc.
+- **NEW** — `per_token_max_logprob_alt: List[float]` for top-1 *predictive* softmax under the unmodified distribution (entropy is captured before repetition penalty per `sota_capture.py`; this captures the matching probability) → robustness check.
+- **NEW** — `samples: List[{text: str, n_tokens: int, finish_reason: str}]` for the K=5 boundary completions (text + length + EOS reason) → enables SelfCheckGPT-NLI / Ngram / BERTScore offline.
+- **NEW** — `sample_eos_hidden: List[List[float]]` for the K=5 boundary completions, mid-stack hidden state at the EOS token (or last token if no EOS) → enables a SeaKR eigen_score *proxy* with K=5 (not headline; flag as smoke).
+- **NEW** — `etc_d2h: float` — the explicit ETC second-difference value at this step (currently re-derived; surface for clarity).
+
+**Per trace**, in addition to current (`tokens_generated`, `wall_clock_s`, `tok_per_s`, `n_steps`, `em`, `f1`, `label_correct_em`, `gate_decisions`, `fire_rates`):
+
+- **NEW** — `capture_schema_version: "rq1-pilot-v1"` (so the analyzer can branch).
+- **NEW** — `sampler_K: 5`.
+- **NEW** — `per_step_capture_overhead_s: float` (wall-clock attributable to K=5 sampling + hidden capture, separate from greedy decode) → cost-vs-signal trade-off accounting.
+
+**Storage budget per trace** (estimated):
+- Per-token logprobs: ~250 floats × 8 B = ~2 KB.
+- K=5 sample texts: ~250 chars × 5 = ~1.25 KB.
+- K=5 EOS hidden states (mid-stack): 5 × 2048 dim × 4 B = 40 KB.
+- Total extra per trace: ~45 KB.
+- **Total pilot dump:** 25 × 4 phases × 3 archs × 2 datasets × 45 KB = **~27 MB**. Comfortably committable to git.
+
+### Compute budget (single A800 80 GB serial)
+
+| arch | decode tok/s (greedy) | K=5 capture overhead | wall per cell (n=25 × 250 tok × 4 phases) | model load |
+|---|---:|---:|---:|---:|
+| Phi-4-mini-instruct | ~42 | +30% (boundary samples ~10–40 tok each) + 5% (hidden dump) | ~9 min | ~30 s |
+| Gemma-4-26B-A4B-it | ~12 | same | ~32 min | ~90 s |
+| Qwen3.6-35B-A3B-Instruct | ~10 | same | ~38 min | ~120 s |
+
+| step | wall |
+|---|---:|
+| Phi D + E (paired closed × oracle, both datasets) | ~9 min |
+| Gemma D + E | ~32 min |
+| Qwen D + E | ~38 min |
+| Slice builds + smoke gates (5-question pre-flight per arch) | ~10 min |
+| Model loads + tear-downs | ~5 min |
+| Offline analysis (run new `analysis/pilot_audit.py`, dump to `analysis/pilot.out`) | ~15 min |
+| **Total** | **~110 min ≈ 1 h 50 min** |
+
+Comfortably under the 4-hour budget. Headroom: if any cell fails, retry without breaking the budget.
+
+### Scripts to invoke
+
+Sequential on A800:
+
+```bash
+# 0. Prereqs (assumes _MODEL.md §9 bootstrap done; if not, run that first)
+git submodule update --init --recursive externalCodeAudits/
+
+# 1. Build pilot slices (fresh seed, disjoint from all prior cohorts)
+python scripts/04_dataset.py \
+    --n 25 --seed 20260513 --split-seed 20260513 \
+    --exclude-ids-from data/hotpotqa_distractor_500_v2test.jsonl \
+    --exclude-ids-from data/hotpotqa_distractor_200.jsonl \
+    --all-test --name hotpotqa_distractor_25_pilot
+python scripts/04_dataset_2wiki.py \
+    --n 25 --seed 20260513 \
+    --exclude-ids-from data/2wikimultihop_distractor_500_v2test.jsonl \
+    --name 2wikimultihop_distractor_25_pilot
+
+# 2. Pilot orchestrator (NEW — to be written; mirrors run_xarch_full.sh)
+bash scripts/run_pilot_p0.sh
+#   internally: per arch in {phi, gemma, qwen}:
+#     - 5-question smoke; hard-fail if <3/5 multi-step-with-answer
+#     - D1: closed-book HotpotQA, n=25, capture-schema-version=rq1-pilot-v1
+#     - D2: closed-book 2Wiki, n=25, same schema
+#     - E1: oracle-retrieve HotpotQA, n=25 (paired by qid with D1)
+#     - E2: oracle-retrieve 2Wiki, n=25 (paired with D2)
+#   writes:
+#     runs/v2_pilot_<arch>/{B_smoke,D1_closed_hotpot,D2_closed_wiki,E1_oracle_hotpot,E2_oracle_wiki}.jsonl
+#     runs/v2_pilot_<arch>/logs/<phase>.log
+#     runs/v2_pilot_<arch>/checkpoints/  (commitable: thresholds, smoke JSONs, slice sha256s)
+#     runs/v2_pilot_<arch>/00_master.log
+
+# 3. Offline analysis (NEW — to be written; consumes the new schema)
+python analysis/pilot_audit.py | tee analysis/pilot.out
+#   computes for each (arch × dataset × method) cell:
+#     - DRAGIN.max AUROC (no change)
+#     - FLARE: 1 - min(per_token_max_logprob) per step → max over steps; AUROC
+#     - SelfCheckGPT-NLI: sentence-level NLI prob(contradict) on K=5 sample texts
+#       (uses DeBERTa-v3-large-MNLI offline; ~1 min per dataset CPU-or-light-GPU)
+#     - SelfCheckGPT-Ngram: as cheap parallel cousin
+#     - SeaKR-K5-proxy: log det(G + alphaI) of K=5 sample EOS hidden states; AUROC
+#     - MBA-RAG: SKIP (requires per-arch retraining; not part of P0)
+#     - Self-RAG: SKIP (separate model, not run on the 3 archs)
+#     - existing pool: tokens, wall_s, n_steps, dragin, ent, etc, hvr, drift, var, hidden_norm,
+#       u_cons (exploratory), residualized AUROC + paired bootstrap vs tokens (B=2000)
+#     - per-cell sample-text dump for visual sanity check
+```
+
+### What lands as committed artifacts
+
+| path | size | purpose |
+|---|---:|---|
+| `data/{hotpotqa,2wikimultihop}_distractor_25_pilot.jsonl` | ~1 MB total | fresh slices |
+| `runs/v2_pilot_<arch>/{B,D1,D2,E1,E2}_*.jsonl` × 3 archs | ~27 MB total | full pilot traces with extended schema |
+| `runs/v2_pilot_<arch>/checkpoints/{thresholds,calibration,slice_manifest}.json` | <1 MB total | per-arch derived artifacts |
+| `runs/v2_pilot_<arch>/logs/00_master.log` × 3 archs | <1 MB | wall-clock + config audit |
+| `analysis/pilot.out` | <100 KB | per-cell numbers |
+| `analysis/pilot_audit.py` | <50 KB | the analyzer (committed alongside) |
+| `scripts/run_pilot_p0.sh` | <10 KB | the orchestrator (committed alongside) |
+
+Total committed footprint: ~30 MB. Acceptable per the small-checkpoint policy.
+
+### Pre-registered sanity gates (smoke / fail-fast)
+
+Pilot fails (and we triage before scaling) if **any** of:
+
+1. The 5-question smoke fails on any arch (<3/5 multi-step-with-answer or any unhandled exception).
+2. Any cell produces traces where a NEW schema field is null on >20% of steps (capture-pipeline bug).
+3. `tokens_generated` median falls outside [80, 600] on any cell (decoding misconfiguration; matches v1 #21 / `_agent_v2.md` #v2-6 trap).
+4. K=5 sampler raises on Qwen 2WikiMHQA (the v1 #20 under-generation trap; documented in `_agent_v2.md`).
+5. Total wall-clock exceeds 3 h (margin against the 4 h budget).
+
+If any gate fails: stop, log the cell, fix in `scripts/04f_run_qa_sota.py` or `scripts/crv/sota_capture.py`, re-run the affected arch only.
+
+### What we expect to learn (G3)
+
+- Whether DRAGIN.max replicates as on-disk Phi survivor on Gemma + Qwen at small n. Direction-of-effect only; not significance.
+- Whether FLARE's per-token min-prob signal is comparable across the 3 archs (FLARE was developed on GPT-3.5 API; first cross-arch open-weights data point).
+- Whether SelfCheckGPT-NLI on K=5 produces meaningful signal at this n; if AUROC ~0.5 it's just K-too-small, not a method failure.
+- Whether the SeaKR-K5 proxy correlates with the SeaKR-K20 expectation (sets the prior for the E2 K=20 compute decision).
+- Per-arch capture overhead numbers for K=5 — informs the K=20 budget for E2.
+- Whether 2WikiMHQA still under-generates on Qwen (decision deferred from v2; pilot answers it definitively at small n).
+
+### Status
+
+**Not started.** Two new files need writing before launch:
+- `scripts/run_pilot_p0.sh` — orchestrator; mirrors `scripts/run_xarch_full.sh` (lost to the reset; needs reconstruction from `_agent_v2.md` #v2-6 spec).
+- `analysis/pilot_audit.py` — analyzer; builds on `analysis/length_audit_v2.py`, adds FLARE / SelfCheckGPT-NLI / SeaKR-K5-proxy rows.
+
+Plus a one-knob extension to `scripts/crv/sota_capture.py` to dump the new schema fields. ~half-day of dev work before the 2-hour pilot launch.
 
 ---
 

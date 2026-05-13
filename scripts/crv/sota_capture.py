@@ -531,6 +531,9 @@ class ConsistencySampler:
         top_p: float = 0.9,
         embed_model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
         seed: int = 20260511,
+        capture_sample_texts: bool = False,
+        capture_sample_hidden: bool = False,
+        hidden_layer_idx: int | None = None,
     ) -> None:
         self.model = model
         self.tokenizer = tokenizer
@@ -539,6 +542,10 @@ class ConsistencySampler:
         self.temperature = float(temperature)
         self.top_p = float(top_p)
         self.seed = int(seed)
+        # Pilot extensions (rq1-pilot-v1): off by default to preserve v2 schema.
+        self.capture_sample_texts = bool(capture_sample_texts)
+        self.capture_sample_hidden = bool(capture_sample_hidden)
+        self.hidden_layer_idx = hidden_layer_idx  # which `out.hidden_states[l]` to dump
         # Lazy embed model load.
         self._embed_name = embed_model_name
         self._embedder: Any | None = None
@@ -591,21 +598,39 @@ class ConsistencySampler:
             )
         raise RuntimeError("unsupported cache type for truncation")
 
-    def _sample_once(self, cache: Any, start_token: int) -> str:
-        """Greedy + top-p + temperature sample; restores cache on exit."""
+    def _sample_once(self, cache: Any, start_token: int) -> dict[str, Any]:
+        """Greedy + top-p + temperature sample; restores cache on exit.
+
+        Returns ``{text, n_tokens, finish_reason, eos_hidden}`` where
+        ``eos_hidden`` is None unless ``capture_sample_hidden=True`` —
+        in that case it is a list[float] for the chosen mid-stack
+        hidden layer at the *last* generated token (or last seen if
+        EOS terminates early). ``finish_reason`` ∈ {"eos","max_tokens"}.
+        """
         import torch
         original_len = self._cache_seq_len(cache)
+        capture_hidden = self.capture_sample_hidden and self.hidden_layer_idx is not None
+        last_hidden: list[float] | None = None
         try:
             with torch.inference_mode():
                 cur = torch.tensor([[start_token]], device=self.model.device)
                 ids: list[int] = []
+                finish = "max_tokens"
                 for _ in range(self.max_new_tokens):
                     out = self.model(
                         input_ids=cur,
                         past_key_values=cache,
                         use_cache=True,
+                        output_hidden_states=capture_hidden,
                     )
                     cache = out.past_key_values
+                    if capture_hidden and getattr(out, "hidden_states", None) is not None:
+                        try:
+                            h = out.hidden_states[self.hidden_layer_idx]
+                            # h shape: [B, q_len=1, D]
+                            last_hidden = h[0, -1, :].detach().to(torch.float32).cpu().tolist()
+                        except Exception:
+                            last_hidden = None
                     logits = out.logits[:, -1, :].to(torch.float32) / max(1e-6, self.temperature)
                     probs = torch.softmax(logits, dim=-1)[0]
                     # top-p / nucleus sampling
@@ -622,15 +647,27 @@ class ConsistencySampler:
                     pick = int(torch.multinomial(keep_probs, num_samples=1).item())
                     tok = int(keep_idx[pick].item())
                     if self.tokenizer.eos_token_id is not None and tok == self.tokenizer.eos_token_id:
+                        finish = "eos"
                         break
                     ids.append(tok)
                     cur = torch.tensor([[tok]], device=self.model.device)
-            return self.tokenizer.decode(ids, skip_special_tokens=True)
+            return {
+                "text": self.tokenizer.decode(ids, skip_special_tokens=True),
+                "n_tokens": len(ids),
+                "finish_reason": finish,
+                "eos_hidden": last_hidden if capture_hidden else None,
+            }
         finally:
             self._truncate_cache_to(cache, original_len)
 
-    def score(self, cache: Any, start_token: int) -> dict[str, float | int]:
-        """Return ``{u_cons, mean_pairwise_cosine, n_samples}``.
+    def score(self, cache: Any, start_token: int) -> dict[str, Any]:
+        """Return ``{u_cons, mean_pairwise_cosine, n_samples, samples?}``.
+
+        With ``capture_sample_texts=True`` the return dict also carries
+        ``samples: list[{text, n_tokens, finish_reason}]`` and, if
+        ``capture_sample_hidden=True``, each sample dict includes
+        ``eos_hidden: list[float]`` (mid-stack last-token hidden state).
+        With both off, the wire schema is unchanged from v2.
 
         Uses ``torch.manual_seed(self.seed + step_idx)`` for
         reproducibility — the caller is responsible for re-seeding
@@ -638,25 +675,34 @@ class ConsistencySampler:
         """
         import torch
         torch.manual_seed(self.seed)
-        samples: list[str] = []
+        sample_records: list[dict[str, Any]] = []
+        sample_texts: list[str] = []
         for _ in range(self.n_samples):
-            s = self._sample_once(cache, start_token)
-            samples.append(s)
+            rec = self._sample_once(cache, start_token)
+            sample_records.append(rec)
+            sample_texts.append(rec["text"])
         embedder = self._load_embedder()
-        embs = embedder.encode(samples, normalize_embeddings=True)
+        embs = embedder.encode(sample_texts, normalize_embeddings=True)
         embs = np.asarray(embs, dtype=np.float64)
         # Mean pairwise cosine sim (vectors are L2-normed by the encoder).
         sims: list[float] = []
-        for i in range(len(samples)):
-            for j in range(i + 1, len(samples)):
+        for i in range(len(sample_texts)):
+            for j in range(i + 1, len(sample_texts)):
                 sims.append(float(np.dot(embs[i], embs[j])))
         mean_sim = float(sum(sims) / len(sims)) if sims else 1.0
         u_cons = float(max(0.0, min(1.0, 1.0 - mean_sim)))
-        return {
+        out: dict[str, Any] = {
             "u_cons": u_cons,
             "mean_pairwise_cosine": mean_sim,
-            "n_samples": int(len(samples)),
+            "n_samples": int(len(sample_texts)),
         }
+        if self.capture_sample_texts:
+            # Strip eos_hidden if not requested; preserves dict shape.
+            out["samples"] = [
+                {k: v for k, v in r.items() if (k != "eos_hidden" or self.capture_sample_hidden)}
+                for r in sample_records
+            ]
+        return out
 
 
 # --------------------------------------------------------------------- #

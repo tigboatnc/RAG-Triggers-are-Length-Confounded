@@ -163,6 +163,93 @@ trail.
 
 ---
 
+## Fresh compute-box bootstrap
+
+Whole stack rebuilds from scratch on a new GPU box in well under an
+hour. Long-form authoritative procedure: `_MODEL.md §9` (validation
+checklist for a new compute box). Concrete command sequence below.
+
+### Phi-only (single-arch experiments — E1, E2, parts of E7/E8/E9/E10)
+
+```bash
+bash scripts/setup.sh                                           # conda env, lockfile, ~3-4 min
+bash scripts/download_models.sh                                 # Phi only, ~10 s warm
+python scripts/sysinfo.py                                       # confirm CUDA + VRAM + versions
+python scripts/04_dataset.py                                    # v1 200-q HotpotQA calibration cohort
+python scripts/04_dataset.py \
+    --n 500 --seed 20260601 --split-seed 20260601 \
+    --exclude-ids-from data/hotpotqa_distractor_200.jsonl \
+    --all-test --name hotpotqa_distractor_500_v2test            # in-domain test slice
+python scripts/04_dataset_2wiki.py \
+    --n 500 --seed 20260601 \
+    --name 2wikimultihop_distractor_500_v2test                  # OOD test slice
+```
+
+### Multi-arch (E3 / E4 / E5 / E6)
+
+Swap `download_models.sh` → `download_models.sh phase1.4` (pulls
+Phi + Gemma-4-26B-A4B-it + Qwen3.6-35B-A3B at pinned SHAs in
+`REV_*`, ~125 GB total) and run the cross-arch smoke before any
+sweep:
+
+```bash
+bash scripts/download_models.sh phase1.4
+python scripts/04b_protocol_smoke.py                            # must report `[ok] all 3 models pass Option A protocol smoke`
+```
+
+The wrapper scripts hard-fail on smoke failure. Sweep is blocked
+until smoke passes.
+
+### Artifacts: what rebuilds vs what carries over the wire
+
+| artifact | source | size | wall clock |
+|---|---|---|---|
+| conda env | `environment.yml` + `setup.sh` | — | ~3–4 min |
+| `runs/env_lockfile.txt` | `pip freeze` after setup | — | ~5 s |
+| Phi-4-mini-instruct weights | HF pinned SHA in `download_models.sh` | ~7 GB | ~10 s warm |
+| Gemma-4-26B-A4B-it weights | HF pinned SHA | ~47 + 1.6 GB | ~5–15 min |
+| Qwen3.6-35B-A3B weights | HF pinned SHA | ~69 GB | ~5–15 min |
+| `data/hotpotqa_distractor_200.jsonl` | `04_dataset.py` | ~5 MB | ~30 s (HF download dominates) |
+| `data/hotpotqa_distractor_500_v2test.jsonl` | `04_dataset.py --n 500 --all-test --exclude-ids-from ...` | ~12 MB | ~5 s (HF cache warm) |
+| `data/2wikimultihop_distractor_500_v2test.jsonl` | `04_dataset_2wiki.py --n 500` | ~9 MB | ~60–120 s (first-time mirror probe) |
+
+Time budget end-to-end on a recent reference run (vast.ai A800
+80 GB): ~9 min wall (setup 3:35, downloads 2:38, extras 0:35,
+dataset rebuild 0:08, sysinfo 0:21). Plus the test-slice builds
+(~30–60 s each on a warm HF cache).
+
+All other state (model weights, scripts, env) is reproducible from
+the repo. The `models/<name>.revision` files (created on first
+download) are git-ignored but worth carrying in snapshots — they
+fingerprint the exact HF commit. Same for `runs/sysinfo_*.json`
+and `runs/env_lockfile.txt`.
+
+### Hardware floor
+
+A800 80 GB or A100 80 GB or H100; driver 550+; CUDA 12.4+ runtime;
+≥200 GB host RAM; ≥150 GB free disk for the three-model pool. Phi
+alone fits comfortably on a 40 GB card. **If the box does not match
+the `_MODEL.md §6` hardware row — different driver, different CUDA,
+different VRAM ceiling — stop and audit before continuing.** Do not
+silently bump SHAs or the pinned torch / transformers / bnb versions
+(it breaks the reproducibility contract).
+
+### Submodule clone (RQ1-specific)
+
+After the env is up, also init the trigger-pool baseline submodules
+pinned in `.gitmodules`:
+
+```bash
+git submodule update --init --recursive externalCodeAudits/
+```
+
+Pulls 6 repos (DRAGIN, FLARE, MBA, seakr, self-rag, selfcheckgpt) at
+the SHAs the STEP-2 audit was performed against. Read
+`externalCodeAudits/README.md` for what each method is and why it is
+in the pool.
+
+---
+
 ## Established first proof (the floor)
 
 **Script:** `analysis/length_audit_v2.py`
@@ -479,3 +566,24 @@ Experiments serving 0 of the 3 goals do not get run.
 
 Pilots from v1 are referenced by id only (e.g. v1 #20) but never
 cited as evidence for RQ1 claims.
+
+### Small-checkpoint commit policy
+
+Per parent's directive (G2: max post-hoc readiness): commit derived
+artifacts directly to git when small enough. Tier table:
+
+| size | examples | policy |
+|---|---|---|
+| ≤ 10 MB | calibration JSONs, fitted thresholds, per-arch OLS coefficients, slice manifests + sha256s, fire-rate calibration tables, smoke validation JSONs, MBA-RAG classifier *head* (BERT base stripped) | **commit directly** to `runs/v2_<exp>/checkpoints/` |
+| 10 – 500 MB | full DistilBERT bandit weights, per-trace bootstrap arrays, full pilot trace dumps with hidden-state capture | **commit by default**; flag in PR if size is unusual |
+| > 500 MB | DeBERTa-v3-large-MNLI, Self-RAG-7B, base model weights | **HF download from pinned SHA only**; never commit |
+
+Per-trace JSONL files inherit the size of their cohort: P0 pilot
+(~27 MB total across all 3 archs × 4 phases) commits cleanly; the
+n=500 v2 traces (~150 MB each) sit at the edge — kept on disk if
+present from prior runs, but any new v2-scale captures should be
+weighed against the tier table before committing.
+
+Submodules (`externalCodeAudits/*`) pin **code** at exact SHAs the
+audit was done against; they are not data and are not subject to
+this policy.

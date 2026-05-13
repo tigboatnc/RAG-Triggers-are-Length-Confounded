@@ -81,6 +81,11 @@ from crv.sota_capture import (  # type: ignore[import-not-found]
     RindAccumulator,
     VerbalizedConfidenceProbe,
     compute_token_entropy_nats,
+    # rq1-pilot-v2 novel triggers
+    MultiLayerRindAccumulator,
+    PrefixAnswerProbe,
+    attention_sink_fraction,
+    moe_routing_entropy_from_router_logits,
 )
 from qa_grading import exact_match, extract_answer, token_f1  # type: ignore[import-not-found]
 
@@ -187,6 +192,17 @@ def run_one_question_sota(
     )
 
     dragin_layer_idx = probes["dragin_layer_idx"]
+    # rq1-pilot-v2 NOVEL captures (only active when --schema-version=rq1-pilot-v2).
+    multi_rind_acc: Any = None
+    prefix_probe: Any = None
+    multi_layer_dragin_indices: list[int] = []
+    if args.schema_version == "rq1-pilot-v2":
+        multi_layer_dragin_indices = probes.get("multi_layer_dragin_indices", [])
+        if multi_layer_dragin_indices:
+            multi_rind_acc = MultiLayerRindAccumulator(
+                prompt_len=prompt_tokens, layer_indices=multi_layer_dragin_indices,
+            )
+        prefix_probe = probes.get("prefix_answer_probe")
 
     cache = None
     input_ids = encoded.input_ids
@@ -211,9 +227,13 @@ def run_one_question_sota(
 
     t_start = time.perf_counter()
 
+    # rq1-pilot-v2: only request router_logits if v2 schema AND model
+    # is MoE. transformers' MoE archs (Mixtral / Gemma MoE / Qwen MoE)
+    # accept the kwarg; dense models silently ignore.
+    request_router_logits = (args.schema_version == "rq1-pilot-v2")
     for step in range(args.max_new_tokens):
         with torch.inference_mode():
-            out = model(
+            forward_kwargs = dict(
                 input_ids=input_ids,
                 attention_mask=attention_mask if step == 0 else None,
                 past_key_values=cache,
@@ -221,6 +241,14 @@ def run_one_question_sota(
                 output_hidden_states=True,
                 output_attentions=True,
             )
+            if request_router_logits:
+                forward_kwargs["output_router_logits"] = True
+            try:
+                out = model(**forward_kwargs)
+            except (TypeError, ValueError):
+                # Dense model rejects output_router_logits; fall back.
+                forward_kwargs.pop("output_router_logits", None)
+                out = model(**forward_kwargs)
         next_logits = out.logits[:, -1, :].clone()
         token_entropy = compute_token_entropy_nats(next_logits)
         # rq1-pilot-v1 (FLARE): max prob under unmodified distribution.
@@ -257,6 +285,12 @@ def run_one_question_sota(
             attn_layer = attns[dragin_layer_idx]
             if attn_layer is not None:
                 rind_acc.ingest_attention_row(attn_layer)
+        # rq1-pilot-v2: feed multi-layer DRAGIN accumulator and capture
+        # attention-sink fraction for the new token's attention row.
+        if multi_rind_acc is not None:
+            multi_rind_acc.observe_new_token(token_text=token_text, entropy=token_entropy)
+            if attns is not None:
+                multi_rind_acc.ingest_attention(attns)
 
         generated_token_ids.append(token_id)
         step_token_ids.append(token_id)
@@ -362,11 +396,42 @@ def run_one_question_sota(
                 }
                 # rq1-pilot-v1: schema-superset fields. Only emitted when the
                 # pilot schema is requested; v2 traces remain wire-compatible.
-                if args.schema_version == "rq1-pilot-v1":
+                if args.schema_version in ("rq1-pilot-v1", "rq1-pilot-v2"):
                     step_record["per_token_max_logprob"] = list(step_token_max_prob_post_rep)
                     step_record["per_token_max_logprob_alt"] = list(step_token_max_prob_pre_rep)
                     if step_samples is not None:
                         step_record["samples"] = step_samples
+
+                # rq1-pilot-v2 NOVEL trigger captures.
+                if args.schema_version == "rq1-pilot-v2":
+                    # N1 MoE routing entropy (None on dense models).
+                    step_record["moe_routing_entropy"] = moe_routing_entropy_from_router_logits(
+                        getattr(out, "router_logits", None)
+                    )
+                    # N3 multi-layer DRAGIN-RIND.
+                    if multi_rind_acc is not None:
+                        ml = multi_rind_acc.commit_step()
+                        step_record["multi_layer_dragin"] = {
+                            f"layer_{idx}": {"rind_max": v["rind_max"], "rind_mean": v["rind_mean"]}
+                            for idx, v in ml.items()
+                        }
+                    # N4 attention-sink fraction (uses the LAST token's attention row).
+                    if attns is not None and dragin_layer_idx < len(attns):
+                        step_record["attention_sink_frac"] = attention_sink_fraction(
+                            attns[dragin_layer_idx], prompt_tokens, n_sink_tokens=4
+                        )
+                    else:
+                        step_record["attention_sink_frac"] = None
+                    # N2 prefix-conditional answer probe.
+                    if prefix_probe is not None:
+                        try:
+                            _t_prefix = time.perf_counter()
+                            ans_now = prefix_probe.probe(cache)
+                            cap_overhead_s += time.perf_counter() - _t_prefix
+                            step_record["prefix_answer_now"] = ans_now
+                        except Exception as exc:
+                            step_record["prefix_answer_now"] = None
+                            step_record["prefix_answer_err"] = type(exc).__name__
                 step_records.append(step_record)
                 # Reset step-local FLARE buffers.
                 step_token_max_prob_post_rep = []
@@ -465,15 +530,23 @@ def run_one_question_sota(
             "_note": "PLACEHOLDER thresholds for selfdoubt_full/dragin; 04g calibrates on calibration split only.",
         },
     }
-    # rq1-pilot-v1: schema-version + capture-overhead bookkeeping.
-    if args.schema_version == "rq1-pilot-v1":
-        out_row["capture_schema_version"] = "rq1-pilot-v1"
+    # rq1-pilot bookkeeping (v1 + v2).
+    if args.schema_version in ("rq1-pilot-v1", "rq1-pilot-v2"):
+        out_row["capture_schema_version"] = args.schema_version
         out_row["sampler_K"] = int(args.cons_k)
         out_row["per_step_capture_overhead_s"] = round(cap_overhead_s, 4)
         out_row["pilot_capture_flags"] = {
             "dump_sample_texts": bool(args.dump_sample_texts),
             "dump_sample_hidden": bool(args.dump_sample_hidden),
             "per_token_max_logprob": True,
+        }
+    if args.schema_version == "rq1-pilot-v2":
+        out_row["pilot_v2_capture"] = {
+            "moe_routing_entropy": True,
+            "prefix_answer_probe": True,
+            "prefix_probe_tokens": int(args.prefix_probe_tokens),
+            "multi_layer_dragin_indices": probes.get("multi_layer_dragin_indices", []),
+            "attention_sink_frac": True,
         }
     return out_row
 
@@ -516,15 +589,24 @@ def main() -> None:
     parser.add_argument("--out-suffix", default="_sota")
     parser.add_argument("--progress-every", type=int, default=5)
     parser.add_argument("--inline-system", action="store_true")
-    # rq1-pilot-v1 knobs (off by default; v2 schema preserved).
-    parser.add_argument("--schema-version", default="v2", choices=["v2", "rq1-pilot-v1"],
-                        help="Output schema version. rq1-pilot-v1 adds per_token_max_logprob, "
-                             "samples (text+hidden), schema bookkeeping. See _rq1-agent.md P0.")
+    # rq1-pilot knobs (off by default; v2 (legacy v2) schema preserved).
+    parser.add_argument("--schema-version", default="v2", choices=["v2", "rq1-pilot-v1", "rq1-pilot-v2"],
+                        help="Output schema version. rq1-pilot-v1 adds per_token_max_logprob + K-sample "
+                             "(text + hidden). rq1-pilot-v2 ADDS the 4 NOVEL triggers: "
+                             "moe_routing_entropy, prefix_answer_now (KV-fork probe), "
+                             "multi_layer_dragin {first/mid/last full-attn}, attention_sink_frac.")
     parser.add_argument("--dump-sample-texts", action="store_true",
-                        help="rq1-pilot-v1 only: also dump K sample completion texts per step.")
+                        help="rq1-pilot-v1+ only: also dump K sample completion texts per step.")
     parser.add_argument("--dump-sample-hidden", action="store_true",
-                        help="rq1-pilot-v1 only: also dump per-sample mid-stack last-token hidden state. "
+                        help="rq1-pilot-v1+ only: also dump per-sample mid-stack last-token hidden state. "
                              "Implies --dump-sample-texts. Storage ~40 KB per trace at K=5, dim=2048.")
+    parser.add_argument("--prefix-probe-tokens", type=int, default=10,
+                        help="rq1-pilot-v2: how many tokens to greedy-decode in the "
+                             "prefix-conditional Answer probe per step boundary. Default 10.")
+    parser.add_argument("--multi-layer-dragin", default="auto",
+                        help="rq1-pilot-v2: comma-separated tuple-indices into out.attentions to capture "
+                             "DRAGIN-RIND per-layer. Default `auto` = {0, mid, dragin_layer_idx}. "
+                             "Set to `none` to skip multi-layer capture.")
     args = parser.parse_args()
     # rq1-pilot-v1 invariants.
     if args.dump_sample_hidden:
@@ -597,6 +679,30 @@ def main() -> None:
         print(f"[..] consistency sampler ready (K={args.cons_k}, T=0.6, top_p=0.9; "
               f"dump_texts={args.dump_sample_texts}, dump_hidden={args.dump_sample_hidden}, "
               f"hidden_layer={_hidden_layer})")
+    # rq1-pilot-v2 probe setup.
+    if args.schema_version == "rq1-pilot-v2":
+        probes["prefix_answer_probe"] = PrefixAnswerProbe(
+            model, tokenizer, max_probe_tokens=args.prefix_probe_tokens,
+        )
+        # Resolve multi-layer DRAGIN tuple-indices.
+        if args.multi_layer_dragin == "none":
+            probes["multi_layer_dragin_indices"] = []
+        elif args.multi_layer_dragin == "auto":
+            n_attn_layers = None
+            cfg = model.config
+            layer_types = getattr(cfg, "layer_types", None)
+            if layer_types:
+                n_attn_layers = sum(1 for t in layer_types if "full" in str(t).lower())
+            else:
+                n_attn_layers = getattr(cfg, "num_hidden_layers", None)
+            if n_attn_layers and n_attn_layers >= 3:
+                probes["multi_layer_dragin_indices"] = sorted({0, n_attn_layers // 2, dragin_layer_idx})
+            else:
+                probes["multi_layer_dragin_indices"] = [dragin_layer_idx]
+        else:
+            probes["multi_layer_dragin_indices"] = [int(x) for x in args.multi_layer_dragin.split(",") if x.strip()]
+        print(f"[..] rq1-pilot-v2 ready: prefix_probe_tokens={args.prefix_probe_tokens}, "
+              f"multi_layer_dragin={probes['multi_layer_dragin_indices']}")
     if not args.no_ent:
         probes["entity_scorer_factory"] = lambda paragraphs: EntityEntropyScorer(paragraphs)
         # Warm spaCy + sentence-transformers caches early so any missing

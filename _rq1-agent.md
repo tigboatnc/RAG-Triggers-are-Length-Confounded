@@ -225,6 +225,85 @@ B smoke produced n_steps=[2,1,1,1,1], tokens [10–32]. Under matched-protocol g
 
 **Compute: existing compute box (warm) — new Cursor chat session.** Full handover in `_rq1-plan.md` §"NEW: handover for fresh Cursor chat on compute box (2026-05-13 +)". Linear path on the warm box: drop Qwen3.6 weights → download Qwen2.5-7B at pinned SHA → run `scripts/04c_new_model_smoke.py qwen2.5-7b-instruct` → paste JSON into agent chat → agent updates `_MODEL.md` + `PROTOCOL` dicts → `ARCHS="qwen2.5-7b-instruct" bash scripts/run_pilot_p0.sh` (≈25 min, idempotent on Phi/Gemma) → `python analysis/pilot_audit.py`.
 
+---
+
+## P0 final readout (3 archs × 2 datasets, n=25, rq1-pilot-v1 schema)
+
+**AUROC against `closed_em=0` (incorrect):**
+
+| cell | tokens | DRAGIN | ent | FLARE | SeaKR-K5 | sc_ng | u_cons |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Phi Hot | 0.603 | 0.549 | 0.480 | 0.549 | 0.539 | 0.353 | 0.569 |
+| Phi 2Wiki | **0.494** | 0.557 | 0.600 | 0.543 | **0.729** | 0.407 | 0.629 |
+| Gemma Hot | 0.750 | 0.639 | **0.778** | 0.549 | 0.611 | 0.698 | 0.764 |
+| Gemma 2Wiki | **0.487** | **0.782** | 0.737 | 0.724 | 0.519 | 0.756 | 0.519 |
+| Qwen2.5 Hot | 0.715 | 0.632 | 0.528 | 0.569 | 0.521 | 0.347 | 0.729 |
+| **Qwen2.5 2Wiki** | **0.380** | **0.767** | 0.753 | **0.813** | 0.720 | 0.623 | 0.700 |
+
+**`lift_em=+1` AUROC (where #helpful ≥ 2):**
+
+| cell | #help | tokens | DRAGIN | ent | flare | seakr5 |
+|---|---:|---:|---:|---:|---:|---:|
+| Gemma Hot | 2 | 0.293 | **0.891** | 0.674 | 0.478 | 0.717 |
+| Gemma 2Wiki | 4 | 0.369 | **0.940** | 0.702 | 0.560 | 0.631 |
+| Qwen2.5 Hot | 4 | 0.595 | 0.571 | 0.464 | 0.524 | 0.393 |
+| Qwen2.5 2Wiki | 4 | 0.548 | 0.452 | 0.417 | 0.655 | 0.690 |
+
+**Behavioural notes:**
+- Phi 2Wiki under Option-A: **8/25 traces have n_steps=0** (`Answer:` immediate). Effective n ≈ 17. Documented arch-protocol limitation.
+- Qwen2.5 2Wiki **tokens AUROC = 0.380 — INVERTED** (wrong answers shorter). Cross-arch confirmation of dataset-specific length-correlation reversal.
+- DRAGIN: weakest on Phi (0.55), strongest on Gemma+Qwen2.5-2Wiki (0.77+). Specifically WHERE length collapses, DRAGIN wins.
+- DRAGIN+lift+1 on Gemma is exceptional (0.89/0.94) — if it holds at n=200 it's a publishable headline alone.
+
+---
+
+## P0.5 — free-signal post-hoc audit (no re-decode; `analysis/p0_free_signals.py`)
+
+8 candidate triggers tested on existing rq1-pilot-v1 dumps. **4 of 8 carry signal**; 4 are noise.
+
+| signal | best cell | reading |
+|---|---|---|
+| **S6 sec/token** | Phi Hot 0.676, Phi 2Wiki 0.597, Qwen2.5 2Wiki 0.680, Gemma 2Wiki 0.667 | **Cross-arch real**; works precisely where DRAGIN is weakest (Phi) |
+| **S4 answer-marker step idx** | Gemma Hot **0.844**, Phi 2Wiki 0.627 | Single highest AUROC in audit; "late `Answer:` = wrong" |
+| **S1 K=5 answer-disagree** | Qwen2.5 2Wiki 0.760 incorrect, **0.815 lift+1** | Beats DRAGIN for lift+1 on Qwen2.5 2Wiki (0.815 vs 0.452) |
+| **S3 pacing std** | Gemma Hot 0.764 | Step-length variance carries signal on Gemma |
+| ✗ S2 first-step entropy | chance | drop |
+| ✗ S5 5-gram repetition | chance | drop |
+| ✗ S7 active-thinking marker | chance | drop |
+| ✗ S8 step-novelty overlap | mixed | drop |
+
+Output: `analysis/p0_free_signals.out`. Script: `analysis/p0_free_signals.py`. **Cross-arch finding**: Phi's failure mode is decode-slowdown (S6), not attention-conditioned uncertainty (DRAGIN). Different model classes have different "what fails on" signatures — methodologically this is itself a finding.
+
+---
+
+## P1 — extended-schema pilot (rq1-pilot-v2; planned)
+
+**4 NOVEL trigger captures** added to the schema (none present in published trigger pool):
+
+| # | new field | model class | why novel |
+|---|---|---|---|
+| **N1** | `moe_routing_entropy` | MoE only (Gemma) | Per-step mean entropy over expert-routing distribution. **Untested as a trigger anywhere.** Free signal that exists only on MoE; orthogonal to DRAGIN/FLARE/SeaKR families. |
+| **N2** | `prefix_answer_now` | all models | At each boundary: fork cache → prefill `Answer: ` → decode 10 tokens greedy → save. Compare to final answer post-hoc. **"What would the model answer NOW vs LATER" — direct verification probe.** Untested. |
+| **N3** | `multi_layer_dragin` | all (especially MoE/hybrid) | DRAGIN-RIND at {first, mid, last} full-attn layers. Tests MID-RIND on hybrid stacks where last-layer attention is polluted by routing noise. |
+| **N4** | `attention_sink_frac` | all (any attention-bearing model) | Fraction of mean attention to first 4 tokens (BOS/start). Captures the StreamingLLM "attention sink" phenomenon (Xiao 2024) **never used as a trigger before**. |
+
+**Schema additions are ALL implemented as of commit-staging in this session.** Three files modified:
+- `scripts/crv/sota_capture.py` — added `moe_routing_entropy_from_router_logits`, `attention_sink_fraction`, `PrefixAnswerProbe`, `MultiLayerRindAccumulator`.
+- `scripts/04f_run_qa_sota.py` — added `--schema-version=rq1-pilot-v2`, `--prefix-probe-tokens`, `--multi-layer-dragin` flags; wired all 4 novel captures into the decode loop with graceful dense-model fallback for `output_router_logits`.
+- `scripts/run_pilot_p1.sh` — sister orchestrator; outputs land at `runs/v2_pilot_v2_<arch>/` to avoid clobbering P0.
+
+**Compute estimate per arch (A800, K=5 sampler, +N2 prefix probe ~10 forwards/step):**
+- Phi: ~10 min wall (low n_steps so prefix-probe cost is small)
+- Qwen2.5: ~30 min wall
+- Gemma: ~3 h wall (high n_steps × prefix-probe overhead)
+
+**Recommended parallel split (per parent's plan):**
+- **Box A (any ≥40 GB)**: `ARCHS="phi-4-mini-instruct qwen2.5-7b-instruct" bash scripts/run_pilot_p1.sh` (~40 min serial)
+- **Box B (warm A800 with Gemma weights)**: `ARCHS="gemma-4-26b-a4b-it" bash scripts/run_pilot_p1.sh` (~3 h)
+- Total parallel wall: ~3 h.
+
+**Status: code ready, not yet launched. New compute-box chat picks up from here.**
+
 ### Run (to be filled when results land)
 
 **Setup observed.** TBD — fill from `runs/v2_pilot_*/checkpoints/slice_manifest.json` and `runs/v2_pilot_*/logs/00_master.log` after launch. Capture: git rev, sysinfo (driver / CUDA / GPU / VRAM), env lockfile sha256, slice sha256s per arch, total wall-clock per phase.

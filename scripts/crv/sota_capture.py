@@ -741,6 +741,240 @@ def combine_rsus(
     return score, actually
 
 
+# --------------------------------------------------------------------- #
+# rq1-pilot-v2 NOVEL trigger captures (added 2026-05-13)
+#
+# These extend rq1-pilot-v1 with FOUR architecture-aware triggers that
+# do not exist in the published trigger pool (DRAGIN/FLARE/SeaKR/etc.):
+#
+#   N1 moe_routing_entropy      — per-step mean entropy over MoE routing
+#                                 distribution. MoE-arch only; impossible
+#                                 to compute on dense models. Free if the
+#                                 driver requests `output_router_logits=True`.
+#   N2 PrefixAnswerProbe        — at each boundary, prefill `Answer: ` and
+#                                 decode 10 tokens; saves "what the model
+#                                 would answer NOW" for offline divergence
+#                                 vs the final answer.
+#   N3 MultiLayerRind           — DRAGIN-RIND at {first, mid, last}
+#                                 full-attention layers; tests MID-RIND
+#                                 on hybrid/MoE stacks where last-layer is
+#                                 polluted by routing noise.
+#   N4 attention_sink_fraction  — fraction of mean attention to first 4
+#                                 tokens per step. Captures the StreamingLLM
+#                                 "attention sink" phenomenon as an
+#                                 uncertainty signal.
+#
+# All four are LEAN — minimal extra forward passes (only N2), trivial
+# storage. Total per-step capture overhead at K=5: ~10-20% on top of
+# rq1-pilot-v1.
+# --------------------------------------------------------------------- #
+
+
+def moe_routing_entropy_from_router_logits(router_logits: Any) -> float | None:
+    """N1. Mean entropy over MoE router distribution for a single token.
+
+    Accepts the per-layer router logits tuple that transformers returns
+    when ``output_router_logits=True`` is passed to the MoE forward.
+    Returns mean entropy across all MoE layers and across all tokens
+    in the batch (caller should pass the slice for the new step's
+    tokens). Returns None on dense archs / when router_logits is empty.
+
+    Reference: a uniform routing distribution = max entropy = the gate
+    couldn't decide which expert; high entropy under skewed-traffic
+    routers correlates with rare / off-distribution inputs.
+    """
+    import torch
+    if router_logits is None:
+        return None
+    if isinstance(router_logits, (list, tuple)):
+        layers = [r for r in router_logits if r is not None]
+    else:
+        layers = [router_logits]
+    if not layers:
+        return None
+    ents = []
+    for layer in layers:
+        try:
+            x = layer.detach().to(torch.float32)
+            # x shape varies: typically [tokens, num_experts] or
+            # [batch, tokens, num_experts]. Reshape to 2D.
+            if x.dim() == 3:
+                x = x.reshape(-1, x.shape[-1])
+            log_p = torch.log_softmax(x, dim=-1)
+            p = log_p.exp()
+            h = -(p * log_p).sum(dim=-1).mean().item()
+            ents.append(float(h))
+        except Exception:
+            continue
+    if not ents:
+        return None
+    return float(sum(ents) / len(ents))
+
+
+def attention_sink_fraction(attentions_last: Any, prompt_len: int, n_sink_tokens: int = 4) -> float | None:
+    """N4. Fraction of the new-token's attention that goes to the first
+    `n_sink_tokens` positions of the prompt (the StreamingLLM "attention
+    sink" region).
+
+    `attentions_last` shape: [B, H, 1, kv_len].
+    Returns mean over heads of `sum(attn[:n_sink]) / sum(attn)`.
+    Higher = more attention sink = less attention to actual content =
+    model "drifting." 0.0 = no sink usage; 1.0 = pathological.
+    """
+    import torch
+    if attentions_last is None: return None
+    try:
+        a = attentions_last.detach().to(torch.float32)
+        # a shape: [B, H, 1, kv_len]
+        a_row = a[0, :, 0, :]  # [H, kv_len]
+        sink_sum = a_row[:, :n_sink_tokens].sum(dim=-1)  # [H]
+        total = a_row.sum(dim=-1) + 1e-12
+        frac = (sink_sum / total).mean().item()
+        return float(frac)
+    except Exception:
+        return None
+
+
+class PrefixAnswerProbe:
+    """N2. Prefix-conditional answer probe.
+
+    At each step boundary, fork the KV cache, append the prefill text
+    "Answer: " (per-model tokenization), greedy-decode `max_probe_tokens`,
+    save the resulting text, and **truncate the cache back** so the main
+    trace is preserved bit-exactly. Same KV-fork mechanic as
+    ``VerbalizedConfidenceProbe``.
+
+    Why useful: the model's answer "right now" (after the current
+    reasoning step) may differ from its answer at end-of-trace. The
+    *divergence* between these is a direct verification probe — it
+    measures how much subsequent reasoning changed the model's mind.
+    Untested as a trigger.
+    """
+
+    def __init__(
+        self,
+        model: Any,
+        tokenizer: Any,
+        max_probe_tokens: int = 10,
+        prefix_text: str = "\nAnswer: ",
+    ) -> None:
+        self.model = model
+        self.tokenizer = tokenizer
+        self.max_probe_tokens = int(max_probe_tokens)
+        self.prefix_ids = tokenizer(prefix_text, return_tensors="pt", add_special_tokens=False).input_ids
+        self.prefix_ids = self.prefix_ids.to(model.device)
+
+    def _cache_seq_len(self, cache: Any) -> int:
+        if hasattr(cache, "get_seq_length"):
+            try: return int(cache.get_seq_length())
+            except Exception: pass
+        if hasattr(cache, "key_cache") and len(cache.key_cache) > 0:
+            return int(cache.key_cache[0].shape[2])
+        if isinstance(cache, tuple) and cache and isinstance(cache[0], tuple):
+            return int(cache[0][0].shape[2])
+        raise RuntimeError("cannot read sequence length from past_key_values")
+
+    def _truncate_cache_to(self, cache: Any, target_len: int) -> Any:
+        # Same crop pattern as VerbalizedConfidenceProbe.
+        if hasattr(cache, "crop"):
+            try: cache.crop(int(target_len)); return cache
+            except Exception: pass
+        if hasattr(cache, "layers") and len(cache.layers) > 0 and hasattr(cache.layers[0], "keys"):
+            for layer in cache.layers:
+                if layer.keys is not None:
+                    layer.keys = layer.keys[:, :, :target_len, :].contiguous()
+                if layer.values is not None:
+                    layer.values = layer.values[:, :, :target_len, :].contiguous()
+                if hasattr(layer, "cumulative_length"):
+                    layer.cumulative_length = int(target_len)
+            return cache
+        if hasattr(cache, "key_cache") and hasattr(cache, "value_cache"):
+            for li in range(len(cache.key_cache)):
+                cache.key_cache[li] = cache.key_cache[li][:, :, :target_len, :].contiguous()
+                cache.value_cache[li] = cache.value_cache[li][:, :, :target_len, :].contiguous()
+            if hasattr(cache, "_seen_tokens"):
+                cache._seen_tokens = target_len
+            return cache
+        if isinstance(cache, tuple) and cache and isinstance(cache[0], tuple):
+            return tuple(tuple(t[:, :, :target_len, :].contiguous() for t in layer) for layer in cache)
+        raise RuntimeError("unsupported cache type for truncation")
+
+    def probe(self, cache: Any) -> str | None:
+        """Run the probe; return the decoded answer text or None on error.
+
+        Cache is truncated back to its pre-probe length on exit.
+        """
+        import torch
+        original_len = self._cache_seq_len(cache)
+        try:
+            with torch.inference_mode():
+                # Prefill the prefix text through the cache one token at a time.
+                input_ids = self.prefix_ids
+                out = self.model(
+                    input_ids=input_ids,
+                    past_key_values=cache,
+                    use_cache=True,
+                )
+                cache = out.past_key_values
+                next_logits = out.logits[:, -1, :]
+                eos_id = self.tokenizer.eos_token_id
+                decoded_ids: list[int] = []
+                for _ in range(self.max_probe_tokens):
+                    nxt = int(next_logits.argmax(dim=-1).item())
+                    if eos_id is not None and nxt == eos_id: break
+                    decoded_ids.append(nxt)
+                    nxt_t = torch.tensor([[nxt]], device=self.model.device)
+                    out = self.model(input_ids=nxt_t, past_key_values=cache, use_cache=True)
+                    cache = out.past_key_values
+                    next_logits = out.logits[:, -1, :]
+            text = self.tokenizer.decode(decoded_ids, skip_special_tokens=True)
+            return text.strip() if text else None
+        except Exception:
+            return None
+        finally:
+            self._truncate_cache_to(cache, original_len)
+
+
+class MultiLayerRindAccumulator:
+    """N3. Multi-layer DRAGIN-RIND accumulator.
+
+    Tracks RIND independently at each of N attention layers (typically
+    the first / mid / last full-attention layers). For each layer,
+    maintains its own ``per_pos_amax`` array and emits a per-layer
+    ``rind_max`` at each step boundary.
+
+    Storage: 3 × (RindAccumulator state) — small.
+
+    Use case: tests whether MID-RIND on hybrid/MoE stacks (where the
+    last-attention layer carries routing noise) outperforms LAST-RIND.
+    Also enables post-hoc layer-fusion experiments (weighted sum, JSD).
+    """
+
+    def __init__(self, prompt_len: int, layer_indices: list[int]) -> None:
+        self.layer_indices = list(layer_indices)
+        self.accumulators = {idx: RindAccumulator(prompt_len=prompt_len) for idx in self.layer_indices}
+
+    def observe_new_token(self, token_text: str, entropy: float) -> None:
+        for acc in self.accumulators.values():
+            acc.observe_new_token(token_text=token_text, entropy=entropy)
+
+    def ingest_attention(self, attentions_tuple: Any) -> None:
+        """Pass the full out.attentions tuple; we'll pick the right
+        per-layer attention for each tracked layer index."""
+        if attentions_tuple is None: return
+        for idx in self.layer_indices:
+            if idx < len(attentions_tuple) and attentions_tuple[idx] is not None:
+                self.accumulators[idx].ingest_attention_row(attentions_tuple[idx])
+
+    def commit_step(self) -> dict[int, dict[str, float]]:
+        """Return per-layer-index dict of {rind_max, rind_mean, n_content_tokens}."""
+        out = {}
+        for idx, acc in self.accumulators.items():
+            r = acc.commit_step()
+            if r is not None: out[idx] = r
+        return out
+
+
 __all__ = [
     "compute_token_entropy_nats",
     "stopword_filter",
@@ -753,4 +987,9 @@ __all__ = [
     "combine_rsus",
     "RSUS_WEIGHTS_DEFAULT",
     "RSUS_THRESHOLD_DEFAULT",
+    # rq1-pilot-v2 novel triggers
+    "moe_routing_entropy_from_router_logits",
+    "attention_sink_fraction",
+    "PrefixAnswerProbe",
+    "MultiLayerRindAccumulator",
 ]

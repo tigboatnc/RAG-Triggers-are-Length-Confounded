@@ -338,6 +338,43 @@ is already on the box from the prior session. The new session needs:
    git push
    ```
 
+### Schema version `rq1-pilot-v2` — extended capture for novel triggers (added 2026-05-13 evening)
+
+P0 (rq1-pilot-v1) audited the published trigger pool. Post-P0
+analysis (`analysis/p0_free_signals.py`, `_rq1-agent.md` P0.5) found
+that **4 of 8 free post-hoc signals carry real cross-arch information**
+that the published pool misses — most strikingly: `sec/token` (decode
+slowdown) on Phi where DRAGIN is weakest. **This indicates the
+published trigger pool is undercomplete; new architectural-aware
+triggers are findable.**
+
+P1 introduces 4 NOVEL trigger captures (none in published pool):
+
+| # | field | model class | mechanism |
+|---|---|---|---|
+| N1 | `moe_routing_entropy` | MoE only | mean entropy over MoE expert-routing distribution per step |
+| N2 | `prefix_answer_now` | all | KV-fork, prefill `Answer: `, greedy 10 tokens — "what would the model answer NOW" |
+| N3 | `multi_layer_dragin` | all (esp. hybrid) | DRAGIN-RIND at {first, mid, last} full-attn layers |
+| N4 | `attention_sink_frac` | any attn-bearing | fraction of attention to first-4 tokens (StreamingLLM sink) |
+
+Code (committed-staged in 2026-05-13 evening session):
+- `scripts/crv/sota_capture.py` — 4 new helpers + class.
+- `scripts/04f_run_qa_sota.py` — `--schema-version=rq1-pilot-v2` flag wires them in. Graceful dense-model fallback for `output_router_logits`.
+- `scripts/run_pilot_p1.sh` — sister orchestrator. Output at `runs/v2_pilot_v2_<arch>/`. Idempotent.
+
+**Launch on the box (parallel split per parent):**
+
+```bash
+# Box A (any ≥40 GB; small-model box):
+ARCHS="phi-4-mini-instruct qwen2.5-7b-instruct" bash scripts/run_pilot_p1.sh
+# Box B (warm A800 with Gemma weights):
+ARCHS="gemma-4-26b-a4b-it" bash scripts/run_pilot_p1.sh
+# After both done:
+git pull on each box → analyze pilot_audit-v2 (TBD; extend pilot_audit.py for v2 fields)
+```
+
+Wall: ~40 min (Box A small models serial) ‖ ~3 h (Box B Gemma) → **~3 h parallel**.
+
 ### Optional future addition: Llama-2-7B-Chat
 
 If you decide later that direct comparability to the canonical 2024

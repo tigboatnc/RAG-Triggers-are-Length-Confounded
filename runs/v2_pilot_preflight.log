@@ -1,0 +1,49 @@
+[2026-05-13T08:58:19Z] === RQ1 Experiment P0 starting ===
+[2026-05-13T08:58:19Z] git rev: 9eab378
+[2026-05-13T08:58:19Z] python:  Python 3.11.15
+[2026-05-13T08:58:19Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T08:58:19Z] ARCHS=phi-4-mini-instruct gemma-4-26b-a4b-it qwen3.6-35b-a3b-instruct
+[2026-05-13T08:58:19Z] N_SMOKE=5  N_PILOT=25  CONS_K=5  PILOT_SEED=20260513
+[2026-05-13T08:58:19Z] building HotpotQA pilot slice (seed=20260513, n=25, disjoint from prior cohorts)
+[..] importing datasets ...
+[..] loading hotpotqa/hotpot_qa (config=distractor, split=validation)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[ok] loaded 7405 questions, fingerprint=6d38dc5e932fe842
+[..] excluding 700 ids from ['data/hotpotqa_distractor_500_v2test.jsonl', 'data/hotpotqa_distractor_200.jsonl']
+[ok] wrote 25 questions to data/hotpotqa_distractor_25_pilot.jsonl
+     split counts  = {'calibration': 0, 'validation': 0, 'test': 25} (frac calib=0.6, val=0.2, test=0.2)
+     slice_sha256  = c71797e251e13873375e9b0eeb6251b0c29a5347360da868fd7f37de6d53ff43
+     manifest      = data/hotpotqa_distractor_25_pilot.manifest.json
+     per-(level, type) cell counts:
+       hard|bridge          -> {'calibration': 0, 'validation': 0, 'test': 19}
+       hard|comparison      -> {'calibration': 0, 'validation': 0, 'test': 6}
+[2026-05-13T08:58:23Z] building 2WikiMHQA pilot slice (seed=20260513, n=25)
+usage: 04_dataset_2wiki.py [-h] [--n N] [--seed SEED] [--out-dir OUT_DIR]
+                           [--name NAME] [--hf-name HF_NAME]
+                           [--hf-split HF_SPLIT]
+04_dataset_2wiki.py: error: unrecognized arguments: --exclude-ids-from data/2wikimultihop_distractor_500_v2test.jsonl
+[2026-05-13T08:59:19Z] === RQ1 Experiment P0 starting ===
+[2026-05-13T08:59:19Z] git rev: 9eab378
+[2026-05-13T08:59:19Z] python:  Python 3.11.15
+[2026-05-13T08:59:19Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T08:59:19Z] ARCHS=phi-4-mini-instruct gemma-4-26b-a4b-it qwen3.6-35b-a3b-instruct
+[2026-05-13T08:59:19Z] N_SMOKE=5  N_PILOT=25  CONS_K=5  PILOT_SEED=20260513
+[2026-05-13T08:59:19Z] slice data/hotpotqa_distractor_25_pilot.jsonl already present (n=25)
+[2026-05-13T08:59:19Z] building 2WikiMHQA pilot slice (seed=20260513, n=25)
+[..] excluding 500 ids from ['data/2wikimultihop_distractor_500_v2test.jsonl']
+[..] importing datasets ...
+[..] trying xanhho/2WikiMultihopQA / split=validation
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[..] trying xanhho/2WikiMultihopQA / split=dev
+[..] trying xanhho/2WikiMultihopQA / split=test
+[..] trying voidful/2WikiMultihopQA / split=validation
+[ok] loaded voidful/2WikiMultihopQA / split=validation (12576 rows)
+[ok] voidful/2WikiMultihopQA/validation: 12576 rows, fingerprint=ada731f87faf9caa
+[ok] filtered out 500 excluded rows; 12076 remain
+[ok] all rows match the 4 known 2Wiki types: {'comparison': 2919, 'compositional': 5028, 'inference': 1487, 'bridge_comparison': 2642}
+[..] per-type target draw: {'comparison': 6, 'compositional': 11, 'inference': 3, 'bridge_comparison': 5} (sum=25)
+[ok] wrote 25 questions to data/2wikimultihop_distractor_25_pilot.jsonl
+     slice_sha256       = 75ea30a52d21ba39718f34fce317b4fe6bfc582cc3e1c52b33c8609b9a12d56a
+     mirror             = voidful/2WikiMultihopQA/validation
+     per-type in slice  = {'inference': 3, 'bridge_comparison': 5, 'compositional': 11, 'comparison': 6}
+     manifest           = data/2wikimultihop_distractor_25_pilot.manifest.json

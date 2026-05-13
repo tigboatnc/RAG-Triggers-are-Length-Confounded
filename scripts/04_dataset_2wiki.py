@@ -222,7 +222,24 @@ def main() -> None:
         "--hf-split", default=None,
         help="Override the HF source split name. Default tries validation/dev/test.",
     )
+    parser.add_argument(
+        "--exclude-ids-from", action="append", default=[],
+        help="Path to another slice JSONL whose `id`s should be excluded "
+             "from this sample. May be passed multiple times. Used to build "
+             "disjoint slices (e.g. exclude the v2 500-q test slice from a pilot draw).",
+    )
     args = parser.parse_args()
+
+    excluded_ids: set[str] = set()
+    for excl_path in args.exclude_ids_from:
+        with open(excl_path) as ef:
+            for line in ef:
+                line = line.strip()
+                if not line:
+                    continue
+                excluded_ids.add(str(json.loads(line)["id"]))
+    if excluded_ids:
+        print(f"[..] excluding {len(excluded_ids)} ids from {args.exclude_ids_from}")
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -250,13 +267,21 @@ def main() -> None:
     raw_records: list[dict[str, Any]] = []
     type_counts: dict[str, int] = {}
     schema_problems: list[str] = []
+    n_excluded = 0
     for i in range(n_total):
         item = ds[i]
+        if excluded_ids:
+            item_id = str(item.get("_id") or item.get("id") or f"row_{i}")
+            if item_id in excluded_ids:
+                n_excluded += 1
+                continue
         t = str(item.get("type", "unknown"))
         if t not in KNOWN_TYPES:
             schema_problems.append(f"row {i}: unexpected type='{t}'")
         type_counts[t] = type_counts.get(t, 0) + 1
         raw_records.append({"_source_idx": i, "type": t, "_item": item})
+    if excluded_ids:
+        print(f"[ok] filtered out {n_excluded} excluded rows; {len(raw_records)} remain")
 
     if schema_problems:
         print(f"[!!] {len(schema_problems)} rows have unexpected `type` values; "

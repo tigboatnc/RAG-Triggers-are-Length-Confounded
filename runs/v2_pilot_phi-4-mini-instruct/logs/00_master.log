@@ -1,0 +1,6 @@
+[2026-05-13T08:59:25Z] [phi-4-mini-instruct] ==== PRE: phi-4-mini-instruct ====
+[2026-05-13T08:59:25Z] [phi-4-mini-instruct] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-13T08:59:25Z] [phi-4-mini-instruct] RUN_DIR=runs/v2_pilot_phi-4-mini-instruct
+[2026-05-13T08:59:25Z] [phi-4-mini-instruct] ==== B: smoke decode (n=5 on HotpotQA pilot slice, K=5 sampler + sample dumps) ====
+[2026-05-13T09:01:15Z] [phi-4-mini-instruct] ==== D: D1_closed_hotpot closed-book decode (n=25 from data/hotpotqa_distractor_25_pilot.jsonl) ====
+[2026-05-13T09:07:40Z] [phi-4-mini-instruct] ==== D: D2_closed_wiki closed-book decode (n=25 from data/2wikimultihop_distractor_25_pilot.jsonl) ====

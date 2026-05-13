@@ -1,0 +1,22 @@
+[..] dataset data/hotpotqa_distractor_25_pilot.jsonl -> 25 questions (split filter: all; limit 25)
+[..] loading models/phi-4-mini-instruct (bf16 native, device_map={'': 0})
+[transformers] This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+Loading weights:   0%|          | 0/194 [00:00<?, ?it/s]Loading weights:   1%|          | 1/194 [00:00<00:21,  8.86it/s]Loading weights:  11%|█▏        | 22/194 [00:00<00:01, 118.94it/s]Loading weights:  24%|██▎       | 46/194 [00:00<00:00, 170.87it/s]Loading weights:  38%|███▊      | 73/194 [00:00<00:00, 206.13it/s]Loading weights:  52%|█████▏    | 100/194 [00:00<00:00, 220.53it/s]Loading weights:  64%|██████▍   | 124/194 [00:00<00:00, 220.63it/s]Loading weights:  76%|███████▋  | 148/194 [00:00<00:00, 217.04it/s]Loading weights:  88%|████████▊ | 170/194 [00:00<00:00, 215.34it/s]Loading weights:  99%|█████████▉| 192/194 [00:00<00:00, 209.27it/s]Loading weights: 100%|██████████| 194/194 [00:00<00:00, 198.63it/s]
+[ok] loaded in 2.59s | rss 1.031 GB | VRAM 8111 MB
+[..] layer_mode=mid_stack  capture_subset=[16]
+[..] dragin_attn_layer_idx=31 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=16)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_pilot_phi-4-mini-instruct/D1_closed_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11105.17it/s]
+[..]   5/25  em=1/5  steps=  1  tok=  48  wall=7.3s  elapsed=1.4min
+[..]  10/25  em=4/10  steps=  2  tok=  80  wall=14.0s  elapsed=2.6min
+[..]  15/25  em=6/15  steps=  0  tok=  37  wall=1.1s  elapsed=3.2min
+[..]  20/25  em=6/20  steps=  1  tok=  41  wall=4.4s  elapsed=4.3min
+[..]  25/25  em=8/25  steps=  2  tok=  64  wall=13.6s  elapsed=6.2min
+[ok] wrote 25 rows to runs/v2_pilot_phi-4-mini-instruct/D1_closed_hotpot.jsonl
+[ok] em rate: 8/25 = 0.320
+[gate2] 25 rows, tokens_generated median=80, p10=41, p90=144
+[gate2] PASS

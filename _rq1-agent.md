@@ -22,7 +22,7 @@
 
 | id | name | goals | burden ref | compute | status |
 |---|---|---|---|---|---|
-| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, all 3 archs × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~2 h split: 3090 (Phi) ‖ A800 (Gemma + Qwen serial)** | **not started** |
+| **P0** | **Smoke + sanity pilot — fresh data, max-logging schema, all 3 archs × HotpotQA + 2Wiki × {closed, oracle}, n=25/cell, K=5 sampler with sample-text + per-sample-hidden-state dump + per-token max_logprob dump** | **G1, G2, G3** | **prereq for E2..E10** | **~2 h on A800 (serial; Phi + Gemma + Qwen)** | **bootstrap on new compute box** |
 | E1 | Re-apply audit extensions (SeaKR ln-entropy proxies + 6 aggregator-robustness rows; 11 → 19 signals) | G1 | Burden 1 | 0 (analysis) | not started |
 | E2 | Phi K=20 SeaKR eigen_score + FLARE per-token logprob dump + SelfCheckGPT K=3 sample-text dump (single bundled re-decode) | G1, G2, G3 | Burden 2 + Burden 8-FLARE + Burden 8-SelfCheck | ~12 h | not started |
 | E3 | Cross-arch baseline on Gemma-4-26B-A4B-it (n=200, D + E, full v2 capture + bundled FLARE/SelfCheck dumps) | G1, G3 | Burden 3 (Gemma) | ~4.5 h | not started |
@@ -189,11 +189,26 @@ If any gate fails: stop, log the cell, fix in `scripts/04f_run_qa_sota.py` or `s
 
 ### Status
 
-**Not started.** Two new files need writing before launch:
-- `scripts/run_pilot_p0.sh` — orchestrator; mirrors `scripts/run_xarch_full.sh` (lost to the reset; needs reconstruction from `_agent_v2.md` #v2-6 spec).
-- `analysis/pilot_audit.py` — analyzer; builds on `analysis/length_audit_v2.py`, adds FLARE / SelfCheckGPT-NLI / SeaKR-K5-proxy rows.
+**Code: ready (commit `97b2dc6`).**
+- `scripts/crv/sota_capture.py` — `ConsistencySampler` extended to optionally dump per-sample `{text, n_tokens, finish_reason, eos_hidden}`; v2 schema preserved when flags off.
+- `scripts/04f_run_qa_sota.py` — `--schema-version=rq1-pilot-v1`, `--dump-sample-texts`, `--dump-sample-hidden`. Per-step `per_token_max_logprob` (post + pre repetition penalty); per-trace schema bookkeeping + capture-overhead.
+- `scripts/run_pilot_p0.sh` — orchestrator; idempotent; pre-registered fail-fast gates on smoke / pilot-field population / token median / wall-clock cap.
+- `analysis/pilot_audit.py` — extends `length_audit_v2.py` with FLARE (post + pre rep), SeaKR-K5 proxy (Gram log-det), SelfCheckGPT-Ngram-1. Smoke-verified to reproduce existing v2 numbers exactly; gracefully reports `n/a` on the pilot-only fields when fed v2-schema traces.
 
-Plus a one-knob extension to `scripts/crv/sota_capture.py` to dump the new schema fields. ~half-day of dev work before the 2-hour pilot launch.
+**Compute: bootstrap on new A800 box.** The full bootstrap → launch sequence is in `_rq1-plan.md` §"Compute-box handover". Linear path: `git clone` → `git submodule update --init` → `setup.sh` → `download_models.sh phase1.4` → `sysinfo.py` → `04b_protocol_smoke.py` → existing slice rebuilds → `bash scripts/run_pilot_p0.sh` → `python analysis/pilot_audit.py`. ~30 min bootstrap + ~2 h pilot + ~15 min analysis.
+
+### Run (to be filled when results land)
+
+**Setup observed.** TBD — fill from `runs/v2_pilot_*/checkpoints/slice_manifest.json` and `runs/v2_pilot_*/logs/00_master.log` after launch. Capture: git rev, sysinfo (driver / CUDA / GPU / VRAM), env lockfile sha256, slice sha256s per arch, total wall-clock per phase.
+
+**Results.** TBD — `analysis/pilot.out` table per (arch × dataset) cell. Pre-registered direction-of-effect questions (G3):
+- Does `dragin_rind_max.max` retain *positive direction* under length-residualization on Gemma + Qwen at n=25? (replicates Phi survival or not)
+- Does `FLARE.min_p (post-rep)` produce a different signal-shape than `mean_token_entropy.max` (which is the FLARE-equivalent the v2 audit used)?
+- Does `SeaKR.K5_logdet` correlate with `u_cons.max` (text-K3 sibling) — i.e. does hidden-state geometry duplicate or extend the K-sample-text signal?
+- Per-arch capture-overhead numbers — informs the K=20 budget in E2.
+- Does Qwen × 2WikiMHQA still under-generate (v1 #20 trap)?
+
+**Notes.** TBD.
 
 ---
 

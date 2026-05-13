@@ -1,0 +1,215 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{TODO:CRAG,TODO:SelfRAG}
+\citation{TODO:realm-retrieve,TODO:grip}
+\citation{TODO:lewis2020rag}
+\citation{TODO:CRAG,TODO:SelfRAG,TODO:realm-retrieve,TODO:grip}
+\citation{TODO:realm-retrieve}
+\citation{TODO:grip}
+\citation{TODO:gemma4-card,TODO:gemma2}
+\citation{TODO:gated-deltanet,TODO:qwen3-next}
+\citation{TODO:raschka-deltanet,TODO:kimi-linear}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{The architectural pivot of 2026.}{2}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Cognitive efficiency, not memory pressure.}{2}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Contribution.}{2}{section*.3}\protected@file@percent }
+\citation{TODO:SelfRAG}
+\citation{TODO:CRAG}
+\citation{TODO:qwen3-next}
+\citation{TODO:kimi-linear}
+\citation{TODO:gated-deltanet}
+\citation{TODO:mamba2}
+\citation{TODO:raschka-deltanet}
+\citation{TODO:gemma2,TODO:gemma3,TODO:gemma4-card}
+\citation{TODO:probe1,TODO:probe2,TODO:probe3}
+\@writefile{toc}{\contentsline {paragraph}{What this paper deliberately does \emph  {not} do.}{3}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{3}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{3}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Adaptive RAG with reflection / control tokens.}{3}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Linear-attention hybrids.}{3}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hidden-state probes.}{3}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Background: attention geometry and KV growth}{3}{section.3}\protected@file@percent }
+\newlabel{sec:background}{{3}{3}{Background: attention geometry and KV growth}{section.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Standard attention KV cache.}{3}{section*.8}\protected@file@percent }
+\newlabel{eq:kv-full}{{1}{3}{Standard attention KV cache}{equation.1}{}}
+\citation{TODO:vllm}
+\citation{TODO:sglang}
+\citation{TODO:gated-deltanet,TODO:raschka-deltanet}
+\citation{TODO:gated-deltanet}
+\citation{TODO:qwen3-grouped-experts}
+\@writefile{toc}{\contentsline {paragraph}{Sliding-window attention.}{4}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Gated DeltaNet recurrence.}{4}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mixture-of-experts (MoE).}{4}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Method: latent-state gating and the CRV adapter}{4}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{4}{4}{Method: latent-state gating and the CRV adapter}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The Concept Representation Vector}{4}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:method-crv}{{4.1}{4}{The Concept Representation Vector}{subsection.4.1}{}}
+\newlabel{eq:crv}{{4}{4}{The Concept Representation Vector}{equation.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Per-step features: drift and rolling variance}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:method-features}{{4.2}{5}{Per-step features: drift and rolling variance}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cosine drift}{5}{section*.12}\protected@file@percent }
+\newlabel{eq:drift}{{5}{5}{Cosine drift}{equation.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Rolling L2-norm variance}{5}{section*.13}\protected@file@percent }
+\newlabel{eq:variance}{{6}{5}{Rolling L2-norm variance}{equation.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Step-boundary detector}{5}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:method-boundaries}{{4.3}{5}{Step-boundary detector}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Trigger rule}{5}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:method-trigger}{{4.4}{5}{Trigger rule}{subsection.4.4}{}}
+\newlabel{eq:trigger}{{7}{5}{Trigger rule}{equation.7}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Per-step CRV capture, manual decode loop.}}{6}{algorithm.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{alg:capture}{{1}{6}{Per-step CRV capture, manual decode loop}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Adapter design and the implementation surface}{6}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:method-adapter}{{4.5}{6}{Adapter design and the implementation surface}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experimental setup}{6}{section.5}\protected@file@percent }
+\newlabel{sec:setup}{{5}{6}{Experimental setup}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Hardware and software stack}{6}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:setup-hw}{{5.1}{6}{Hardware and software stack}{subsection.5.1}{}}
+\citation{TODO:gemma3,TODO:gemma4-card}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces  \textbf  {Generator pool (three architectural classes spanning the 2026 attention-design spectrum).} All values read from the model's \texttt  {config.json} (Qwen, Phi) or \texttt  {AutoConfig.from\_pretrained} (Gemma 4). MoE column gives \emph  {(experts active per token / total experts / shared experts)}. For Qwen3.6 we list global-attention layer indices verbatim from the model's \texttt  {layer\_types} array. For Gemma 4 the \texttt  {num\_global\_key\_value\_heads} and \texttt  {global\_head\_dim} in the global-layer rows differ from the sliding-layer values (8 KV heads, head\_dim 256); only one is shown per architecture for brevity. }}{7}{table.caption.14}\protected@file@percent }
+\newlabel{tab:models}{{1}{7}{\textbf {Generator pool (three architectural classes spanning the 2026 attention-design spectrum).} All values read from the model's \texttt {config.json} (Qwen, Phi) or \texttt {AutoConfig.from\_pretrained} (Gemma 4). MoE column gives \emph {(experts active per token / total experts / shared experts)}. For Qwen3.6 we list global-attention layer indices verbatim from the model's \texttt {layer\_types} array. For Gemma 4 the \texttt {num\_global\_key\_value\_heads} and \texttt {global\_head\_dim} in the global-layer rows differ from the sliding-layer values (8 KV heads, head\_dim 256); only one is shown per architecture for brevity}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Generator pool}{7}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:setup-models}{{5.2}{7}{Generator pool}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Why these three.}{7}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Prompts and generation protocol}{7}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:setup-prompts}{{5.3}{7}{Prompts and generation protocol}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Throughput accounting.}{8}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Phase 0: environment, smoke probes, and the L4 landmine check}{8}{section.6}\protected@file@percent }
+\newlabel{sec:phase0}{{6}{8}{Phase 0: environment, smoke probes, and the L4 landmine check}{section.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{The L4 landmine probe.}{8}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Phase 1: KV-pressure across the 2026 attention-design spectrum}{8}{section.7}\protected@file@percent }
+\newlabel{sec:phase1}{{7}{8}{Phase 1: KV-pressure across the 2026 attention-design spectrum}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Phase 1.3: a single-architecture baseline that motivates the pivot}{8}{subsection.7.1}\protected@file@percent }
+\newlabel{sec:phase1.3}{{7.1}{8}{Phase 1.3: a single-architecture baseline that motivates the pivot}{subsection.7.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces  \textbf  {Phase 1.3: per-prompt-class results on Qwen3.6-35B-A3B} (bf16 native, single A800; see~\S  \ref {sec:setup}). Prefill latency, per-decode-step latency at step 1 and step 5000, and the slowdown ratio. }}{9}{table.caption.19}\protected@file@percent }
+\newlabel{tab:phase1.3}{{2}{9}{\textbf {Phase 1.3: per-prompt-class results on Qwen3.6-35B-A3B} (bf16 native, single A800; see~\S \ref {sec:setup}). Prefill latency, per-decode-step latency at step 1 and step 5000, and the slowdown ratio}{table.caption.19}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces  \textbf  {Phase 1.4: KV-pressure curves across three architectural classes.} Slope is the linear coefficient of VRAM-allocated vs tokens-generated fitted between checkpoints $500$ and $5\,000$, mean across $3$ prompt classes. ``Bounds compute'' = decode-latency ratio step1 $\to $ step5000 ${\le } 1.05$. ``Bounds memory'' = slope of KV growth $\le 50$~KB/token (a coarse threshold; the Qwen point is the only generator that meaningfully clears it). }}{9}{table.caption.22}\protected@file@percent }
+\newlabel{tab:phase1.4}{{3}{9}{\textbf {Phase 1.4: KV-pressure curves across three architectural classes.} Slope is the linear coefficient of VRAM-allocated vs tokens-generated fitted between checkpoints $500$ and $5\,000$, mean across $3$ prompt classes. ``Bounds compute'' = decode-latency ratio step1 $\to $ step5000 ${\le } 1.05$. ``Bounds memory'' = slope of KV growth $\le 50$~KB/token (a coarse threshold; the Qwen point is the only generator that meaningfully clears it)}{table.caption.22}{}}
+\@writefile{toc}{\contentsline {paragraph}{The mechanism.}{9}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Phase 1.4: the bracketing plot}{9}{subsection.7.2}\protected@file@percent }
+\newlabel{sec:phase1.4}{{7.2}{9}{Phase 1.4: the bracketing plot}{subsection.7.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.1}The two-axis bracketing argument}{9}{subsubsection.7.2.1}\protected@file@percent }
+\newlabel{sec:phase1.4-twoaxis}{{7.2.1}{9}{The two-axis bracketing argument}{subsubsection.7.2.1}{}}
+\citation{TODO:vllm}
+\@writefile{toc}{\contentsline {paragraph}{The sliding-window-not-evicted finding.}{10}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.2}Prompt-class invariance}{10}{subsubsection.7.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Phase 2 engineering: the architecture-agnostic adapter}{10}{section.8}\protected@file@percent }
+\newlabel{sec:phase2-engineering}{{8}{10}{Phase 2 engineering: the architecture-agnostic adapter}{section.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Architectural abstractions.}{10}{section*.24}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces  \textbf  {Phase 2: per-trace logical-step density (\texttt  {boundary=sentence}, $5\,000$ tokens of decode).} $N$ is the number of committed steps; $\overline  {T_s}$ is the mean tokens-per-step. }}{11}{table.caption.26}\protected@file@percent }
+\newlabel{tab:phase2-density}{{4}{11}{\textbf {Phase 2: per-trace logical-step density (\texttt {boundary=sentence}, $5\,000$ tokens of decode).} $N$ is the number of committed steps; $\overline {T_s}$ is the mean tokens-per-step}{table.caption.26}{}}
+\@writefile{toc}{\contentsline {paragraph}{Throughput cost.}{11}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Phase 2 results: the L1 landmine fires}{11}{section.9}\protected@file@percent }
+\newlabel{sec:phase2-results}{{9}{11}{Phase 2 results: the L1 landmine fires}{section.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Logical-step density across architectures}{11}{subsection.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Signal magnitude}{11}{subsection.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}The L1 landmine, visualized}{12}{subsection.9.3}\protected@file@percent }
+\newlabel{sec:phase2-l1}{{9.3}{12}{The L1 landmine, visualized}{subsection.9.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Quantitative attribution.}{12}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{This was preregistered as L1.}{12}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}Mid-stack mitigation}{12}{subsection.9.4}\protected@file@percent }
+\newlabel{sec:phase2-mid}{{9.4}{12}{Mid-stack mitigation}{subsection.9.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {9.4.1}Headline numbers and signal magnitudes}{12}{subsubsection.9.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Qwen3.6: drift recovered, variance collapses to zero.}{12}{section*.33}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces  \textbf  {Paired Phase 2 signal magnitudes: last-layer (\S  \ref {sec:phase2-l1}) vs mid-stack (this section).} Mean $\mathrm  {drift}_{\cos }$ and $\operatorname  {Var}^{(W)}$ are means over all logical steps post step~$1$, pooled across the three prompt classes (so each cell aggregates over $\sim 600$--$1{,}200$ committed steps). \textbf  {$\Delta $\,drift} and \textbf  {$\Delta $\,var} are relative changes from last-layer to mid-stack. }}{13}{table.caption.32}\protected@file@percent }
+\newlabel{tab:phase2-paired}{{5}{13}{\textbf {Paired Phase 2 signal magnitudes: last-layer (\S \ref {sec:phase2-l1}) vs mid-stack (this section).} Mean $\drift $ and $\Var ^{(W)}$ are means over all logical steps post step~$1$, pooled across the three prompt classes (so each cell aggregates over $\sim 600$--$1{,}200$ committed steps). \textbf {$\Delta $\,drift} and \textbf {$\Delta $\,var} are relative changes from last-layer to mid-stack}{table.caption.32}{}}
+\@writefile{toc}{\contentsline {paragraph}{Gemma 4: drift cleans up, variance scale drops.}{13}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Phi: essentially unchanged.}{13}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {9.4.2}Per-step traces}{13}{subsubsection.9.4.2}\protected@file@percent }
+\newlabel{sec:phase2-mid-figs}{{9.4.2}{13}{Per-step traces}{subsubsection.9.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{What this changes for Phase 4.}{13}{section*.39}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why we keep both runs in the paper.}{13}{section*.40}\protected@file@percent }
+\citation{TODO:hotpotqa}
+\citation{TODO:musique}
+\citation{TODO:realm-retrieve}
+\citation{TODO:grip}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Phase 4 design: the empirical showdown}{14}{section.10}\protected@file@percent }
+\newlabel{sec:phase4-design}{{10}{14}{Phase 4 design: the empirical showdown}{section.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Dataset}{14}{subsection.10.1}\protected@file@percent }
+\newlabel{sec:phase4-data}{{10.1}{14}{Dataset}{subsection.10.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2}Triggers compared}{14}{subsection.10.2}\protected@file@percent }
+\newlabel{sec:phase4-gates}{{10.2}{14}{Triggers compared}{subsection.10.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.3}Metrics}{14}{subsection.10.3}\protected@file@percent }
+\newlabel{sec:phase4-metrics}{{10.3}{14}{Metrics}{subsection.10.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Earliness.}{14}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Trajectory drift.}{14}{section*.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Cost.}{14}{section*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4}Ablations}{15}{subsection.10.4}\protected@file@percent }
+\newlabel{sec:phase4-ablations}{{10.4}{15}{Ablations}{subsection.10.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {11}Discussion}{15}{section.11}\protected@file@percent }
+\newlabel{sec:discussion}{{11}{15}{Discussion}{section.11}{}}
+\@writefile{toc}{\contentsline {paragraph}{The architectural design space is doing more work than the gate.}{15}{section*.44}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Architecture-agnostic, with caveats.}{15}{section*.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The L1 finding has independent value.}{15}{section*.46}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Calibration thresholds and the trigger family.}{15}{section*.47}\protected@file@percent }
+\citation{TODO:mamba2}
+\citation{TODO:kimi-linear}
+\citation{TODO:vllm}
+\@writefile{toc}{\contentsline {paragraph}{What the paper does not claim.}{16}{section*.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {12}Limitations}{16}{section.12}\protected@file@percent }
+\newlabel{sec:limitations}{{12}{16}{Limitations}{section.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {13}Reproducibility}{16}{section.13}\protected@file@percent }
+\newlabel{sec:repro}{{13}{16}{Reproducibility}{section.13}{}}
+\citation{TODO:mamba2}
+\citation{TODO:kimi-linear}
+\citation{TODO:vllm}
+\citation{TODO:sglang}
+\@writefile{toc}{\contentsline {subsection}{\numberline {13.1}Compute budget}{17}{subsection.13.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {14}Future work}{17}{section.14}\protected@file@percent }
+\newlabel{sec:future}{{14}{17}{Future work}{section.14}{}}
+\@writefile{toc}{\contentsline {paragraph}{Immediate.}{17}{section*.49}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Medium-term.}{17}{section*.50}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Longer-term.}{17}{section*.51}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {15}Conclusion}{18}{section.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Prompt corpus}{18}{appendix.A}\protected@file@percent }
+\newlabel{app:prompts}{{A}{18}{Prompt corpus}{appendix.A}{}}
+\@writefile{toc}{\contentsline {paragraph}{\textsc  {factual}.}{18}{section*.52}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\textsc  {multi-hop}.}{18}{section*.53}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\textsc  {ambiguous}.}{18}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B}Per-prompt-class Phase 2 detail}{18}{appendix.B}\protected@file@percent }
+\newlabel{app:phase2-percell}{{B}{18}{Per-prompt-class Phase 2 detail}{appendix.B}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Engineering notes preserved from the experimental log}{18}{appendix.C}\protected@file@percent }
+\newlabel{app:eng-notes}{{C}{18}{Engineering notes preserved from the experimental log}{appendix.C}{}}
+\bibstyle{plainnat}
+\bibcite{TODO:CRAG}{{CRAG}{}{{}}{{}}}
+\bibcite{TODO:SelfRAG}{{SelfRAG}{}{{}}{{}}}
+\bibcite{TODO:realm-retrieve}{{ReaLM}{}{{}}{{}}}
+\bibcite{TODO:grip}{{GRIP}{}{{}}{{}}}
+\bibcite{TODO:lewis2020rag}{{LewisRAG}{}{{}}{{}}}
+\bibcite{TODO:gated-deltanet}{{GatedDeltaNet}{}{{}}{{}}}
+\bibcite{TODO:mamba2}{{Mamba2}{}{{}}{{}}}
+\bibcite{TODO:qwen3-next}{{Qwen3Next}{}{{}}{{}}}
+\bibcite{TODO:kimi-linear}{{KimiLinear}{}{{}}{{}}}
+\bibcite{TODO:raschka-deltanet}{{Raschka}{}{{}}{{}}}
+\bibcite{TODO:gemma2}{{Gemma2}{}{{}}{{}}}
+\bibcite{TODO:gemma3}{{Gemma3}{}{{}}{{}}}
+\bibcite{TODO:gemma4-card}{{Gemma4Card}{}{{}}{{}}}
+\bibcite{TODO:qwen3-grouped-experts}{{QwenGroupedExperts}{}{{}}{{}}}
+\bibcite{TODO:hotpotqa}{{HotpotQA}{}{{}}{{}}}
+\bibcite{TODO:musique}{{MuSiQue}{}{{}}{{}}}
+\bibcite{TODO:vllm}{{vLLM}{}{{}}{{}}}
+\bibcite{TODO:sglang}{{SGLang}{}{{}}{{}}}
+\bibcite{TODO:probe1}{{Probe1}{}{{}}{{}}}
+\bibcite{TODO:probe2}{{Probe2}{}{{}}{{}}}
+\bibcite{TODO:probe3}{{Probe3}{}{{}}{{}}}
+\providecommand\NAT@force@numbers{}\NAT@force@numbers
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  \textbf  {Phase 1.3: KV-pressure on Qwen3.6-35B-A3B alone is essentially flat at $5{,}000$ tokens of decode.} Top: VRAM allocated (GiB) over tokens generated. Bottom: rolling tok/s over a $500$-token window. Three prompt classes (factual, multi-hop, ambiguous) overlaid, indistinguishable. Total VRAM growth across the $5\,000$-token run is ${\sim } 80$~MB; per-token decode latency is flat or slightly decreasing (step~5000 is $\sim 2\%$ faster than step~1). This is the result that triggered the cognitive-efficiency reframing in~\S  \ref {sec:intro}: on this generator, at this context length, KV pressure is not the binding cost. }}{21}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:phase1.3}{{1}{21}{\textbf {Phase 1.3: KV-pressure on Qwen3.6-35B-A3B alone is essentially flat at $5{,}000$ tokens of decode.} Top: VRAM allocated (GiB) over tokens generated. Bottom: rolling tok/s over a $500$-token window. Three prompt classes (factual, multi-hop, ambiguous) overlaid, indistinguishable. Total VRAM growth across the $5\,000$-token run is ${\sim } 80$~MB; per-token decode latency is flat or slightly decreasing (step~5000 is $\sim 2\%$ faster than step~1). This is the result that triggered the cognitive-efficiency reframing in~\S \ref {sec:intro}: on this generator, at this context length, KV pressure is not the binding cost}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  \textbf  {Phase 1.4 headline: KV-pressure across three architectural classes, normalized to the step-500 baseline.} Mean across $3$ prompt classes ($\pm 1\sigma $ ribbons; very thin because prompt-class variance is tiny — see Tab.~\ref {tab:phase1.4}). Phi-4-mini shows $\sim 128$ KB/token clean linear growth — the steep reference. Gemma 4 26B A4B shows $\sim 221$ KB/token linear growth, \emph  {steeper than Phi}, contrary to our pre-experiment prediction (we expected a knee at the $1024$-token sliding-window cap; in HF \texttt  {DynamicCache} no such eviction occurs, see text). Qwen3.6-35B-A3B shows $\sim 27$ KB/token, near-flat. }}{22}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:phase1.4-bracketing}{{2}{22}{\textbf {Phase 1.4 headline: KV-pressure across three architectural classes, normalized to the step-500 baseline.} Mean across $3$ prompt classes ($\pm 1\sigma $ ribbons; very thin because prompt-class variance is tiny — see Tab.~\ref {tab:phase1.4}). Phi-4-mini shows $\sim 128$ KB/token clean linear growth — the steep reference. Gemma 4 26B A4B shows $\sim 221$ KB/token linear growth, \emph {steeper than Phi}, contrary to our pre-experiment prediction (we expected a knee at the $1024$-token sliding-window cap; in HF \texttt {DynamicCache} no such eviction occurs, see text). Qwen3.6-35B-A3B shows $\sim 27$ KB/token, near-flat}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  \textbf  {Phase 2.1 (last-layer): the latent-state signal exists on every architectural class — but the magnitude differs by $20\times $ on $\mathrm  {drift}_{\cos }$ and by $200\times $ on $\operatorname  {Var}^{(W)}$.} Bars are mean over the trace post step~1 (drift is zero by definition at step~1); error bars are $\pm 1\sigma $ across the three prompt classes. Phi-4-mini's signal is in the $\sim 0.02$ regime; Qwen3.6's is in the $\sim 0.5$ regime, near the saturation end of cosine distance. We attribute the per-architecture scale difference to MoE expert-routing-induced last-layer-hidden-state variability (\S  \ref {sec:phase2-l1}). }}{23}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:phase2-summary}{{3}{23}{\textbf {Phase 2.1 (last-layer): the latent-state signal exists on every architectural class — but the magnitude differs by $20\times $ on $\drift $ and by $200\times $ on $\Var ^{(W)}$.} Bars are mean over the trace post step~1 (drift is zero by definition at step~1); error bars are $\pm 1\sigma $ across the three prompt classes. Phi-4-mini's signal is in the $\sim 0.02$ regime; Qwen3.6's is in the $\sim 0.5$ regime, near the saturation end of cosine distance. We attribute the per-architecture scale difference to MoE expert-routing-induced last-layer-hidden-state variability (\S \ref {sec:phase2-l1})}{figure.caption.27}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  \textbf  {Cosine drift between consecutive CRVs ($\mathrm  {drift}_{\cos }_i$, Eq.~\ref {eq:drift}) over the 5\,000-token trace, last-layer.} Three rows, one per architectural class. Three line styles per row, one per prompt class. \textbf  {Phi-4-mini} (top, blue): drift mostly in $[0, 0.05]$, with occasional event-like spikes to $\sim 0.2$. We highlight the cluster around $T \approx 4000$ in factual / multi-hop traces — these correspond to model-side phase transitions visible in the generated text (end of a historical period, transition from in-trace reasoning to summary). \textbf  {Gemma 4 26B A4B} (middle, orange): drift in $[0.0, 0.5]$ with no clean baseline; traces are dense and noisy. Note the multi-hop trace is much shorter on the x-axis because it produces only $52$ logical steps (Tab.~\ref {tab:phase2-density}). \textbf  {Qwen3.6-35B-A3B} (bottom, green): drift consistently in $[0.3, 0.8]$ across the full $5\,000$-token trace; near-saturated. We attribute this to MoE-routing variance dominating the last-layer hidden state. }}{24}{figure.caption.28}\protected@file@percent }
+\newlabel{fig:phase2-drift}{{4}{24}{\textbf {Cosine drift between consecutive CRVs ($\drift _i$, Eq.~\ref {eq:drift}) over the 5\,000-token trace, last-layer.} Three rows, one per architectural class. Three line styles per row, one per prompt class. \textbf {Phi-4-mini} (top, blue): drift mostly in $[0, 0.05]$, with occasional event-like spikes to $\sim 0.2$. We highlight the cluster around $T \approx 4000$ in factual / multi-hop traces — these correspond to model-side phase transitions visible in the generated text (end of a historical period, transition from in-trace reasoning to summary). \textbf {Gemma 4 26B A4B} (middle, orange): drift in $[0.0, 0.5]$ with no clean baseline; traces are dense and noisy. Note the multi-hop trace is much shorter on the x-axis because it produces only $52$ logical steps (Tab.~\ref {tab:phase2-density}). \textbf {Qwen3.6-35B-A3B} (bottom, green): drift consistently in $[0.3, 0.8]$ across the full $5\,000$-token trace; near-saturated. We attribute this to MoE-routing variance dominating the last-layer hidden state}{figure.caption.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  \textbf  {Rolling L2-norm variance ($\operatorname  {Var}_i^{(10)}$, Eq.~\ref {eq:variance}) over the 5\,000-token trace, last-layer.} Same row order and line-style mapping as Figure~\ref {fig:phase2-drift}. The Phi panel (top) shows a strong event-driven structure — long quiet baselines punctuated by sharp spikes, e.g.~the spike at $T \approx 4\,000$ in factual / multi-hop traces. The Gemma panel shows both spikes and a slowly rising envelope. The Qwen panel shows fluctuating but persistent noise. }}{25}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:phase2-variance}{{5}{25}{\textbf {Rolling L2-norm variance ($\Var _i^{(10)}$, Eq.~\ref {eq:variance}) over the 5\,000-token trace, last-layer.} Same row order and line-style mapping as Figure~\ref {fig:phase2-drift}. The Phi panel (top) shows a strong event-driven structure — long quiet baselines punctuated by sharp spikes, e.g.~the spike at $T \approx 4\,000$ in factual / multi-hop traces. The Gemma panel shows both spikes and a slowly rising envelope. The Qwen panel shows fluctuating but persistent noise}{figure.caption.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces  \textbf  {Cosine drift over 5\,000 tokens, mid-stack mitigation.} Same row-and-line-style layout as Figure~\ref {fig:phase2-drift}. \textbf  {Phi-4-mini} (top): qualitatively similar to last-layer, slightly more reactive; sharp spikes at $T \approx 1\,500$, $\approx 4{,}100$, and $\approx 4{,}500$ (factual). \textbf  {Gemma 4 26B A4B} (middle): two large clean spikes ($\mathrm  {drift}_{\cos }\approx 1.0$ and $\approx 1.25$) at $T \approx 1{,}500$ and $T \approx 4{,}700$ on the factual trace, where the last-layer was masked by routing noise — these are informative events that mid-stack reveals. \textbf  {Qwen3.6-35B-A3B} (bottom): drift no longer saturated; range $0.0$--$0.7$ with visible per-trace structure including a clean drop in the multi-hop trace's tail. }}{26}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:phase2-drift-mid}{{6}{26}{\textbf {Cosine drift over 5\,000 tokens, mid-stack mitigation.} Same row-and-line-style layout as Figure~\ref {fig:phase2-drift}. \textbf {Phi-4-mini} (top): qualitatively similar to last-layer, slightly more reactive; sharp spikes at $T \approx 1\,500$, $\approx 4{,}100$, and $\approx 4{,}500$ (factual). \textbf {Gemma 4 26B A4B} (middle): two large clean spikes ($\drift \approx 1.0$ and $\approx 1.25$) at $T \approx 1{,}500$ and $T \approx 4{,}700$ on the factual trace, where the last-layer was masked by routing noise — these are informative events that mid-stack reveals. \textbf {Qwen3.6-35B-A3B} (bottom): drift no longer saturated; range $0.0$--$0.7$ with visible per-trace structure including a clean drop in the multi-hop trace's tail}{figure.caption.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces  \textbf  {Phase 2 mid-stack signal summary.} Same layout as Figure~\ref {fig:phase2-summary}. Contrast: drift magnitudes have converged across architectures (Phi $0.033$, Gemma $0.106$, Qwen $0.235$ — within one order of magnitude rather than 20 as at last-layer), while variance now bifurcates with Qwen's L2-norm variance collapsing to $0.09$ (essentially constant L2; the recurrent DeltaNet state's spectral structure is preserved through the mid-stack). The bar plot makes explicit that the trigger-feature choice should be \emph  {per-architecture}: drift carries the signal universally, variance is informative on Phi and Gemma but uninformative on Qwen at mid-stack. }}{27}{figure.caption.37}\protected@file@percent }
+\newlabel{fig:phase2-summary-mid}{{7}{27}{\textbf {Phase 2 mid-stack signal summary.} Same layout as Figure~\ref {fig:phase2-summary}. Contrast: drift magnitudes have converged across architectures (Phi $0.033$, Gemma $0.106$, Qwen $0.235$ — within one order of magnitude rather than 20 as at last-layer), while variance now bifurcates with Qwen's L2-norm variance collapsing to $0.09$ (essentially constant L2; the recurrent DeltaNet state's spectral structure is preserved through the mid-stack). The bar plot makes explicit that the trigger-feature choice should be \emph {per-architecture}: drift carries the signal universally, variance is informative on Phi and Gemma but uninformative on Qwen at mid-stack}{figure.caption.37}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces  \textbf  {Rolling L2-norm variance over $5\,000$ tokens, mid-stack mitigation.} Same row-and-line-style layout as Figure~\ref {fig:phase2-variance}. \textbf  {Phi} (top): the strong event spike at $T \approx 4{,}000$ in the factual / multi-hop traces is preserved with sharper peak (max ${\sim }120$ vs ${\sim }45$ at last-layer); the rest of the trace is a flat baseline. \textbf  {Gemma} (middle): a slowly rising multi-hop variance envelope is visible (dashed orange), and the factual / ambiguous traces show step-like structure rather than the noisy continuum at last-layer (the trace absolute scale is also much smaller, $\sim 0$--$700$ vs $\sim 0$--$1500$). \textbf  {Qwen} (bottom): the variance of L2 norm has collapsed to the $0$--$0.35$ range, four orders of magnitude smaller than last-layer. This confirms that \emph  {the per-token L2-norm of the mid-stack representation is essentially constant on Qwen3.6}; whatever signal exists at mid-stack lives in directional change ($\mathrm  {drift}_{\cos }$), not in norm fluctuation. }}{28}{figure.caption.38}\protected@file@percent }
+\newlabel{fig:phase2-variance-mid}{{8}{28}{\textbf {Rolling L2-norm variance over $5\,000$ tokens, mid-stack mitigation.} Same row-and-line-style layout as Figure~\ref {fig:phase2-variance}. \textbf {Phi} (top): the strong event spike at $T \approx 4{,}000$ in the factual / multi-hop traces is preserved with sharper peak (max ${\sim }120$ vs ${\sim }45$ at last-layer); the rest of the trace is a flat baseline. \textbf {Gemma} (middle): a slowly rising multi-hop variance envelope is visible (dashed orange), and the factual / ambiguous traces show step-like structure rather than the noisy continuum at last-layer (the trace absolute scale is also much smaller, $\sim 0$--$700$ vs $\sim 0$--$1500$). \textbf {Qwen} (bottom): the variance of L2 norm has collapsed to the $0$--$0.35$ range, four orders of magnitude smaller than last-layer. This confirms that \emph {the per-token L2-norm of the mid-stack representation is essentially constant on Qwen3.6}; whatever signal exists at mid-stack lives in directional change ($\drift $), not in norm fluctuation}{figure.caption.38}{}}
+\gdef \@abspage@last{28}

@@ -250,6 +250,105 @@ in the pool.
 
 ---
 
+## Compute-box handover — RQ1 P0 (new box, full bootstrap)
+
+This is the **linear sequence** to take a fresh A800 box from
+empty disk to running `bash scripts/run_pilot_p0.sh`. Assumes Cursor
+running on the box. Total bootstrap: ~30–40 min wall (network-bound),
+pilot decode: ~2 h, analysis: ~15 min.
+
+### State on the new box at start
+
+- No conda env, no pinned torch/transformers, no model weights,
+  no v1/v2 trace files, no submodules cloned, no pilot slices built.
+- HF cache may or may not be warm depending on the box's history.
+- Old `runs/v2_exp1_*/`, `runs/phase4_*/`, `runs/v2_xarch_*/` from
+  the prior box are **not present** — they live on the prior box.
+  RQ1 P0 produces fresh traces that do not depend on them.
+
+### Linear sequence (one block to copy-paste)
+
+```bash
+# 0. Repo + submodules
+git clone <repo-url> recollection && cd recollection
+git submodule update --init --recursive externalCodeAudits/
+
+# 1. Env (~3-4 min); writes runs/env_lockfile.txt
+bash scripts/setup.sh
+
+# 2. Models (~5-15 min, network-bound; ~125 GB total for the 3 archs)
+bash scripts/download_models.sh phase1.4
+
+# 3. Sysinfo + per-arch protocol smoke; both should pass before any sweep
+python scripts/sysinfo.py
+python scripts/04b_protocol_smoke.py    # must report `[ok] all 3 models pass Option A protocol smoke`
+
+# 4. Build the existing v2 calibration / test slices (cheap; HF download
+#    dominates first time, ~30-60 s warm). These are referenced by the
+#    P0 slice builder's --exclude-ids-from for disjointness.
+python scripts/04_dataset.py
+python scripts/04_dataset.py \
+    --n 500 --seed 20260601 --split-seed 20260601 \
+    --exclude-ids-from data/hotpotqa_distractor_200.jsonl \
+    --all-test --name hotpotqa_distractor_500_v2test
+python scripts/04_dataset_2wiki.py \
+    --n 500 --seed 20260601 \
+    --name 2wikimultihop_distractor_500_v2test
+
+# 5. Run the pilot (~2 h; orchestrator hard-caps at 3 h).
+#    Builds fresh n=25 pilot slices on first invocation.
+bash scripts/run_pilot_p0.sh
+
+# 6. Offline analysis (~15 min, no GPU).
+python analysis/pilot_audit.py | tee analysis/pilot.out
+
+# 7. Commit + push
+git add runs/v2_pilot_*/ data/*_pilot.jsonl analysis/pilot.out
+git commit -m "rq1 P0: pilot results, n=25 x 3 archs x 2 datasets"
+git push
+```
+
+### What gets produced (committable artifacts)
+
+| path | size estimate | why commit |
+|---|---:|---|
+| `data/hotpotqa_distractor_25_pilot.jsonl` | ~0.5 MB | reproducibility |
+| `data/2wikimultihop_distractor_25_pilot.jsonl` | ~0.4 MB | reproducibility |
+| `runs/v2_pilot_<arch>/{B,D1,D2,E1,E2}_*.jsonl` × 3 archs | ~27 MB total | pilot traces with rq1-pilot-v1 schema |
+| `runs/v2_pilot_<arch>/checkpoints/slice_manifest.json` × 3 | <30 KB | sha256s + row counts (per small-checkpoint policy) |
+| `runs/v2_pilot_<arch>/logs/*.log` × 3 | ~1 MB total | per-phase logs incl. wall-clock + sanity-gate output |
+| `analysis/pilot.out` | <100 KB | per-cell numbers |
+
+### What does NOT need to be present on the new box
+
+- Old run dirs (`runs/v2_exp1_*`, `runs/phase4_*`, `runs/v2_xarch_*`).
+- Old analysis outputs (`analysis/length_audit_v2.out`, `analysis/iter*.out`).
+- Old draft / paperwork files.
+- The legacy `_PLAN.md` / `_AGENT.md` / `_agent_v2.md` (those have been
+  superseded by `_rq1-plan.md` + `_rq1-agent.md` for RQ1 work).
+
+`analysis/length_audit_v2.py` is still useful as a reference for
+`pilot_audit.py` but does not need to be runnable on the new box for
+RQ1 P0 to land. (It will need the n=500 v2 traces to produce the
+"Established first proof" table; if you want that table reproduced on
+the new box, restore the v2 trace files from the prior box first.)
+
+### Handover sanity check (run this before launching)
+
+```bash
+ls models/                                         # 3 dirs, each with *.safetensors
+ls data/{hotpotqa_distractor_200,hotpotqa_distractor_500_v2test,2wikimultihop_distractor_500_v2test}.jsonl
+git submodule status                               # 6 lines, each with a 40-char SHA
+python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+test -x scripts/run_pilot_p0.sh && bash -n scripts/run_pilot_p0.sh && echo "orchestrator syntax OK"
+test -f analysis/pilot_audit.py && python -c "import ast; ast.parse(open('analysis/pilot_audit.py').read())" && echo "analyzer syntax OK"
+```
+
+If any of those fails: stop; re-run the affected step from §"Linear
+sequence" before invoking the pilot.
+
+---
+
 ## Established first proof (the floor)
 
 **Script:** `analysis/length_audit_v2.py`

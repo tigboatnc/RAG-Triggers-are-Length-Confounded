@@ -624,3 +624,5 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..] 135/200  em=64/135  steps=  8  tok= 154  wall=118.8s  elapsed=601.0min
 [..] 140/200  em=68/140  steps= 10  tok= 174  wall=167.7s  elapsed=620.0min
 [..] 145/200  em=73/145  steps=  9  tok= 162  wall=138.1s  elapsed=639.9min
+[..] 150/200  em=75/150  steps= 10  tok= 128  wall=154.5s  elapsed=661.1min
+[..] 155/200  em=79/155  steps= 11  tok= 278  wall=190.3s  elapsed=679.4min

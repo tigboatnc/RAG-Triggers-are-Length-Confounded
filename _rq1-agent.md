@@ -27,7 +27,7 @@
 | P0.6 | Deep exploratory analysis — AID flip_rate discovery (10 angles) | G1, G3 | — | 0 | **DONE** |
 | P1 | Extended-schema pilot (rq1-pilot-v2, 4 novel triggers N1-N4), n=25, Gemma only | G2, G3 | — | ~3 h | **CANCELLED** (partial Gemma data may exist; not needed for headline) |
 | **R1** | **HEADLINE: n=200 × 3 archs × {HotpotQA, 2Wiki}, rq1-pilot-v1 schema, K=5, paired oracle** | **G1, G2, G3** | **Burden 3** | **~22 h serial** | **NEXT — launch on compute box** |
-| R2 | MuSiQue generalization, n=200 × 3 archs, same schema | G1 | Burden 4 | ~11 h | planned (after R1) |
+| ~~R2~~ | ~~MuSiQue generalization, n=200 × 3 archs, same schema~~ | ~~G1~~ | ~~Burden 4~~ | ~~~11 h~~ | **DROPPED 2026-05-15 ~00:52** (decision: locked-in scope is 2-3 archs × 2 datasets; MuSiQue not needed for headline) |
 | E7 | Statistical hardening — B=10 000, Bonferroni α=0.005/15 across k=15 signals | G1 | Burden 5 | 0 (post-R1 analysis) | after R1 lands |
 | E8 | Lift-conditional secondary table — `P(oracle helped \| trigger fired) − base` at fire rates {5%, 10%, 20%} | G1 | Burden 6 | 0 (post-R1 analysis) | after R1 lands |
 | **A1** | **K=1 (Datta-style greedy forced-completion) vs K=5 (our boundary-completion) flip_rate ablation on existing P0 + R1 traces; substantiates the K=5 contribution vs the Datta et al. 2026 precedent** | **G1, G3** | **— (lit-precedent response)** | **0 (post-hoc; needs trace re-parse)** | **NEW — analysis-only; required pre-submission per `_rq1-plan.md` lit precedent block** |
@@ -36,13 +36,15 @@
 E9 (MBA-RAG training, ~12h — not needed for AID contribution), E10 (Self-RAG reference — deferred).
 E3/E4 superseded by R1 (which does all 3 archs in one run with the enriched schema).
 
-**Revised compute envelope (post P0.6 pivot):** ~33 h serial (R1 22h + R2 11h).
+**Revised compute envelope (post 2026-05-15 R2-drop):** ~22 h serial (R1 only; R2 dropped).
 **A1 adds 0 h compute** (post-hoc analysis on existing K=5 sample texts).
 
 **Recommended sequencing:** R1 (headline n=200 cross-arch) → A1 (K=1 vs K=5
-ablation on R1 traces, ~30 min analyzer extension) → E7+E8 (statistical
-hardening, analysis-only) → R2 (MuSiQue generalization). R1 + A1 together
-produce a submittable EMNLP-short with honest attribution to Datta et al.
+ablation on R1 traces, ~30 min analyzer extension) → Phi-drop decision rule (post-Gemma-2Wiki, see block below)
+→ E7+E8 (statistical hardening, analysis-only) → writing. R1 + A1 produce a
+submittable EMNLP-short with honest attribution to Datta et al. MuSiQue (R2)
+was dropped on 2026-05-15: locked-in scope is 2-3 archs × 2 datasets; MuSiQue
+breadth not needed for the headline survivor-pair narrative.
 
 ---
 
@@ -128,6 +130,45 @@ Full table + revised framing + pre-drafted §2 paragraph are in `_rq1-plan.md`
 2. Drop in the pre-drafted §2 paragraph from `_rq1-plan.md` §"Pre-drafted §2 paragraph (drop into paper Day 1)".
 3. Re-write any §1 / abstract framing of "we introduce a length-controlled evaluation protocol" → "we adopt and extend the UNCERTAINTY-LINE protocol of Belem et al. (2025)".
 4. Cite the R1 D1 closed_em finding as direct confirmation of Illusion of Progress (2025) in §4.
+
+---
+
+## Pre-committed decision rule — drop Phi? (added 2026-05-15 ~00:50, before Gemma D2/E2 land)
+
+**Trigger.** Gemma D1 closed (n=200) is done; Gemma E1 oracle trial (n=191 paired, helped pop=17) is done on the rented box. AID family + DRAGIN-RIND both replicate on Gemma × HotpotQA at residualized AUROC ≥ 0.62. Two questions are now live:
+
+1. Should we drop Phi from the headline and present a 2-arch (Qwen + Gemma) cross-arch story?
+2. If yes, how do we frame the model-selection criterion?
+
+**Rationale for considering the drop:** Architectural axis in the current 3-arch pool is **dense vs MoE+SWA-hybrid** (Qwen2.5-7B vs Gemma-4-26B-A4B-it). Phi-4-mini-instruct is a smaller dense Transformer — redundant on that axis, only adds scale variance. Empirically Phi cells rank 4th and 5th of 5 in best-AID resid AUROC on `lift_em=+1` (Phi HotpotQA `min_majority` 0.597; Phi 2Wiki `late_flips` 0.663). Removing them would move the AID-family-wins narrative from "5 of 5 cells" to **"4 of 4 cells"** — equally strong, cleaner story. None of this work is published, so no commitment to keep Phi.
+
+**Cost of dropping Phi:** −1 cell of cross-arch breadth, −~48 helped-pop on pooled analyses, −1 striking single-cell finding (Phi 2Wiki/comparison `late_flips` raw 0.950). Recoverable via R2 MuSiQue on Qwen+Gemma if needed for breadth.
+
+### Pre-commit rule (evaluated AFTER Gemma D2 + E2 land, ~12h from now)
+
+> **If Gemma × 2WikiMHQA shows BOTH `AID family resid AUROC ≥ 0.55` on at least one of {`flip_rate K=5`, `flip_rate K=1`, `late_flips`, `min_majority`} AND `DRAGIN-RIND resid AUROC ≥ 0.55` on `lift_em = +1` at n=200 paired** → **drop Phi (Option B).**
+>
+> **Else** → **keep all 3 archs (Option A).** Phi stays in the headline table and §4.3 covers Phi as the sparse-trace boundary cell.
+
+This is a pre-registered decision rule, written before observing the deciding data. Quote it in the paper if asked about model selection.
+
+### If the rule fires (Phi dropped) — pre-drafted model-selection paragraph
+
+Add this to the TOP of `_rq1-agent.md` AND drop into the paper as the §3 (Experimental Setup) model-selection paragraph:
+
+> *"We evaluate on two open-weight chat models spanning two architecture families: a dense Transformer (Qwen2.5-7B-Instruct) and a Mixture-of-Experts model with hybrid sliding-window/global attention (Gemma-4-26B-A4B-it, 3.8B active / 25.2B total). This pair was chosen to span the dense-vs-MoE-hybrid axis at the open-weight 7B+ tier; we excluded smaller dense variants (e.g. Phi-4-mini-instruct, 3.8B dense) as redundant on the architecture axis."*
+
+### Action checklist (when Gemma D2 + E2 land)
+
+1. Run `analysis/r1_phi_paired_audit.py --arch gemma-4-26b-a4b-it --bootstrap-b 10000` on full paired Gemma cells (D1 + E1 + D2 + E2, all main-box → n=200 paired both datasets).
+2. Read `AID family resid` and `DRAGIN-RIND resid` on Gemma × 2Wiki `lift_em=+1` table.
+3. Apply the rule above. Document outcome in this file (`_rq1-agent.md`) under a new "Phi-drop decision" entry with the actual Gemma 2Wiki numbers.
+4. If dropped: elevate the model-selection paragraph above to the TOP of this file. Update `_rq1-plan.md`, `_rq1-outlook.md`, and any §3-draft prose. R2 MuSiQue (if launched) targets Qwen + Gemma only.
+5. If kept: §4.3 frames Phi as the sparse-trace robustness cell ("on Phi-4-mini, where decoding produces 2-3 answer-bearing steps under K=5, within-step AID variants collapse but `late_flips` survives").
+
+### Note on the Gemma E1 trial run (rented box, 191/200 paired)
+
+The Gemma × HotpotQA trial audit on the rented-box E1 (n=191 paired due to slice-version mismatch — see "Slice-version mismatch" entry to be added) showed: ent.max resid **0.699**, AID `late_flips` resid **0.690**, AID `min_majority` resid **0.685**, DRAGIN-RIND resid **0.623**, AID `flip_rate K=5` resid **0.645**. Cleanly above the 0.55 threshold across the AID family + DRAGIN. **Directional evidence is strongly favorable to the rule firing on 2Wiki too**, but the rule is committed on the 2Wiki cell specifically because 2Wiki is the OOD cell and the harder test. Trial result is informational, not deciding.
 
 ---
 

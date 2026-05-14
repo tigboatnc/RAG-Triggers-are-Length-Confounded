@@ -1,0 +1,34 @@
+{
+  "model": "qwen2.5-7b-instruct",
+  "n": 200,
+  "cons_k": 5,
+  "schema": "rq1-pilot-v1",
+  "ts_utc": "2026-05-13T21:23:45Z",
+  "files": [
+    {
+      "name": "B_smoke_hotpot.jsonl",
+      "rows": 5,
+      "sha256_16": "d26381c8b0da383f"
+    },
+    {
+      "name": "D1_closed_hotpot.jsonl",
+      "rows": 200,
+      "sha256_16": "dab2c5080d4d2227"
+    },
+    {
+      "name": "D2_closed_wiki.jsonl",
+      "rows": 200,
+      "sha256_16": "2420a7a6d8072abf"
+    },
+    {
+      "name": "E1_oracle_hotpot.jsonl",
+      "rows": 200,
+      "sha256_16": "afbe32c14a968ed2"
+    },
+    {
+      "name": "E2_oracle_wiki.jsonl",
+      "rows": 200,
+      "sha256_16": "9eca60425bd3a0d9"
+    }
+  ]
+}

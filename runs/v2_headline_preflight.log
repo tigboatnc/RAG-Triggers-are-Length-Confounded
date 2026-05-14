@@ -14,3 +14,11 @@
 [2026-05-13T18:49:40Z] N=200  N_SMOKE=5  CONS_K=5
 [2026-05-13T18:49:40Z] slice data/hotpotqa_distractor_500_v2test.jsonl: 500 rows
 [2026-05-13T18:49:40Z] slice data/2wikimultihop_distractor_500_v2test.jsonl: 500 rows
+[2026-05-13T18:53:51Z] === RQ1 Run 1 — Headline n=200 starting ===
+[2026-05-13T18:53:51Z] git rev: e0c45ac
+[2026-05-13T18:53:51Z] python:  Python 3.11.15
+[2026-05-13T18:53:51Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T18:53:51Z] ARCHS=phi-4-mini-instruct qwen2.5-7b-instruct gemma-4-26b-a4b-it
+[2026-05-13T18:53:51Z] N=200  N_SMOKE=5  CONS_K=5
+[2026-05-13T18:53:51Z] slice data/hotpotqa_distractor_500_v2test.jsonl: 500 rows
+[2026-05-13T18:53:51Z] slice data/2wikimultihop_distractor_500_v2test.jsonl: 500 rows

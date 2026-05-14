@@ -26,3 +26,17 @@
 [2026-05-13T18:49:40Z] [phi-4-mini-instruct]   E1_oracle_hotpot: 200 rows
 [2026-05-13T18:49:40Z] [phi-4-mini-instruct]   E2_oracle_wiki: 200 rows
 [2026-05-13T18:49:40Z] [phi-4-mini-instruct] elapsed=0s (0h 0m)
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] ==== START: phi-4-mini-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] B: smoke present (n=5), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] D: D1_closed_hotpot already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] D: D2_closed_wiki already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] E: E1_oracle_hotpot already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] E: E2_oracle_wiki already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] ==== phi-4-mini-instruct complete ====
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   D1_closed_hotpot: 200 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   D2_closed_wiki: 200 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   E1_oracle_hotpot: 200 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   E2_oracle_wiki: 200 rows
+[2026-05-13T18:53:52Z] [phi-4-mini-instruct] elapsed=1s (0h 0m)

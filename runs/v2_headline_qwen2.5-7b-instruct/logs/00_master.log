@@ -6,3 +6,18 @@
 [2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
 [2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] B: smoke present (n=5), skipping
 [2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 133) ====
+[2026-05-13T18:53:14Z] [qwen2.5-7b-instruct] ABORT @ line 174 (last cmd: tee "${LOG_DIR}/${TAG}.log")
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] ==== START: qwen2.5-7b-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] B: smoke present (n=5), skipping
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 11) ====
+[2026-05-13T20:03:50Z] [qwen2.5-7b-instruct] ==== D: D2_closed_wiki closed-book (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl, resuming from 0) ====
+[2026-05-13T21:10:49Z] [qwen2.5-7b-instruct] ==== E: E1_oracle_hotpot oracle decode (n=200 from data/hotpotqa_distractor_500_v2test.jsonl) ====
+[2026-05-13T21:16:27Z] [qwen2.5-7b-instruct] ==== E: E2_oracle_wiki oracle decode (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl) ====
+[2026-05-13T21:23:44Z] [qwen2.5-7b-instruct] ==== qwen2.5-7b-instruct complete ====
+[2026-05-13T21:23:44Z] [qwen2.5-7b-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T21:23:44Z] [qwen2.5-7b-instruct]   D1_closed_hotpot: 200 rows
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct]   D2_closed_wiki: 200 rows
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct]   E1_oracle_hotpot: 200 rows
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct]   E2_oracle_wiki: 200 rows
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct] elapsed=8994s (2h 29m)

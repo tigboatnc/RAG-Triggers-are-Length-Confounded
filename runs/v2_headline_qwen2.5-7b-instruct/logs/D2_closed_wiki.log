@@ -1,0 +1,57 @@
+[..] dataset data/2wikimultihop_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:28, 11.79it/s]Loading weights:   9%|▊         | 29/339 [00:00<00:02, 124.33it/s]Loading weights:  19%|█▉        | 64/339 [00:00<00:01, 208.35it/s]Loading weights:  27%|██▋       | 90/339 [00:00<00:01, 219.41it/s]Loading weights:  37%|███▋      | 124/339 [00:00<00:00, 238.24it/s]Loading weights:  44%|████▍     | 150/339 [00:00<00:00, 240.22it/s]Loading weights:  52%|█████▏    | 175/339 [00:00<00:00, 239.11it/s]Loading weights:  59%|█████▉    | 200/339 [00:00<00:00, 227.51it/s]Loading weights:  66%|██████▌   | 224/339 [00:01<00:00, 210.58it/s]Loading weights:  74%|███████▍  | 252/339 [00:01<00:00, 228.22it/s]Loading weights:  83%|████████▎ | 280/339 [00:01<00:00, 235.03it/s]Loading weights:  90%|████████▉ | 305/339 [00:01<00:00, 230.98it/s]Loading weights:  97%|█████████▋| 330/339 [00:01<00:00, 228.02it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 221.20it/s]
+[ok] loaded in 2.81s | rss 0.947 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11478.12it/s]
+[..]   5/200  em=2/5  steps=  2  tok= 116  wall=13.0s  elapsed=1.7min
+[..]  10/200  em=6/10  steps=  2  tok= 115  wall=12.8s  elapsed=2.9min
+[..]  15/200  em=9/15  steps=  1  tok=  87  wall=6.9s  elapsed=4.1min
+[..]  20/200  em=12/20  steps=  3  tok= 128  wall=17.9s  elapsed=6.2min
+[..]  25/200  em=15/25  steps=  6  tok= 132  wall=24.3s  elapsed=7.3min
+[..]  30/200  em=18/30  steps=  4  tok=  84  wall=17.5s  elapsed=9.3min
+[..]  35/200  em=20/35  steps=  1  tok=  51  wall=4.7s  elapsed=10.2min
+[..]  40/200  em=24/40  steps=  6  tok= 124  wall=28.2s  elapsed=11.7min
+[..]  45/200  em=27/45  steps=  7  tok= 144  wall=35.3s  elapsed=13.3min
+[..]  50/200  em=29/50  steps=  8  tok= 131  wall=38.2s  elapsed=15.0min
+[..]  55/200  em=32/55  steps=  5  tok= 110  wall=22.6s  elapsed=16.8min
+[..]  60/200  em=37/60  steps=  7  tok= 131  wall=38.3s  elapsed=18.9min
+[..]  65/200  em=39/65  steps=  4  tok= 110  wall=16.6s  elapsed=22.1min
+[..]  70/200  em=42/70  steps=  4  tok= 107  wall=18.1s  elapsed=23.1min
+[..]  75/200  em=44/75  steps=  4  tok=  89  wall=19.0s  elapsed=25.3min
+[..]  80/200  em=49/80  steps=  5  tok= 100  wall=26.9s  elapsed=27.2min
+[..]  85/200  em=52/85  steps=  5  tok=  96  wall=23.5s  elapsed=29.2min
+[..]  90/200  em=54/90  steps=  7  tok= 107  wall=28.1s  elapsed=31.2min
+[..]  95/200  em=55/95  steps=  6  tok= 125  wall=27.8s  elapsed=33.6min
+[..] 100/200  em=59/100  steps=  2  tok=  68  wall=9.4s  elapsed=35.3min
+[..] 105/200  em=62/105  steps=  3  tok=  63  wall=13.3s  elapsed=36.5min
+[..] 110/200  em=63/110  steps=  3  tok=  62  wall=13.1s  elapsed=38.4min
+[..] 115/200  em=64/115  steps=  2  tok=  85  wall=12.7s  elapsed=39.6min
+[..] 120/200  em=67/120  steps=  5  tok=  81  wall=21.2s  elapsed=40.9min
+[..] 125/200  em=68/125  steps=  3  tok=  92  wall=13.9s  elapsed=42.9min
+[..] 130/200  em=71/130  steps=  1  tok=  52  wall=3.4s  elapsed=44.4min
+[..] 135/200  em=75/135  steps=  3  tok= 102  wall=13.3s  elapsed=45.8min
+[..] 140/200  em=78/140  steps=  4  tok=  84  wall=16.9s  elapsed=46.8min
+[..] 145/200  em=81/145  steps=  4  tok= 157  wall=21.0s  elapsed=48.1min
+[..] 150/200  em=83/150  steps=  2  tok=  40  wall=5.5s  elapsed=50.2min
+[..] 155/200  em=87/155  steps=  4  tok=  91  wall=22.3s  elapsed=52.0min
+[..] 160/200  em=90/160  steps=  7  tok= 107  wall=27.3s  elapsed=53.8min
+[..] 165/200  em=92/165  steps=  5  tok= 102  wall=22.1s  elapsed=55.3min
+[..] 170/200  em=96/170  steps=  5  tok=  83  wall=17.4s  elapsed=56.8min
+[..] 175/200  em=97/175  steps=  6  tok= 127  wall=32.9s  elapsed=58.2min
+[..] 180/200  em=101/180  steps=  3  tok= 118  wall=10.8s  elapsed=60.3min
+[..] 185/200  em=104/185  steps=  2  tok= 112  wall=8.9s  elapsed=61.3min
+[..] 190/200  em=106/190  steps=  5  tok= 127  wall=24.5s  elapsed=63.1min
+[..] 195/200  em=108/195  steps=  3  tok= 110  wall=17.7s  elapsed=64.9min
+[..] 200/200  em=110/200  steps=  6  tok=  80  wall=26.0s  elapsed=66.8min
+[ok] wrote 200 rows to runs/v2_headline_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+[ok] em rate: 110/200 = 0.550
+[gate] n=200 tok_median=96 p10=62 p90=145
+[gate] OK

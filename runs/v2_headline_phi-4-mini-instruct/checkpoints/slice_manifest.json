@@ -3,7 +3,7 @@
   "n": 200,
   "cons_k": 5,
   "schema": "rq1-pilot-v1",
-  "ts_utc": "2026-05-13T18:49:40Z",
+  "ts_utc": "2026-05-13T18:53:51Z",
   "files": [
     {
       "name": "B_smoke_hotpot.jsonl",

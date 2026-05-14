@@ -1,0 +1,29 @@
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:52, 19.37it/s]Loading weights:   0%|          | 5/1013 [00:00<00:54, 18.65it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:13, 72.88it/s]Loading weights:   5%|▍         | 48/1013 [00:00<00:09, 98.42it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:08, 110.35it/s]Loading weights:   9%|▉         | 92/1013 [00:00<00:08, 109.61it/s]Loading weights:  11%|█▏        | 114/1013 [00:01<00:07, 112.43it/s]Loading weights:  13%|█▎        | 134/1013 [00:01<00:07, 113.18it/s]Loading weights:  15%|█▌        | 156/1013 [00:01<00:06, 132.48it/s]Loading weights:  17%|█▋        | 170/1013 [00:01<00:06, 126.35it/s]Loading weights:  18%|█▊        | 184/1013 [00:01<00:07, 105.96it/s]Loading weights:  20%|█▉        | 200/1013 [00:01<00:08, 96.66it/s] Loading weights:  22%|██▏       | 223/1013 [00:02<00:07, 99.94it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:07, 106.12it/s]Loading weights:  26%|██▋       | 266/1013 [00:02<00:07, 104.94it/s]Loading weights:  28%|██▊       | 288/1013 [00:02<00:06, 108.42it/s]Loading weights:  31%|███       | 310/1013 [00:02<00:06, 108.66it/s]Loading weights:  33%|███▎      | 332/1013 [00:03<00:06, 110.74it/s]Loading weights:  35%|███▍      | 354/1013 [00:03<00:06, 105.27it/s]Loading weights:  37%|███▋      | 376/1013 [00:03<00:06, 100.42it/s]Loading weights:  39%|███▉      | 397/1013 [00:03<00:06, 97.39it/s] Loading weights:  41%|████▏     | 419/1013 [00:04<00:05, 104.11it/s]Loading weights:  44%|████▎     | 441/1013 [00:04<00:05, 111.10it/s]Loading weights:  46%|████▌     | 463/1013 [00:04<00:04, 118.34it/s]Loading weights:  48%|████▊     | 485/1013 [00:04<00:04, 119.39it/s]Loading weights:  50%|████▉     | 506/1013 [00:04<00:03, 134.24it/s]Loading weights:  51%|█████▏    | 521/1013 [00:04<00:03, 126.11it/s]Loading weights:  53%|█████▎    | 535/1013 [00:04<00:04, 107.71it/s]Loading weights:  54%|█████▍    | 550/1013 [00:05<00:04, 96.56it/s] Loading weights:  56%|█████▋    | 572/1013 [00:05<00:04, 104.97it/s]Loading weights:  59%|█████▊    | 594/1013 [00:05<00:03, 109.83it/s]Loading weights:  61%|██████    | 615/1013 [00:05<00:03, 110.74it/s]Loading weights:  63%|██████▎   | 637/1013 [00:05<00:03, 110.58it/s]Loading weights:  81%|████████  | 816/1013 [00:06<00:00, 424.28it/s]Loading weights:  94%|█████████▎| 948/1013 [00:06<00:00, 610.66it/s]Loading weights: 100%|██████████| 1013/1013 [00:06<00:00, 163.77it/s]
+[ok] loaded in 10.99s | rss 1.152 GB | VRAM 49887 MB
+[..] layer_mode=mid_stack  capture_subset=[15]
+[..] dragin_attn_layer_idx=29 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=15)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_gemma-4-26b-a4b-it/D1_closed_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11485.44it/s]
+[..]   5/200  em=4/5  steps= 20  tok= 269  wall=327.4s  elapsed=17.3min
+[..]  10/200  em=7/10  steps= 14  tok= 278  wall=243.7s  elapsed=37.4min
+[..]  15/200  em=8/15  steps= 29  tok= 594  wall=513.5s  elapsed=65.7min
+[..]  20/200  em=8/20  steps= 28  tok= 576  wall=486.5s  elapsed=92.6min
+[..]  25/200  em=12/25  steps= 14  tok= 185  wall=221.1s  elapsed=111.5min
+[..]  30/200  em=15/30  steps= 12  tok= 204  wall=180.1s  elapsed=131.2min
+[..]  35/200  em=16/35  steps=  9  tok= 210  wall=144.6s  elapsed=157.6min
+[..]  40/200  em=19/40  steps= 10  tok= 146  wall=156.7s  elapsed=176.7min
+[..]  45/200  em=21/45  steps= 17  tok= 224  wall=283.3s  elapsed=201.0min
+[..]  50/200  em=24/50  steps= 10  tok= 141  wall=175.2s  elapsed=221.5min
+[..]  55/200  em=25/55  steps= 12  tok= 288  wall=217.0s  elapsed=238.4min
+[..]  60/200  em=28/60  steps= 17  tok= 234  wall=280.7s  elapsed=256.0min
+[..]  65/200  em=32/65  steps= 31  tok= 368  wall=552.0s  elapsed=287.7min
+[..]  70/200  em=35/70  steps= 17  tok= 256  wall=305.1s  elapsed=306.5min
+[..]  75/200  em=37/75  steps= 16  tok= 224  wall=283.9s  elapsed=325.5min
+[..]  80/200  em=40/80  steps= 19  tok= 272  wall=322.3s  elapsed=352.5min
+[..]  85/200  em=41/85  steps= 11  tok= 192  wall=200.0s  elapsed=369.4min

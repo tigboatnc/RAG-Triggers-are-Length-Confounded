@@ -1,7 +1,7 @@
 [..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
 [..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
-Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:30, 11.10it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 118.60it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:01, 167.01it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 195.82it/s]Loading weights:  31%|███▏      | 106/339 [00:00<00:01, 222.68it/s]Loading weights:  40%|████      | 136/339 [00:00<00:00, 233.68it/s]Loading weights:  48%|████▊     | 162/339 [00:00<00:00, 239.35it/s]Loading weights:  55%|█████▌    | 187/339 [00:01<00:00, 186.98it/s]Loading weights:  61%|██████▏   | 208/339 [00:01<00:00, 149.17it/s]Loading weights:  68%|██████▊   | 232/339 [00:01<00:00, 164.90it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 182.03it/s]Loading weights:  83%|████████▎ | 281/339 [00:01<00:00, 194.99it/s]Loading weights:  90%|████████▉ | 305/339 [00:01<00:00, 206.59it/s]Loading weights:  97%|█████████▋| 329/339 [00:01<00:00, 210.55it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 192.21it/s]
-[ok] loaded in 3.07s | rss 0.948 GB | VRAM 17421 MB
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<01:00,  5.62it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 122.92it/s]Loading weights:  15%|█▌        | 51/339 [00:00<00:01, 146.99it/s]Loading weights:  22%|██▏       | 76/339 [00:00<00:01, 176.74it/s]Loading weights:  28%|██▊       | 96/339 [00:00<00:01, 179.64it/s]Loading weights:  34%|███▍      | 116/339 [00:00<00:01, 174.69it/s]Loading weights:  40%|████      | 137/339 [00:00<00:01, 179.75it/s]Loading weights:  46%|████▌     | 156/339 [00:00<00:01, 181.09it/s]Loading weights:  52%|█████▏    | 175/339 [00:01<00:00, 179.43it/s]Loading weights:  58%|█████▊    | 196/339 [00:01<00:00, 179.25it/s]Loading weights:  63%|██████▎   | 215/339 [00:01<00:00, 176.70it/s]Loading weights:  69%|██████▊   | 233/339 [00:01<00:00, 158.49it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 178.15it/s]Loading weights:  83%|████████▎ | 280/339 [00:01<00:00, 188.13it/s]Loading weights:  88%|████████▊ | 300/339 [00:01<00:00, 186.97it/s]Loading weights:  94%|█████████▍| 319/339 [00:01<00:00, 179.74it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 176.56it/s]
+[ok] loaded in 3.15s | rss 0.950 GB | VRAM 17421 MB
 [..] layer_mode=mid_stack  capture_subset=[14]
 [..] dragin_attn_layer_idx=27 (override=None)
 [..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
@@ -9,3 +9,48 @@
 [..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
 [!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
 [..] writing runs/v2_headline_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl
+[..] resume: 11 rows already in runs/v2_headline_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl; appending remainder
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10003.55it/s]
+[..]  15/200  em=8/15  steps=  6  tok= 117  wall=27.0s  elapsed=2.3min
+[..]  20/200  em=10/20  steps=  4  tok= 117  wall=18.5s  elapsed=4.0min
+[..]  25/200  em=12/25  steps=  6  tok= 177  wall=31.4s  elapsed=5.7min
+[..]  30/200  em=16/30  steps=  4  tok= 114  wall=18.6s  elapsed=8.0min
+[..]  35/200  em=17/35  steps=  6  tok= 124  wall=28.7s  elapsed=10.2min
+[..]  40/200  em=20/40  steps=  3  tok=  88  wall=14.4s  elapsed=11.6min
+[..]  45/200  em=21/45  steps=  4  tok= 144  wall=21.9s  elapsed=13.1min
+[..]  50/200  em=24/50  steps=  3  tok= 143  wall=13.6s  elapsed=14.8min
+[..]  55/200  em=26/55  steps=  5  tok= 106  wall=23.3s  elapsed=16.5min
+[..]  60/200  em=29/60  steps=  3  tok=  71  wall=11.0s  elapsed=18.1min
+[..]  65/200  em=31/65  steps=  3  tok=  64  wall=12.1s  elapsed=22.1min
+[..]  70/200  em=34/70  steps=  5  tok=  90  wall=21.1s  elapsed=24.1min
+[..]  75/200  em=35/75  steps=  4  tok=  97  wall=16.1s  elapsed=26.0min
+[..]  80/200  em=39/80  steps=  6  tok= 140  wall=29.9s  elapsed=27.6min
+[..]  85/200  em=40/85  steps=  3  tok=  76  wall=14.1s  elapsed=29.7min
+[..]  90/200  em=41/90  steps=  2  tok= 155  wall=13.3s  elapsed=31.3min
+[..]  95/200  em=43/95  steps=  3  tok=  99  wall=14.9s  elapsed=32.5min
+[..] 100/200  em=47/100  steps=  5  tok= 120  wall=21.4s  elapsed=33.6min
+[..] 105/200  em=50/105  steps=  7  tok= 115  wall=34.4s  elapsed=35.3min
+[..] 110/200  em=52/110  steps=  3  tok=  97  wall=16.5s  elapsed=36.7min
+[..] 115/200  em=55/115  steps=  3  tok= 102  wall=13.4s  elapsed=38.0min
+[..] 120/200  em=59/120  steps=  5  tok=  68  wall=18.7s  elapsed=40.0min
+[..] 125/200  em=60/125  steps=  2  tok=  99  wall=11.3s  elapsed=42.0min
+[..] 130/200  em=62/130  steps=  3  tok=  94  wall=13.9s  elapsed=43.3min
+[..] 135/200  em=65/135  steps=  3  tok=  69  wall=13.4s  elapsed=45.0min
+[..] 140/200  em=69/140  steps=  4  tok=  77  wall=16.2s  elapsed=46.4min
+[..] 145/200  em=74/145  steps=  3  tok= 152  wall=19.1s  elapsed=48.3min
+[..] 150/200  em=77/150  steps=  4  tok= 110  wall=19.9s  elapsed=53.9min
+[..] 155/200  em=79/155  steps=  3  tok=  80  wall=13.9s  elapsed=55.3min
+[..] 160/200  em=81/160  steps=  3  tok=  69  wall=12.4s  elapsed=56.4min
+[..] 165/200  em=84/165  steps=  3  tok=  79  wall=9.2s  elapsed=58.1min
+[..] 170/200  em=87/170  steps=  3  tok=  68  wall=12.1s  elapsed=59.3min
+[..] 175/200  em=90/175  steps=  2  tok=  88  wall=11.0s  elapsed=60.8min
+[..] 180/200  em=93/180  steps=  4  tok= 143  wall=21.4s  elapsed=63.4min
+[..] 185/200  em=96/185  steps=  5  tok=  84  wall=20.7s  elapsed=64.9min
+[..] 190/200  em=100/190  steps=  8  tok=  90  wall=30.9s  elapsed=66.9min
+[..] 195/200  em=102/195  steps=  1  tok=  42  wall=3.3s  elapsed=68.4min
+[..] 200/200  em=105/200  steps=  1  tok=  32  wall=3.8s  elapsed=69.8min
+[ok] wrote 200 rows to runs/v2_headline_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl
+[ok] em rate: 105/200 = 0.525
+[gate] n=200 tok_median=102 p10=68 p90=155
+[gate] OK

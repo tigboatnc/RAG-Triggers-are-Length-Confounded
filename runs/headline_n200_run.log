@@ -1,34 +1,34 @@
-[2026-05-13T18:49:40Z] === RQ1 Run 1 — Headline n=200 starting ===
-[2026-05-13T18:49:40Z] git rev: e473f7f
-[2026-05-13T18:49:40Z] python:  Python 3.11.15
-[2026-05-13T18:49:40Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
-[2026-05-13T18:49:40Z] ARCHS=phi-4-mini-instruct qwen2.5-7b-instruct gemma-4-26b-a4b-it
-[2026-05-13T18:49:40Z] N=200  N_SMOKE=5  CONS_K=5
-[2026-05-13T18:49:40Z] slice data/hotpotqa_distractor_500_v2test.jsonl: 500 rows
-[2026-05-13T18:49:40Z] slice data/2wikimultihop_distractor_500_v2test.jsonl: 500 rows
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] ==== START: phi-4-mini-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] MODEL_DIR=models/phi-4-mini-instruct
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] B: smoke present (n=5), skipping
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] D: D1_closed_hotpot already done (n=200), skipping
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] D: D2_closed_wiki already done (n=200), skipping
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] E: E1_oracle_hotpot already done (n=200), skipping
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] E: E2_oracle_wiki already done (n=200), skipping
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] ==== phi-4-mini-instruct complete ====
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct]   B_smoke_hotpot: 5 rows
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct]   D1_closed_hotpot: 200 rows
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct]   D2_closed_wiki: 200 rows
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct]   E1_oracle_hotpot: 200 rows
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct]   E2_oracle_wiki: 200 rows
+[2026-05-13T18:53:51Z] === RQ1 Run 1 — Headline n=200 starting ===
+[2026-05-13T18:53:51Z] git rev: e0c45ac
+[2026-05-13T18:53:51Z] python:  Python 3.11.15
+[2026-05-13T18:53:51Z] nvidia-smi: NVIDIA A100-SXM4-80GB, 81920 MiB
+[2026-05-13T18:53:51Z] ARCHS=phi-4-mini-instruct qwen2.5-7b-instruct gemma-4-26b-a4b-it
+[2026-05-13T18:53:51Z] N=200  N_SMOKE=5  CONS_K=5
+[2026-05-13T18:53:51Z] slice data/hotpotqa_distractor_500_v2test.jsonl: 500 rows
+[2026-05-13T18:53:51Z] slice data/2wikimultihop_distractor_500_v2test.jsonl: 500 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] ==== START: phi-4-mini-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] MODEL_DIR=models/phi-4-mini-instruct
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] B: smoke present (n=5), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] D: D1_closed_hotpot already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] D: D2_closed_wiki already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] E: E1_oracle_hotpot already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] E: E2_oracle_wiki already done (n=200), skipping
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct] ==== phi-4-mini-instruct complete ====
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   D1_closed_hotpot: 200 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   D2_closed_wiki: 200 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   E1_oracle_hotpot: 200 rows
+[2026-05-13T18:53:51Z] [phi-4-mini-instruct]   E2_oracle_wiki: 200 rows
 [ckpt] manifest -> runs/v2_headline_phi-4-mini-instruct/checkpoints/slice_manifest.json
-[2026-05-13T18:49:40Z] [phi-4-mini-instruct] elapsed=0s (0h 0m)
-[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] ==== START: qwen2.5-7b-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
-[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
-[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] B: smoke present (n=5), skipping
-[2026-05-13T18:49:40Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 133) ====
+[2026-05-13T18:53:52Z] [phi-4-mini-instruct] elapsed=1s (0h 0m)
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] ==== START: qwen2.5-7b-instruct (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] MODEL_DIR=models/qwen2.5-7b-instruct
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] B: smoke present (n=5), skipping
+[2026-05-13T18:53:52Z] [qwen2.5-7b-instruct] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 11) ====
 [..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
 [..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
-Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:30, 11.10it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 118.60it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:01, 167.01it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 195.82it/s]Loading weights:  31%|███▏      | 106/339 [00:00<00:01, 222.68it/s]Loading weights:  40%|████      | 136/339 [00:00<00:00, 233.68it/s]Loading weights:  48%|████▊     | 162/339 [00:00<00:00, 239.35it/s]Loading weights:  55%|█████▌    | 187/339 [00:01<00:00, 186.98it/s]Loading weights:  61%|██████▏   | 208/339 [00:01<00:00, 149.17it/s]Loading weights:  68%|██████▊   | 232/339 [00:01<00:00, 164.90it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 182.03it/s]Loading weights:  83%|████████▎ | 281/339 [00:01<00:00, 194.99it/s]Loading weights:  90%|████████▉ | 305/339 [00:01<00:00, 206.59it/s]Loading weights:  97%|█████████▋| 329/339 [00:01<00:00, 210.55it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 192.21it/s]
-[ok] loaded in 3.07s | rss 0.948 GB | VRAM 17421 MB
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<01:00,  5.62it/s]Loading weights:   8%|▊         | 28/339 [00:00<00:02, 122.92it/s]Loading weights:  15%|█▌        | 51/339 [00:00<00:01, 146.99it/s]Loading weights:  22%|██▏       | 76/339 [00:00<00:01, 176.74it/s]Loading weights:  28%|██▊       | 96/339 [00:00<00:01, 179.64it/s]Loading weights:  34%|███▍      | 116/339 [00:00<00:01, 174.69it/s]Loading weights:  40%|████      | 137/339 [00:00<00:01, 179.75it/s]Loading weights:  46%|████▌     | 156/339 [00:00<00:01, 181.09it/s]Loading weights:  52%|█████▏    | 175/339 [00:01<00:00, 179.43it/s]Loading weights:  58%|█████▊    | 196/339 [00:01<00:00, 179.25it/s]Loading weights:  63%|██████▎   | 215/339 [00:01<00:00, 176.70it/s]Loading weights:  69%|██████▊   | 233/339 [00:01<00:00, 158.49it/s]Loading weights:  76%|███████▌  | 257/339 [00:01<00:00, 178.15it/s]Loading weights:  83%|████████▎ | 280/339 [00:01<00:00, 188.13it/s]Loading weights:  88%|████████▊ | 300/339 [00:01<00:00, 186.97it/s]Loading weights:  94%|█████████▍| 319/339 [00:01<00:00, 179.74it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 176.56it/s]
+[ok] loaded in 3.15s | rss 0.950 GB | VRAM 17421 MB
 [..] layer_mode=mid_stack  capture_subset=[14]
 [..] dragin_attn_layer_idx=27 (override=None)
 [..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
@@ -36,3 +36,579 @@
 [..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
 [!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
 [..] writing runs/v2_headline_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl
+[..] resume: 11 rows already in runs/v2_headline_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl; appending remainder
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 10003.55it/s]
+[..]  15/200  em=8/15  steps=  6  tok= 117  wall=27.0s  elapsed=2.3min
+[..]  20/200  em=10/20  steps=  4  tok= 117  wall=18.5s  elapsed=4.0min
+[..]  25/200  em=12/25  steps=  6  tok= 177  wall=31.4s  elapsed=5.7min
+[..]  30/200  em=16/30  steps=  4  tok= 114  wall=18.6s  elapsed=8.0min
+[..]  35/200  em=17/35  steps=  6  tok= 124  wall=28.7s  elapsed=10.2min
+[..]  40/200  em=20/40  steps=  3  tok=  88  wall=14.4s  elapsed=11.6min
+[..]  45/200  em=21/45  steps=  4  tok= 144  wall=21.9s  elapsed=13.1min
+[..]  50/200  em=24/50  steps=  3  tok= 143  wall=13.6s  elapsed=14.8min
+[..]  55/200  em=26/55  steps=  5  tok= 106  wall=23.3s  elapsed=16.5min
+[..]  60/200  em=29/60  steps=  3  tok=  71  wall=11.0s  elapsed=18.1min
+[..]  65/200  em=31/65  steps=  3  tok=  64  wall=12.1s  elapsed=22.1min
+[..]  70/200  em=34/70  steps=  5  tok=  90  wall=21.1s  elapsed=24.1min
+[..]  75/200  em=35/75  steps=  4  tok=  97  wall=16.1s  elapsed=26.0min
+[..]  80/200  em=39/80  steps=  6  tok= 140  wall=29.9s  elapsed=27.6min
+[..]  85/200  em=40/85  steps=  3  tok=  76  wall=14.1s  elapsed=29.7min
+[..]  90/200  em=41/90  steps=  2  tok= 155  wall=13.3s  elapsed=31.3min
+[..]  95/200  em=43/95  steps=  3  tok=  99  wall=14.9s  elapsed=32.5min
+[..] 100/200  em=47/100  steps=  5  tok= 120  wall=21.4s  elapsed=33.6min
+[..] 105/200  em=50/105  steps=  7  tok= 115  wall=34.4s  elapsed=35.3min
+[..] 110/200  em=52/110  steps=  3  tok=  97  wall=16.5s  elapsed=36.7min
+[..] 115/200  em=55/115  steps=  3  tok= 102  wall=13.4s  elapsed=38.0min
+[..] 120/200  em=59/120  steps=  5  tok=  68  wall=18.7s  elapsed=40.0min
+[..] 125/200  em=60/125  steps=  2  tok=  99  wall=11.3s  elapsed=42.0min
+[..] 130/200  em=62/130  steps=  3  tok=  94  wall=13.9s  elapsed=43.3min
+[..] 135/200  em=65/135  steps=  3  tok=  69  wall=13.4s  elapsed=45.0min
+[..] 140/200  em=69/140  steps=  4  tok=  77  wall=16.2s  elapsed=46.4min
+[..] 145/200  em=74/145  steps=  3  tok= 152  wall=19.1s  elapsed=48.3min
+[..] 150/200  em=77/150  steps=  4  tok= 110  wall=19.9s  elapsed=53.9min
+[..] 155/200  em=79/155  steps=  3  tok=  80  wall=13.9s  elapsed=55.3min
+[..] 160/200  em=81/160  steps=  3  tok=  69  wall=12.4s  elapsed=56.4min
+[..] 165/200  em=84/165  steps=  3  tok=  79  wall=9.2s  elapsed=58.1min
+[..] 170/200  em=87/170  steps=  3  tok=  68  wall=12.1s  elapsed=59.3min
+[..] 175/200  em=90/175  steps=  2  tok=  88  wall=11.0s  elapsed=60.8min
+[..] 180/200  em=93/180  steps=  4  tok= 143  wall=21.4s  elapsed=63.4min
+[..] 185/200  em=96/185  steps=  5  tok=  84  wall=20.7s  elapsed=64.9min
+[..] 190/200  em=100/190  steps=  8  tok=  90  wall=30.9s  elapsed=66.9min
+[..] 195/200  em=102/195  steps=  1  tok=  42  wall=3.3s  elapsed=68.4min
+[..] 200/200  em=105/200  steps=  1  tok=  32  wall=3.8s  elapsed=69.8min
+[ok] wrote 200 rows to runs/v2_headline_qwen2.5-7b-instruct/D1_closed_hotpot.jsonl
+[ok] em rate: 105/200 = 0.525
+[gate] n=200 tok_median=102 p10=68 p90=155
+[gate] OK
+[2026-05-13T20:03:50Z] [qwen2.5-7b-instruct] ==== D: D2_closed_wiki closed-book (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl, resuming from 0) ====
+[..] dataset data/2wikimultihop_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   1%|          | 2/339 [00:00<00:28, 11.79it/s]Loading weights:   9%|▊         | 29/339 [00:00<00:02, 124.33it/s]Loading weights:  19%|█▉        | 64/339 [00:00<00:01, 208.35it/s]Loading weights:  27%|██▋       | 90/339 [00:00<00:01, 219.41it/s]Loading weights:  37%|███▋      | 124/339 [00:00<00:00, 238.24it/s]Loading weights:  44%|████▍     | 150/339 [00:00<00:00, 240.22it/s]Loading weights:  52%|█████▏    | 175/339 [00:00<00:00, 239.11it/s]Loading weights:  59%|█████▉    | 200/339 [00:00<00:00, 227.51it/s]Loading weights:  66%|██████▌   | 224/339 [00:01<00:00, 210.58it/s]Loading weights:  74%|███████▍  | 252/339 [00:01<00:00, 228.22it/s]Loading weights:  83%|████████▎ | 280/339 [00:01<00:00, 235.03it/s]Loading weights:  90%|████████▉ | 305/339 [00:01<00:00, 230.98it/s]Loading weights:  97%|█████████▋| 330/339 [00:01<00:00, 228.02it/s]Loading weights: 100%|██████████| 339/339 [00:01<00:00, 221.20it/s]
+[ok] loaded in 2.81s | rss 0.947 GB | VRAM 17421 MB
+[..] layer_mode=mid_stack  capture_subset=[14]
+[..] dragin_attn_layer_idx=27 (override=None)
+[..] layer_types[:8]=['full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention', 'full_attention'] ... layer_types[-4:]=['full_attention', 'full_attention', 'full_attention', 'full_attention']
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=14)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11478.12it/s]
+[..]   5/200  em=2/5  steps=  2  tok= 116  wall=13.0s  elapsed=1.7min
+[..]  10/200  em=6/10  steps=  2  tok= 115  wall=12.8s  elapsed=2.9min
+[..]  15/200  em=9/15  steps=  1  tok=  87  wall=6.9s  elapsed=4.1min
+[..]  20/200  em=12/20  steps=  3  tok= 128  wall=17.9s  elapsed=6.2min
+[..]  25/200  em=15/25  steps=  6  tok= 132  wall=24.3s  elapsed=7.3min
+[..]  30/200  em=18/30  steps=  4  tok=  84  wall=17.5s  elapsed=9.3min
+[..]  35/200  em=20/35  steps=  1  tok=  51  wall=4.7s  elapsed=10.2min
+[..]  40/200  em=24/40  steps=  6  tok= 124  wall=28.2s  elapsed=11.7min
+[..]  45/200  em=27/45  steps=  7  tok= 144  wall=35.3s  elapsed=13.3min
+[..]  50/200  em=29/50  steps=  8  tok= 131  wall=38.2s  elapsed=15.0min
+[..]  55/200  em=32/55  steps=  5  tok= 110  wall=22.6s  elapsed=16.8min
+[..]  60/200  em=37/60  steps=  7  tok= 131  wall=38.3s  elapsed=18.9min
+[..]  65/200  em=39/65  steps=  4  tok= 110  wall=16.6s  elapsed=22.1min
+[..]  70/200  em=42/70  steps=  4  tok= 107  wall=18.1s  elapsed=23.1min
+[..]  75/200  em=44/75  steps=  4  tok=  89  wall=19.0s  elapsed=25.3min
+[..]  80/200  em=49/80  steps=  5  tok= 100  wall=26.9s  elapsed=27.2min
+[..]  85/200  em=52/85  steps=  5  tok=  96  wall=23.5s  elapsed=29.2min
+[..]  90/200  em=54/90  steps=  7  tok= 107  wall=28.1s  elapsed=31.2min
+[..]  95/200  em=55/95  steps=  6  tok= 125  wall=27.8s  elapsed=33.6min
+[..] 100/200  em=59/100  steps=  2  tok=  68  wall=9.4s  elapsed=35.3min
+[..] 105/200  em=62/105  steps=  3  tok=  63  wall=13.3s  elapsed=36.5min
+[..] 110/200  em=63/110  steps=  3  tok=  62  wall=13.1s  elapsed=38.4min
+[..] 115/200  em=64/115  steps=  2  tok=  85  wall=12.7s  elapsed=39.6min
+[..] 120/200  em=67/120  steps=  5  tok=  81  wall=21.2s  elapsed=40.9min
+[..] 125/200  em=68/125  steps=  3  tok=  92  wall=13.9s  elapsed=42.9min
+[..] 130/200  em=71/130  steps=  1  tok=  52  wall=3.4s  elapsed=44.4min
+[..] 135/200  em=75/135  steps=  3  tok= 102  wall=13.3s  elapsed=45.8min
+[..] 140/200  em=78/140  steps=  4  tok=  84  wall=16.9s  elapsed=46.8min
+[..] 145/200  em=81/145  steps=  4  tok= 157  wall=21.0s  elapsed=48.1min
+[..] 150/200  em=83/150  steps=  2  tok=  40  wall=5.5s  elapsed=50.2min
+[..] 155/200  em=87/155  steps=  4  tok=  91  wall=22.3s  elapsed=52.0min
+[..] 160/200  em=90/160  steps=  7  tok= 107  wall=27.3s  elapsed=53.8min
+[..] 165/200  em=92/165  steps=  5  tok= 102  wall=22.1s  elapsed=55.3min
+[..] 170/200  em=96/170  steps=  5  tok=  83  wall=17.4s  elapsed=56.8min
+[..] 175/200  em=97/175  steps=  6  tok= 127  wall=32.9s  elapsed=58.2min
+[..] 180/200  em=101/180  steps=  3  tok= 118  wall=10.8s  elapsed=60.3min
+[..] 185/200  em=104/185  steps=  2  tok= 112  wall=8.9s  elapsed=61.3min
+[..] 190/200  em=106/190  steps=  5  tok= 127  wall=24.5s  elapsed=63.1min
+[..] 195/200  em=108/195  steps=  3  tok= 110  wall=17.7s  elapsed=64.9min
+[..] 200/200  em=110/200  steps=  6  tok=  80  wall=26.0s  elapsed=66.8min
+[ok] wrote 200 rows to runs/v2_headline_qwen2.5-7b-instruct/D2_closed_wiki.jsonl
+[ok] em rate: 110/200 = 0.550
+[gate] n=200 tok_median=96 p10=62 p90=145
+[gate] OK
+[2026-05-13T21:10:49Z] [qwen2.5-7b-instruct] ==== E: E1_oracle_hotpot oracle decode (n=200 from data/hotpotqa_distractor_500_v2test.jsonl) ====
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:33,  9.95it/s]Loading weights:   1%|          | 2/339 [00:00<00:40,  8.36it/s]Loading weights:   5%|▌         | 18/339 [00:00<00:04, 70.65it/s]Loading weights:  12%|█▏        | 41/339 [00:00<00:02, 121.49it/s]Loading weights:  16%|█▌        | 54/339 [00:00<00:02, 121.21it/s]Loading weights:  22%|██▏       | 76/339 [00:00<00:01, 148.24it/s]Loading weights:  27%|██▋       | 91/339 [00:00<00:01, 134.78it/s]Loading weights:  33%|███▎      | 111/339 [00:00<00:01, 149.20it/s]Loading weights:  37%|███▋      | 127/339 [00:01<00:01, 137.46it/s]Loading weights:  44%|████▎     | 148/339 [00:01<00:01, 153.19it/s]Loading weights:  48%|████▊     | 164/339 [00:01<00:01, 147.27it/s]Loading weights:  54%|█████▍    | 183/339 [00:01<00:00, 158.75it/s]Loading weights:  59%|█████▉    | 200/339 [00:01<00:00, 144.85it/s]Loading weights:  65%|██████▌   | 221/339 [00:01<00:00, 156.06it/s]Loading weights:  70%|██████▉   | 237/339 [00:01<00:00, 151.78it/s]Loading weights:  76%|███████▌  | 256/339 [00:01<00:00, 155.47it/s]Loading weights:  80%|████████  | 272/339 [00:01<00:00, 144.45it/s]Loading weights:  86%|████████▌ | 292/339 [00:02<00:00, 147.11it/s]Loading weights:  91%|█████████ | 307/339 [00:02<00:00, 147.04it/s]Loading weights:  97%|█████████▋| 328/339 [00:02<00:00, 158.64it/s]Loading weights: 100%|██████████| 339/339 [00:02<00:00, 141.51it/s]
+[ok] loaded in 3.67s | rss 0.940 GB | VRAM 17421 MB
+[  1] id=5abd94525542992ac4f382d2  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[  2] id=5ab3e45655429976abd1bcd4  em=1  f1=1.000  tok=67  reason=eos  n_sup=2/10
+[  3] id=5abc0a5d5542993f40c73c64  em=1  f1=1.000  tok=101  reason=eos  n_sup=2/10
+[  4] id=5ab51dae5542991779162d82  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[  5] id=5a760ab65542994ccc918697  em=0  f1=0.667  tok=141  reason=eos  n_sup=2/10
+[  6] id=5a8361b65542992ef85e22a0  em=0  f1=0.000  tok=58  reason=eos  n_sup=2/10
+[  7] id=5a835478554299123d8c20ed  em=0  f1=0.000  tok=37  reason=eos  n_sup=2/10
+[  8] id=5ab659e355429954757d324e  em=1  f1=1.000  tok=56  reason=eos  n_sup=2/10
+[  9] id=5abd01205542992ac4f3819b  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[ 10] id=5ae73c065542991e8301cc18  em=1  f1=1.000  tok=94  reason=eos  n_sup=2/10
+[ 11] id=5a7c960655429935c91b5244  em=1  f1=1.000  tok=51  reason=eos  n_sup=2/10
+[ 12] id=5a8b987f5542997f31a41d7a  em=0  f1=0.500  tok=52  reason=eos  n_sup=2/10
+[ 13] id=5a73a7c755429978a71e9068  em=0  f1=0.333  tok=123  reason=eos  n_sup=2/10
+[ 14] id=5a879ba55542993e715abfc3  em=0  f1=0.000  tok=42  reason=eos  n_sup=2/10
+[ 15] id=5ac1795f5542994ab5c67d5f  em=1  f1=1.000  tok=117  reason=eos  n_sup=2/10
+[ 16] id=5adf9dc3554299025d62a2e6  em=0  f1=0.800  tok=79  reason=eos  n_sup=2/10
+[ 17] id=5a8ee4315542990e94052ba7  em=1  f1=1.000  tok=105  reason=eos  n_sup=2/10
+[ 18] id=5a79c6a55542994bb9457091  em=0  f1=0.800  tok=140  reason=eos  n_sup=2/10
+[ 19] id=5abd0d635542992ac4f381b8  em=1  f1=1.000  tok=61  reason=eos  n_sup=2/10
+[ 20] id=5a83aaeb5542996488c2e483  em=1  f1=1.000  tok=90  reason=eos  n_sup=2/10
+[ 21] id=5ab6bf6d55429953192ad372  em=1  f1=1.000  tok=74  reason=eos  n_sup=2/10
+[ 22] id=5ac02edb554299294b218f41  em=1  f1=1.000  tok=60  reason=eos  n_sup=2/10
+[ 23] id=5ac3d9c9554299204fd21ea3  em=1  f1=1.000  tok=72  reason=eos  n_sup=2/10
+[ 24] id=5a764c0b55429976ec32bd89  em=0  f1=0.000  tok=75  reason=eos  n_sup=2/10
+[ 25] id=5a8d02cc554299441c6b9fb6  em=1  f1=1.000  tok=108  reason=eos  n_sup=2/10
+[ 26] id=5abf44025542993fe9a41def  em=1  f1=1.000  tok=114  reason=eos  n_sup=2/10
+[ 27] id=5add564a5542990dbb2f7e38  em=1  f1=1.000  tok=59  reason=eos  n_sup=2/10
+[ 28] id=5a738225554299623ed4abc3  em=1  f1=1.000  tok=87  reason=eos  n_sup=2/10
+[ 29] id=5ab47cd75542991751b4d78d  em=1  f1=1.000  tok=76  reason=eos  n_sup=2/10
+[ 30] id=5ac537975542996feb3fea3c  em=0  f1=0.800  tok=85  reason=eos  n_sup=2/10
+[ 31] id=5ae5e1985542996de7b71a54  em=1  f1=1.000  tok=90  reason=eos  n_sup=2/10
+[ 32] id=5a88a19a5542997e5c09a64b  em=0  f1=0.000  tok=76  reason=eos  n_sup=2/10
+[ 33] id=5a7319e755429901807daf86  em=0  f1=0.250  tok=72  reason=eos  n_sup=2/10
+[ 34] id=5a848b5c5542997175ce1ef2  em=1  f1=1.000  tok=87  reason=eos  n_sup=2/10
+[ 35] id=5a721d5a55429971e9dc9283  em=0  f1=0.400  tok=47  reason=eos  n_sup=2/10
+[ 36] id=5abb2f245542996cc5e49fd2  em=0  f1=0.500  tok=66  reason=eos  n_sup=2/10
+[ 37] id=5a866e7e554299211dda2b29  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[ 38] id=5adf4ba65542992d7e9f931c  em=0  f1=0.857  tok=76  reason=eos  n_sup=2/10
+[ 39] id=5ae7945d5542997b22f6a7ba  em=1  f1=1.000  tok=56  reason=eos  n_sup=2/10
+[ 40] id=5ab98608554299131ca42362  em=0  f1=0.667  tok=88  reason=eos  n_sup=2/10
+[ 41] id=5a8bbfb15542995e66a474f6  em=0  f1=0.400  tok=54  reason=eos  n_sup=2/10
+[ 42] id=5a817f6655429938b6142349  em=1  f1=1.000  tok=83  reason=eos  n_sup=2/10
+[ 43] id=5ab30d1155429976abd1bc3d  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[ 44] id=5abfc8675542993fe9a41e52  em=0  f1=0.000  tok=88  reason=eos  n_sup=2/10
+[ 45] id=5a80c74f554299260e20a158  em=0  f1=0.400  tok=38  reason=eos  n_sup=2/10
+[ 46] id=5ae17daa55429901ffe4aea9  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 47] id=5a89a02955429946c8d6e975  em=1  f1=1.000  tok=71  reason=eos  n_sup=2/10
+[ 48] id=5ae1e9fd5542997f29b3c1a1  em=0  f1=0.400  tok=183  reason=eos  n_sup=2/10
+[ 49] id=5a79ca585542996c55b2dc71  em=0  f1=0.000  tok=95  reason=eos  n_sup=2/10
+[ 50] id=5a90b6985542990a984936c2  em=1  f1=1.000  tok=40  reason=eos  n_sup=2/10
+[ 51] id=5a820c0c554299676cceb1fc  em=0  f1=0.800  tok=115  reason=eos  n_sup=2/10
+[ 52] id=5ab94cf0554299743d22eade  em=0  f1=0.000  tok=82  reason=eos  n_sup=2/10
+[ 53] id=5a77c60255429967ab105285  em=0  f1=0.833  tok=53  reason=eos  n_sup=2/10
+[ 54] id=5a7e37095542995ed0d166d5  em=1  f1=1.000  tok=82  reason=eos  n_sup=2/10
+[ 55] id=5adcc3ed5542994d58a2f6c4  em=1  f1=1.000  tok=100  reason=eos  n_sup=2/10
+[ 56] id=5ac26b7f55429951e9e685ae  em=0  f1=0.400  tok=111  reason=eos  n_sup=2/10
+[ 57] id=5a84992e5542992a431d1a6d  em=1  f1=1.000  tok=57  reason=eos  n_sup=2/10
+[ 58] id=5ab90fdd55429916710eb0fc  em=1  f1=1.000  tok=83  reason=eos  n_sup=2/10
+[ 59] id=5a73cad5554299623ed4ac5e  em=0  f1=0.800  tok=72  reason=eos  n_sup=2/10
+[ 60] id=5ae376a35542990afbd1e163  em=1  f1=1.000  tok=62  reason=eos  n_sup=2/10
+[ 61] id=5a9030ef5542995651fb50e4  em=0  f1=0.667  tok=40  reason=eos  n_sup=2/10
+[ 62] id=5ae7882b554299540e5a55dd  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[ 63] id=5abcf17655429959677d6b5c  em=0  f1=0.000  tok=63  reason=eos  n_sup=2/10
+[ 64] id=5a85a2845542997175ce1fe1  em=1  f1=1.000  tok=81  reason=eos  n_sup=2/10
+[ 65] id=5ae3bb0d5542992f92d82357  em=1  f1=1.000  tok=103  reason=eos  n_sup=2/10
+[ 66] id=5a7ed5af5542994959419a84  em=1  f1=1.000  tok=112  reason=eos  n_sup=2/10
+[ 67] id=5ac3b0885542995ef918c1f8  em=1  f1=1.000  tok=85  reason=eos  n_sup=2/10
+[ 68] id=5ab5dc44554299494045f089  em=1  f1=1.000  tok=71  reason=eos  n_sup=2/10
+[ 69] id=5ab1e76c554299449642c800  em=0  f1=0.857  tok=118  reason=eos  n_sup=2/10
+[ 70] id=5a8a9bc15542996c9b8d5f36  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 71] id=5abbd7985542992ccd8e7fb8  em=1  f1=1.000  tok=48  reason=eos  n_sup=2/10
+[ 72] id=5ae7922f5542994a481bbdac  em=0  f1=0.000  tok=86  reason=eos  n_sup=2/10
+[ 73] id=5add2b435542990d50227e11  em=1  f1=1.000  tok=75  reason=eos  n_sup=2/10
+[ 74] id=5a8d0d7b55429941ae14df79  em=0  f1=0.800  tok=75  reason=eos  n_sup=2/10
+[ 75] id=5adf0ae45542992d7e9f9286  em=0  f1=0.667  tok=97  reason=eos  n_sup=2/10
+[ 76] id=5a8c06bb5542995e66a47530  em=1  f1=1.000  tok=52  reason=eos  n_sup=2/10
+[ 77] id=5a8ba92c554299240d9c2071  em=1  f1=1.000  tok=93  reason=eos  n_sup=2/10
+[ 78] id=5a7f3bcd55429930675136c3  em=1  f1=1.000  tok=113  reason=eos  n_sup=2/10
+[ 79] id=5ab27389554299722f9b4d2f  em=1  f1=1.000  tok=110  reason=eos  n_sup=2/10
+[ 80] id=5ae1da385542997283cd2297  em=0  f1=0.800  tok=85  reason=eos  n_sup=2/10
+[ 81] id=5a8f18d555429918e830d189  em=0  f1=0.500  tok=94  reason=eos  n_sup=2/10
+[ 82] id=5a7fa08d55429969796c1af7  em=0  f1=0.000  tok=98  reason=eos  n_sup=2/10
+[ 83] id=5adcc9f35542990d50227d20  em=0  f1=0.800  tok=86  reason=eos  n_sup=2/10
+[ 84] id=5a8841195542994846c1ce65  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[ 85] id=5a84807d554299123d8c2278  em=0  f1=0.667  tok=49  reason=eos  n_sup=2/10
+[ 86] id=5a7da0915542990b8f5039d4  em=0  f1=0.000  tok=54  reason=eos  n_sup=2/10
+[ 87] id=5a85db6e5542994c784ddb96  em=1  f1=1.000  tok=63  reason=eos  n_sup=2/10
+[ 88] id=5a7da0de5542990b8f5039d7  em=0  f1=0.800  tok=86  reason=eos  n_sup=2/10
+[ 89] id=5a8baf4b5542996e8ac889c5  em=0  f1=0.000  tok=80  reason=eos  n_sup=2/10
+[ 90] id=5a78f26055429970f5fffdeb  em=0  f1=0.800  tok=96  reason=eos  n_sup=2/10
+[ 91] id=5a75a0725542992d0ec05fc9  em=0  f1=0.750  tok=90  reason=eos  n_sup=2/10
+[ 92] id=5ab7ee895542995dae37e9f6  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[ 93] id=5a75f32055429976ec32bcb7  em=1  f1=1.000  tok=76  reason=eos  n_sup=2/10
+[ 94] id=5a7cb9985542990527d55514  em=0  f1=0.857  tok=89  reason=eos  n_sup=2/10
+[ 95] id=5ae3f1fb5542995ad6573cc1  em=0  f1=0.667  tok=59  reason=eos  n_sup=2/10
+[ 96] id=5adfe0de55429925eb1afae9  em=1  f1=1.000  tok=54  reason=eos  n_sup=2/10
+[ 97] id=5a716ec85542994082a3e82d  em=1  f1=1.000  tok=71  reason=eos  n_sup=2/10
+[ 98] id=5add95035542990dbb2f7e77  em=0  f1=0.000  tok=87  reason=eos  n_sup=2/10
+[ 99] id=5ac18b585542994ab5c67d76  em=1  f1=1.000  tok=48  reason=eos  n_sup=2/10
+[100] id=5ae47df15542996836b02cba  em=1  f1=1.000  tok=59  reason=eos  n_sup=2/10
+[101] id=5adf33965542993344016c20  em=1  f1=1.000  tok=94  reason=eos  n_sup=2/10
+[102] id=5a80c79155429938b61421da  em=1  f1=1.000  tok=100  reason=eos  n_sup=2/10
+[103] id=5a80993d5542996402f6a589  em=0  f1=0.000  tok=70  reason=eos  n_sup=2/10
+[104] id=5a73b2fd55429978a71e907f  em=1  f1=1.000  tok=119  reason=eos  n_sup=2/10
+[105] id=5ac160af5542994d76dccdfa  em=0  f1=0.444  tok=142  reason=eos  n_sup=2/10
+[106] id=5ac3044f5542990b17b154dc  em=0  f1=0.000  tok=55  reason=eos  n_sup=2/10
+[107] id=5ae55d1e55429960a22e02cb  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[108] id=5a7302b75542991f9a20c5fd  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[109] id=5ae0ba15554299603e41844d  em=1  f1=1.000  tok=85  reason=eos  n_sup=2/10
+[110] id=5abb4b4a5542993f40c73aea  em=1  f1=1.000  tok=63  reason=eos  n_sup=2/10
+[111] id=5abe36745542991f66106101  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[112] id=5ac2cfab554299657fa29079  em=1  f1=1.000  tok=74  reason=eos  n_sup=2/10
+[113] id=5a88abf75542997e5c09a6a1  em=0  f1=0.667  tok=55  reason=eos  n_sup=2/10
+[114] id=5ac3d90b5542995c82c4ac4b  em=0  f1=0.500  tok=76  reason=eos  n_sup=2/10
+[115] id=5adc035c554299438c868d04  em=1  f1=1.000  tok=82  reason=eos  n_sup=2/10
+[116] id=5ab442645542991751b4d70c  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[117] id=5ab6bb575542995eadef0088  em=1  f1=1.000  tok=61  reason=eos  n_sup=2/10
+[118] id=5a77c15f5542997042120b1c  em=1  f1=1.000  tok=110  reason=eos  n_sup=2/10
+[119] id=5adf39765542993a75d26435  em=1  f1=1.000  tok=84  reason=eos  n_sup=2/10
+[120] id=5a7cd0fd55429909bec76823  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[121] id=5a8e61165542995085b3741a  em=0  f1=0.769  tok=72  reason=eos  n_sup=2/10
+[122] id=5a88c92d5542993b751ca84e  em=0  f1=0.000  tok=87  reason=eos  n_sup=2/10
+[123] id=5a7dacff5542991319bc93e0  em=0  f1=0.000  tok=83  reason=eos  n_sup=2/10
+[124] id=5a8af05d55429950cd6afc1a  em=1  f1=1.000  tok=40  reason=eos  n_sup=2/10
+[125] id=5a82bdd655429940e5e1a92a  em=1  f1=1.000  tok=102  reason=eos  n_sup=2/10
+[126] id=5a78fe8155429970f5fffe11  em=1  f1=1.000  tok=80  reason=eos  n_sup=2/10
+[127] id=5a7280105542994cef4bc2e4  em=0  f1=0.000  tok=115  reason=eos  n_sup=2/10
+[128] id=5a8078e95542992bc0c4a72c  em=1  f1=1.000  tok=60  reason=eos  n_sup=2/10
+[129] id=5ab2b666554299194fa934ca  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[130] id=5ab3bfd3554299233954ff99  em=0  f1=0.800  tok=126  reason=eos  n_sup=2/10
+[131] id=5ab5f249554299488d4d9a5d  em=0  f1=0.000  tok=74  reason=eos  n_sup=2/10
+[132] id=5ae494575542995dadf2434d  em=1  f1=1.000  tok=48  reason=eos  n_sup=2/10
+[133] id=5abe64bf55429976d4830b13  em=0  f1=0.500  tok=75  reason=eos  n_sup=2/10
+[134] id=5a80caac554299260e20a161  em=1  f1=1.000  tok=98  reason=eos  n_sup=2/10
+[135] id=5abd583255429924427fcfb9  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[136] id=5ab2958c554299449642c912  em=0  f1=0.667  tok=81  reason=eos  n_sup=2/10
+[137] id=5a7c6753554299683c1c62f9  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[138] id=5ae3eeb25542995dadf2425e  em=1  f1=1.000  tok=45  reason=eos  n_sup=2/10
+[139] id=5ae1e9635542997f29b3c19e  em=1  f1=1.000  tok=74  reason=eos  n_sup=2/10
+[140] id=5abe3f3455429976d4830aa8  em=1  f1=1.000  tok=54  reason=eos  n_sup=2/10
+[141] id=5adf07f25542992d7e9f9279  em=1  f1=1.000  tok=62  reason=eos  n_sup=2/10
+[142] id=5a7d5c175542991319bc93b1  em=1  f1=1.000  tok=90  reason=eos  n_sup=2/10
+[143] id=5ab934465542996be202043e  em=1  f1=1.000  tok=101  reason=eos  n_sup=2/10
+[144] id=5a82e36255429940e5e1a93b  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[145] id=5adf99065542992d7e9f93b0  em=1  f1=1.000  tok=107  reason=eos  n_sup=2/10
+[146] id=5a8dd13055429917b4a5bcba  em=0  f1=0.667  tok=60  reason=eos  n_sup=2/10
+[147] id=5ae76dfd5542997b22f6a755  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[148] id=5ae0bb2c5542993d6555ec27  em=1  f1=1.000  tok=21  reason=eos  n_sup=2/10
+[149] id=5addf3d65542990dbb2f7f0e  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[150] id=5a7456ec55429979e288290f  em=1  f1=1.000  tok=74  reason=eos  n_sup=2/10
+[151] id=5ab3bd7d55429969a97a819f  em=1  f1=1.000  tok=53  reason=eos  n_sup=2/10
+[152] id=5ab9c7c355429939ce03dc17  em=1  f1=1.000  tok=105  reason=eos  n_sup=2/10
+[153] id=5ac439005542995c82c4acf9  em=0  f1=0.667  tok=75  reason=eos  n_sup=2/10
+[154] id=5ae15d70554299422ee9966f  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[155] id=5abbdaef554299642a094b5d  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[156] id=5a79c2955542994f819ef097  em=1  f1=1.000  tok=98  reason=eos  n_sup=2/10
+[157] id=5ab7b0575542992aa3b8c83d  em=1  f1=1.000  tok=44  reason=eos  n_sup=2/10
+[158] id=5ac11139554299294b219083  em=0  f1=0.000  tok=138  reason=eos  n_sup=2/10
+[159] id=5ae5ef105542996de7b71a72  em=1  f1=1.000  tok=59  reason=eos  n_sup=2/10
+[160] id=5a8ae00e5542992d82986fc7  em=1  f1=1.000  tok=76  reason=eos  n_sup=2/10
+[161] id=5abeb91c5542994516f45400  em=1  f1=1.000  tok=122  reason=eos  n_sup=2/10
+[162] id=5a832fdd55429954d2e2ec4f  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[163] id=5ae70369554299572ea54683  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[164] id=5abad3445542996cc5e49ea0  em=1  f1=1.000  tok=45  reason=eos  n_sup=2/10
+[165] id=5a815c2e5542995ce29dcbe8  em=0  f1=0.667  tok=88  reason=eos  n_sup=2/10
+[166] id=5adf3f1d5542992d7e9f9310  em=0  f1=0.667  tok=67  reason=eos  n_sup=2/10
+[167] id=5adcd2435542992c1e3a241b  em=1  f1=1.000  tok=74  reason=eos  n_sup=2/10
+[168] id=5a8796345542994846c1cda3  em=0  f1=0.000  tok=67  reason=eos  n_sup=2/10
+[169] id=5a7c25035542997c3ec972e5  em=1  f1=1.000  tok=63  reason=eos  n_sup=2/10
+[170] id=5a74670855429929fddd840d  em=1  f1=1.000  tok=163  reason=eos  n_sup=2/10
+[171] id=5a7faed65542994857a767b6  em=0  f1=0.500  tok=70  reason=eos  n_sup=2/10
+[172] id=5a7f451a55429969796c19ec  em=0  f1=0.250  tok=100  reason=eos  n_sup=2/10
+[173] id=5addd6045542997dc7907049  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[174] id=5a7a3dbb5542996a35c17157  em=1  f1=1.000  tok=59  reason=eos  n_sup=2/10
+[175] id=5ac2758b55429963665199c3  em=1  f1=1.000  tok=76  reason=eos  n_sup=2/10
+[176] id=5a83dd2c554299334474609e  em=0  f1=0.952  tok=93  reason=eos  n_sup=2/10
+[177] id=5ae72b745542991e8301cb7f  em=1  f1=1.000  tok=59  reason=eos  n_sup=2/10
+[178] id=5a8314bd55429966c78a6b2a  em=1  f1=1.000  tok=81  reason=eos  n_sup=2/10
+[179] id=5a7f38e255429930675136b6  em=0  f1=0.000  tok=56  reason=eos  n_sup=2/10
+[180] id=5ac2920555429921a00aafc9  em=0  f1=0.667  tok=84  reason=eos  n_sup=2/10
+[181] id=5ab8a7f65542991b5579efca  em=0  f1=0.667  tok=63  reason=eos  n_sup=2/10
+[182] id=5ae5b255554299546bf82f2c  em=1  f1=1.000  tok=87  reason=eos  n_sup=2/10
+[183] id=5a8725a15542996432c57230  em=1  f1=1.000  tok=48  reason=eos  n_sup=2/10
+[184] id=5a81624d5542995ce29dcbf1  em=1  f1=1.000  tok=107  reason=eos  n_sup=2/10
+[185] id=5abe8aad55429976d4830b60  em=0  f1=0.250  tok=71  reason=eos  n_sup=2/10
+[186] id=5a7f296f55429934daa2fd10  em=1  f1=1.000  tok=54  reason=eos  n_sup=2/10
+[187] id=5a7414d855429929fddd83db  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[188] id=5a820f2c55429926c1cdae17  em=1  f1=1.000  tok=81  reason=eos  n_sup=2/10
+[189] id=5a9073405542995b442420bb  em=1  f1=1.000  tok=68  reason=eos  n_sup=2/10
+[190] id=5a7363465542991f29ee2dd5  em=1  f1=1.000  tok=65  reason=eos  n_sup=2/10
+[191] id=5a77edf955429967ab1052e8  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[192] id=5ae4183f5542996836b02c40  em=0  f1=0.545  tok=94  reason=eos  n_sup=2/10
+[193] id=5a7fe7f85542994857a7683e  em=0  f1=0.667  tok=93  reason=eos  n_sup=2/10
+[194] id=5ae5cf625542996de7b71a22  em=1  f1=1.000  tok=116  reason=eos  n_sup=2/10
+[195] id=5a7785af55429949eeb29ec2  em=1  f1=1.000  tok=85  reason=eos  n_sup=2/10
+[196] id=5a7c221f554299683c1c62d2  em=1  f1=1.000  tok=62  reason=eos  n_sup=2/10
+[197] id=5a7b88a85542995eb53be954  em=1  f1=1.000  tok=61  reason=eos  n_sup=2/10
+[198] id=5a85d4ad5542997175ce2050  em=1  f1=1.000  tok=6  reason=eos  n_sup=2/10
+[199] id=5a74c2bd5542996c70cfadda  em=1  f1=1.000  tok=67  reason=eos  n_sup=2/10
+[200] id=5ab9ddef5542994dbf019875  em=0  f1=0.000  tok=112  reason=eos  n_sup=2/10
+
+[ok] wrote runs/v2_headline_qwen2.5-7b-instruct/E1_oracle_hotpot.jsonl
+     n=200  EM=126/200 (63.0%)  meanF1=0.789
+[2026-05-13T21:16:27Z] [qwen2.5-7b-instruct] ==== E: E2_oracle_wiki oracle decode (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl) ====
+[..] loading models/qwen2.5-7b-instruct (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:40,  8.43it/s]Loading weights:   1%|          | 2/339 [00:00<00:45,  7.37it/s]Loading weights:   5%|▌         | 17/339 [00:00<00:05, 61.92it/s]Loading weights:  12%|█▏        | 40/339 [00:00<00:02, 114.53it/s]Loading weights:  16%|█▌        | 54/339 [00:00<00:02, 120.06it/s]Loading weights:  23%|██▎       | 78/339 [00:00<00:01, 154.74it/s]Loading weights:  30%|██▉       | 101/339 [00:00<00:01, 171.27it/s]Loading weights:  37%|███▋      | 125/339 [00:00<00:01, 190.58it/s]Loading weights:  44%|████▍     | 149/339 [00:01<00:00, 203.13it/s]Loading weights:  51%|█████     | 172/339 [00:01<00:00, 202.02it/s]Loading weights:  58%|█████▊    | 196/339 [00:01<00:00, 198.48it/s]Loading weights:  65%|██████▍   | 220/339 [00:01<00:00, 204.35it/s]Loading weights:  71%|███████   | 241/339 [00:01<00:00, 204.47it/s]Loading weights:  77%|███████▋  | 262/339 [00:01<00:00, 187.53it/s]Loading weights:  83%|████████▎ | 282/339 [00:01<00:00, 182.61it/s]Loading weights:  90%|████████▉ | 305/339 [00:01<00:00, 189.75it/s]Loading weights:  96%|█████████▌| 325/339 [00:01<00:00, 189.01it/s]Loading weights: 100%|██████████| 339/339 [00:02<00:00, 167.73it/s]
+[ok] loaded in 3.43s | rss 0.932 GB | VRAM 17421 MB
+[  1] id=8813f87c0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=114  reason=eos  n_sup=2/10
+[  2] id=f9dcb4a60bda11eba7f7acde48001122  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[  3] id=e618b2c608c911ebbd92ac1f6bf848b6  em=1  f1=1.000  tok=87  reason=eos  n_sup=2/10
+[  4] id=07388c7c0bb011ebab90acde48001122  em=0  f1=0.571  tok=88  reason=eos  n_sup=2/10
+[  5] id=6b55ac320bdb11eba7f7acde48001122  em=1  f1=1.000  tok=90  reason=eos  n_sup=2/10
+[  6] id=53ab316c08b911ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=162  reason=eos  n_sup=4/10
+[  7] id=3647118c0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=82  reason=eos  n_sup=2/10
+[  8] id=4e84cd2d08bb11ebbd88ac1f6bf848b6  em=0  f1=0.000  tok=96  reason=eos  n_sup=2/10
+[  9] id=79675c6e0bd911eba7f7acde48001122  em=0  f1=0.000  tok=72  reason=eos  n_sup=2/10
+[ 10] id=b677b1f8089611ebbd76ac1f6bf848b6  em=1  f1=1.000  tok=155  reason=eos  n_sup=4/10
+[ 11] id=122b64480baf11ebab90acde48001122  em=0  f1=0.000  tok=165  reason=eos  n_sup=2/10
+[ 12] id=b7e9eb98085311ebbd59ac1f6bf848b6  em=1  f1=1.000  tok=192  reason=eos  n_sup=4/10
+[ 13] id=b0b7f3700bdb11eba7f7acde48001122  em=0  f1=0.800  tok=165  reason=eos  n_sup=2/10
+[ 14] id=6900298c0bde11eba7f7acde48001122  em=0  f1=0.667  tok=72  reason=eos  n_sup=2/10
+[ 15] id=967b39ca0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=83  reason=eos  n_sup=2/10
+[ 16] id=b051c536089e11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=180  reason=eos  n_sup=4/10
+[ 17] id=ec8167b208a011ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=190  reason=eos  n_sup=4/10
+[ 18] id=5a83ed2f086611ebbd5eac1f6bf848b6  em=1  f1=1.000  tok=197  reason=eos  n_sup=4/10
+[ 19] id=ab18549a0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=39  reason=eos  n_sup=2/10
+[ 20] id=ed27bca208ac11ebbd83ac1f6bf848b6  em=1  f1=1.000  tok=63  reason=eos  n_sup=4/10
+[ 21] id=0ebf83cc08b511ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=131  reason=eos  n_sup=4/10
+[ 22] id=677658e80bde11eba7f7acde48001122  em=0  f1=0.000  tok=95  reason=eos  n_sup=2/10
+[ 23] id=c077f89508e711ebbda6ac1f6bf848b6  em=1  f1=1.000  tok=56  reason=eos  n_sup=2/10
+[ 24] id=cdb8b7540bd911eba7f7acde48001122  em=1  f1=1.000  tok=60  reason=eos  n_sup=2/10
+[ 25] id=5c04f9c00bb011ebab90acde48001122  em=1  f1=1.000  tok=118  reason=eos  n_sup=2/10
+[ 26] id=71a137c6084a11ebbd56ac1f6bf848b6  em=1  f1=1.000  tok=94  reason=eos  n_sup=2/10
+[ 27] id=f66993ce0bae11ebab90acde48001122  em=1  f1=1.000  tok=142  reason=eos  n_sup=2/10
+[ 28] id=06d9b7aa0bde11eba7f7acde48001122  em=0  f1=0.800  tok=76  reason=eos  n_sup=2/10
+[ 29] id=89db525e0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=65  reason=eos  n_sup=2/10
+[ 30] id=e15b1fe20baf11ebab90acde48001122  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 31] id=cad698fe086311ebbd5eac1f6bf848b6  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[ 32] id=9ba526540bdd11eba7f7acde48001122  em=0  f1=0.667  tok=74  reason=eos  n_sup=2/10
+[ 33] id=f5b3194a08da11ebbd9cac1f6bf848b6  em=1  f1=1.000  tok=94  reason=eos  n_sup=4/10
+[ 34] id=57eba38e0bb011ebab90acde48001122  em=1  f1=1.000  tok=119  reason=eos  n_sup=2/10
+[ 35] id=64c134bc08b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[ 36] id=a8f3ff980bdc11eba7f7acde48001122  em=0  f1=0.000  tok=102  reason=eos  n_sup=2/10
+[ 37] id=0f64620c08dd11ebbd9dac1f6bf848b6  em=1  f1=1.000  tok=106  reason=eos  n_sup=4/10
+[ 38] id=b40073360bdb11eba7f7acde48001122  em=1  f1=1.000  tok=56  reason=eos  n_sup=2/10
+[ 39] id=0429e4da0bde11eba7f7acde48001122  em=0  f1=0.000  tok=92  reason=eos  n_sup=2/10
+[ 40] id=695689d20baf11ebab90acde48001122  em=1  f1=1.000  tok=100  reason=eos  n_sup=2/10
+[ 41] id=709cfbb60bde11eba7f7acde48001122  em=0  f1=0.000  tok=68  reason=eos  n_sup=2/10
+[ 42] id=f9faf2ee08a211ebbd7bac1f6bf848b6  em=1  f1=1.000  tok=127  reason=eos  n_sup=4/10
+[ 43] id=d8dd8102084e11ebbd56ac1f6bf848b6  em=1  f1=1.000  tok=122  reason=eos  n_sup=4/10
+[ 44] id=d6003284088e11ebbd70ac1f6bf848b6  em=1  f1=1.000  tok=85  reason=eos  n_sup=2/10
+[ 45] id=899ecc9e0bb011ebab90acde48001122  em=0  f1=0.500  tok=75  reason=eos  n_sup=2/10
+[ 46] id=d977eef20bd911eba7f7acde48001122  em=0  f1=0.500  tok=75  reason=eos  n_sup=2/10
+[ 47] id=59f0b4d608b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=65  reason=eos  n_sup=2/10
+[ 48] id=ac7e29440bdd11eba7f7acde48001122  em=0  f1=0.000  tok=80  reason=eos  n_sup=2/10
+[ 49] id=82cf1051087111ebbd63ac1f6bf848b6  em=1  f1=1.000  tok=119  reason=eos  n_sup=4/10
+[ 50] id=f9e63d80085d11ebbd5cac1f6bf848b6  em=1  f1=1.000  tok=154  reason=eos  n_sup=4/10
+[ 51] id=16e7a8480bdc11eba7f7acde48001122  em=0  f1=0.000  tok=83  reason=eos  n_sup=2/10
+[ 52] id=2da46a3f08f311ebbdaaac1f6bf848b6  em=1  f1=1.000  tok=122  reason=eos  n_sup=2/10
+[ 53] id=70dd6dec0bdc11eba7f7acde48001122  em=0  f1=0.500  tok=136  reason=eos  n_sup=2/10
+[ 54] id=838692a808b611ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=133  reason=eos  n_sup=4/10
+[ 55] id=d627e23a0bdd11eba7f7acde48001122  em=0  f1=0.000  tok=117  reason=eos  n_sup=2/10
+[ 56] id=14d00b8508b411ebbd87ac1f6bf848b6  em=1  f1=1.000  tok=112  reason=eos  n_sup=4/10
+[ 57] id=29d3c6f80bdc11eba7f7acde48001122  em=1  f1=1.000  tok=46  reason=eos  n_sup=2/10
+[ 58] id=2ed33a200bb011ebab90acde48001122  em=0  f1=0.250  tok=85  reason=eos  n_sup=2/10
+[ 59] id=10d9966e0baf11ebab90acde48001122  em=1  f1=1.000  tok=99  reason=eos  n_sup=2/10
+[ 60] id=3b05d7d808bf11ebbd8aac1f6bf848b6  em=1  f1=1.000  tok=138  reason=eos  n_sup=4/10
+[ 61] id=6a5604a00bde11eba7f7acde48001122  em=1  f1=1.000  tok=90  reason=eos  n_sup=2/10
+[ 62] id=9baacb02087911ebbd67ac1f6bf848b6  em=0  f1=0.000  tok=273  reason=eos  n_sup=4/10
+[ 63] id=3a1dbb720bdc11eba7f7acde48001122  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[ 64] id=3470afb20bb011ebab90acde48001122  em=1  f1=1.000  tok=71  reason=eos  n_sup=2/10
+[ 65] id=cac4e3ac096711ebbdafac1f6bf848b6  em=0  f1=0.000  tok=134  reason=eos  n_sup=2/10
+[ 66] id=36787917086811ebbd5eac1f6bf848b6  em=1  f1=1.000  tok=64  reason=eos  n_sup=2/10
+[ 67] id=68a9e3c60bdc11eba7f7acde48001122  em=0  f1=0.667  tok=102  reason=eos  n_sup=2/10
+[ 68] id=f1d6a4080bdd11eba7f7acde48001122  em=0  f1=0.500  tok=82  reason=eos  n_sup=2/10
+[ 69] id=594402520bde11eba7f7acde48001122  em=1  f1=1.000  tok=61  reason=eos  n_sup=2/10
+[ 70] id=061998c008ce11ebbd94ac1f6bf848b6  em=1  f1=1.000  tok=97  reason=eos  n_sup=2/10
+[ 71] id=810be29808b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[ 72] id=00de046a0bb011ebab90acde48001122  em=1  f1=1.000  tok=64  reason=eos  n_sup=2/10
+[ 73] id=b942cafc08c411ebbd8eac1f6bf848b6  em=1  f1=1.000  tok=153  reason=eos  n_sup=4/10
+[ 74] id=01b7e8280bde11eba7f7acde48001122  em=0  f1=0.500  tok=69  reason=eos  n_sup=2/10
+[ 75] id=7bb996ce0bdb11eba7f7acde48001122  em=0  f1=0.400  tok=98  reason=eos  n_sup=2/10
+[ 76] id=582f4d4c0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=75  reason=eos  n_sup=2/10
+[ 77] id=35615aae089811ebbd77ac1f6bf848b6  em=0  f1=0.000  tok=248  reason=eos  n_sup=4/10
+[ 78] id=9d06ec120bdd11eba7f7acde48001122  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[ 79] id=1dbdfcea0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[ 80] id=e48935f308b011ebbd85ac1f6bf848b6  em=0  f1=0.000  tok=135  reason=eos  n_sup=4/10
+[ 81] id=c09a65420baf11ebab90acde48001122  em=1  f1=1.000  tok=113  reason=eos  n_sup=2/10
+[ 82] id=e4db3498085511ebbd59ac1f6bf848b6  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[ 83] id=ad9c8d6e08dd11ebbd9eac1f6bf848b6  em=1  f1=1.000  tok=104  reason=eos  n_sup=4/10
+[ 84] id=2e612b41089c11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=132  reason=eos  n_sup=4/10
+[ 85] id=70dc266a0bde11eba7f7acde48001122  em=0  f1=0.000  tok=90  reason=eos  n_sup=2/10
+[ 86] id=a01468fa0bdb11eba7f7acde48001122  em=0  f1=0.000  tok=74  reason=eos  n_sup=2/10
+[ 87] id=3009165e0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[ 88] id=3b76b5c80bdc11eba7f7acde48001122  em=0  f1=0.000  tok=69  reason=eos  n_sup=2/10
+[ 89] id=3ac032da0baf11ebab90acde48001122  em=0  f1=0.800  tok=113  reason=eos  n_sup=2/10
+[ 90] id=a60dbb0a08e111ebbda3ac1f6bf848b6  em=1  f1=1.000  tok=111  reason=eos  n_sup=4/10
+[ 91] id=5dd21fb508a711ebbd7fac1f6bf848b6  em=1  f1=1.000  tok=46  reason=eos  n_sup=4/10
+[ 92] id=355ac9940bb011ebab90acde48001122  em=1  f1=1.000  tok=126  reason=eos  n_sup=2/10
+[ 93] id=c19b29260bdd11eba7f7acde48001122  em=0  f1=0.667  tok=118  reason=eos  n_sup=2/10
+[ 94] id=db2b0d96086f11ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=94  reason=eos  n_sup=4/10
+[ 95] id=b592bb5c0bd911eba7f7acde48001122  em=0  f1=0.000  tok=93  reason=eos  n_sup=2/10
+[ 96] id=207cff740bdd11eba7f7acde48001122  em=1  f1=1.000  tok=91  reason=eos  n_sup=2/10
+[ 97] id=2302f685089c11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[ 98] id=ef0e486b08aa11ebbd80ac1f6bf848b6  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[ 99] id=8d122a72096611ebbdafac1f6bf848b6  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[100] id=416d82040bdc11eba7f7acde48001122  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[101] id=01a3f8600bdc11eba7f7acde48001122  em=0  f1=0.000  tok=50  reason=eos  n_sup=2/10
+[102] id=d2b2c30008a811ebbd7fac1f6bf848b6  em=0  f1=0.000  tok=117  reason=eos  n_sup=4/10
+[103] id=193a12b0093a11ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=84  reason=eos  n_sup=2/10
+[104] id=c737b33408ce11ebbd94ac1f6bf848b6  em=1  f1=1.000  tok=64  reason=eos  n_sup=4/10
+[105] id=1567b4a6088d11ebbd70ac1f6bf848b6  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[106] id=ef48a3720baf11ebab90acde48001122  em=1  f1=1.000  tok=64  reason=eos  n_sup=2/10
+[107] id=6b526de608a811ebbd7fac1f6bf848b6  em=0  f1=0.800  tok=91  reason=eos  n_sup=4/10
+[108] id=4aa035e00bd911eba7f7acde48001122  em=1  f1=1.000  tok=69  reason=eos  n_sup=2/10
+[109] id=0864c8b40baf11ebab90acde48001122  em=0  f1=0.000  tok=125  reason=eos  n_sup=2/10
+[110] id=ac47c76508c411ebbd8eac1f6bf848b6  em=0  f1=0.000  tok=89  reason=eos  n_sup=2/10
+[111] id=8dfa2e9e0bda11eba7f7acde48001122  em=0  f1=0.667  tok=84  reason=eos  n_sup=2/10
+[112] id=b50d85db08b511ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=109  reason=eos  n_sup=2/10
+[113] id=fd49afe6084811ebbd55ac1f6bf848b6  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[114] id=9cbbf2ac0bdd11eba7f7acde48001122  em=0  f1=0.000  tok=92  reason=eos  n_sup=2/10
+[115] id=63240f22089d11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=152  reason=eos  n_sup=4/10
+[116] id=e6bdda040bd911eba7f7acde48001122  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[117] id=70ef2e500bdd11eba7f7acde48001122  em=1  f1=1.000  tok=114  reason=eos  n_sup=2/10
+[118] id=673943fa0bdd11eba7f7acde48001122  em=0  f1=0.857  tok=47  reason=eos  n_sup=2/10
+[119] id=5cfd6cd00bde11eba7f7acde48001122  em=0  f1=0.667  tok=65  reason=eos  n_sup=2/10
+[120] id=955ddc6a0bdc11eba7f7acde48001122  em=0  f1=0.800  tok=55  reason=eos  n_sup=2/10
+[121] id=131fe1ba087011ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=93  reason=eos  n_sup=2/10
+[122] id=527ee6120bd911eba7f7acde48001122  em=1  f1=1.000  tok=85  reason=eos  n_sup=2/10
+[123] id=32ef13800bde11eba7f7acde48001122  em=0  f1=0.222  tok=86  reason=eos  n_sup=2/10
+[124] id=07932ed80bde11eba7f7acde48001122  em=1  f1=1.000  tok=50  reason=eos  n_sup=2/10
+[125] id=44a138ee0bdc11eba7f7acde48001122  em=0  f1=0.000  tok=82  reason=eos  n_sup=2/10
+[126] id=400808b608b311ebbd86ac1f6bf848b6  em=1  f1=1.000  tok=146  reason=eos  n_sup=4/10
+[127] id=eeb17f51093011ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=112  reason=eos  n_sup=2/10
+[128] id=a5e486bc0bda11eba7f7acde48001122  em=0  f1=0.750  tok=55  reason=eos  n_sup=2/10
+[129] id=6a7725140bb011ebab90acde48001122  em=0  f1=0.667  tok=91  reason=eos  n_sup=2/10
+[130] id=02102208088011ebbd6cac1f6bf848b6  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[131] id=95a081f508a411ebbd7dac1f6bf848b6  em=1  f1=1.000  tok=113  reason=eos  n_sup=4/10
+[132] id=34ff3ed60bdc11eba7f7acde48001122  em=0  f1=0.000  tok=73  reason=eos  n_sup=2/10
+[133] id=de26abaa095411ebbdaeac1f6bf848b6  em=0  f1=0.000  tok=85  reason=eos  n_sup=2/10
+[134] id=c77d1fc60bdc11eba7f7acde48001122  em=1  f1=1.000  tok=47  reason=eos  n_sup=2/10
+[135] id=145806c6087111ebbd63ac1f6bf848b6  em=1  f1=1.000  tok=112  reason=eos  n_sup=2/10
+[136] id=8eafc6a808b711ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=195  reason=eos  n_sup=2/10
+[137] id=79f69dd80bda11eba7f7acde48001122  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[138] id=6fc6126e08ad11ebbd83ac1f6bf848b6  em=0  f1=0.000  tok=105  reason=eos  n_sup=2/10
+[139] id=be1e5c620bda11eba7f7acde48001122  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[140] id=7247b1320bb011ebab90acde48001122  em=1  f1=1.000  tok=84  reason=eos  n_sup=2/10
+[141] id=2231ab5e0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[142] id=2237c12d085711ebbd59ac1f6bf848b6  em=0  f1=0.000  tok=86  reason=eos  n_sup=2/10
+[143] id=335443cc0bde11eba7f7acde48001122  em=1  f1=1.000  tok=124  reason=eos  n_sup=2/10
+[144] id=b025e878095011ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[145] id=fcb1a7f4086c11ebbd61ac1f6bf848b6  em=1  f1=1.000  tok=162  reason=eos  n_sup=4/10
+[146] id=385c3978086f11ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=176  reason=eos  n_sup=4/10
+[147] id=37ff2e860bda11eba7f7acde48001122  em=0  f1=0.500  tok=70  reason=eos  n_sup=2/10
+[148] id=b9a3d70a0baf11ebab90acde48001122  em=1  f1=1.000  tok=113  reason=eos  n_sup=2/10
+[149] id=6c0b26320bb011ebab90acde48001122  em=0  f1=0.800  tok=98  reason=eos  n_sup=2/10
+[150] id=f02ac77f096711ebbdafac1f6bf848b6  em=1  f1=1.000  tok=89  reason=eos  n_sup=2/10
+[151] id=bd9054fc0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=75  reason=eos  n_sup=2/10
+[152] id=88be48840bda11eba7f7acde48001122  em=1  f1=1.000  tok=63  reason=eos  n_sup=2/10
+[153] id=6b582dcc087011ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=148  reason=eos  n_sup=4/10
+[154] id=4fa9d2780baf11ebab90acde48001122  em=0  f1=0.400  tok=77  reason=eos  n_sup=2/10
+[155] id=8e410d9a0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=57  reason=eos  n_sup=2/10
+[156] id=b73268780bdd11eba7f7acde48001122  em=0  f1=0.667  tok=59  reason=eos  n_sup=2/10
+[157] id=c137025f086611ebbd5eac1f6bf848b6  em=1  f1=1.000  tok=87  reason=eos  n_sup=4/10
+[158] id=ffc7b33c08c611ebbd91ac1f6bf848b6  em=1  f1=1.000  tok=94  reason=eos  n_sup=2/10
+[159] id=a4f3d22e0baf11ebab90acde48001122  em=1  f1=1.000  tok=58  reason=eos  n_sup=2/10
+[160] id=060505ae089211ebbd73ac1f6bf848b6  em=1  f1=1.000  tok=92  reason=eos  n_sup=4/10
+[161] id=505840b40bb011ebab90acde48001122  em=0  f1=0.333  tok=141  reason=eos  n_sup=2/10
+[162] id=8d4ce1380baf11ebab90acde48001122  em=1  f1=1.000  tok=66  reason=eos  n_sup=2/10
+[163] id=172d29020bde11eba7f7acde48001122  em=1  f1=1.000  tok=51  reason=eos  n_sup=2/10
+[164] id=7e9fc27c084911ebbd55ac1f6bf848b6  em=1  f1=1.000  tok=172  reason=eos  n_sup=4/10
+[165] id=fea547400bdb11eba7f7acde48001122  em=0  f1=0.000  tok=129  reason=eos  n_sup=2/10
+[166] id=3cf8f328087511ebbd67ac1f6bf848b6  em=1  f1=1.000  tok=83  reason=eos  n_sup=2/10
+[167] id=2efc2c3b08bf11ebbd8aac1f6bf848b6  em=1  f1=1.000  tok=139  reason=eos  n_sup=4/10
+[168] id=5a7b4936088d11ebbd70ac1f6bf848b6  em=1  f1=1.000  tok=105  reason=eos  n_sup=4/10
+[169] id=95d5a67208b311ebbd86ac1f6bf848b6  em=1  f1=1.000  tok=90  reason=eos  n_sup=2/10
+[170] id=3bb4c10c0bdb11eba7f7acde48001122  em=0  f1=0.000  tok=75  reason=eos  n_sup=2/10
+[171] id=d6ef9ae60bdd11eba7f7acde48001122  em=1  f1=1.000  tok=80  reason=eos  n_sup=2/10
+[172] id=6f7115240bde11eba7f7acde48001122  em=0  f1=0.667  tok=51  reason=eos  n_sup=2/10
+[173] id=39af8adc0bda11eba7f7acde48001122  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[174] id=c9249d980bd911eba7f7acde48001122  em=1  f1=1.000  tok=60  reason=eos  n_sup=2/10
+[175] id=188088f7095311ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=82  reason=eos  n_sup=2/10
+[176] id=fdbb770408da11ebbd9cac1f6bf848b6  em=1  f1=1.000  tok=107  reason=eos  n_sup=4/10
+[177] id=4b4cb9eb086f11ebbd62ac1f6bf848b6  em=0  f1=0.000  tok=147  reason=eos  n_sup=4/10
+[178] id=1a1c0bd40bdd11eba7f7acde48001122  em=1  f1=1.000  tok=94  reason=eos  n_sup=2/10
+[179] id=2705d338093811ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=55  reason=eos  n_sup=2/10
+[180] id=a42b97c80bdc11eba7f7acde48001122  em=0  f1=0.000  tok=86  reason=eos  n_sup=2/10
+[181] id=6637584408b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=124  reason=eos  n_sup=4/10
+[182] id=ab622778089911ebbd77ac1f6bf848b6  em=1  f1=1.000  tok=161  reason=eos  n_sup=4/10
+[183] id=753c92260bde11eba7f7acde48001122  em=0  f1=0.000  tok=105  reason=eos  n_sup=2/10
+[184] id=373e7ab2087c11ebbd69ac1f6bf848b6  em=1  f1=1.000  tok=106  reason=eos  n_sup=4/10
+[185] id=7ff949800bdd11eba7f7acde48001122  em=0  f1=0.000  tok=102  reason=eos  n_sup=2/10
+[186] id=5e3bb8cc0bd911eba7f7acde48001122  em=1  f1=1.000  tok=106  reason=eos  n_sup=2/10
+[187] id=9e57efbe0bdb11eba7f7acde48001122  em=0  f1=0.000  tok=121  reason=eos  n_sup=2/10
+[188] id=33c7739b088311ebbd6dac1f6bf848b6  em=1  f1=1.000  tok=91  reason=eos  n_sup=2/10
+[189] id=612322280bde11eba7f7acde48001122  em=0  f1=0.625  tok=78  reason=eos  n_sup=2/10
+[190] id=32ecfc7c0bb011ebab90acde48001122  em=0  f1=0.571  tok=117  reason=eos  n_sup=2/10
+[191] id=a89f2d8c0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=105  reason=eos  n_sup=2/10
+[192] id=5418bd9b08c811ebbd91ac1f6bf848b6  em=1  f1=1.000  tok=105  reason=eos  n_sup=4/10
+[193] id=ade965ba0baf11ebab90acde48001122  em=0  f1=0.000  tok=55  reason=eos  n_sup=2/10
+[194] id=d326dd80084e11ebbd56ac1f6bf848b6  em=1  f1=1.000  tok=97  reason=eos  n_sup=4/10
+[195] id=e56e5c7e089c11ebbd78ac1f6bf848b6  em=0  f1=0.000  tok=170  reason=eos  n_sup=2/10
+[196] id=0388710c095811ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=79  reason=eos  n_sup=2/10
+[197] id=f7ff7626098911ebbdb0ac1f6bf848b6  em=1  f1=1.000  tok=67  reason=eos  n_sup=2/10
+[198] id=b8ffdece0bdd11eba7f7acde48001122  em=0  f1=0.500  tok=77  reason=eos  n_sup=2/10
+[199] id=2e90b7440bde11eba7f7acde48001122  em=0  f1=0.000  tok=59  reason=eos  n_sup=2/10
+[200] id=8dab3a8e0bb011ebab90acde48001122  em=0  f1=0.000  tok=138  reason=eos  n_sup=2/10
+
+[ok] wrote runs/v2_headline_qwen2.5-7b-instruct/E2_oracle_wiki.jsonl
+     n=200  EM=129/200 (64.5%)  meanF1=0.741
+[2026-05-13T21:23:44Z] [qwen2.5-7b-instruct] ==== qwen2.5-7b-instruct complete ====
+[2026-05-13T21:23:44Z] [qwen2.5-7b-instruct]   B_smoke_hotpot: 5 rows
+[2026-05-13T21:23:44Z] [qwen2.5-7b-instruct]   D1_closed_hotpot: 200 rows
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct]   D2_closed_wiki: 200 rows
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct]   E1_oracle_hotpot: 200 rows
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct]   E2_oracle_wiki: 200 rows
+[ckpt] manifest -> runs/v2_headline_qwen2.5-7b-instruct/checkpoints/slice_manifest.json
+[2026-05-13T21:23:45Z] [qwen2.5-7b-instruct] elapsed=8994s (2h 29m)
+[2026-05-13T21:23:45Z] [gemma-4-26b-a4b-it] ==== START: gemma-4-26b-a4b-it (n=200, K=5, schema=rq1-pilot-v1) ====
+[2026-05-13T21:23:45Z] [gemma-4-26b-a4b-it] MODEL_DIR=models/gemma-4-26b-a4b-it
+[2026-05-13T21:23:45Z] [gemma-4-26b-a4b-it] ==== B: smoke decode (n=5, HotpotQA) ====
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 5 questions (split filter: all; limit 5)
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 1/1013 [00:00<04:59,  3.38it/s]Loading weights:   2%|▏         | 25/1013 [00:00<00:12, 79.64it/s]Loading weights:   4%|▍         | 39/1013 [00:00<00:11, 86.90it/s]Loading weights:   5%|▌         | 51/1013 [00:00<00:12, 75.02it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:11, 81.94it/s]Loading weights:   9%|▉         | 91/1013 [00:01<00:09, 92.40it/s]Loading weights:  11%|█         | 113/1013 [00:01<00:07, 116.89it/s]Loading weights:  13%|█▎        | 127/1013 [00:01<00:07, 116.41it/s]Loading weights:  14%|█▍        | 140/1013 [00:01<00:09, 93.53it/s] Loading weights:  15%|█▌        | 157/1013 [00:01<00:09, 93.50it/s]Loading weights:  18%|█▊        | 179/1013 [00:01<00:08, 103.14it/s]Loading weights:  20%|█▉        | 201/1013 [00:02<00:07, 109.28it/s]Loading weights:  22%|██▏       | 223/1013 [00:02<00:07, 109.21it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:07, 104.80it/s]Loading weights:  26%|██▋       | 266/1013 [00:02<00:07, 96.25it/s] Loading weights:  28%|██▊       | 287/1013 [00:02<00:06, 114.62it/s]Loading weights:  30%|██▉       | 301/1013 [00:03<00:06, 110.01it/s]Loading weights:  31%|███       | 314/1013 [00:03<00:07, 90.11it/s] Loading weights:  33%|███▎      | 332/1013 [00:03<00:07, 86.97it/s]Loading weights:  35%|███▍      | 354/1013 [00:03<00:07, 82.58it/s]Loading weights:  37%|███▋      | 376/1013 [00:04<00:07, 82.92it/s]Loading weights:  39%|███▉      | 397/1013 [00:04<00:07, 87.94it/s]Loading weights:  41%|████▏     | 418/1013 [00:04<00:05, 105.59it/s]Loading weights:  43%|████▎     | 431/1013 [00:04<00:05, 100.66it/s]Loading weights:  44%|████▎     | 443/1013 [00:04<00:06, 85.54it/s] Loading weights:  46%|████▌     | 463/1013 [00:04<00:06, 88.42it/s]Loading weights:  48%|████▊     | 485/1013 [00:05<00:05, 95.16it/s]Loading weights:  50%|█████     | 507/1013 [00:05<00:05, 98.13it/s]Loading weights:  52%|█████▏    | 527/1013 [00:05<00:05, 95.12it/s]Loading weights:  54%|█████▍    | 550/1013 [00:05<00:04, 97.61it/s]Loading weights:  56%|█████▋    | 572/1013 [00:06<00:04, 95.29it/s]Loading weights:  59%|█████▊    | 594/1013 [00:06<00:04, 93.66it/s]Loading weights:  61%|██████    | 616/1013 [00:06<00:04, 93.87it/s]Loading weights:  63%|██████▎   | 638/1013 [00:06<00:03, 97.86it/s]Loading weights:  78%|███████▊  | 791/1013 [00:06<00:00, 329.70it/s]Loading weights:  91%|█████████ | 918/1013 [00:06<00:00, 505.55it/s]Loading weights: 100%|██████████| 1013/1013 [00:07<00:00, 144.50it/s]
+[ok] loaded in 11.96s | rss 1.142 GB | VRAM 49887 MB
+[..] layer_mode=mid_stack  capture_subset=[15]
+[..] dragin_attn_layer_idx=29 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=15)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 9172.06it/s]
+[..]   5/5  em=4/5  steps= 20  tok= 269  wall=329.5s  elapsed=17.5min
+[ok] wrote 5 rows to runs/v2_headline_gemma-4-26b-a4b-it/B_smoke_hotpot.jsonl
+[ok] em rate: 4/5 = 0.800
+[B-check] n=5 multistep+answer=5 schema_pop=[(15, 15), (10, 10), (8, 8), (10, 10), (20, 20)]
+[B-check] schema_version=['rq1-pilot-v1']
+[B-check] PASS
+[2026-05-13T21:41:37Z] [gemma-4-26b-a4b-it] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 0) ====
+[..] dataset data/hotpotqa_distractor_500_v2test.jsonl -> 200 questions (split filter: all; limit 200)
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:52, 19.37it/s]Loading weights:   0%|          | 5/1013 [00:00<00:54, 18.65it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:13, 72.88it/s]Loading weights:   5%|▍         | 48/1013 [00:00<00:09, 98.42it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:08, 110.35it/s]Loading weights:   9%|▉         | 92/1013 [00:00<00:08, 109.61it/s]Loading weights:  11%|█▏        | 114/1013 [00:01<00:07, 112.43it/s]Loading weights:  13%|█▎        | 134/1013 [00:01<00:07, 113.18it/s]Loading weights:  15%|█▌        | 156/1013 [00:01<00:06, 132.48it/s]Loading weights:  17%|█▋        | 170/1013 [00:01<00:06, 126.35it/s]Loading weights:  18%|█▊        | 184/1013 [00:01<00:07, 105.96it/s]Loading weights:  20%|█▉        | 200/1013 [00:01<00:08, 96.66it/s] Loading weights:  22%|██▏       | 223/1013 [00:02<00:07, 99.94it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:07, 106.12it/s]Loading weights:  26%|██▋       | 266/1013 [00:02<00:07, 104.94it/s]Loading weights:  28%|██▊       | 288/1013 [00:02<00:06, 108.42it/s]Loading weights:  31%|███       | 310/1013 [00:02<00:06, 108.66it/s]Loading weights:  33%|███▎      | 332/1013 [00:03<00:06, 110.74it/s]Loading weights:  35%|███▍      | 354/1013 [00:03<00:06, 105.27it/s]Loading weights:  37%|███▋      | 376/1013 [00:03<00:06, 100.42it/s]Loading weights:  39%|███▉      | 397/1013 [00:03<00:06, 97.39it/s] Loading weights:  41%|████▏     | 419/1013 [00:04<00:05, 104.11it/s]Loading weights:  44%|████▎     | 441/1013 [00:04<00:05, 111.10it/s]Loading weights:  46%|████▌     | 463/1013 [00:04<00:04, 118.34it/s]Loading weights:  48%|████▊     | 485/1013 [00:04<00:04, 119.39it/s]Loading weights:  50%|████▉     | 506/1013 [00:04<00:03, 134.24it/s]Loading weights:  51%|█████▏    | 521/1013 [00:04<00:03, 126.11it/s]Loading weights:  53%|█████▎    | 535/1013 [00:04<00:04, 107.71it/s]Loading weights:  54%|█████▍    | 550/1013 [00:05<00:04, 96.56it/s] Loading weights:  56%|█████▋    | 572/1013 [00:05<00:04, 104.97it/s]Loading weights:  59%|█████▊    | 594/1013 [00:05<00:03, 109.83it/s]Loading weights:  61%|██████    | 615/1013 [00:05<00:03, 110.74it/s]Loading weights:  63%|██████▎   | 637/1013 [00:05<00:03, 110.58it/s]Loading weights:  81%|████████  | 816/1013 [00:06<00:00, 424.28it/s]Loading weights:  94%|█████████▎| 948/1013 [00:06<00:00, 610.66it/s]Loading weights: 100%|██████████| 1013/1013 [00:06<00:00, 163.77it/s]
+[ok] loaded in 10.99s | rss 1.152 GB | VRAM 49887 MB
+[..] layer_mode=mid_stack  capture_subset=[15]
+[..] dragin_attn_layer_idx=29 (override=None)
+[..] verbalized confidence probe ready (max_probe_tokens=12)
+[..] consistency sampler ready (K=5, T=0.6, top_p=0.9; dump_texts=True, dump_hidden=True, hidden_layer=15)
+[!!] entity scorer warmup failed (No module named 'rank_bm25'); disabling --no-ent
+[..] writing runs/v2_headline_gemma-4-26b-a4b-it/D1_closed_hotpot.jsonl
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 11485.44it/s]
+[..]   5/200  em=4/5  steps= 20  tok= 269  wall=327.4s  elapsed=17.3min
+[..]  10/200  em=7/10  steps= 14  tok= 278  wall=243.7s  elapsed=37.4min
+[..]  15/200  em=8/15  steps= 29  tok= 594  wall=513.5s  elapsed=65.7min
+[..]  20/200  em=8/20  steps= 28  tok= 576  wall=486.5s  elapsed=92.6min
+[..]  25/200  em=12/25  steps= 14  tok= 185  wall=221.1s  elapsed=111.5min
+[..]  30/200  em=15/30  steps= 12  tok= 204  wall=180.1s  elapsed=131.2min
+[..]  35/200  em=16/35  steps=  9  tok= 210  wall=144.6s  elapsed=157.6min
+[..]  40/200  em=19/40  steps= 10  tok= 146  wall=156.7s  elapsed=176.7min
+[..]  45/200  em=21/45  steps= 17  tok= 224  wall=283.3s  elapsed=201.0min
+[..]  50/200  em=24/50  steps= 10  tok= 141  wall=175.2s  elapsed=221.5min
+[..]  55/200  em=25/55  steps= 12  tok= 288  wall=217.0s  elapsed=238.4min
+[..]  60/200  em=28/60  steps= 17  tok= 234  wall=280.7s  elapsed=256.0min
+[..]  65/200  em=32/65  steps= 31  tok= 368  wall=552.0s  elapsed=287.7min
+[..]  70/200  em=35/70  steps= 17  tok= 256  wall=305.1s  elapsed=306.5min
+[..]  75/200  em=37/75  steps= 16  tok= 224  wall=283.9s  elapsed=325.5min
+[..]  80/200  em=40/80  steps= 19  tok= 272  wall=322.3s  elapsed=352.5min
+[..]  85/200  em=41/85  steps= 11  tok= 192  wall=200.0s  elapsed=369.4min

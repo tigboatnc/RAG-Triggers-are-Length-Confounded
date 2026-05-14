@@ -726,9 +726,34 @@ def main() -> None:
 
     n_total = len(questions)
     n_em_correct = 0
+
+    done_qids: set[str] = set()
+    n_em_existing = 0
+    if out_path.exists() and out_path.stat().st_size > 0:
+        with out_path.open() as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    prev = json.loads(line)
+                except Exception:
+                    continue
+                qid = str(prev.get("id") or prev.get("qid") or "")
+                if qid:
+                    done_qids.add(qid)
+                    n_em_existing += int(prev.get("em", 0))
+        if done_qids:
+            print(f"[..] resume: {len(done_qids)} rows already in {out_path}; appending remainder")
+    open_mode = "a" if done_qids else "w"
+    n_em_correct += n_em_existing
+
     t_total = time.perf_counter()
-    with out_path.open("w") as f:
+    with out_path.open(open_mode) as f:
         for i, q in enumerate(questions):
+            qid = str(q.get("id") or "")
+            if qid and qid in done_qids:
+                continue
             row = run_one_question_sota(q, tokenizer, model, capture_subset, probes, args)
             n_em_correct += int(row["em"])
             f.write(json.dumps(row) + "\n")

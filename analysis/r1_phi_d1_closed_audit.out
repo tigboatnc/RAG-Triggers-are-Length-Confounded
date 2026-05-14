@@ -1,0 +1,187 @@
+Loading R1 D1: /Users/sanegi/Documents/projects/recollection.local/runs/v2_headline_phi-4-mini-instruct/D1_closed_hotpot.jsonl
+  200 traces  (incorrect=118)
+
+Loading R1 D2 (likely partial): /Users/sanegi/Documents/projects/recollection.local/runs/v2_headline_phi-4-mini-instruct/D2_closed_wiki.jsonl
+  21 traces  (incorrect=12)
+
+====================================================================================================
+R1 — Phi-4-mini-instruct × HotpotQA-distractor (D1, closed-book)    n=200    incorrect=118    base_rate(incorrect)=0.590
+====================================================================================================
+
+--- (1) RAW AUROC + P@k against closed_em == 0 ---
+  signal                           family                   pop   AUROC    P@5%   P@10%   P@20%     ΔP@5%
+  tokens_generated                 external/length          200   0.645   0.900   0.850   0.775    +0.310
+  wall_clock_s                     external/length          200   0.612   0.800   0.800   0.750    +0.210
+  n_steps                          external/length          200   0.587   0.800   0.850   0.800    +0.210
+  ent.max                          logit                    200   0.553   0.900   0.750   0.625    +0.310
+  etc (Δ²H max)                    logit                    200   0.583   1.000   0.900   0.725    +0.410
+  flare.max (1-min p)              logit                    156   0.541   0.875   0.750   0.742    +0.285
+  dragin_rind_max.max              attention                200   0.532   0.700   0.700   0.625    +0.110
+  drift_cosine.max                 hidden CRV               200   0.586   0.900   0.850   0.800    +0.310
+  variance_l2_window.max           hidden CRV               200   0.567   0.600   0.700   0.675    +0.010
+  hidden_norm.range                hidden CRV               200   0.570   0.600   0.700   0.750    +0.010
+  selfdoubt_t1 (hvr.max)           text                     200   0.508   0.800   0.800   0.750    +0.210
+  u_cons.max (exploratory)         K-sample-text            200   0.621   0.900   0.800   0.825    +0.310
+  seakr_k5_proxy.logdet            K-sample-hidden          156   0.529   0.750   0.625   0.677    +0.160
+  AID flip_rate (K=5 ours)         AID/K-sample-answer       52   0.524   1.000   1.000   0.900    +0.410
+  AID flip_rate (K=1 Datta)        AID/K-sample-answer       52   0.535   1.000   1.000   0.900    +0.410
+  AID late_flips                   AID/K-sample-answer       52   0.579   1.000   1.000   1.000    +0.410
+  AID min_majority (1-min)         AID/K-sample-answer      139   0.519   0.857   0.714   0.536    +0.267
+
+--- (2) LENGTH-RESIDUALIZED AUROC (signal ~ log_tokens, evaluate residual) ---
+  signal                            raw AUROC  resid AUROC   ΔAUROC    raw P@5%  resid P@5%
+  wall_clock_s                          0.612        0.436   -0.176       0.800       0.700
+  n_steps                               0.587        0.442   -0.145       0.800       0.900
+  ent.max                               0.553        0.435   -0.117       0.900       0.800
+  etc (Δ²H max)                         0.583        0.470   -0.113       1.000       0.900
+  flare.max (1-min p)                   0.541        0.461   -0.080       0.875       0.375
+  dragin_rind_max.max                   0.532        0.415   -0.117       0.700       0.400
+  drift_cosine.max                      0.586        0.474   -0.112       0.900       0.900
+  variance_l2_window.max                0.567        0.431   -0.136       0.600       0.600
+  hidden_norm.range                     0.570        0.441   -0.130       0.600       0.500
+  selfdoubt_t1 (hvr.max)                0.508        0.371   -0.137       0.800       0.400
+  u_cons.max (exploratory)              0.621        0.529   -0.091       0.900       0.900
+  seakr_k5_proxy.logdet                 0.529        0.435   -0.094       0.750       0.250
+  AID flip_rate (K=5 ours)              0.524        0.477   -0.048       1.000       1.000
+  AID flip_rate (K=1 Datta)             0.535        0.497   -0.037       1.000       1.000
+  AID late_flips                        0.579        0.529   -0.050       1.000       1.000
+  AID min_majority (1-min)              0.519        0.471   -0.047       0.857       0.143
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC vs closed_em=0, B=10000 ---
+  signal                             Δraw vs tokens                 95% CI   sig?
+  wall_clock_s                               -0.033  [-0.077,+0.010]       —
+  n_steps                                    -0.058  [-0.117,-0.000]       ✓
+  ent.max                                    -0.092  [-0.155,-0.031]       ✓
+  etc (Δ²H max)                              -0.062  [-0.130,+0.005]       —
+  flare.max (1-min p)                        -0.084  [-0.171,-0.000]       ✓
+  dragin_rind_max.max                        -0.113  [-0.175,-0.054]       ✓
+  drift_cosine.max                           -0.059  [-0.128,+0.009]       —
+  variance_l2_window.max                     -0.078  [-0.146,-0.011]       ✓
+  hidden_norm.range                          -0.075  [-0.141,-0.009]       ✓
+  selfdoubt_t1 (hvr.max)                     -0.137  [-0.215,-0.058]       ✓
+  u_cons.max (exploratory)                   -0.025  [-0.094,+0.044]       —
+  seakr_k5_proxy.logdet                      -0.095  [-0.203,+0.010]       —
+  AID flip_rate (K=5 ours)                   -0.083  [-0.279,+0.115]       —
+  AID flip_rate (K=1 Datta)                  -0.073  [-0.270,+0.127]       —
+  AID late_flips                             -0.028  [-0.211,+0.153]       —
+  AID min_majority (1-min)                   -0.122  [-0.245,+0.004]       —
+
+--- (4) PER-QUESTION-TYPE AUROC (raw, vs closed_em=0) ---
+  signal                                  bridge     comparison   pop
+  tokens_generated                          0.638          0.678   (200)
+  wall_clock_s                              0.612          0.659   (200)
+  n_steps                                   0.583          0.634   (200)
+  ent.max                                   0.551          0.597   (200)
+  etc (Δ²H max)                             0.566          0.659   (200)
+  flare.max (1-min p)                       0.508          0.641   (200)
+  dragin_rind_max.max                       0.531          0.580   (200)
+  drift_cosine.max                          0.578          0.641   (200)
+  variance_l2_window.max                    0.559          0.631   (200)
+  hidden_norm.range                         0.560          0.644   (200)
+  selfdoubt_t1 (hvr.max)                    0.510          0.500   (200)
+  u_cons.max (exploratory)                  0.598          0.760   (200)
+  seakr_k5_proxy.logdet                     0.468          0.689   (200)
+  AID flip_rate (K=5 ours)                  0.539          0.429   (200)
+  AID flip_rate (K=1 Datta)                 0.552          0.429   (200)
+  AID late_flips                            0.655          0.143   (200)
+  AID min_majority (1-min)                  0.507          0.559   (200)
+
+====================================================================================================
+A1 K=1 vs K=5 — R1 D1 (closed_em=0 target only; lift_em blocked until oracle lands)
+====================================================================================================
+  n_valid=52    incorrect=36
+
+  metric                         K=1     K=5     Δ(K5-K1)    95% CI
+  ---------------------------- -------  ------ ----------- -------------------
+  raw AUROC                      0.535   0.524       -0.010  [-0.035,-0.000]
+  length-residualized AUROC      0.497   0.477       -0.021  [-0.072,-0.000]
+
+[skip D2 audit — only 21 traces, too small for stable AUROC + bootstrap]
+
+####################################################################################################
+# SANITY-CHECK comparison: existing v2 Phi cohort (n=393 paired HotpotQA).
+# These numbers are from `runs/v2_exp1_phi-4-mini-instruct/D1_closed_hotpot.jsonl`.
+# Same closed-book cohort; we run the same closed_em=0 audit. R1 D1 (n=200)
+# should reproduce direction-of-effect on every signal.
+####################################################################################################
+
+====================================================================================================
+V2 SANITY — Phi × HotpotQA (n=393, prior-cohort comparison)    n=500    incorrect=304    base_rate(incorrect)=0.608
+====================================================================================================
+
+--- (1) RAW AUROC + P@k against closed_em == 0 ---
+  signal                           family                   pop   AUROC    P@5%   P@10%   P@20%     ΔP@5%
+  tokens_generated                 external/length          500   0.636   0.840   0.820   0.790    +0.232
+  wall_clock_s                     external/length          500   0.600   0.840   0.840   0.770    +0.232
+  n_steps                          external/length          500   0.581   0.840   0.840   0.770    +0.232
+  ent.max                          logit                    500   0.550   0.800   0.780   0.680    +0.192
+  etc (Δ²H max)                    logit                    500   0.568   0.800   0.780   0.730    +0.192
+  flare.max (1-min p)              logit                      0     nan     nan     nan     nan      +nan
+  dragin_rind_max.max              attention                500   0.551   0.720   0.700   0.700    +0.112
+  drift_cosine.max                 hidden CRV               500   0.567   0.800   0.720   0.690    +0.192
+  variance_l2_window.max           hidden CRV               500   0.552   0.640   0.640   0.630    +0.032
+  hidden_norm.range                hidden CRV               500   0.558   0.640   0.740   0.660    +0.032
+  selfdoubt_t1 (hvr.max)           text                     500   0.507   0.800   0.760   0.710    +0.192
+  u_cons.max (exploratory)         K-sample-text            500   0.609   0.920   0.880   0.780    +0.312
+  seakr_k5_proxy.logdet            K-sample-hidden            0     nan     nan     nan     nan      +nan
+  AID flip_rate (K=5 ours)         AID/K-sample-answer        0     nan     nan     nan     nan      +nan
+  AID flip_rate (K=1 Datta)        AID/K-sample-answer        0     nan     nan     nan     nan      +nan
+  AID late_flips                   AID/K-sample-answer        0     nan     nan     nan     nan      +nan
+  AID min_majority (1-min)         AID/K-sample-answer        0     nan     nan     nan     nan      +nan
+
+--- (2) LENGTH-RESIDUALIZED AUROC (signal ~ log_tokens, evaluate residual) ---
+  signal                            raw AUROC  resid AUROC   ΔAUROC    raw P@5%  resid P@5%
+  wall_clock_s                          0.600        0.449   -0.152       0.840       0.600
+  n_steps                               0.581        0.455   -0.126       0.840       0.680
+  ent.max                               0.550        0.443   -0.107       0.800       0.680
+  etc (Δ²H max)                         0.568        0.467   -0.101       0.800       0.760
+  dragin_rind_max.max                   0.551        0.439   -0.112       0.720       0.520
+  drift_cosine.max                      0.567        0.465   -0.102       0.800       0.680
+  variance_l2_window.max                0.552        0.407   -0.145       0.640       0.600
+  hidden_norm.range                     0.558        0.438   -0.120       0.640       0.640
+  selfdoubt_t1 (hvr.max)                0.507        0.378   -0.130       0.800       0.480
+  u_cons.max (exploratory)              0.609        0.524   -0.085       0.920       0.720
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC vs closed_em=0, B=10000 ---
+  signal                             Δraw vs tokens                 95% CI   sig?
+  wall_clock_s                               -0.036  [-0.064,-0.007]       ✓
+  n_steps                                    -0.056  [-0.091,-0.020]       ✓
+  ent.max                                    -0.087  [-0.127,-0.046]       ✓
+  etc (Δ²H max)                              -0.069  [-0.110,-0.027]       ✓
+  flare.max (1-min p)                          +nan  [  +nan,  +nan]       —
+  dragin_rind_max.max                        -0.085  [-0.124,-0.045]       ✓
+  drift_cosine.max                           -0.069  [-0.113,-0.026]       ✓
+  variance_l2_window.max                     -0.085  [-0.128,-0.041]       ✓
+  hidden_norm.range                          -0.078  [-0.120,-0.036]       ✓
+  selfdoubt_t1 (hvr.max)                     -0.129  [-0.177,-0.080]       ✓
+  u_cons.max (exploratory)                   -0.028  [-0.069,+0.014]       —
+  seakr_k5_proxy.logdet                        +nan  [  +nan,  +nan]       —
+  AID flip_rate (K=5 ours)                     +nan  [  +nan,  +nan]       —
+  AID flip_rate (K=1 Datta)                    +nan  [  +nan,  +nan]       —
+  AID late_flips                               +nan  [  +nan,  +nan]       —
+  AID min_majority (1-min)                     +nan  [  +nan,  +nan]       —
+
+--- (4) PER-QUESTION-TYPE AUROC (raw, vs closed_em=0) ---
+  signal                                  bridge     comparison   pop
+  tokens_generated                          0.631          0.662   (500)
+  wall_clock_s                              0.605          0.627   (500)
+  n_steps                                   0.584          0.622   (500)
+  ent.max                                   0.573          0.529   (500)
+  etc (Δ²H max)                             0.553          0.636   (500)
+  flare.max (1-min p)                         n/a            n/a   (500)
+  dragin_rind_max.max                       0.574          0.514   (500)
+  drift_cosine.max                          0.572          0.581   (500)
+  variance_l2_window.max                    0.553          0.585   (500)
+  hidden_norm.range                         0.557          0.603   (500)
+  selfdoubt_t1 (hvr.max)                    0.508          0.500   (500)
+  u_cons.max (exploratory)                  0.617          0.651   (500)
+  seakr_k5_proxy.logdet                       n/a            n/a   (500)
+  AID flip_rate (K=5 ours)                    n/a            n/a   (500)
+  AID flip_rate (K=1 Datta)                   n/a            n/a   (500)
+  AID late_flips                              n/a            n/a   (500)
+  AID min_majority (1-min)                    n/a            n/a   (500)
+
+Wrote analysis/r1_phi_d1_closed_audit.json
+
+Note: lift_em=+1 analyses BLOCKED until E1_oracle_hotpot.jsonl lands.
+Re-run with `pilot_audit.py --prefix v2_headline --bootstrap-b 10000` once R1 oracle lands.

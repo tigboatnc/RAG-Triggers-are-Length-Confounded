@@ -1,0 +1,35 @@
+
+Loaded 400 paired traces across 2 cells.
+(per cell up to n=25 closed×oracle pairs from rq1-pilot-v1 schema; K=5 sampler captures.)
+flip_rate_k1 derivable: 305/400    flip_rate_k5 derivable: 305/400
+
+Note: K=1 here uses samples[0].text (first stochastic completion) as the
+Datta-style greedy proxy. Not a perfectly faithful replication of
+forced-answer-completion (which uses deterministic greedy + answer-prefix
+forcing). Read as directional. R1 will run the proper K=1 ablation if needed.
+
+==========================================================================================
+TARGET: lift_em == +1 (retrieval would have helped)
+==========================================================================================
+cell            n  pop  K1_raw  K5_raw     Δraw   K1_res  K5_res     Δres            Δraw 95%CI           Δres 95%CI
+----------------------------------------------------------------------------------------------------------------------------------
+qwen_hot      151   25   0.666   0.659   -0.006    0.690   0.668   -0.022  [-0.062,+0.032]  [-0.096,+0.029]
+qwen_wiki     154   22   0.579   0.582   +0.003    0.534   0.549   +0.014  [-0.044,+0.056]  [-0.043,+0.089]
+----------------------------------------------------------------------------------------------------------------------------------
+OVERALL       305   47   0.626   0.624   -0.002    0.615   0.614   -0.001  [-0.040,+0.031]  [-0.049,+0.044]
+
+==========================================================================================
+TARGET: closed_em == 0 (closed-book incorrect)
+==========================================================================================
+cell            n  pop  K1_raw  K5_raw     Δraw   K1_res  K5_res     Δres            Δraw 95%CI           Δres 95%CI
+----------------------------------------------------------------------------------------------------------------------------------
+qwen_hot      151   73   0.618   0.608   -0.010    0.592   0.596   +0.004  [-0.048,+0.027]  [-0.039,+0.048]
+qwen_wiki     154   69   0.564   0.587   +0.023    0.582   0.611   +0.029  [-0.022,+0.072]  [-0.016,+0.077]
+----------------------------------------------------------------------------------------------------------------------------------
+OVERALL       305  142   0.592   0.598   +0.006    0.590   0.606   +0.017  [-0.024,+0.036]  [-0.014,+0.049]
+
+Wrote analysis/a1_k1_vs_k5_r1_qwen.json
+
+Next step (Day 2 of week-of-2026-05-14 plan): re-run this script with
+--pilot-root v2_headline once R1 lands, to get the publishable K=1 vs K=5
+ablation table at n=200/cell.

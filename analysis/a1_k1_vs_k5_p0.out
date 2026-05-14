@@ -1,0 +1,43 @@
+
+Loaded 150 paired traces across 6 cells.
+(per cell up to n=25 closed×oracle pairs from rq1-pilot-v1 schema; K=5 sampler captures.)
+flip_rate_k1 derivable: 98/150    flip_rate_k5 derivable: 98/150
+
+Note: K=1 here uses samples[0].text (first stochastic completion) as the
+Datta-style greedy proxy. Not a perfectly faithful replication of
+forced-answer-completion (which uses deterministic greedy + answer-prefix
+forcing). Read as directional. R1 will run the proper K=1 ablation if needed.
+
+==========================================================================================
+TARGET: lift_em == +1 (retrieval would have helped)
+==========================================================================================
+cell            n  pop  K1_raw  K5_raw     Δraw   K1_res  K5_res     Δres            Δraw 95%CI           Δres 95%CI
+----------------------------------------------------------------------------------------------------------------------------------
+gemma_hot      25    2   0.707   0.685   -0.022    0.739   0.739   +0.000  [-0.174,+0.136]  [-0.174,+0.208]
+gemma_wiki     25    4   0.917   0.768   -0.149    0.929   0.815   -0.113  [-0.386,+0.000]  [-0.375,+0.071]
+phi_hot         7    0 (skipped — too few samples or degenerate labels)
+phi_wiki        5    1 (skipped — too few samples or degenerate labels)
+qwen_hot       18    3   0.444   0.478   +0.033    0.367   0.367   +0.000  [+0.000,+0.107]  [-0.094,+0.092]
+qwen_wiki      18    3   0.678   0.678   +0.000    0.689   0.689   +0.000  [+0.000,+0.000]  [+0.000,+0.000]
+----------------------------------------------------------------------------------------------------------------------------------
+OVERALL        98   13   0.628   0.589   -0.038    0.649   0.607   -0.042  [-0.127,+0.030]  [-0.149,+0.033]
+
+==========================================================================================
+TARGET: closed_em == 0 (closed-book incorrect)
+==========================================================================================
+cell            n  pop  K1_raw  K5_raw     Δraw   K1_res  K5_res     Δres            Δraw 95%CI           Δres 95%CI
+----------------------------------------------------------------------------------------------------------------------------------
+gemma_hot      25   16   0.549   0.684   +0.135    0.514   0.632   +0.118  [-0.031,+0.341]  [-0.053,+0.333]
+gemma_wiki     25   12   0.708   0.670   -0.038    0.724   0.673   -0.051  [-0.173,+0.074]  [-0.199,+0.065]
+phi_hot         7    7 (skipped — too few samples or degenerate labels)
+phi_wiki        5    4 (skipped — too few samples or degenerate labels)
+qwen_hot       18   13   0.585   0.708   +0.123    0.469   0.562   +0.092  [+0.000,+0.400]  [-0.108,+0.415]
+qwen_wiki      18    8   0.725   0.725   +0.000    0.625   0.625   +0.000  [+0.000,+0.000]  [+0.000,+0.000]
+----------------------------------------------------------------------------------------------------------------------------------
+OVERALL        98   60   0.678   0.717   +0.039    0.676   0.717   +0.041  [-0.019,+0.106]  [-0.022,+0.112]
+
+Wrote analysis/a1_k1_vs_k5_p0.json
+
+Next step (Day 2 of week-of-2026-05-14 plan): re-run this script with
+--pilot-root v2_headline once R1 lands, to get the publishable K=1 vs K=5
+ablation table at n=200/cell.

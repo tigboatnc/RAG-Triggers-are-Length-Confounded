@@ -353,7 +353,7 @@ P1 introduces 4 NOVEL trigger captures (none in published pool):
 | # | field | model class | mechanism |
 |---|---|---|---|
 | N1 | `moe_routing_entropy` | MoE only | mean entropy over MoE expert-routing distribution per step |
-| N2 | `prefix_answer_now` | all | KV-fork, prefill `Answer: `, greedy 10 tokens — "what would the model answer NOW" |
+| N2 | `prefix_answer_now` | all | KV-fork, prefill `Answer: `, greedy 10 tokens — "what would the model answer NOW" — **= forced answer completion (Datta et al. 2026, [2604.22266](https://arxiv.org/abs/2604.22266)); re-implementation via KV-fork primitive. Not novel; cite as such.** |
 | N3 | `multi_layer_dragin` | all (esp. hybrid) | DRAGIN-RIND at {first, mid, last} full-attn layers |
 | N4 | `attention_sink_frac` | any attn-bearing | fraction of attention to first-4 tokens (StreamingLLM sink) |
 
@@ -408,20 +408,259 @@ everything in the published trigger pool:
 completion answers disagree with the previous step. AUROC for lift_em=+1:
 **0.733 raw, 0.735 residualized, r(tokens)=0.008.**
 
-This is: (a) highest single-signal AUROC for retrieval-helpfulness prediction,
-(b) orthogonal to length (r<0.01), (c) orthogonal to DRAGIN (r=0.25),
-(d) complementary per-arch (wins where DRAGIN is weakest: Qwen hot 0.867 vs 0.571),
-(e) computable online from existing K=5 captures at zero extra inference cost,
-(f) novel — no published trigger uses step-to-step answer stability.
+This is: (a) highest single-signal AUROC for retrieval-helpfulness prediction in
+our audited pool, (b) orthogonal to length (r<0.01), (c) orthogonal to DRAGIN
+(r=0.25), (d) complementary per-arch (wins where DRAGIN is weakest: Qwen hot
+0.867 vs 0.571), (e) computable online from existing K=5 captures at zero extra
+inference cost *given the K=5 sampling schema* (the K=5 captures themselves are
+not free — see lit precedent caveat below), (f) **first published application of
+step-level answer-instability as a retrieval-triggering signal** (revised; see
+"Lit precedent / positioning" below).
 
-**Paper trajectory shifted AGAIN:**
+### Lit precedent / positioning (added 2026-05-14)
+
+A targeted lit-gap pass (web search by GZN) on 2026-05-14 found that the
+mechanical primitive of measuring step-to-step answer change has direct
+precedent in the literature, contrary to the original "novel — no published
+trigger uses step-to-step answer stability" claim. The contribution narrative
+must be reframed accordingly **before any submission**.
+
+| paper | venue / date | what it does | overlap with AID | distinguishing factor |
+|---|---|---|---|---|
+| **Datta et al., "Large Language Models Decide Early and Explain Later"** ([2604.22266](https://arxiv.org/abs/2604.22266)) | **ICML 2026, Apr 27 2026** | "Forced answer completion": at each reasoning step, append end-of-thinking + answer prefix, sample, get intermediate `A_i`. Defines `AnswerSwitches = Σ_i [A_i ≠ A_{i+1}]` and final-switch index `t* = max{i: A_i ≠ A_{i+1}}`. | **DIRECT**: `AnswerSwitches` ≡ our `flip_count`; `t*` ≈ our `late_flips` mechanic. | (i) single-sample greedy forced-completion vs our K=5 boundary completions (multi-sample); (ii) studies reasoning models (Qwen3-4B with thinking) vs our standard instruction-tuned models; (iii) **applied to early-stopping for token economy, not retrieval triggering**; (iv) no length-controlled evaluation, no `lift_em` target, no paired oracle re-decode. |
+| Hou et al., "Diagnosing Dynamic Instability in LLM Reasoning at Inference Time" ([2602.02863](https://arxiv.org/abs/2602.02863)) | Feb 2026 | Token-distribution JSD between consecutive *decoding tokens* + entropy → instability strength `S = max_t(D_t + λ H_t)`; tested on HotpotQA distractor. **Includes the early-peak / late-peak ρ "corrective vs destructive" framing**. Explicitly diagnostic, not a retrieval trigger. | parallel timing-distinction logic to our `late_flips`. | different signal class (token-distribution, single-trace) vs ours (answer-level, multi-sample); not a trigger at all. |
+| Mao et al., "Confidence over Time: Confidence Calibration with Temporal Logic" ([2601.13387](https://arxiv.org/abs/2601.13387)) | ACL 2026, Jan 2026 | Multi-sample stepwise confidence + Signal Temporal Logic (STL) mining to distinguish correct from incorrect reasoning traces. | multi-sample stepwise temporal pattern → predict correctness — closest in spirit. | STL-formula mining vs flip-rate aggregation; calibration target vs `lift_em`; not a retrieval trigger. |
+| Zhang et al., "Answer-agreement Representation Shaping" (ARS) ([2601.17467](https://arxiv.org/abs/2601.17467)) | ICML 2026, Jan 2026 | "Answer stability score" α via latent-state perturbations at trace-boundary embedding → counterfactual answer → agreement. | terminological collision: "answer stability", "answer-agreeing/disagreeing." | mechanism is representation engineering for hallucination detection, not stepwise trajectory tracking; trains a probe; tested on TruthfulQA/TriviaQA/GSM8K. |
+| Yang et al., "Chain-of-Probe (CoP)" ([2406.16144](https://arxiv.org/abs/2406.16144)) | Findings-NAACL 2025 | Probes confidence changes during reasoning to assess CoT necessity. | stepwise-confidence-tracking lineage. | confidence-change probe, not answer-flip; not a retrieval trigger. |
+| (parent literature, must-cite for §2) | | | | |
+| Wang et al., "Self-Consistency Improves CoT Reasoning" ([2203.11171](https://arxiv.org/abs/2203.11171)) | ICLR 2023 | sample K paths, majority-vote terminal answer. | foundational K-sample answer-agreement. | terminal, not stepwise; not a trigger. |
+| Kuhn, Gal, Farquhar, "Semantic Uncertainty" ([2302.09664](https://arxiv.org/abs/2302.09664)) | ICLR 2023 oral | semantic-equivalence clustering of K samples → entropy over meanings. | parent UQ method. | terminal, not stepwise. |
+| Lin, Trivedi, Sun, "Generating with Confidence" ([2305.19187](https://arxiv.org/abs/2305.19187)) | TMLR 2024 | UQ taxonomy for black-box LLMs. | UQ vocabulary baseline. | not a trigger. |
+| **Chen et al., INSIDE EigenScore** ([2402.03744](https://arxiv.org/abs/2402.03744)) | **ICLR 2024** | eigenvalue covariance of K hidden states for hallucination detection. | **predates SeaKR by ~6 months; should be the originator-citation for EigenScore in our Burden 2 plan, not just SeaKR.** | hallucination detection target, not retrieval triggering. |
+| Zhang et al., SAC³ ([2311.01740](https://arxiv.org/abs/2311.01740)) | EMNLP 2023 Findings | semantic-aware K-sample cross-check. | closest "K-sample answer-agreement" method other than ours. | terminal, not stepwise. |
+| Trivedi et al., IRCoT ([2212.10509](https://arxiv.org/abs/2212.10509)) | ACL 2023 | interleave retrieval with CoT generation. | foundational retrieve-mid-generation pattern. | not a trigger; system-level interleave. |
+| Guo et al., DeepRAG ([2502.01142](https://arxiv.org/abs/2502.01142)) | 2025 | MDP-based step-by-step retrieval decision. | adjacent step-decision framework. | learned policy, not a parameter-free signal. |
+
+**Revised novelty framing (use this in §1 / abstract):**
+
+> Concurrent work by Datta et al. (2026) introduces *forced answer completion*
+> to track answer trajectories in reasoning models for early-stopping, defining
+> `AnswerSwitches` and final-switch-index as descriptive metrics of
+> intra-trajectory answer change. We extend this primitive in three ways:
+> (i) **multi-sample (K=5) boundary-completion answers per step** instead of
+> greedy forced completion, capturing stochastic step-level instability that
+> deterministic trajectories miss; (ii) **applied as a retrieval-triggering
+> signal** for dynamic RAG, where Datta et al. used it for token economy;
+> (iii) **evaluated under length-controlled residualized AUROC and paired
+> bootstrap against the published trigger pool**, with `lift_em = +1`
+> (paired closed-vs-oracle re-decode) as the target rather than terminal
+> correctness.
+
+**Implications for committed claims:**
+- Drop "novel — no published trigger uses step-to-step answer stability" everywhere it appears.
+- `prefix_answer_now` (N2 in `rq1-pilot-v2`) **is forced answer completion** (Datta et al. 2026). Re-label the field description; do not claim novelty.
+- The `late_flips` early/late-flip distinction must cite Hou et al. 2026 (2602.02863) for the timing-of-instability framing.
+- §2 of the paper must add a "Step-level / answer-trajectory methods" subsection covering Datta, Hou, Mao, ARS, Chain-of-Probe.
+- Self-consistency (Wang 2022), Semantic Uncertainty (Kuhn 2023), INSIDE (Chen 2024 — predates SeaKR), SAC³ (Zhang 2023) all required for §2 even if not benchmarked.
+- Pre-submission ablation needed: **K=1 (Datta-style greedy forced-completion) vs K=5 (our multi-sample)** on existing pilot traces — substantiates the K=5 contribution. If K=5 doesn't beat K=1 by a meaningful margin, the contribution narrows further (still publishable as the first retrieval-triggering use; just smaller).
+
+**The methodology contribution is unaffected by these findings:**
+- Length-controlled residualized AUROC + paired-bootstrap evaluation of an established trigger pool — still novel for the dynamic-RAG triggering literature.
+- `lift_em = +1` paired closed-vs-oracle target — still novel (no precedent above uses this; Datta et al. evaluate against terminal correctness).
+- Trigger-pool re-ranking (DRAGIN survives, ETC/HVR/variance-l2 fail under length-residualization) — still our finding.
+- Per-architecture survivor heterogeneity (DRAGIN dominates Gemma; AID-flip-rate dominates Phi/Qwen) — still our finding, just with the AID label correctly attributed.
+
+**Paper trajectory (post-2026-05-14 lit pass):**
 - ~~"Published pool is undercomplete" (descriptive)~~
-- **NOW: "We introduce AID, a novel trigger family; under length-controlled
-  evaluation across 3 archs × 2 datasets, it achieves highest AUROC and
-  specifically complements DRAGIN where it is weakest."**
+- ~~"We introduce AID, a novel trigger family"~~
+- ~~"We introduce a length-controlled evaluation protocol for dynamic-RAG triggers"~~ (further walked back below — UNCERTAINTY-LINE precedent)
+- **NOW (post 2026-05-14 length-confound lit pass): "We adopt the UNCERTAINTY-LINE
+  residualization protocol of Belem et al. (2025) and extend it to dynamic-RAG
+  trigger evaluation; we target `lift_em = +1` (paired closed-vs-oracle re-decode)
+  rather than terminal correctness; we re-rank the published trigger pool under
+  this protocol; and we contribute the first retrieval-triggering use of step-level
+  answer-instability (extending Datta et al. 2026 with K=5 multi-sample boundary
+  completions). Under this combined protocol, DRAGIN-RIND and AID-flip-rate are
+  the two length-robust survivors across 3 architectures × 2 datasets, with
+  per-arch complementarity."**
 
-This makes the paper a CONTRIBUTION paper (novel trigger + methodology), not
-just an evaluation paper.
+This is still a CONTRIBUTION paper (protocol-extension + retrieval-trigger
+application + signal-application + cross-arch audit), but with honest attribution
+to the concurrent answer-trajectory work AND to the prior UQ length-bias literature.
+
+---
+
+## Lit precedent / positioning — LENGTH-CONFOUND lineage (added 2026-05-14, second pass)
+
+A targeted lit-gap pass on length-confound in UQ / hallucination-detection
+evaluation found that the **residualization protocol** we use is **not novel**
+either — Belem et al. (2025) published the same fix as **UNCERTAINTY-LINE**
+specifically for UQ evaluation. The protocol-novelty claim must be walked back
+**before any submission**.
+
+| paper | venue / date | what it does | overlap with our protocol | distinguishing factor |
+|---|---|---|---|---|
+| **Belem et al., "Revisiting Uncertainty Quantification Evaluation in Language Models: Spurious Interactions with Response Length Bias Results"** ([2504.13677](https://arxiv.org/abs/2504.13677)) | **ACL 2025 short / Apple ML Research** | Formal proof that when both UQ method and correctness function are length-biased, AUROC rankings are non-randomly skewed. Empirical: 7 correctness funcs × 4 datasets × 4 models × 8 UQ methods. | **DIRECT — formalizes the framing problem we operationalize.** | Their setting is open-domain UQ evaluation (TriviaQA / SciQ / NaturalQuestions); ours is dynamic-RAG **trigger** evaluation against `lift_em = +1` (paired oracle re-decode), which they don't address. |
+| **Belem et al., "UNCERTAINTY-LINE: Length-Invariant Estimation of Uncertainty"** ([2505.19060](https://arxiv.org/abs/2505.19060)) | May 2025 | Proposes regression of uncertainty scores on output length, using **residuals as corrected, length-invariant estimates**. **This is our `signal ~ log(tokens+1)` residualized-AUROC protocol, in the UQ-eval setting.** | **DIRECT — they invented the residualization fix; we did not.** | Same setting as above (UQ evaluation, terminal correctness target); same fix; we are first to (i) apply it to the dynamic-RAG trigger family, (ii) target `lift_em = +1` instead of terminal correctness. |
+| **"The Illusion of Progress: Re-evaluating Hallucination Detection in LLMs"** ([EMNLP 2025](https://aclanthology.org/2025.emnlp-main.1761/)) | EMNLP 2025 | *"Simple heuristics based on response length can rival complex hallucination detection techniques, exposing flawed evaluation practices."* Direct empirical demonstration. | **DIRECT external validation of our R1 D1 closed_em finding** (tokens AUROC=0.645 beating DRAGIN/HVR/SeaKR/FLARE under residualization). | Their setting is general hallucination detection; ours is dynamic-RAG triggers + `lift_em` target. |
+| Castaneda et al., "Addressing Pitfalls in the Evaluation of Uncertainty Estimation Methods for NLG" ([2510.02279](https://arxiv.org/abs/2510.02279)) | Oct 2025 | Pitfalls in UQ-NLG evaluation including length and correctness-function disagreement. | confirms framing-problem awareness in 2025 literature. | concurrent / supporting; not the protocol originator. |
+| Zhang et al., "Verbosity ≠ Veracity: Demystify Verbosity Compensation Behavior of LLMs" ([2411.07858](https://arxiv.org/abs/2411.07858)) | ACL 2025 UncertainLP workshop | Empirical: verbose responses → higher uncertainty across 14 LLMs × 5 datasets; **27.61% performance gap** between verbose and concise on Qasper. | establishes the length↔incorrectness coupling as a fundamental LLM behavior. | descriptive empirical, not a corrective protocol. |
+| **Hou et al., "Diagnosing Dynamic Instability in LLM Reasoning at Inference Time"** ([2602.02863](https://arxiv.org/abs/2602.02863)) | Feb 2026 | Token-distribution instability signal `S = max_t (D_t + λ H_t)`; recognizes length-confound (*"longer generations provide more opportunities for a large max_t I_t"*); fix is **fixed-window early-S<sub>50</sub> control** (max over first 50 steps), not regression. Reports `S_50` AUROC alongside `S` AUROC. | partial — recognizes the problem; uses different fix (truncation vs regression). | already in our answer-trajectory precedent table; cross-listed here for the length-confound dimension. |
+
+**Why DRAGIN, FLARE, SelfCheckGPT, SeaKR did NOT report length-controlled
+evaluation** (anticipated reviewer question; the answer is structural, not a
+deficiency in those works):
+
+1. **Timing.** DRAGIN: Mar 2024. FLARE: May 2023. SelfCheckGPT: 2023. SeaKR: Jun 2025. The length-confound-in-UQ-eval discovery wave crystallized in **2025** (Belem et al. ACL 2025 / UNCERTAINTY-LINE May 2025; Illusion of Progress EMNLP 2025; Castaneda et al. Oct 2025). The earlier papers literally couldn't have known.
+2. **Different target.** Those works evaluate against terminal-correctness (binary EM/F1). Our paper targets `lift_em = +1` (paired closed-vs-oracle retrieval-helpfulness), which Belem et al. *also* don't address. We are at the intersection of two threads (length-debiasing × retrieval-trigger evaluation) that nobody has combined yet.
+3. **Aggregation level.** Reporting an "AUROC under length residualization" on *prior* work requires a dedicated post-hoc re-audit. Belem et al. (2025) call exactly for this kind of re-evaluation across UQ; nobody has yet done it for dynamic-RAG triggers.
+
+### Revised novelty framing (use this in §1 / abstract)
+
+The paper now stands on a **three-layer concentric contribution structure**:
+
+> *Belem et al. (2025) showed that response-length bias systematically distorts
+> uncertainty-quantification evaluation, and proposed UNCERTAINTY-LINE — a
+> regression-residualization fix — for the open-domain UQ setting against
+> terminal correctness targets. Hou et al. (2026) recognize the same confound
+> for token-distribution instability signals and adopt a fixed-window control.
+> We extend the UNCERTAINTY-LINE residualization protocol to dynamic-RAG trigger
+> evaluation, with `lift_em = +1` (paired closed-vs-oracle re-decode) as the
+> target rather than terminal correctness, and we contribute the first
+> retrieval-triggering use of step-level answer-instability (AID-flip-rate, K=5
+> multi-sample extension of Datta et al. 2026's forced-answer-completion
+> primitive). Under this combined protocol, applied to a re-audit of 11+
+> published parameter-free decode-time triggers across 3 architectures × 2
+> datasets, DRAGIN-RIND and AID-flip-rate are the two length-robust survivors
+> on the retrieval-helpfulness target, with per-architecture complementarity.*
+
+### Pre-drafted §2 paragraph (drop into paper Day 1)
+
+```
+\paragraph{Length-confound in uncertainty-signal evaluation.}
+Recent work has identified that response length is a systematic confound in
+the evaluation of LLM uncertainty signals against correctness-style labels.
+\citet{belem2025revisiting} prove that when both an uncertainty quantifier
+and the correctness function are length-biased, the resulting AUROC ranking
+is non-randomly skewed; \citet{belem2025uncertaintyline} (UNCERTAINTY-LINE)
+propose a regression-residualization fix in which uncertainty scores are
+regressed on output length and the residuals serve as length-invariant
+estimates. \citet{illusionprogress2025} report empirically that simple
+length heuristics rival sophisticated hallucination detectors under standard
+benchmarks, providing a concrete instance of the same distortion. Concurrent
+work on intra-trajectory instability (\citealp{hou2026diagnosing}) recognizes
+the same confound for token-distribution signals and adopts a fixed-window
+truncation control. We extend the UNCERTAINTY-LINE protocol to the
+\emph{dynamic-RAG trigger} family, with a \emph{paired oracle re-decode}
+target (\textit{lift\_em}=+1: closed-book trace minus oracle-retrieval trace
+of the same question, see \S\ref{sec:method}) rather than terminal
+correctness. To the best of our knowledge, we are the first to evaluate
+parameter-free decode-time dynamic-RAG triggers under length-residualization
+against a retrieval-helpfulness target.
+```
+
+### Implications for committed claims
+
+- **Drop "we introduce a length-controlled evaluation protocol" everywhere it appears in plan/agent docs.** Replace with "we adopt and extend the UNCERTAINTY-LINE residualization protocol of Belem et al. (2025) to the dynamic-RAG trigger family."
+- The R1 D1 closed_em finding (`tokens` AUROC=0.645 paired-bootstrap-significantly beats DRAGIN, HVR, ent.max, FLARE, variance_l2, hidden_norm, n_steps under residualization) is now **direct confirmation of Illusion of Progress (2025) in the dynamic-RAG trigger setting** — this is a paper-strengthening move, not a weakening one.
+- The novelty arithmetic across all three precedent layers (AID primitive, timing-distinction, residualization protocol):
+
+  | layer | precedent | our extension |
+  |---|---|---|
+  | answer-trajectory primitive | Datta et al. 2026 (forced-answer-completion, single-sample, early-stopping) | retrieval-triggering application + K=5 multi-sample boundary completion |
+  | early/late timing distinction | Hou et al. 2026 (corrective vs destructive, token-distribution) | answer-level analog (`late_flips`) |
+  | length-residualization protocol | Belem et al. 2025 UNCERTAINTY-LINE (UQ eval, terminal correctness) | dynamic-RAG trigger application + `lift_em` paired-oracle target |
+  | trigger-pool re-ranking on `lift_em=+1` | none | **fully novel** — this is the empirical contribution that carries the paper |
+  | cross-arch survivor matrix (3 archs × 2-3 datasets) | none | **fully novel** |
+  | per-architecture trigger complementarity (DRAGIN dominates Gemma; AID-flip-rate dominates Phi/Qwen) | none | **fully novel** |
+
+The methodology contribution shrinks from "we invented a protocol" to "we extend
+a protocol from a parallel setting and apply it to a target nobody has used."
+The empirical contributions are unchanged. **Acceptance estimate: still
+~30-40% / 45-55% / 60-70% per `_rq1-outlook.md`** — the third row carries.
+
+---
+
+## Week-of-2026-05-14 paper-push plan (the plan to meet `_rq1-outlook.md`)
+
+`_rq1-outlook.md` (saved 2026-05-14) sets the EMNLP-short acceptance estimate:
+- **current data only:** ~30-35%
+- **+ R1 (n=200 cross-arch):** ~45-55%
+- **+ R1 + R2 + A1 + lit fill + hostile-review pass:** ~60-70%
+
+This week (Thu 2026-05-14 → Thu 2026-05-21) executes the third row.
+
+| day | date | track A — compute (background) | track B — analysis (CPU, blocking) | track C — writing |
+|---|---|---|---|---|
+| **0** | **Thu 2026-05-14 (today)** | **Launch R1 on box: `bash scripts/run_headline_n200.sh`** (~22 h serial / ~10–12 h parallel) | A1 (K=1 vs K=5 on P0 traces) — `analysis/a1_k1_vs_k5_ablation.py` — **DONE 2026-05-14, see `_rq1-agent.md` A1-P0 readout** | paper repo skeleton (Overleaf), §1/§2 outlines |
+| 1 | Fri 2026-05-15 | R1 still running | — | Lit-review hand-curation: 7 parent must-cites + 5 step-level precedents into `litReview/-rq1-v2-litReview.md`. Re-write §3.1 sentence on "answer instability detection". Draft §1, §2.1, §2.2, §2.3 of paper. |
+| 2 | Sat 2026-05-16 | R1 lands EOD Fri or early Sat | Run `pilot_audit.py --prefix v2_headline --bootstrap-b 10000 --bonferroni-k 19`. Re-run A1 on R1 traces (`--pilot-root v2_headline`). Build Tables 1 + 2. | Draft §3 (method), §4 (results) skeleton. |
+| 3 | Sun 2026-05-17 | DECISION: launch R2 (MuSiQue, ~11 h) iff R1 was clean? | Run FLARE + SelfCheckGPT-NLI offline on R1 traces (~1–2 h). Run E8 lift-conditional table at fire rates {5%, 10%, 20%}. | Write §4 with R1 + A1 + FLARE + SelfCheckGPT numbers. |
+| 4 | Mon 2026-05-18 | R2 lands (if launched) | Extend Table 1 with MuSiQue column if R2 ran. | Draft §5 (discussion), §6 (limitations). |
+| 5 | Tue 2026-05-19 | — | — | Hostile-review pass — answer all 4 critiques in `_rq1-plan.md` Hostile-review playbook + the AID-as-Datta-extension critique inside the paper text. |
+| 6 | Wed 2026-05-20 | — | — | Polish, abstract, refs, figure cleanup, page-count audit (4 + ∞ refs). One outside read on framing. |
+| 7 | Thu 2026-05-21 | — | — | **SUBMIT.** Buffer day for last-minute fixes. |
+
+**Compute envelope this week:** ~33 h serial (R1 22 h + R2 11 h) + ~2 h analyses. With one A800 box, R1 + R2 fit serial; with two boxes, parallel split.
+
+**Single most leverage action this week:** R1 launch (Day 0). Every hour of R1 delay is an hour off Day 6/7 polish buffer.
+
+**Ablation pre-registration (A1):**
+- A1-on-P0 already executed (see `_rq1-agent.md`). At n=25/cell, K=1 vs K=5 paired-bootstrap CI straddles zero (overall Δlift_raw = -0.038, CI [-0.127, +0.030]; Δlift_res = -0.042, CI [-0.149, +0.033]). **Pilot is underpowered to distinguish K=1 from K=5; pop=13 helpful traces of 98 valid.** This is a null result with very wide CIs, NOT a "K=5 fails" result.
+- A1-on-R1 will replicate the script on n=200/cell traces. With ~30-50 helpful traces per cell (8x more pop), CIs will tighten ~3x. **The A1-on-R1 outcome is what the paper must commit to — not the A1-on-P0 directional read.**
+- Three pre-registered outcome regimes for A1-on-R1:
+  1. K=5 paired-bootstrap-significantly beats K=1 (CI lower bound > 0) on residualized AUROC vs `lift_em=+1` on ≥2 of 6 cells → headline "K=5 multi-sample extension is the contribution; AID-K=5 is the survivor."
+  2. K=5 ≈ K=1 (CI straddles 0 across all/most cells) → honest equality framing: "first retrieval-triggering use of forced-answer-completion under length-controlled evaluation; K determined empirically." Methodology contribution carries the paper.
+  3. K=1 paired-significantly beats K=5 → drop the K=5 framing entirely; paper becomes "first retrieval-triggering use of Datta forced-answer-completion (K=1) under length-controlled evaluation." AID contribution shrinks to application + protocol.
+
+These three regimes are **all publishable** at EMNLP-short with honest framing; they just shift which contribution carries the headline.
+
+---
+
+## LOCKED-IN SCOPE (added 2026-05-14)
+
+After the lit-precedent pass and the Week-plan above, the campaign is locked
+to a single direction. Everything below is **explicitly out of scope** for this
+campaign — no compute, no further code work, no headline space. Documented here
+so the next session does not re-litigate.
+
+### Closed threads (do not pursue further this campaign)
+
+| thread | original location | status | rationale |
+|---|---|---|---|
+| **N1 `moe_routing_entropy`** | rq1-pilot-v2 schema (P1) | **CLOSED** | P1 cancelled; novel-trigger insurance not needed for the AID-extension paper trajectory |
+| **N2 `prefix_answer_now`** | rq1-pilot-v2 schema (P1) | **CLOSED as novel; reframed as Datta-attribution diagnostic if mentioned at all** | = forced answer completion (Datta et al. 2026); not a novel contribution from us |
+| **N3 `multi_layer_dragin`** | rq1-pilot-v2 schema (P1) | **CLOSED** | P1 cancelled; would require dedicated multi-arch run |
+| **N4 `attention_sink_frac`** | rq1-pilot-v2 schema (P1) | **CLOSED** | P1 cancelled; StreamingLLM-sink artifact-flag, not a trigger |
+| **`u_cons` family** (verb / ent / cons consistency probes) | on-disk audit pool | **CLOSED as headline candidate; retained as exploratory rows in the audit table for completeness only** | exploratory throughout v1 + v2; per `_rq1-plan.md` §"What the plan does NOT commit to" |
+| **CRV exploratory features** (`drift_cosine`, `variance_l2_window`, `hidden_norm`) | on-disk audit pool | **kept in audit table as paired-bootstrap-significantly-worse-than-length rows; not a headline candidate** | the audit-it-and-bury-it role; demonstrates protocol's discriminative power |
+| **Burden 2 — SeaKR `eigen_score` K=20** | `_rq1-plan.md` §Open burdens | **CLOSED for this campaign** | K=5 proxy showed direction-of-effect (Phi 2Wiki 0.729); K=20 confirms not discovers; ~12h compute better spent on R1+R2 |
+| **Burden 8 — MBA-RAG per-arch retraining** | `_rq1-plan.md` §Open burdens | **CLOSED for this campaign** | ~12h training × 3 archs × 2 datasets too expensive vs marginal contribution; cite in §2 as orthogonal "trained question-router subfamily" |
+| **Burden 8 — Self-RAG-LLaMA-2-7B reference row** | `_rq1-plan.md` §Open burdens | **CLOSED for this campaign** | separate model, separate inference run, ~2h; defer to extended version. Cite in §2. |
+| **Llama-2-7B-Chat as 4th backbone** | `_rq1-plan.md` data inventory | **CLOSED for this campaign** | gated-download time vs marginal arch coverage; transitive comparability via Qwen2.5 (SR-RAG / DyPRAG 2025); revisit only on reviewer push |
+| **Qwen3.6-35B-A3B-Instruct** | `_rq1-plan.md` data inventory | **CLOSED — documented limitation** | thinking-mode collapse under matched-protocol greedy; weights deleted from compute box |
+| **DioR, DTR, CtrlA, QuCo-RAG, L-RAG, SUGAR, RaDIO, MIND, DeepRAG** | recent-2024-2026 dynamic-RAG triggers from lit review | **NOT in audit pool; cited in §2 only** | trained classifiers / system-level / orthogonal to the parameter-free decode-time-signal subfamily we audit. Distinguishing-citation discipline (Burden 7). |
+| **Security / robustness sub-thread** (BadRAG, TrojanRAG, jamming) | lit review §3.4 | **CLOSED for this paper** | distractor for RQ1; not addressed by the methodology contribution; trim from §2 if space-constrained |
+| **`bridge_comparison` 2Wiki structural-exception sub-finding** | `_rq1-plan.md` §Established first proof | **kept as a §5 discussion paragraph + failure-mode taxonomy seed; not a headline finding** | one cell, one arch; G3 (domain learning), not G1 (test) |
+| **Combined / ensemble triggers (`combined_late_flip`, `joint_fires`)** | `analysis/_explore_ans_flip_variants.py` | **CLOSED for this paper; kept in code, not in headline tables** | ensemble experiment (per `_rq1-outlook.md` §Flank C) is a single Day-3 sanity check, not a contribution |
+
+### What remains in scope
+
+| in-scope item | role | source |
+|---|---|---|
+| Length-controlled residualized AUROC + paired-bootstrap evaluation protocol | methodology contribution | this work |
+| Trigger pool audit (DRAGIN, FLARE, SeaKR-K5-proxy, SelfCheckGPT-NLI, ETC, HVR, entropy, tokens, n_steps, plus AID-flip-rate variants) | empirical contribution | this work + Burden 8 bundled |
+| AID-flip-rate (K=5 majority over boundary completions) — first retrieval-triggering use of forced-answer-completion primitive | empirical contribution | this work, extending Datta et al. 2026 |
+| `lift_em = +1` paired closed-vs-oracle re-decode target | methodology contribution | this work |
+| 3-arch (Phi 2026 + Gemma 2026 + Qwen2.5 2025) × {HotpotQA, 2Wiki[, MuSiQue]} survivor matrix | empirical contribution | R1 + (R2 if Day-3 decision says yes) |
+| A1 K=1 vs K=5 ablation on R1 traces | empirical sanity | A1-on-R1 |
+| E7 statistical hardening (B=10 000, Bonferroni at k≥15) | rigor | post-R1 analysis |
+| E8 lift-conditional secondary table at fire rates {5%, 10%, 20%} | additional empirical row | post-R1 analysis |
+| Hostile-review rebuttal blocks for the 5 anticipated critiques | risk reduction | Day 5 |
+
+The locked scope above and `_rq1-outlook.md` together fix the entire submission
+plan. Any deviation must be explicitly justified in `_rq1-agent.md` with the
+reason for the scope-expansion.
 
 **Revised burden priorities (post P0.6):**
 

@@ -1,0 +1,35 @@
+
+Loaded 400 paired traces across 2 cells.
+(per cell up to n=25 closed×oracle pairs from rq1-pilot-v1 schema; K=5 sampler captures.)
+flip_rate_k1 derivable: 105/400    flip_rate_k5 derivable: 105/400
+
+Note: K=1 here uses samples[0].text (first stochastic completion) as the
+Datta-style greedy proxy. Not a perfectly faithful replication of
+forced-answer-completion (which uses deterministic greedy + answer-prefix
+forcing). Read as directional. R1 will run the proper K=1 ablation if needed.
+
+==========================================================================================
+TARGET: lift_em == +1 (retrieval would have helped)
+==========================================================================================
+cell            n  pop  K1_raw  K5_raw     Δraw   K1_res  K5_res     Δres            Δraw 95%CI           Δres 95%CI
+----------------------------------------------------------------------------------------------------------------------------------
+phi_hot        52    6   0.471   0.484   +0.013    0.342   0.353   +0.011  [+0.000,+0.043]  [-0.017,+0.054]
+phi_wiki       53    6   0.585   0.491   -0.094    0.582   0.466   -0.115  [-0.277,+0.000]  [-0.467,+0.346]
+----------------------------------------------------------------------------------------------------------------------------------
+OVERALL       105   12   0.522   0.483   -0.039    0.462   0.437   -0.025  [-0.131,+0.012]  [-0.093,+0.022]
+
+==========================================================================================
+TARGET: closed_em == 0 (closed-book incorrect)
+==========================================================================================
+cell            n  pop  K1_raw  K5_raw     Δraw   K1_res  K5_res     Δres            Δraw 95%CI           Δres 95%CI
+----------------------------------------------------------------------------------------------------------------------------------
+phi_hot        52   36   0.535   0.524   -0.010    0.497   0.477   -0.021  [-0.036,+0.000]  [-0.072,+0.000]
+phi_wiki       53   30   0.524   0.524   +0.000    0.551   0.484   -0.067  [-0.047,+0.049]  [-0.324,+0.183]
+----------------------------------------------------------------------------------------------------------------------------------
+OVERALL       105   66   0.521   0.514   -0.007    0.516   0.511   -0.005  [-0.031,+0.015]  [-0.037,+0.026]
+
+Wrote analysis/a1_k1_vs_k5_r1_phi.json
+
+Next step (Day 2 of week-of-2026-05-14 plan): re-run this script with
+--pilot-root v2_headline once R1 lands, to get the publishable K=1 vs K=5
+ablation table at n=200/cell.

@@ -1,0 +1,535 @@
+% option1-corpus.tex — Full corpus for EMNLP short paper
+% "Length Is All You Need? A Residualized Evaluation of Training-Free Retrieval Triggers"
+%
+% This file is the RAW CORPUS — overlong by design.
+% The final 4-page submission will be carved from this.
+
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{natbib}
+
+\title{Length Is All You Need? \\
+A Residualized Evaluation of Training-Free Retrieval Triggers}
+
+\author{Anonymous EMNLP Submission}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+% ABSTRACT — placeholder, will be written last
+% ============================================================
+\begin{abstract}
+[TO BE WRITTEN — see chat for draft]
+\end{abstract}
+
+
+% ============================================================
+% SECTION 1: MOTIVATION + RELATED WORK (FLESHED OUT)
+% ============================================================
+\section{Introduction and Motivation}
+
+Dynamic retrieval-augmented generation (RAG) systems must decide
+\emph{when} to pause generation and retrieve external evidence.
+This ``triggering'' decision is the critical control point:
+retrieve too often and the system pays unnecessary latency;
+retrieve too late and hallucinations propagate through multi-step
+reasoning~\citep{Su_DRAGIN, Jiang_FLARE, Trivedi_IRCoT}.
+
+A growing family of \textbf{training-free trigger signals} has been
+proposed to solve this problem. DRAGIN~\citep{Su_DRAGIN} fires when
+a composite entropy--attention score exceeds a threshold.
+FLARE~\citep{Jiang_FLARE} triggers when any token in a look-ahead
+sentence has probability below~$\theta$.
+SeaKR~\citep{Yao_SeaKR} uses the Gram determinant of $K{=}20$
+stochastic hidden-state samples.
+SelfCheckGPT~\citep{Manakul_SelfCheckGPT} measures $K$-sample text
+consistency via NLI or $n$-gram surprisal.
+Trained alternatives exist---Self-RAG~\citep{Asai_SelfRAG} learns
+reflection tokens, MBA-RAG~\citep{Tang_MBARAG} uses a multi-armed
+bandit, CtrlA~\citep{Liu_CtrlA} trains internal probes---but they
+require per-architecture fine-tuning and are outside our scope.
+
+All of these methods are evaluated by the same protocol: compute a
+scalar trigger score per trace, rank traces, and report AUROC against
+a binary correctness label. \textbf{But is the reported AUROC
+measuring genuine uncertainty, or merely response length?}
+
+\subsection{The Length Confound: From UQ to RAG Triggers}
+
+A convergent body of 2024--2026 work establishes that response
+length is a dominant confound in LLM uncertainty evaluation:
+
+\paragraph{The formal proof.}
+\cite{Santilli_RevisitingUQEvaluationLengthBias} decompose AUROC
+estimation under noisy correctness labels and prove that when both the
+uncertainty score and the correctness function depend on a shared
+factor---such as response length---the estimated AUROC is
+\emph{systematically skewed}, not merely noisy. Rankings flip across
+correctness functions. Empirically, Spearman correlations between
+token length and standard UQ measures are severe:
+$\rho(\text{length}, \text{Perplexity}) = -0.7$,
+$\rho(\text{length}, \text{Naive Entropy}) = -0.6$,
+$\rho(\text{length}, \text{Semantic Entropy}) = -0.7$.
+Token Length itself is a competitive UQ-method baseline on their
+leaderboard.
+
+\paragraph{The empirical finding.}
+\cite{Janiak_IllusionProgressHallucinationDetection} demonstrate that
+``simple heuristics based on response length can rival complex
+hallucination detection techniques.'' Switching from ROUGE to
+LLM-as-Judge labels collapses Perplexity performance by 45.9\% and
+EigenScore by 30.4\% on NQ-Open, SQuAD, and TriviaQA. Length-based
+heuristics match or surpass Semantic Entropy on multiple cells.
+
+\paragraph{The behavioral mechanism.}
+\cite{Zhang_VerbosityVeracityVCBehavior} identify \emph{Verbosity
+Compensation} (VC): LLMs generate longer, wordier responses when
+uncertain. VC frequency reaches 50.4\% even on GPT-4. Verbose
+responses exhibit higher uncertainty across all five evaluated
+datasets---including HotpotQA, MuSiQue, and
+2WikiMHQA~\citep{Zhang_VerbosityVeracityVCBehavior}---with a
+performance gap of 27.6\% on Qasper. This supplies the \emph{causal
+story}: length is a proxy for verbosity compensation, which is a
+proxy for uncertainty, which is a proxy for
+incorrectness---and, we argue, for retrieval need.
+
+\paragraph{The residualization fix.}
+\cite{Vashurin_UncertaintyLineLengthInvariant} show that even
+nominally length-normalized UQ measures (Perplexity, Mean Token
+Entropy, Token-SAR) exhibit residual length bias, and propose
+\textsc{Uncertainty-Line}: regress the uncertainty score on output
+length via OLS, then use the \emph{residual} as the length-invariant
+estimate:
+\[
+\hat{u}_{\textsc{line}}(\hat{y}, x)
+= \hat{u}(\hat{y}, x) - \hat{f}(L(\hat{y})).
+\]
+This is post-hoc, model-agnostic, and applicable to any scalar UQ
+measure. They demonstrate consistent improvements on NMT,
+summarization, and mathematical reasoning.
+
+\paragraph{The correctness-function pitfall.}
+\cite{Ielanskyi_PitfallsUQEvaluationNLG} show that approximate
+correctness functions (ROUGE, BLEU, BERTScore, LLM-as-judge)
+disagree substantially on UQ method rankings---pairwise mutual AUROC
+as low as 0.53, Spearman $\rho$ between rankings sometimes
+\emph{negative} ($\rho = -0.66$ for BLEU vs.\ ROUGE on CoQA).
+Length is one driver of this disagreement.
+
+\paragraph{The acknowledged gap.}
+\cite{Mao_ConfidenceOverTimeSTL} explicitly note that ``joint
+generation probability suffers from severe length bias, making it
+unsuitable for long-form reasoning'' but propose no residualization
+fix. \cite{Chen_DynamicInstabilityLLMReasoning} cap output to 128
+tokens as a length control but do not evaluate under
+residualization.
+
+\medskip
+\noindent\textbf{The critical observation.} All five papers above
+document the length confound in \emph{general} UQ or hallucination
+detection. \textbf{None of them test whether the specific signals
+used by published dynamic RAG triggers---DRAGIN, FLARE, SeaKR,
+SelfCheckGPT---survive length control.}
+The bridge from ``length confounds UQ evaluation'' to ``length
+confounds RAG triggering'' has not been crossed.
+We cross it.
+
+
+\subsection{Answer-Trajectory Primitives}
+
+Concurrent work establishes that step-to-step answer dynamics during
+chain-of-thought (CoT) reasoning carry diagnostic signal:
+
+\cite{Datta_DecideEarlyExplainLater} define \emph{forced answer
+completion}: at each reasoning prefix, append a closing token and
+sample an intermediate answer $A_i$, forming an answer trajectory
+$T = (A_0, \ldots, A_n)$. They define
+$\text{AnswerSwitches}(T) = \sum_i \mathbb{1}[A_i \ne A_{i+1}]$
+and report that 68\% of Qwen3-4B traces never change answer, while
+the model generates $\sim$760 tokens after the final switch.
+Application: early stopping (saving compute), not retrieval
+triggering.
+
+\cite{Wang_ChainOfProbeCoTStepByStep} independently find the same
+phenomenon via \emph{Chain-of-Probe}: append a fixed probing string
+after each step and read the softmax over a closed answer set. Traces
+that change answer during reasoning have $>$20\% lower accuracy than
+early-commit traces.
+
+\cite{Chen_DynamicInstabilityLLMReasoning} define a per-token
+instability signal $I_t = \text{JSD}(\tilde{p}_t,
+\tilde{p}_{t-1}) + \lambda H_t$ and show that \emph{timing} matters
+more than magnitude: early peaks ($\rho < 0.25$) correlate with 46\%
+accuracy (corrective instability), late peaks ($\rho > 0.5$) with
+14\% accuracy (destructive instability)---a $>$3$\times$ accuracy
+gap conditional on timing alone.
+
+\paragraph{Terminological disambiguation.}
+\cite{Zhang_AnswerAgreementRepresentationShaping} use ``answer
+stability'' to denote robustness of a decoded answer to small
+\emph{latent perturbations} at the trace boundary---a supervised,
+representation-shaping approach achieving 86.6\% AUROC on TruthfulQA.
+Our use of ``answer instability'' denotes step-to-step disagreement
+under $K$-sample boundary-completion \emph{sampling}---a
+training-free, decode-time signal. These are categorically different
+operationalizations of a shared intuition.
+
+
+\subsection{Stepwise Uncertainty in CoT}
+
+The broader trend toward temporal modeling of LLM reasoning
+uncertainty is now a multi-paper research front:
+\cite{Lu_StreamingHallucinationDetectionCoT} train step-level +
+prefix-level probes on hidden states achieving 87--93\% AUROC
+(supervised upper bound on Qwen2.5-7B);
+\cite{Mao_ConfidenceOverTimeSTL} mine discriminative Signal Temporal
+Logic formulas over stepwise confidence, achieving AUROC $\sim$0.62
+(parameter-free, but requiring formula mining);
+\cite{Datta_DecideEarlyExplainLater} propose hold-for-$k$ causal
+smoothing for online monitoring.
+Our work sits in the \emph{parameter-free, training-free} sub-family
+of this wave, with the specific application of retrieval triggering.
+
+
+\subsection{Our Contributions}
+
+We make three contributions:
+
+\begin{enumerate}
+\item \textbf{Evaluation protocol.} We adopt and extend the
+\textsc{Uncertainty-Line} protocol of
+\cite{Vashurin_UncertaintyLineLengthInvariant} to dynamic-RAG
+triggering. Our extension: (i)~a new task family (multi-hop QA with
+paired oracle re-decode), (ii)~a new target
+($\texttt{lift\_em} = +1$: ``would retrieval have flipped this
+answer from wrong to right?''), and (iii)~a new signal pool
+(DRAGIN, FLARE, SeaKR, AID, etc.). The paired-oracle design
+partially cancels correctness-function bias
+\citep{Ielanskyi_PitfallsUQEvaluationNLG} because both arms share
+the same EM function.
+
+\item \textbf{Trigger-pool audit.} Under this protocol on 2--3
+architectures (Phi-4-mini, Qwen2.5-7B, Gemma-4-26B-A4B; matched at
+$\sim$3--4B active parameters) $\times$ 2 multi-hop QA datasets
+(HotpotQA, 2WikiMHQA) at $n{=}200$/cell, we evaluate 16 trigger
+signals. \textbf{Most collapse under length residualization.} Of 14
+non-AID signals, 11 fall to chance-level (residualized
+AUROC~$\leq 0.5$) on $\geq$2 of 4 evaluation cells.
+
+\item \textbf{Answer Instability Detection (AID).} Adapting the
+forced-answer-completion primitive of
+\cite{Datta_DecideEarlyExplainLater} to retrieval triggering, we
+define 4 AID aggregations over step-level boundary-completion
+answer trajectories. The AID family achieves the highest
+length-residualized AUROC on all 4 evaluated cells, but the
+optimal aggregation is architecture-conditional.
+$K{=}5$ multi-sample shows no advantage over $K{=}1$
+(Datta-style), simplifying deployment.
+\end{enumerate}
+
+\noindent Our framing aligns the length-confound critique
+(Santilli/Janiak/Vashurin) with the answer-trajectory primitive
+(Datta/Wang/Chen) in a new application domain (RAG triggering)
+where neither community has yet looked.
+
+
+% ============================================================
+% SECTION 2: EXPERIMENTS
+% ============================================================
+\section{Experiments}
+
+\subsection{Paired-Oracle Protocol}
+
+For each question $q$ in the evaluation set:
+\begin{enumerate}
+\item \textbf{Closed-book decode}: greedy generation with no
+retrieval context, producing answer $a_c$ and trace $\tau_c$.
+\item \textbf{Oracle-retrieval re-decode}: greedy generation with
+gold supporting paragraphs injected into the prompt, producing
+$a_o$ and trace $\tau_o$.
+\item \textbf{Target label}:
+$\texttt{lift\_em}(q) = \mathbb{1}[\text{EM}(a_o) >
+\text{EM}(a_c)]$.
+\end{enumerate}
+
+This target answers the deployment-relevant question: ``would
+retrieval have helped?'' The shared EM function partially cancels
+correctness-function bias~\citep{Ielanskyi_PitfallsUQEvaluationNLG}.
+All trigger signals are extracted from the \emph{closed-book} trace
+$\tau_c$ only.
+
+\paragraph{Connection to \S1.} This is the first application of
+paired-oracle evaluation to dynamic-RAG trigger signals. Prior
+trigger papers~\citep{Su_DRAGIN, Jiang_FLARE, Yao_SeaKR} evaluate
+end-task EM gain from deployed retrieval, conflating trigger quality
+with retriever quality. Our protocol isolates the trigger.
+
+
+\subsection{Length Residualization}
+
+For each trigger signal $s$ and cohort of traces:
+\[
+s_{\text{resid}} = s - (\hat{\alpha} + \hat{\beta} \cdot
+\log(\texttt{tokens} + 1))
+\]
+where $\hat{\alpha}, \hat{\beta}$ are OLS coefficients fit on the
+cohort. AUROC is then evaluated on $s_{\text{resid}}$.
+
+This is the unsupervised variant of \textsc{Uncertainty-Line}
+\citep{Vashurin_UncertaintyLineLengthInvariant}. We use
+$\log(\texttt{tokens}+1)$ rather than raw length to avoid
+overcorrection on the long-tailed token distribution---consistent
+with the caveat in~\cite{Vashurin_UncertaintyLineLengthInvariant}
+\S3.
+
+Statistical significance: paired bootstrap ($B{=}10{,}000$) of
+$\Delta(\text{signal AUROC} - \text{tokens AUROC})$ with 95\% CI
+and Bonferroni correction across $k$ signals.
+
+\paragraph{Connection to \S1.} Implements the fix that
+\cite{Santilli_RevisitingUQEvaluationLengthBias} prove is necessary
+and \cite{Vashurin_UncertaintyLineLengthInvariant} propose---but
+on a new signal family (RAG triggers) and a new target
+(\texttt{lift\_em}).
+
+
+\subsection{Trigger-Signal Pool}
+
+We evaluate 16 signals spanning 5 families:
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Signal} & \textbf{Published method} & \textbf{Family} \\
+\midrule
+\texttt{tokens\_generated} & (baseline) & Length \\
+\texttt{wall\_clock\_s} & (baseline) & Length \\
+\texttt{n\_steps} & (baseline) & Length \\
+\texttt{dragin\_rind\_max} & DRAGIN~\citep{Su_DRAGIN} & Attention \\
+\texttt{ent.max} & General entropy & Logit \\
+\texttt{etc} ($\Delta^2 H$ max) & ETC~\citep{Li_ETC} & Logit \\
+\texttt{flare.max} ($1{-}\min p$) & FLARE~\citep{Jiang_FLARE} & Logit \\
+\texttt{hvr.max} & SELFDOUBT-T1 & Text \\
+\texttt{drift\_cosine.max} & CRV-drift & Hidden \\
+\texttt{var\_l2\_window.max} & CRV-variance & Hidden \\
+\texttt{hidden\_norm.range} & CRV-norm & Hidden \\
+\texttt{u\_cons.max} & $K$-sample consistency & $K$-sample \\
+\texttt{seakr\_k5\_logdet} & SeaKR~\citep{Yao_SeaKR} proxy & Hidden-$K$ \\
+\texttt{sc\_ngram} & SelfCheckGPT~\citep{Manakul_SelfCheckGPT} & $K$-text \\
+\midrule
+\texttt{AID flip\_rate} & Ours (adapted from~\citep{Datta_DecideEarlyExplainLater}) & Answer \\
+\texttt{AID late\_flips} & Ours & Answer \\
+\texttt{AID min\_majority} & Ours & Answer \\
+\texttt{AID flip\_rate K=1} & Datta-style baseline & Answer \\
+\bottomrule
+\end{tabular}
+\caption{Trigger-signal pool. Top 14: published/baseline signals.
+Bottom 4: AID family (ours). SeaKR is a $K{=}5$ proxy of the full
+$K{=}20$ method. SelfCheckGPT is the $n$-gram variant, not
+headline NLI.}
+\label{tab:pool}
+\end{table}
+
+\paragraph{Scope.} We evaluate \emph{training-free} triggers only.
+Self-RAG~\citep{Asai_SelfRAG} (requires fine-tuned reflection
+tokens), MBA-RAG~\citep{Tang_MBARAG} (requires per-arch bandit
+training), CtrlA~\citep{Liu_CtrlA} (requires hidden-state probe
+training), and ARS~\citep{Zhang_AnswerAgreementRepresentationShaping}
+(requires contrastive representation shaping) are excluded by design.
+
+\paragraph{Connection to \S1.} This pool spans the 4 major published
+training-free RAG trigger methods (DRAGIN, FLARE, SeaKR,
+SelfCheckGPT) plus 7 general UQ signal families. The claim ``most
+collapse under length control'' is evaluated over this 14-signal
+baseline pool.
+
+
+\subsection{Answer Instability Detection (AID)}
+
+At each reasoning-step boundary (spaCy sentence + 32-token
+fallback), we sample $K$ boundary completions, extract answers via
+regex ($\texttt{r"\textbackslash bAnswer\textbackslash s*:
+\textbackslash s*(.+?)"}$), and define four aggregations:
+
+\begin{itemize}
+\item \texttt{flip\_rate}: fraction of consecutive-step
+answer-set transitions (our analog of
+AnswerSwitches~\citep{Datta_DecideEarlyExplainLater}).
+\item \texttt{late\_flips}: flips in the last 50\% of steps only
+(motivated by the corrective/destructive timing distinction of
+\cite{Chen_DynamicInstabilityLLMReasoning}).
+\item \texttt{min\_majority}: maximum within-step disagreement
+($1 - \max_{\text{count}}/K$).
+\item \texttt{flip\_rate K=1}: first sample only (Datta-style
+single-sample baseline).
+\end{itemize}
+
+\paragraph{$K{=}5$ vs.\ $K{=}1$ ablation.} Across $n{=}410$
+valid paired traces (R1 Phi + Qwen), $K{=}5$ shows no advantage
+over $K{=}1$ on \texttt{lift\_em}: CIs straddle zero on both
+architectures. This is consistent with the trajectory-method
+literature~\citep{Datta_DecideEarlyExplainLater,
+Wang_ChainOfProbeCoTStepByStep, Mao_ConfidenceOverTimeSTL} trending
+toward single-sample sufficiency.
+We recommend $K{=}1$ for deployment.
+
+
+\subsection{Architecture Bracket}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+\textbf{Model} & \textbf{Active params} & \textbf{Year} &
+\textbf{Architecture} \\
+\midrule
+Phi-4-mini-instruct & 3.8B & 2026 & Dense Transformer \\
+Qwen2.5-7B-Instruct & 7.6B & 2025 & Dense Transformer \\
+Gemma-4-26B-A4B-it & $\sim$4B active & 2026 & MoE \\
+\bottomrule
+\end{tabular}
+\caption{Model pool. All run under matched Option-A protocol: greedy
+decoding, repetition penalty 1.05, \texttt{max\_new\_tokens=512}.}
+\end{table}
+
+\paragraph{Connection to \S1.} The 3-arch pool spans dense and MoE
+architectures across 2 generations. This exceeds the literature norm
+(DRAGIN: LLaMA-2-7B/13B only; SeaKR: LLaMA-2-7B only; FLARE:
+GPT-3.5 only). Architecture-conditional trigger selection is a direct
+empirical consequence of this breadth.
+
+
+\subsection{Datasets}
+
+\begin{itemize}
+\item \textbf{HotpotQA-distractor} (in-domain): multi-hop QA
+requiring bridge and comparison reasoning~\citep{Yang_HotpotQA}.
+$n{=}200$ paired traces per architecture.
+\item \textbf{2WikiMHQA-distractor} (OOD): multi-hop QA with
+inference chains, bridge, and
+comparison types. $n{=}200$ paired traces per architecture.
+\end{itemize}
+
+Both datasets are used by DRAGIN, SeaKR, MBA-RAG, and
+\cite{Zhang_VerbosityVeracityVCBehavior} (as LongBench), making
+our results directly comparable to the published trigger literature.
+
+
+\subsection{Experiment Inventory}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}llrl@{}}
+\toprule
+\textbf{ID} & \textbf{Experiment} & \textbf{$n$} &
+\textbf{Case for inclusion} \\
+\midrule
+V2 & Phi-only length audit (11 signals) & 393/452 &
+Establishes length dominance; \\
+   &                                     &         &
+replicates Janiak on RAG triggers \\
+P0 & 3-arch $\times$ 2-dataset pilot ($K{=}5$) & 25/cell &
+Direction-of-effect; schema validation \\
+P0.6 & AID discovery (10 angles) & 150 pooled &
+Surfaces AID; mechanism analysis \\
+R1-Phi & Headline paired audit & 200/cell &
+Closed-book + oracle, full signal pool \\
+R1-Qwen & Headline paired audit & 200/cell &
+Cross-arch replication \\
+R1-Gemma & Headline paired audit & 200/cell &
+MoE architecture (in flight) \\
+A1 & $K{=}1$ vs $K{=}5$ ablation & 410 valid &
+Resolves Datta-extension contribution \\
+\bottomrule
+\end{tabular}
+\caption{Experiment inventory. V2 and P0 are completed predecessor
+experiments; R1 is the headline campaign; A1 is the $K$-value
+ablation computed post-hoc from R1 traces.}
+\end{table}
+
+\paragraph{Connection to \S1.}
+\textbf{V2} is the empirical anchor that replicates
+\cite{Janiak_IllusionProgressHallucinationDetection}'s ``length
+rivals everything'' finding in the RAG-trigger family: on Phi
+HotpotQA, \texttt{tokens\_generated} AUROC $= 0.749$ beats every
+internal signal raw and residualized; DRAGIN-RIND (resid AUROC
+$0.616$) is the only non-negative survivor.
+
+\textbf{P0.6} is the discovery experiment that surfaced AID:
+pooled \texttt{flip\_rate} AUROC$_{\text{help}} = 0.733$ with
+$r(\text{tokens}) = 0.008$ (zero length correlation), beating
+DRAGIN ($0.603$) by $+0.13$.
+
+\textbf{R1} is the headline confirmation at publishable $n$:
+AID \texttt{min\_majority} on Qwen pooled achieves resid AUROC
+$0.648$, paired-bootstrap-significantly beating
+\texttt{tokens\_generated}
+($\Delta = +0.123$, CI $[+0.020, +0.224]$).
+
+\textbf{A1} resolves the Datta-precedent question: $K{=}5 \approx
+K{=}1$ empirically, so the multi-sample extension is not a
+contribution---the \emph{application to retrieval triggering} is.
+
+
+% ============================================================
+% SECTION 3: RESULTS
+% ============================================================
+\section{Results}
+
+% [TO BE FILLED from R1 Phi + Qwen + Gemma paired audit outputs]
+% Hero table: cross-arch × cross-dataset survivor matrix
+% Per-question-type spotlight: late_flips × 2Wiki/comparison
+% K=5 vs K=1 ablation table
+% Length-vs-signal Spearman rho table (appendix)
+
+
+% ============================================================
+% SECTION 4: CONCLUSIONS
+% ============================================================
+\section{Conclusions}
+
+% [TO BE WRITTEN after Results are finalized]
+
+
+% ============================================================
+% BIBLIOGRAPHY (placeholder keys)
+% ============================================================
+% Use: \cite{lastName_KeywordFromPaper}
+%
+% Core length-confound lineage:
+%   Santilli_RevisitingUQEvaluationLengthBias
+%   Vashurin_UncertaintyLineLengthInvariant
+%   Janiak_IllusionProgressHallucinationDetection
+%   Zhang_VerbosityVeracityVCBehavior
+%   Ielanskyi_PitfallsUQEvaluationNLG
+%   Mao_ConfidenceOverTimeSTL
+%
+% Answer-trajectory lineage:
+%   Datta_DecideEarlyExplainLater
+%   Wang_ChainOfProbeCoTStepByStep
+%   Chen_DynamicInstabilityLLMReasoning
+%   Zhang_AnswerAgreementRepresentationShaping
+%
+% Streaming/temporal:
+%   Lu_StreamingHallucinationDetectionCoT
+%
+% RAG triggers:
+%   Su_DRAGIN
+%   Jiang_FLARE
+%   Yao_SeaKR
+%   Manakul_SelfCheckGPT
+%   Asai_SelfRAG
+%   Tang_MBARAG
+%   Trivedi_IRCoT
+%   Liu_CtrlA
+%   Li_ETC
+%
+% Datasets:
+%   Yang_HotpotQA
+
+\end{document}

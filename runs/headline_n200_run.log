@@ -612,3 +612,15 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..]  75/200  em=37/75  steps= 16  tok= 224  wall=283.9s  elapsed=325.5min
 [..]  80/200  em=40/80  steps= 19  tok= 272  wall=322.3s  elapsed=352.5min
 [..]  85/200  em=41/85  steps= 11  tok= 192  wall=200.0s  elapsed=369.4min
+[..]  90/200  em=41/90  steps= 17  tok= 208  wall=294.1s  elapsed=392.4min
+[..]  95/200  em=44/95  steps= 12  tok= 201  wall=207.4s  elapsed=418.9min
+[..] 100/200  em=47/100  steps= 14  tok= 174  wall=220.3s  elapsed=443.2min
+[..] 105/200  em=50/105  steps= 17  tok= 163  wall=264.9s  elapsed=466.5min
+[..] 110/200  em=52/110  steps= 11  tok= 192  wall=182.9s  elapsed=490.9min
+[..] 115/200  em=55/115  steps= 15  tok= 256  wall=266.3s  elapsed=506.1min
+[..] 120/200  em=58/120  steps= 16  tok= 246  wall=265.1s  elapsed=525.8min
+[..] 125/200  em=60/125  steps= 11  tok= 197  wall=187.9s  elapsed=540.1min
+[..] 130/200  em=63/130  steps= 22  tok= 240  wall=393.2s  elapsed=572.9min
+[..] 135/200  em=64/135  steps=  8  tok= 154  wall=118.8s  elapsed=601.0min
+[..] 140/200  em=68/140  steps= 10  tok= 174  wall=167.7s  elapsed=620.0min
+[..] 145/200  em=73/145  steps=  9  tok= 162  wall=138.1s  elapsed=639.9min

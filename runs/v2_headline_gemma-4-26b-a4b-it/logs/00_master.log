@@ -2,3 +2,4 @@
 [2026-05-13T21:23:45Z] [gemma-4-26b-a4b-it] MODEL_DIR=models/gemma-4-26b-a4b-it
 [2026-05-13T21:23:45Z] [gemma-4-26b-a4b-it] ==== B: smoke decode (n=5, HotpotQA) ====
 [2026-05-13T21:41:37Z] [gemma-4-26b-a4b-it] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 0) ====
+[2026-05-14T11:41:28Z] [gemma-4-26b-a4b-it] ==== D: D2_closed_wiki closed-book (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl, resuming from 0) ====

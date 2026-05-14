@@ -41,3 +41,16 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..] 145/200  em=73/145  steps=  9  tok= 162  wall=138.1s  elapsed=639.9min
 [..] 150/200  em=75/150  steps= 10  tok= 128  wall=154.5s  elapsed=661.1min
 [..] 155/200  em=79/155  steps= 11  tok= 278  wall=190.3s  elapsed=679.4min
+[..] 160/200  em=82/160  steps=  9  tok= 136  wall=134.8s  elapsed=694.5min
+[..] 165/200  em=86/165  steps= 10  tok= 187  wall=168.1s  elapsed=710.6min
+[..] 170/200  em=88/170  steps= 12  tok= 219  wall=198.3s  elapsed=727.3min
+[..] 175/200  em=91/175  steps=  9  tok= 128  wall=149.2s  elapsed=742.5min
+[..] 180/200  em=93/180  steps=  7  tok= 174  wall=103.7s  elapsed=761.6min
+[..] 185/200  em=94/185  steps= 10  tok= 144  wall=177.4s  elapsed=781.5min
+[..] 190/200  em=98/190  steps=  8  tok= 144  wall=133.9s  elapsed=797.3min
+[..] 195/200  em=101/195  steps= 10  tok= 121  wall=137.4s  elapsed=814.2min
+[..] 200/200  em=104/200  steps= 27  tok= 480  wall=508.8s  elapsed=839.4min
+[ok] wrote 200 rows to runs/v2_headline_gemma-4-26b-a4b-it/D1_closed_hotpot.jsonl
+[ok] em rate: 104/200 = 0.520
+[gate] n=200 tok_median=194 p10=144 p90=328
+[gate] OK

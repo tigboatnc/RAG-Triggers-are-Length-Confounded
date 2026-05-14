@@ -1,0 +1,168 @@
+
+HotpotQA-distractor (in-domain): 191 paired traces  closed_inc=89  lift+1=17  lift-1=22  base_help=0.089
+
+====================================================================================================
+R1 gemma-4-26b-a4b-it × HotpotQA-distractor (in-domain)    target=lift_em == +1 (RETRIEVAL HELPED)    n=191    pop=17    base_rate=0.089
+====================================================================================================
+
+--- (1) RAW AUROC + P@k ---
+  signal                             pop   AUROC    P@5%   P@10%   P@20%     ΔP@5%
+  tokens_generated                   191   0.578   0.200   0.158   0.105    +0.111
+  wall_clock_s                       191   0.644   0.200   0.105   0.105    +0.111
+  n_steps                            191   0.605   0.200   0.105   0.079    +0.111
+  ent.max                            191   0.708   0.300   0.316   0.237    +0.211
+  etc (Δ²H max)                      191   0.642   0.300   0.158   0.132    +0.211
+  flare.max (1-min p)                191   0.467   0.000   0.000   0.026    -0.089
+  dragin_rind_max.max                191   0.673   0.300   0.368   0.211    +0.211
+  drift_cosine.max                   191   0.434   0.100   0.053   0.026    +0.011
+  variance_l2_window.max             191   0.558   0.100   0.105   0.105    +0.011
+  hidden_norm.range                  191   0.626   0.000   0.000   0.079    -0.089
+  selfdoubt_t1 (hvr.max)             191   0.512   0.200   0.105   0.079    +0.111
+  u_cons.max (exploratory)           191   0.552   0.000   0.105   0.079    -0.089
+  seakr_k5_proxy.logdet              191   0.522   0.100   0.105   0.132    +0.011
+  AID flip_rate (K=5 ours)           189   0.662   0.000   0.158   0.158    -0.089
+  AID flip_rate (K=1 Datta)          189   0.604   0.111   0.105   0.184    +0.022
+  AID late_flips                     189   0.700   0.222   0.158   0.158    +0.133
+  AID min_majority (1-min)           191   0.694   0.000   0.105   0.132    -0.089
+
+--- (2) LENGTH-RESIDUALIZED AUROC (signal ~ log_tokens) ---
+  signal                            raw AUROC  resid AUROC   ΔAUROC    survives?
+  wall_clock_s                          0.644        0.635   -0.009       ✓ >0.5
+  n_steps                               0.605        0.546   -0.058       ✓ >0.5
+  ent.max                               0.708        0.699   -0.009       ✓ >0.5
+  etc (Δ²H max)                         0.642        0.600   -0.042       ✓ >0.5
+  flare.max (1-min p)                   0.467        0.422   -0.045            —
+  dragin_rind_max.max                   0.673        0.623   -0.050       ✓ >0.5
+  drift_cosine.max                      0.434        0.449   +0.015            —
+  variance_l2_window.max                0.558        0.543   -0.015       ✓ >0.5
+  hidden_norm.range                     0.626        0.590   -0.035       ✓ >0.5
+  selfdoubt_t1 (hvr.max)                0.512        0.449   -0.063            —
+  u_cons.max (exploratory)              0.552        0.525   -0.027       ✓ >0.5
+  seakr_k5_proxy.logdet                 0.522        0.502   -0.019       ✓ >0.5
+  AID flip_rate (K=5 ours)              0.662        0.645   -0.017       ✓ >0.5
+  AID flip_rate (K=1 Datta)             0.604        0.599   -0.005       ✓ >0.5
+  AID late_flips                        0.700        0.690   -0.010       ✓ >0.5
+  AID min_majority (1-min)              0.694        0.685   -0.009       ✓ >0.5
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC, B=5000 ---
+  signal                             Δ vs tokens                 95% CI   sig?
+  wall_clock_s                            +0.065  [+0.003,+0.130]       ✓  ← BEATS tokens
+  n_steps                                 +0.026  [-0.038,+0.091]       —
+  ent.max                                 +0.131  [-0.104,+0.349]       —
+  etc (Δ²H max)                           +0.064  [-0.152,+0.283]       —
+  flare.max (1-min p)                     -0.111  [-0.251,+0.032]       —
+  dragin_rind_max.max                     +0.096  [-0.094,+0.288]       —
+  drift_cosine.max                        -0.142  [-0.355,+0.061]       —
+  variance_l2_window.max                  -0.019  [-0.253,+0.191]       —
+  hidden_norm.range                       +0.048  [-0.138,+0.229]       —
+  selfdoubt_t1 (hvr.max)                  -0.067  [-0.213,+0.084]       —
+  u_cons.max (exploratory)                -0.026  [-0.209,+0.158]       —
+  seakr_k5_proxy.logdet                   -0.057  [-0.262,+0.139]       —
+  AID flip_rate (K=5 ours)                +0.065  [-0.125,+0.248]       —
+  AID flip_rate (K=1 Datta)               +0.006  [-0.153,+0.154]       —
+  AID late_flips                          +0.103  [-0.057,+0.263]       —
+  AID min_majority (1-min)                +0.116  [-0.080,+0.308]       —
+
+--- (4) PER-QUESTION-TYPE AUROC (raw) ---
+  signal                                  bridge     comparison
+  tokens_generated                          0.594          0.088
+  wall_clock_s                              0.667          0.294
+  n_steps                                   0.626          0.309
+  ent.max                                   0.688          1.000
+  etc (Δ²H max)                             0.618          1.000
+  flare.max (1-min p)                       0.467          0.324
+  dragin_rind_max.max                       0.645          0.971
+  drift_cosine.max                          0.381          0.176
+  variance_l2_window.max                    0.536          0.588
+  hidden_norm.range                         0.623          0.500
+  selfdoubt_t1 (hvr.max)                    0.517          0.471
+  u_cons.max (exploratory)                  0.540          0.706
+  seakr_k5_proxy.logdet                     0.534          0.088
+  AID flip_rate (K=5 ours)                  0.673          0.632
+  AID flip_rate (K=1 Datta)                 0.630          0.279
+  AID late_flips                            0.714          0.529
+  AID min_majority (1-min)                  0.689          0.765
+
+====================================================================================================
+R1 gemma-4-26b-a4b-it × HotpotQA-distractor (in-domain)    target=closed_em == 0 (closed-book incorrect)    n=191    pop=89    base_rate=0.466
+====================================================================================================
+
+--- (1) RAW AUROC + P@k ---
+  signal                             pop   AUROC    P@5%   P@10%   P@20%     ΔP@5%
+  tokens_generated                   191   0.583   0.700   0.632   0.553    +0.234
+  wall_clock_s                       191   0.617   0.700   0.526   0.605    +0.234
+  n_steps                            191   0.595   0.700   0.526   0.579    +0.234
+  ent.max                            191   0.596   0.500   0.684   0.632    +0.034
+  etc (Δ²H max)                      191   0.581   0.600   0.474   0.421    +0.134
+  flare.max (1-min p)                191   0.536   0.400   0.526   0.421    -0.066
+  dragin_rind_max.max                191   0.610   0.700   0.684   0.632    +0.234
+  drift_cosine.max                   191   0.433   0.600   0.474   0.342    +0.134
+  variance_l2_window.max             191   0.525   0.500   0.579   0.553    +0.034
+  hidden_norm.range                  191   0.552   0.500   0.474   0.474    +0.034
+  selfdoubt_t1 (hvr.max)             191   0.518   0.600   0.474   0.526    +0.134
+  u_cons.max (exploratory)           191   0.611   0.500   0.579   0.500    +0.034
+  seakr_k5_proxy.logdet              191   0.545   0.600   0.526   0.500    +0.134
+  AID flip_rate (K=5 ours)           189   0.595   0.333   0.579   0.579    -0.133
+  AID flip_rate (K=1 Datta)          189   0.579   0.444   0.579   0.553    -0.022
+  AID late_flips                     189   0.617   0.889   0.684   0.658    +0.423
+  AID min_majority (1-min)           191   0.551   0.300   0.474   0.526    -0.166
+
+--- (2) LENGTH-RESIDUALIZED AUROC (signal ~ log_tokens) ---
+  signal                            raw AUROC  resid AUROC   ΔAUROC    survives?
+  wall_clock_s                          0.617        0.558   -0.059       ✓ >0.5
+  n_steps                               0.595        0.519   -0.075       ✓ >0.5
+  ent.max                               0.596        0.550   -0.046       ✓ >0.5
+  etc (Δ²H max)                         0.581        0.522   -0.059       ✓ >0.5
+  flare.max (1-min p)                   0.536        0.497   -0.039            —
+  dragin_rind_max.max                   0.610        0.579   -0.031       ✓ >0.5
+  drift_cosine.max                      0.433        0.447   +0.013            —
+  variance_l2_window.max                0.525        0.509   -0.016       ✓ >0.5
+  hidden_norm.range                     0.552        0.529   -0.022       ✓ >0.5
+  selfdoubt_t1 (hvr.max)                0.518        0.457   -0.061            —
+  u_cons.max (exploratory)              0.611        0.597   -0.014       ✓ >0.5
+  seakr_k5_proxy.logdet                 0.545        0.498   -0.047            —
+  AID flip_rate (K=5 ours)              0.595        0.576   -0.020       ✓ >0.5
+  AID flip_rate (K=1 Datta)             0.579        0.553   -0.026       ✓ >0.5
+  AID late_flips                        0.617        0.602   -0.014       ✓ >0.5
+  AID min_majority (1-min)              0.551        0.541   -0.011       ✓ >0.5
+
+--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC, B=5000 ---
+  signal                             Δ vs tokens                 95% CI   sig?
+  wall_clock_s                            +0.034  [-0.011,+0.081]       —
+  n_steps                                 +0.012  [-0.038,+0.062]       —
+  ent.max                                 +0.013  [-0.082,+0.102]       —
+  etc (Δ²H max)                           -0.002  [-0.092,+0.084]       —
+  flare.max (1-min p)                     -0.047  [-0.133,+0.040]       —
+  dragin_rind_max.max                     +0.028  [-0.066,+0.119]       —
+  drift_cosine.max                        -0.148  [-0.270,-0.028]       ✓  (worse than tokens)
+  variance_l2_window.max                  -0.058  [-0.163,+0.050]       —
+  hidden_norm.range                       -0.031  [-0.123,+0.066]       —
+  selfdoubt_t1 (hvr.max)                  -0.065  [-0.142,+0.013]       —
+  u_cons.max (exploratory)                +0.028  [-0.068,+0.122]       —
+  seakr_k5_proxy.logdet                   -0.037  [-0.122,+0.051]       —
+  AID flip_rate (K=5 ours)                +0.008  [-0.090,+0.109]       —
+  AID flip_rate (K=1 Datta)               -0.008  [-0.104,+0.087]       —
+  AID late_flips                          +0.030  [-0.067,+0.128]       —
+  AID min_majority (1-min)                -0.031  [-0.138,+0.076]       —
+
+--- (4) PER-QUESTION-TYPE AUROC (raw) ---
+  signal                                  bridge     comparison
+  tokens_generated                          0.567          0.621
+  wall_clock_s                              0.617          0.619
+  n_steps                                   0.596          0.594
+  ent.max                                   0.563          0.707
+  etc (Δ²H max)                             0.553          0.684
+  flare.max (1-min p)                       0.504          0.643
+  dragin_rind_max.max                       0.580          0.711
+  drift_cosine.max                          0.410          0.364
+  variance_l2_window.max                    0.509          0.599
+  hidden_norm.range                         0.534          0.629
+  selfdoubt_t1 (hvr.max)                    0.508          0.571
+  u_cons.max (exploratory)                  0.600          0.643
+  seakr_k5_proxy.logdet                     0.506          0.680
+  AID flip_rate (K=5 ours)                  0.584          0.650
+  AID flip_rate (K=1 Datta)                 0.567          0.624
+  AID late_flips                            0.609          0.643
+  AID min_majority (1-min)                  0.530          0.645
+[skip] 2WikiMHQA-distractor (OOD) — no paired traces under /Users/sanegi/Documents/projects/recollection.local/runs/v2_headline_gemma-4-26b-a4b-it
+

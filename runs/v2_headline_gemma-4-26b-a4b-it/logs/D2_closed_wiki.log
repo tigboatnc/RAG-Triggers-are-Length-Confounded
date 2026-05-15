@@ -18,3 +18,39 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..]  30/200  em=23/30  steps= 12  tok= 214  wall=198.5s  elapsed=132.8min
 [..]  35/200  em=26/35  steps= 10  tok= 134  wall=142.2s  elapsed=150.9min
 [..]  40/200  em=28/40  steps= 17  tok= 230  wall=286.5s  elapsed=190.7min
+[..]  45/200  em=31/45  steps= 13  tok= 224  wall=218.8s  elapsed=210.3min
+[..]  50/200  em=33/50  steps= 25  tok= 265  wall=426.4s  elapsed=235.8min
+[..]  55/200  em=35/55  steps= 48  tok= 704  wall=868.0s  elapsed=279.6min
+[..]  60/200  em=40/60  steps= 23  tok= 265  wall=406.2s  elapsed=299.1min
+[..]  65/200  em=43/65  steps= 14  tok= 267  wall=238.6s  elapsed=331.2min
+[..]  70/200  em=46/70  steps=  7  tok= 157  wall=109.0s  elapsed=351.4min
+[..]  75/200  em=48/75  steps= 13  tok= 176  wall=234.6s  elapsed=374.0min
+[..]  80/200  em=52/80  steps= 22  tok= 304  wall=380.9s  elapsed=395.7min
+[..]  85/200  em=55/85  steps= 34  tok= 560  wall=590.0s  elapsed=422.4min
+[..]  90/200  em=55/90  steps= 24  tok= 240  wall=399.2s  elapsed=443.2min
+[..]  95/200  em=57/95  steps= 24  tok= 412  wall=404.6s  elapsed=468.7min
+[..] 100/200  em=60/100  steps= 16  tok= 184  wall=240.4s  elapsed=480.5min
+[..] 105/200  em=64/105  steps=  8  tok= 117  wall=92.3s  elapsed=496.6min
+[..] 110/200  em=67/110  steps= 14  tok= 148  wall=208.9s  elapsed=514.7min
+[..] 115/200  em=70/115  steps= 21  tok= 288  wall=359.3s  elapsed=538.1min
+[..] 120/200  em=72/120  steps= 15  tok= 149  wall=219.7s  elapsed=552.6min
+[..] 125/200  em=73/125  steps= 13  tok= 192  wall=202.6s  elapsed=571.6min
+[..] 130/200  em=76/130  steps= 13  tok= 157  wall=201.4s  elapsed=587.7min
+[..] 135/200  em=79/135  steps=  9  tok= 152  wall=136.9s  elapsed=604.3min
+[..] 140/200  em=82/140  steps= 12  tok= 184  wall=168.1s  elapsed=622.7min
+[..] 145/200  em=87/145  steps= 12  tok= 205  wall=187.8s  elapsed=635.4min
+[..] 150/200  em=89/150  steps=  8  tok= 116  wall=101.6s  elapsed=666.8min
+[..] 155/200  em=93/155  steps= 11  tok= 105  wall=162.3s  elapsed=699.1min
+[..] 160/200  em=97/160  steps= 17  tok= 253  wall=263.1s  elapsed=727.1min
+[..] 165/200  em=99/165  steps= 18  tok= 272  wall=292.3s  elapsed=769.8min
+[..] 170/200  em=103/170  steps= 12  tok= 176  wall=198.8s  elapsed=788.7min
+[..] 175/200  em=106/175  steps=  7  tok= 118  wall=98.6s  elapsed=803.2min
+[..] 180/200  em=109/180  steps= 13  tok= 176  wall=225.1s  elapsed=822.1min
+[..] 185/200  em=112/185  steps= 40  tok= 624  wall=710.8s  elapsed=853.0min
+[..] 190/200  em=113/190  steps= 16  tok= 255  wall=240.2s  elapsed=893.1min
+[..] 195/200  em=115/195  steps=  9  tok= 144  wall=117.6s  elapsed=914.5min
+[..] 200/200  em=116/200  steps= 92  tok=1024  wall=1619.1s  elapsed=965.2min
+[ok] wrote 200 rows to runs/v2_headline_gemma-4-26b-a4b-it/D2_closed_wiki.jsonl
+[ok] em rate: 116/200 = 0.580
+[gate] n=200 tok_median=205 p10=128 p90=331
+[gate] OK

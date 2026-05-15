@@ -16,3 +16,6 @@
 [submodule "externalCodeAudits/selfcheckgpt"]
 	path = externalCodeAudits/selfcheckgpt
 	url = https://github.com/potsawee/selfcheckgpt.git
+[submodule "externalCodeAudits/uncertainty-line"]
+	path = externalCodeAudits/uncertainty-line
+	url = https://github.com/stat-ml/uncertainty-line.git

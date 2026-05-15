@@ -487,21 +487,26 @@ def main():
 
     phi = load_arch("phi-4-mini-instruct", ROOT)
     qwen = load_arch("qwen2.5-7b-instruct", ROOT)
+    gemma = load_arch("gemma-4-26b-a4b-it", ROOT)
 
-    print(f"\nLoaded:  Phi paired = {len(phi)},  Qwen paired = {len(qwen)},  pooled = {len(phi)+len(qwen)}")
+    print(f"\nLoaded:  Phi paired = {len(phi)},  Qwen paired = {len(qwen)},  Gemma paired = {len(gemma)},  pooled = {len(phi)+len(qwen)+len(gemma)}")
 
     if phi:
         report(phi, "Phi pooled (R1, n=400 paired across HotpotQA + 2Wiki)", args.bootstrap_b)
     if qwen:
         report(qwen, "Qwen2.5 pooled (R1, n=400 paired across HotpotQA + 2Wiki)", args.bootstrap_b)
-    if phi and qwen:
-        report(phi + qwen, "Phi + Qwen2.5 pooled (R1, n=800 paired)", args.bootstrap_b)
+    if gemma:
+        report(gemma, "Gemma pooled (R1, n=400 paired across HotpotQA + 2Wiki)", args.bootstrap_b)
+    if phi and qwen and gemma:
+        report(phi + qwen + gemma, "Phi + Qwen2.5 + Gemma pooled (R1, n=1200 paired) — 3-arch", args.bootstrap_b)
+    if qwen and gemma:
+        report(qwen + gemma, "Qwen2.5 + Gemma pooled (R1, n=800) — Phi-DROPPED scenario", args.bootstrap_b)
 
     # per-cell breakdown for the moonshots that survived overall
     banner("PER-CELL breakdown — lift_em=+1 raw AUROC for moonshots")
     print(f"  {'cell':<28} {'n':>4} {'pop':>4} | "
           f"{'min_maj':>8} {'M1':>8} {'M2':>8} {'M3':>8} {'M5':>8} {'M7':>8} {'M8':>8} {'M9':>8}")
-    for arch_label, rows_arch in [("Phi", phi), ("Qwen2.5", qwen)]:
+    for arch_label, rows_arch in [("Phi", phi), ("Qwen2.5", qwen), ("Gemma", gemma)]:
         for ds in ("hotpot", "wiki"):
             cell = [r for r in rows_arch if r["dataset"] == ds]
             if len(cell) < 8:

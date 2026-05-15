@@ -159,9 +159,11 @@ def main():
     B = 5000
     phi = load_arch("phi-4-mini-instruct", ROOT)
     qwen = load_arch("qwen2.5-7b-instruct", ROOT)
-    print(f"\nLoaded:  Phi paired = {len(phi)},  Qwen paired = {len(qwen)},  pooled = {len(phi)+len(qwen)}")
+    gemma = load_arch("gemma-4-26b-a4b-it", ROOT)
+    print(f"\nLoaded:  Phi paired = {len(phi)},  Qwen paired = {len(qwen)},  Gemma paired = {len(gemma)},  pooled = {len(phi)+len(qwen)+len(gemma)}")
 
-    all_rows = phi + qwen
+    all_rows = phi + qwen + gemma
+    rows_no_phi = qwen + gemma
     # cell-aware percentile-rank fusion (per arch × dataset to neutralise scale heterogeneity)
     add_per_cell_ranks(all_rows, ["min_majority", "M9_cabv_x_laas", "M1_cabv", "dragin_max"], ("arch", "dataset"))
     fuse(all_rows, "min_majority", "M9_cabv_x_laas", "max")
@@ -180,9 +182,11 @@ def main():
         ("F_geom",          "F3 geom(min_maj, M9)"),
     ]
 
-    report_one(all_rows, "Phi + Qwen2.5 pooled (R1, n=800)", keys_to_test, B)
+    report_one(all_rows, "Phi + Qwen2.5 + Gemma pooled (R1, n=1200) — 3-arch", keys_to_test, B)
+    report_one(rows_no_phi, "Qwen2.5 + Gemma pooled (R1, n=800) — Phi-DROPPED scenario", keys_to_test, B)
     report_one(phi, "Phi pooled (R1, n=400)", keys_to_test, B)
     report_one(qwen, "Qwen2.5 pooled (R1, n=400)", keys_to_test, B)
+    report_one(gemma, "Gemma pooled (R1, n=400)", keys_to_test, B)
 
     per_cell_table(all_rows, keys_to_test)
 

@@ -660,3 +660,462 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [..]  30/200  em=23/30  steps= 12  tok= 214  wall=198.5s  elapsed=132.8min
 [..]  35/200  em=26/35  steps= 10  tok= 134  wall=142.2s  elapsed=150.9min
 [..]  40/200  em=28/40  steps= 17  tok= 230  wall=286.5s  elapsed=190.7min
+[..]  45/200  em=31/45  steps= 13  tok= 224  wall=218.8s  elapsed=210.3min
+[..]  50/200  em=33/50  steps= 25  tok= 265  wall=426.4s  elapsed=235.8min
+[..]  55/200  em=35/55  steps= 48  tok= 704  wall=868.0s  elapsed=279.6min
+[..]  60/200  em=40/60  steps= 23  tok= 265  wall=406.2s  elapsed=299.1min
+[..]  65/200  em=43/65  steps= 14  tok= 267  wall=238.6s  elapsed=331.2min
+[..]  70/200  em=46/70  steps=  7  tok= 157  wall=109.0s  elapsed=351.4min
+[..]  75/200  em=48/75  steps= 13  tok= 176  wall=234.6s  elapsed=374.0min
+[..]  80/200  em=52/80  steps= 22  tok= 304  wall=380.9s  elapsed=395.7min
+[..]  85/200  em=55/85  steps= 34  tok= 560  wall=590.0s  elapsed=422.4min
+[..]  90/200  em=55/90  steps= 24  tok= 240  wall=399.2s  elapsed=443.2min
+[..]  95/200  em=57/95  steps= 24  tok= 412  wall=404.6s  elapsed=468.7min
+[..] 100/200  em=60/100  steps= 16  tok= 184  wall=240.4s  elapsed=480.5min
+[..] 105/200  em=64/105  steps=  8  tok= 117  wall=92.3s  elapsed=496.6min
+[..] 110/200  em=67/110  steps= 14  tok= 148  wall=208.9s  elapsed=514.7min
+[..] 115/200  em=70/115  steps= 21  tok= 288  wall=359.3s  elapsed=538.1min
+[..] 120/200  em=72/120  steps= 15  tok= 149  wall=219.7s  elapsed=552.6min
+[..] 125/200  em=73/125  steps= 13  tok= 192  wall=202.6s  elapsed=571.6min
+[..] 130/200  em=76/130  steps= 13  tok= 157  wall=201.4s  elapsed=587.7min
+[..] 135/200  em=79/135  steps=  9  tok= 152  wall=136.9s  elapsed=604.3min
+[..] 140/200  em=82/140  steps= 12  tok= 184  wall=168.1s  elapsed=622.7min
+[..] 145/200  em=87/145  steps= 12  tok= 205  wall=187.8s  elapsed=635.4min
+[..] 150/200  em=89/150  steps=  8  tok= 116  wall=101.6s  elapsed=666.8min
+[..] 155/200  em=93/155  steps= 11  tok= 105  wall=162.3s  elapsed=699.1min
+[..] 160/200  em=97/160  steps= 17  tok= 253  wall=263.1s  elapsed=727.1min
+[..] 165/200  em=99/165  steps= 18  tok= 272  wall=292.3s  elapsed=769.8min
+[..] 170/200  em=103/170  steps= 12  tok= 176  wall=198.8s  elapsed=788.7min
+[..] 175/200  em=106/175  steps=  7  tok= 118  wall=98.6s  elapsed=803.2min
+[..] 180/200  em=109/180  steps= 13  tok= 176  wall=225.1s  elapsed=822.1min
+[..] 185/200  em=112/185  steps= 40  tok= 624  wall=710.8s  elapsed=853.0min
+[..] 190/200  em=113/190  steps= 16  tok= 255  wall=240.2s  elapsed=893.1min
+[..] 195/200  em=115/195  steps=  9  tok= 144  wall=117.6s  elapsed=914.5min
+[..] 200/200  em=116/200  steps= 92  tok=1024  wall=1619.1s  elapsed=965.2min
+[ok] wrote 200 rows to runs/v2_headline_gemma-4-26b-a4b-it/D2_closed_wiki.jsonl
+[ok] em rate: 116/200 = 0.580
+[gate] n=200 tok_median=205 p10=128 p90=331
+[gate] OK
+[2026-05-15T03:47:06Z] [gemma-4-26b-a4b-it] ==== E: E1_oracle_hotpot oracle decode (n=200 from data/hotpotqa_distractor_500_v2test.jsonl) ====
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:53, 18.97it/s]Loading weights:   0%|          | 5/1013 [00:00<01:01, 16.37it/s]Loading weights:   2%|▏         | 25/1013 [00:00<00:12, 81.40it/s]Loading weights:   3%|▎         | 35/1013 [00:00<00:12, 75.88it/s]Loading weights:   5%|▍         | 48/1013 [00:00<00:13, 70.00it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:11, 83.49it/s]Loading weights:   9%|▉         | 92/1013 [00:01<00:09, 98.04it/s]Loading weights:  11%|█▏        | 114/1013 [00:01<00:08, 100.02it/s]Loading weights:  13%|█▎        | 135/1013 [00:01<00:08, 100.58it/s]Loading weights:  15%|█▌        | 157/1013 [00:01<00:08, 105.36it/s]Loading weights:  18%|█▊        | 179/1013 [00:01<00:07, 116.35it/s]Loading weights:  20%|█▉        | 201/1013 [00:02<00:07, 113.20it/s]Loading weights:  22%|██▏       | 223/1013 [00:02<00:07, 111.54it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:07, 103.89it/s]Loading weights:  26%|██▌       | 265/1013 [00:02<00:07, 99.85it/s] Loading weights:  28%|██▊       | 288/1013 [00:02<00:07, 101.21it/s]Loading weights:  31%|███       | 310/1013 [00:03<00:07, 99.86it/s] Loading weights:  33%|███▎      | 331/1013 [00:03<00:06, 100.10it/s]Loading weights:  35%|███▍      | 354/1013 [00:03<00:06, 106.91it/s]Loading weights:  37%|███▋      | 376/1013 [00:03<00:05, 111.09it/s]Loading weights:  39%|███▉      | 397/1013 [00:03<00:05, 108.96it/s]Loading weights:  41%|████▏     | 419/1013 [00:04<00:05, 105.02it/s]Loading weights:  44%|████▎     | 441/1013 [00:04<00:05, 106.83it/s]Loading weights:  46%|████▌     | 462/1013 [00:04<00:05, 104.66it/s]Loading weights:  48%|████▊     | 485/1013 [00:04<00:04, 109.72it/s]Loading weights:  50%|█████     | 507/1013 [00:05<00:04, 108.57it/s]Loading weights:  52%|█████▏    | 528/1013 [00:05<00:04, 105.65it/s]Loading weights:  54%|█████▍    | 549/1013 [00:05<00:04, 106.67it/s]Loading weights:  56%|█████▋    | 571/1013 [00:05<00:03, 126.20it/s]Loading weights:  58%|█████▊    | 585/1013 [00:05<00:03, 118.81it/s]Loading weights:  59%|█████▉    | 598/1013 [00:05<00:04, 102.22it/s]Loading weights:  61%|██████    | 616/1013 [00:06<00:04, 96.77it/s] Loading weights:  63%|██████▎   | 638/1013 [00:06<00:03, 99.30it/s]Loading weights:  77%|███████▋  | 779/1013 [00:06<00:00, 339.61it/s]Loading weights:  89%|████████▉ | 904/1013 [00:06<00:00, 524.79it/s]Loading weights: 100%|██████████| 1013/1013 [00:06<00:00, 154.08it/s]
+[ok] loaded in 11.61s | rss 1.144 GB | VRAM 49887 MB
+[  1] id=5abd94525542992ac4f382d2  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[  2] id=5ab3e45655429976abd1bcd4  em=1  f1=1.000  tok=175  reason=eos  n_sup=2/10
+[  3] id=5abc0a5d5542993f40c73c64  em=1  f1=1.000  tok=127  reason=eos  n_sup=2/10
+[  4] id=5ab51dae5542991779162d82  em=1  f1=1.000  tok=110  reason=eos  n_sup=2/10
+[  5] id=5a760ab65542994ccc918697  em=0  f1=0.800  tok=208  reason=answer_marker  n_sup=2/10
+[  6] id=5a8361b65542992ef85e22a0  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[  7] id=5a835478554299123d8c20ed  em=0  f1=0.000  tok=656  reason=answer_marker  n_sup=2/10
+[  8] id=5ab659e355429954757d324e  em=1  f1=1.000  tok=151  reason=eos  n_sup=2/10
+[  9] id=5abd01205542992ac4f3819b  em=0  f1=0.667  tok=124  reason=eos  n_sup=2/10
+[ 10] id=5ae73c065542991e8301cc18  em=1  f1=1.000  tok=224  reason=answer_marker  n_sup=2/10
+[ 11] id=5a7c960655429935c91b5244  em=0  f1=0.800  tok=112  reason=answer_marker  n_sup=2/10
+[ 12] id=5a8b987f5542997f31a41d7a  em=0  f1=0.500  tok=96  reason=answer_marker  n_sup=2/10
+[ 13] id=5a73a7c755429978a71e9068  em=0  f1=0.333  tok=176  reason=answer_marker  n_sup=2/10
+[ 14] id=5a879ba55542993e715abfc3  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 15] id=5ac1795f5542994ab5c67d5f  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[ 16] id=5adf9dc3554299025d62a2e6  em=0  f1=0.800  tok=256  reason=answer_marker  n_sup=2/10
+[ 17] id=5a8ee4315542990e94052ba7  em=1  f1=1.000  tok=184  reason=eos  n_sup=2/10
+[ 18] id=5a79c6a55542994bb9457091  em=0  f1=0.667  tok=192  reason=answer_marker  n_sup=2/10
+[ 19] id=5abd0d635542992ac4f381b8  em=0  f1=0.667  tok=182  reason=eos  n_sup=2/10
+[ 20] id=5a83aaeb5542996488c2e483  em=0  f1=0.909  tok=208  reason=answer_marker  n_sup=2/10
+[ 21] id=5ab6bf6d55429953192ad372  em=1  f1=1.000  tok=179  reason=eos  n_sup=2/10
+[ 22] id=5ac02edb554299294b218f41  em=0  f1=0.800  tok=128  reason=answer_marker  n_sup=2/10
+[ 23] id=5ac3d9c9554299204fd21ea3  em=0  f1=0.800  tok=112  reason=answer_marker  n_sup=2/10
+[ 24] id=5a764c0b55429976ec32bd89  em=0  f1=0.923  tok=158  reason=eos  n_sup=2/10
+[ 25] id=5a8d02cc554299441c6b9fb6  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 26] id=5abf44025542993fe9a41def  em=1  f1=1.000  tok=190  reason=eos  n_sup=2/10
+[ 27] id=5add564a5542990dbb2f7e38  em=1  f1=1.000  tok=125  reason=eos  n_sup=2/10
+[ 28] id=5a738225554299623ed4abc3  em=0  f1=0.667  tok=143  reason=eos  n_sup=2/10
+[ 29] id=5ab47cd75542991751b4d78d  em=0  f1=0.667  tok=126  reason=eos  n_sup=2/10
+[ 30] id=5ac537975542996feb3fea3c  em=0  f1=0.800  tok=142  reason=eos  n_sup=2/10
+[ 31] id=5ae5e1985542996de7b71a54  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 32] id=5a88a19a5542997e5c09a64b  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[ 33] id=5a7319e755429901807daf86  em=0  f1=0.333  tok=89  reason=eos  n_sup=2/10
+[ 34] id=5a848b5c5542997175ce1ef2  em=0  f1=0.667  tok=168  reason=eos  n_sup=2/10
+[ 35] id=5a721d5a55429971e9dc9283  em=0  f1=0.400  tok=152  reason=eos  n_sup=2/10
+[ 36] id=5abb2f245542996cc5e49fd2  em=1  f1=1.000  tok=106  reason=eos  n_sup=2/10
+[ 37] id=5a866e7e554299211dda2b29  em=1  f1=1.000  tok=189  reason=eos  n_sup=2/10
+[ 38] id=5adf4ba65542992d7e9f931c  em=1  f1=1.000  tok=269  reason=eos  n_sup=2/10
+[ 39] id=5ae7945d5542997b22f6a7ba  em=0  f1=0.800  tok=144  reason=answer_marker  n_sup=2/10
+[ 40] id=5ab98608554299131ca42362  em=0  f1=0.667  tok=123  reason=eos  n_sup=2/10
+[ 41] id=5a8bbfb15542995e66a474f6  em=0  f1=0.667  tok=101  reason=eos  n_sup=2/10
+[ 42] id=5a817f6655429938b6142349  em=1  f1=1.000  tok=180  reason=eos  n_sup=2/10
+[ 43] id=5ab30d1155429976abd1bc3d  em=1  f1=1.000  tok=96  reason=eos  n_sup=2/10
+[ 44] id=5abfc8675542993fe9a41e52  em=0  f1=0.000  tok=146  reason=eos  n_sup=2/10
+[ 45] id=5a80c74f554299260e20a158  em=0  f1=0.462  tok=186  reason=eos  n_sup=2/10
+[ 46] id=5ae17daa55429901ffe4aea9  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[ 47] id=5a89a02955429946c8d6e975  em=1  f1=1.000  tok=114  reason=eos  n_sup=2/10
+[ 48] id=5ae1e9fd5542997f29b3c1a1  em=0  f1=0.400  tok=204  reason=eos  n_sup=2/10
+[ 49] id=5a79ca585542996c55b2dc71  em=0  f1=0.571  tok=153  reason=eos  n_sup=2/10
+[ 50] id=5a90b6985542990a984936c2  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[ 51] id=5a820c0c554299676cceb1fc  em=0  f1=0.800  tok=132  reason=eos  n_sup=2/10
+[ 52] id=5ab94cf0554299743d22eade  em=0  f1=0.667  tok=241  reason=eos  n_sup=2/10
+[ 53] id=5a77c60255429967ab105285  em=0  f1=0.833  tok=149  reason=eos  n_sup=2/10
+[ 54] id=5a7e37095542995ed0d166d5  em=1  f1=1.000  tok=139  reason=eos  n_sup=2/10
+[ 55] id=5adcc3ed5542994d58a2f6c4  em=1  f1=1.000  tok=256  reason=answer_marker  n_sup=2/10
+[ 56] id=5ac26b7f55429951e9e685ae  em=0  f1=0.250  tok=139  reason=eos  n_sup=2/10
+[ 57] id=5a84992e5542992a431d1a6d  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 58] id=5ab90fdd55429916710eb0fc  em=1  f1=1.000  tok=70  reason=eos  n_sup=2/10
+[ 59] id=5a73cad5554299623ed4ac5e  em=0  f1=0.800  tok=127  reason=eos  n_sup=2/10
+[ 60] id=5ae376a35542990afbd1e163  em=1  f1=1.000  tok=167  reason=eos  n_sup=2/10
+[ 61] id=5a9030ef5542995651fb50e4  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[ 62] id=5ae7882b554299540e5a55dd  em=0  f1=0.500  tok=133  reason=eos  n_sup=2/10
+[ 63] id=5abcf17655429959677d6b5c  em=0  f1=0.000  tok=140  reason=eos  n_sup=2/10
+[ 64] id=5a85a2845542997175ce1fe1  em=1  f1=1.000  tok=165  reason=eos  n_sup=2/10
+[ 65] id=5ae3bb0d5542992f92d82357  em=0  f1=0.800  tok=224  reason=answer_marker  n_sup=2/10
+[ 66] id=5a7ed5af5542994959419a84  em=0  f1=0.857  tok=128  reason=answer_marker  n_sup=2/10
+[ 67] id=5ac3b0885542995ef918c1f8  em=1  f1=1.000  tok=140  reason=eos  n_sup=2/10
+[ 68] id=5ab5dc44554299494045f089  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 69] id=5ab1e76c554299449642c800  em=0  f1=0.857  tok=185  reason=eos  n_sup=2/10
+[ 70] id=5a8a9bc15542996c9b8d5f36  em=1  f1=1.000  tok=159  reason=eos  n_sup=2/10
+[ 71] id=5abbd7985542992ccd8e7fb8  em=0  f1=0.500  tok=176  reason=answer_marker  n_sup=2/10
+[ 72] id=5ae7922f5542994a481bbdac  em=0  f1=0.182  tok=96  reason=answer_marker  n_sup=2/10
+[ 73] id=5add2b435542990d50227e11  em=0  f1=0.800  tok=144  reason=answer_marker  n_sup=2/10
+[ 74] id=5a8d0d7b55429941ae14df79  em=0  f1=0.800  tok=137  reason=eos  n_sup=2/10
+[ 75] id=5adf0ae45542992d7e9f9286  em=0  f1=0.000  tok=115  reason=eos  n_sup=2/10
+[ 76] id=5a8c06bb5542995e66a47530  em=1  f1=1.000  tok=127  reason=eos  n_sup=2/10
+[ 77] id=5a8ba92c554299240d9c2071  em=1  f1=1.000  tok=147  reason=eos  n_sup=2/10
+[ 78] id=5a7f3bcd55429930675136c3  em=0  f1=0.800  tok=192  reason=answer_marker  n_sup=2/10
+[ 79] id=5ab27389554299722f9b4d2f  em=1  f1=1.000  tok=144  reason=answer_marker  n_sup=2/10
+[ 80] id=5ae1da385542997283cd2297  em=0  f1=0.923  tok=179  reason=eos  n_sup=2/10
+[ 81] id=5a8f18d555429918e830d189  em=0  f1=0.000  tok=256  reason=answer_marker  n_sup=2/10
+[ 82] id=5a7fa08d55429969796c1af7  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 83] id=5adcc9f35542990d50227d20  em=0  f1=0.800  tok=150  reason=eos  n_sup=2/10
+[ 84] id=5a8841195542994846c1ce65  em=1  f1=1.000  tok=160  reason=eos  n_sup=2/10
+[ 85] id=5a84807d554299123d8c2278  em=0  f1=0.667  tok=102  reason=eos  n_sup=2/10
+[ 86] id=5a7da0915542990b8f5039d4  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 87] id=5a85db6e5542994c784ddb96  em=1  f1=1.000  tok=118  reason=eos  n_sup=2/10
+[ 88] id=5a7da0de5542990b8f5039d7  em=0  f1=0.800  tok=112  reason=answer_marker  n_sup=2/10
+[ 89] id=5a8baf4b5542996e8ac889c5  em=0  f1=0.000  tok=176  reason=answer_marker  n_sup=2/10
+[ 90] id=5a78f26055429970f5fffdeb  em=0  f1=0.800  tok=128  reason=answer_marker  n_sup=2/10
+[ 91] id=5a75a0725542992d0ec05fc9  em=0  f1=0.750  tok=144  reason=answer_marker  n_sup=2/10
+[ 92] id=5ab7ee895542995dae37e9f6  em=1  f1=1.000  tok=176  reason=answer_marker  n_sup=2/10
+[ 93] id=5a75f32055429976ec32bcb7  em=0  f1=0.000  tok=149  reason=eos  n_sup=2/10
+[ 94] id=5a7cb9985542990527d55514  em=1  f1=1.000  tok=176  reason=answer_marker  n_sup=2/10
+[ 95] id=5ae3f1fb5542995ad6573cc1  em=0  f1=0.000  tok=132  reason=eos  n_sup=2/10
+[ 96] id=5adfe0de55429925eb1afae9  em=1  f1=1.000  tok=192  reason=answer_marker  n_sup=2/10
+[ 97] id=5a716ec85542994082a3e82d  em=1  f1=1.000  tok=118  reason=eos  n_sup=2/10
+[ 98] id=5add95035542990dbb2f7e77  em=0  f1=0.500  tok=142  reason=eos  n_sup=2/10
+[ 99] id=5ac18b585542994ab5c67d76  em=1  f1=1.000  tok=157  reason=eos  n_sup=2/10
+[100] id=5ae47df15542996836b02cba  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[101] id=5adf33965542993344016c20  em=1  f1=1.000  tok=196  reason=eos  n_sup=2/10
+[102] id=5a80c79155429938b61421da  em=1  f1=1.000  tok=174  reason=eos  n_sup=2/10
+[103] id=5a80993d5542996402f6a589  em=0  f1=0.000  tok=112  reason=answer_marker  n_sup=2/10
+[104] id=5a73b2fd55429978a71e907f  em=0  f1=0.800  tok=208  reason=answer_marker  n_sup=2/10
+[105] id=5ac160af5542994d76dccdfa  em=0  f1=0.444  tok=112  reason=answer_marker  n_sup=2/10
+[106] id=5ac3044f5542990b17b154dc  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[107] id=5ae55d1e55429960a22e02cb  em=0  f1=0.857  tok=96  reason=answer_marker  n_sup=2/10
+[108] id=5a7302b75542991f9a20c5fd  em=1  f1=1.000  tok=172  reason=eos  n_sup=2/10
+[109] id=5ae0ba15554299603e41844d  em=1  f1=1.000  tok=160  reason=eos  n_sup=2/10
+[110] id=5abb4b4a5542993f40c73aea  em=1  f1=1.000  tok=117  reason=eos  n_sup=2/10
+[111] id=5abe36745542991f66106101  em=0  f1=0.857  tok=144  reason=answer_marker  n_sup=2/10
+[112] id=5ac2cfab554299657fa29079  em=1  f1=1.000  tok=136  reason=eos  n_sup=2/10
+[113] id=5a88abf75542997e5c09a6a1  em=0  f1=0.667  tok=169  reason=eos  n_sup=2/10
+[114] id=5ac3d90b5542995c82c4ac4b  em=0  f1=0.500  tok=101  reason=eos  n_sup=2/10
+[115] id=5adc035c554299438c868d04  em=1  f1=1.000  tok=158  reason=eos  n_sup=2/10
+[116] id=5ab442645542991751b4d70c  em=0  f1=0.800  tok=119  reason=eos  n_sup=2/10
+[117] id=5ab6bb575542995eadef0088  em=1  f1=1.000  tok=192  reason=answer_marker  n_sup=2/10
+[118] id=5a77c15f5542997042120b1c  em=0  f1=0.800  tok=192  reason=answer_marker  n_sup=2/10
+[119] id=5adf39765542993a75d26435  em=1  f1=1.000  tok=192  reason=answer_marker  n_sup=2/10
+[120] id=5a7cd0fd55429909bec76823  em=1  f1=1.000  tok=168  reason=eos  n_sup=2/10
+[121] id=5a8e61165542995085b3741a  em=0  f1=0.800  tok=123  reason=eos  n_sup=2/10
+[122] id=5a88c92d5542993b751ca84e  em=0  f1=0.286  tok=144  reason=answer_marker  n_sup=2/10
+[123] id=5a7dacff5542991319bc93e0  em=0  f1=0.000  tok=208  reason=answer_marker  n_sup=2/10
+[124] id=5a8af05d55429950cd6afc1a  em=1  f1=1.000  tok=135  reason=eos  n_sup=2/10
+[125] id=5a82bdd655429940e5e1a92a  em=1  f1=1.000  tok=151  reason=eos  n_sup=2/10
+[126] id=5a78fe8155429970f5fffe11  em=1  f1=1.000  tok=98  reason=eos  n_sup=2/10
+[127] id=5a7280105542994cef4bc2e4  em=1  f1=1.000  tok=528  reason=answer_marker  n_sup=2/10
+[128] id=5a8078e95542992bc0c4a72c  em=1  f1=1.000  tok=114  reason=eos  n_sup=2/10
+[129] id=5ab2b666554299194fa934ca  em=1  f1=1.000  tok=192  reason=eos  n_sup=2/10
+[130] id=5ab3bfd3554299233954ff99  em=0  f1=0.667  tok=128  reason=answer_marker  n_sup=2/10
+[131] id=5ab5f249554299488d4d9a5d  em=0  f1=0.000  tok=444  reason=eos  n_sup=2/10
+[132] id=5ae494575542995dadf2434d  em=1  f1=1.000  tok=132  reason=eos  n_sup=2/10
+[133] id=5abe64bf55429976d4830b13  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[134] id=5a80caac554299260e20a161  em=0  f1=0.667  tok=176  reason=answer_marker  n_sup=2/10
+[135] id=5abd583255429924427fcfb9  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[136] id=5ab2958c554299449642c912  em=0  f1=0.000  tok=160  reason=answer_marker  n_sup=2/10
+[137] id=5a7c6753554299683c1c62f9  em=1  f1=1.000  tok=184  reason=eos  n_sup=2/10
+[138] id=5ae3eeb25542995dadf2425e  em=0  f1=0.857  tok=128  reason=answer_marker  n_sup=2/10
+[139] id=5ae1e9635542997f29b3c19e  em=1  f1=1.000  tok=144  reason=answer_marker  n_sup=2/10
+[140] id=5abe3f3455429976d4830aa8  em=0  f1=0.800  tok=128  reason=answer_marker  n_sup=2/10
+[141] id=5adf07f25542992d7e9f9279  em=0  f1=0.667  tok=139  reason=eos  n_sup=2/10
+[142] id=5a7d5c175542991319bc93b1  em=1  f1=1.000  tok=112  reason=eos  n_sup=2/10
+[143] id=5ab934465542996be202043e  em=1  f1=1.000  tok=140  reason=eos  n_sup=2/10
+[144] id=5a82e36255429940e5e1a93b  em=1  f1=1.000  tok=224  reason=answer_marker  n_sup=2/10
+[145] id=5adf99065542992d7e9f93b0  em=1  f1=1.000  tok=144  reason=eos  n_sup=2/10
+[146] id=5a8dd13055429917b4a5bcba  em=0  f1=0.667  tok=128  reason=answer_marker  n_sup=2/10
+[147] id=5ae76dfd5542997b22f6a755  em=1  f1=1.000  tok=176  reason=answer_marker  n_sup=2/10
+[148] id=5ae0bb2c5542993d6555ec27  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[149] id=5addf3d65542990dbb2f7f0e  em=0  f1=0.000  tok=208  reason=answer_marker  n_sup=2/10
+[150] id=5a7456ec55429979e288290f  em=1  f1=1.000  tok=123  reason=eos  n_sup=2/10
+[151] id=5ab3bd7d55429969a97a819f  em=0  f1=0.667  tok=208  reason=answer_marker  n_sup=2/10
+[152] id=5ab9c7c355429939ce03dc17  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[153] id=5ac439005542995c82c4acf9  em=1  f1=1.000  tok=124  reason=eos  n_sup=2/10
+[154] id=5ae15d70554299422ee9966f  em=0  f1=0.800  tok=176  reason=answer_marker  n_sup=2/10
+[155] id=5abbdaef554299642a094b5d  em=1  f1=1.000  tok=183  reason=eos  n_sup=2/10
+[156] id=5a79c2955542994f819ef097  em=1  f1=1.000  tok=183  reason=eos  n_sup=2/10
+[157] id=5ab7b0575542992aa3b8c83d  em=1  f1=1.000  tok=171  reason=eos  n_sup=2/10
+[158] id=5ac11139554299294b219083  em=0  f1=0.400  tok=144  reason=answer_marker  n_sup=2/10
+[159] id=5ae5ef105542996de7b71a72  em=0  f1=0.857  tok=192  reason=answer_marker  n_sup=2/10
+[160] id=5a8ae00e5542992d82986fc7  em=1  f1=1.000  tok=109  reason=eos  n_sup=2/10
+[161] id=5abeb91c5542994516f45400  em=1  f1=1.000  tok=187  reason=eos  n_sup=2/10
+[162] id=5a832fdd55429954d2e2ec4f  em=1  f1=1.000  tok=147  reason=eos  n_sup=2/10
+[163] id=5ae70369554299572ea54683  em=1  f1=1.000  tok=206  reason=eos  n_sup=2/10
+[164] id=5abad3445542996cc5e49ea0  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[165] id=5a815c2e5542995ce29dcbe8  em=0  f1=0.667  tok=180  reason=eos  n_sup=2/10
+[166] id=5adf3f1d5542992d7e9f9310  em=0  f1=0.667  tok=112  reason=answer_marker  n_sup=2/10
+[167] id=5adcd2435542992c1e3a241b  em=1  f1=1.000  tok=142  reason=eos  n_sup=2/10
+[168] id=5a8796345542994846c1cda3  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[169] id=5a7c25035542997c3ec972e5  em=0  f1=0.182  tok=96  reason=answer_marker  n_sup=2/10
+[170] id=5a74670855429929fddd840d  em=1  f1=1.000  tok=144  reason=answer_marker  n_sup=2/10
+[171] id=5a7faed65542994857a767b6  em=0  f1=0.500  tok=167  reason=eos  n_sup=2/10
+[172] id=5a7f451a55429969796c19ec  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[173] id=5addd6045542997dc7907049  em=0  f1=0.500  tok=112  reason=answer_marker  n_sup=2/10
+[174] id=5a7a3dbb5542996a35c17157  em=1  f1=1.000  tok=107  reason=eos  n_sup=2/10
+[175] id=5ac2758b55429963665199c3  em=1  f1=1.000  tok=100  reason=eos  n_sup=2/10
+[176] id=5a83dd2c554299334474609e  em=0  f1=0.952  tok=242  reason=eos  n_sup=2/10
+[177] id=5ae72b745542991e8301cb7f  em=1  f1=1.000  tok=138  reason=eos  n_sup=2/10
+[178] id=5a8314bd55429966c78a6b2a  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[179] id=5a7f38e255429930675136b6  em=1  f1=1.000  tok=167  reason=eos  n_sup=2/10
+[180] id=5ac2920555429921a00aafc9  em=0  f1=0.667  tok=98  reason=eos  n_sup=2/10
+[181] id=5ab8a7f65542991b5579efca  em=1  f1=1.000  tok=98  reason=eos  n_sup=2/10
+[182] id=5ae5b255554299546bf82f2c  em=1  f1=1.000  tok=153  reason=eos  n_sup=2/10
+[183] id=5a8725a15542996432c57230  em=0  f1=0.000  tok=162  reason=eos  n_sup=2/10
+[184] id=5a81624d5542995ce29dcbf1  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[185] id=5abe8aad55429976d4830b60  em=0  f1=0.235  tok=128  reason=answer_marker  n_sup=2/10
+[186] id=5a7f296f55429934daa2fd10  em=1  f1=1.000  tok=110  reason=eos  n_sup=2/10
+[187] id=5a7414d855429929fddd83db  em=1  f1=1.000  tok=167  reason=eos  n_sup=2/10
+[188] id=5a820f2c55429926c1cdae17  em=1  f1=1.000  tok=101  reason=eos  n_sup=2/10
+[189] id=5a9073405542995b442420bb  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[190] id=5a7363465542991f29ee2dd5  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[191] id=5a77edf955429967ab1052e8  em=1  f1=1.000  tok=208  reason=eos  n_sup=2/10
+[192] id=5ae4183f5542996836b02c40  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[193] id=5a7fe7f85542994857a7683e  em=0  f1=0.667  tok=146  reason=eos  n_sup=2/10
+[194] id=5ae5cf625542996de7b71a22  em=0  f1=0.857  tok=144  reason=answer_marker  n_sup=2/10
+[195] id=5a7785af55429949eeb29ec2  em=1  f1=1.000  tok=109  reason=eos  n_sup=2/10
+[196] id=5a7c221f554299683c1c62d2  em=1  f1=1.000  tok=240  reason=eos  n_sup=2/10
+[197] id=5a7b88a85542995eb53be954  em=1  f1=1.000  tok=142  reason=eos  n_sup=2/10
+[198] id=5a85d4ad5542997175ce2050  em=0  f1=0.667  tok=208  reason=answer_marker  n_sup=2/10
+[199] id=5a74c2bd5542996c70cfadda  em=1  f1=1.000  tok=119  reason=eos  n_sup=2/10
+[200] id=5ab9ddef5542994dbf019875  em=0  f1=0.667  tok=144  reason=answer_marker  n_sup=2/10
+
+[ok] wrote runs/v2_headline_gemma-4-26b-a4b-it/E1_oracle_hotpot.jsonl
+     n=200  EM=101/200 (50.5%)  meanF1=0.763
+[2026-05-15T04:25:31Z] [gemma-4-26b-a4b-it] ==== E: E2_oracle_wiki oracle decode (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl) ====
+[..] loading models/gemma-4-26b-a4b-it (bf16 native, device_map={'': 0})
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights:   0%|          | 3/1013 [00:00<00:46, 21.68it/s]Loading weights:   1%|          | 6/1013 [00:00<00:40, 24.89it/s]Loading weights:   3%|▎         | 26/1013 [00:00<00:14, 69.84it/s]Loading weights:   5%|▍         | 48/1013 [00:00<00:10, 89.39it/s]Loading weights:   7%|▋         | 70/1013 [00:00<00:09, 102.07it/s]Loading weights:   9%|▉         | 92/1013 [00:00<00:08, 109.61it/s]Loading weights:  11%|█▏        | 114/1013 [00:01<00:08, 108.29it/s]Loading weights:  13%|█▎        | 135/1013 [00:01<00:07, 110.14it/s]Loading weights:  15%|█▌        | 157/1013 [00:01<00:07, 110.72it/s]Loading weights:  18%|█▊        | 179/1013 [00:01<00:07, 115.22it/s]Loading weights:  20%|█▉        | 200/1013 [00:01<00:07, 113.09it/s]Loading weights:  22%|██▏       | 223/1013 [00:02<00:07, 109.41it/s]Loading weights:  24%|██▍       | 245/1013 [00:02<00:07, 105.82it/s]Loading weights:  26%|██▋       | 266/1013 [00:02<00:06, 106.89it/s]Loading weights:  28%|██▊       | 288/1013 [00:02<00:06, 112.56it/s]Loading weights:  31%|███       | 310/1013 [00:02<00:06, 112.66it/s]Loading weights:  33%|███▎      | 332/1013 [00:03<00:05, 115.02it/s]Loading weights:  35%|███▍      | 354/1013 [00:03<00:05, 121.70it/s]Loading weights:  37%|███▋      | 376/1013 [00:03<00:05, 121.35it/s]Loading weights:  39%|███▉      | 397/1013 [00:03<00:05, 117.58it/s]Loading weights:  41%|████▏     | 419/1013 [00:03<00:05, 110.93it/s]Loading weights:  44%|████▎     | 441/1013 [00:04<00:04, 115.22it/s]Loading weights:  46%|████▌     | 463/1013 [00:04<00:04, 117.24it/s]Loading weights:  48%|████▊     | 485/1013 [00:04<00:04, 119.16it/s]Loading weights:  50%|█████     | 507/1013 [00:04<00:04, 111.60it/s]Loading weights:  52%|█████▏    | 527/1013 [00:04<00:03, 127.02it/s]Loading weights:  53%|█████▎    | 541/1013 [00:04<00:03, 125.75it/s]Loading weights:  55%|█████▍    | 555/1013 [00:05<00:04, 103.83it/s]Loading weights:  56%|█████▋    | 572/1013 [00:05<00:04, 96.08it/s] Loading weights:  59%|█████▊    | 593/1013 [00:05<00:04, 99.79it/s]Loading weights:  61%|██████    | 616/1013 [00:05<00:03, 103.16it/s]Loading weights:  63%|██████▎   | 638/1013 [00:05<00:03, 108.29it/s]Loading weights:  79%|███████▉  | 798/1013 [00:05<00:00, 383.36it/s]Loading weights:  91%|█████████▏| 926/1013 [00:06<00:00, 570.27it/s]Loading weights: 100%|██████████| 1013/1013 [00:06<00:00, 164.90it/s]
+[ok] loaded in 11.15s | rss 1.148 GB | VRAM 49887 MB
+[  1] id=8813f87c0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=121  reason=eos  n_sup=2/10
+[  2] id=f9dcb4a60bda11eba7f7acde48001122  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[  3] id=e618b2c608c911ebbd92ac1f6bf848b6  em=1  f1=1.000  tok=212  reason=eos  n_sup=2/10
+[  4] id=07388c7c0bb011ebab90acde48001122  em=0  f1=0.571  tok=136  reason=eos  n_sup=2/10
+[  5] id=6b55ac320bdb11eba7f7acde48001122  em=1  f1=1.000  tok=182  reason=eos  n_sup=2/10
+[  6] id=53ab316c08b911ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=278  reason=eos  n_sup=4/10
+[  7] id=3647118c0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=144  reason=eos  n_sup=2/10
+[  8] id=4e84cd2d08bb11ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[  9] id=79675c6e0bd911eba7f7acde48001122  em=0  f1=0.000  tok=78  reason=eos  n_sup=2/10
+[ 10] id=b677b1f8089611ebbd76ac1f6bf848b6  em=1  f1=1.000  tok=207  reason=eos  n_sup=4/10
+[ 11] id=122b64480baf11ebab90acde48001122  em=1  f1=1.000  tok=192  reason=answer_marker  n_sup=2/10
+[ 12] id=b7e9eb98085311ebbd59ac1f6bf848b6  em=1  f1=1.000  tok=239  reason=eos  n_sup=4/10
+[ 13] id=b0b7f3700bdb11eba7f7acde48001122  em=0  f1=0.800  tok=540  reason=eos  n_sup=2/10
+[ 14] id=6900298c0bde11eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[ 15] id=967b39ca0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=139  reason=eos  n_sup=2/10
+[ 16] id=b051c536089e11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=304  reason=answer_marker  n_sup=4/10
+[ 17] id=ec8167b208a011ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=248  reason=eos  n_sup=4/10
+[ 18] id=5a83ed2f086611ebbd5eac1f6bf848b6  em=0  f1=0.667  tok=300  reason=eos  n_sup=4/10
+[ 19] id=ab18549a0bdc11eba7f7acde48001122  em=0  f1=0.857  tok=192  reason=answer_marker  n_sup=2/10
+[ 20] id=ed27bca208ac11ebbd83ac1f6bf848b6  em=1  f1=1.000  tok=278  reason=eos  n_sup=4/10
+[ 21] id=0ebf83cc08b511ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=240  reason=answer_marker  n_sup=4/10
+[ 22] id=677658e80bde11eba7f7acde48001122  em=0  f1=0.000  tok=149  reason=eos  n_sup=2/10
+[ 23] id=c077f89508e711ebbda6ac1f6bf848b6  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 24] id=cdb8b7540bd911eba7f7acde48001122  em=1  f1=1.000  tok=125  reason=eos  n_sup=2/10
+[ 25] id=5c04f9c00bb011ebab90acde48001122  em=0  f1=0.667  tok=318  reason=eos  n_sup=2/10
+[ 26] id=71a137c6084a11ebbd56ac1f6bf848b6  em=0  f1=0.667  tok=160  reason=answer_marker  n_sup=2/10
+[ 27] id=f66993ce0bae11ebab90acde48001122  em=1  f1=1.000  tok=180  reason=eos  n_sup=2/10
+[ 28] id=06d9b7aa0bde11eba7f7acde48001122  em=0  f1=0.800  tok=128  reason=answer_marker  n_sup=2/10
+[ 29] id=89db525e0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=95  reason=eos  n_sup=2/10
+[ 30] id=e15b1fe20baf11ebab90acde48001122  em=1  f1=1.000  tok=155  reason=eos  n_sup=2/10
+[ 31] id=cad698fe086311ebbd5eac1f6bf848b6  em=1  f1=1.000  tok=124  reason=eos  n_sup=2/10
+[ 32] id=9ba526540bdd11eba7f7acde48001122  em=0  f1=0.667  tok=125  reason=eos  n_sup=2/10
+[ 33] id=f5b3194a08da11ebbd9cac1f6bf848b6  em=1  f1=1.000  tok=217  reason=eos  n_sup=4/10
+[ 34] id=57eba38e0bb011ebab90acde48001122  em=0  f1=0.800  tok=192  reason=answer_marker  n_sup=2/10
+[ 35] id=64c134bc08b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=118  reason=eos  n_sup=2/10
+[ 36] id=a8f3ff980bdc11eba7f7acde48001122  em=0  f1=0.000  tok=816  reason=answer_marker  n_sup=2/10
+[ 37] id=0f64620c08dd11ebbd9dac1f6bf848b6  em=1  f1=1.000  tok=281  reason=eos  n_sup=4/10
+[ 38] id=b40073360bdb11eba7f7acde48001122  em=1  f1=1.000  tok=68  reason=eos  n_sup=2/10
+[ 39] id=0429e4da0bde11eba7f7acde48001122  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[ 40] id=695689d20baf11ebab90acde48001122  em=0  f1=0.800  tok=176  reason=answer_marker  n_sup=2/10
+[ 41] id=709cfbb60bde11eba7f7acde48001122  em=0  f1=0.000  tok=94  reason=eos  n_sup=2/10
+[ 42] id=f9faf2ee08a211ebbd7bac1f6bf848b6  em=1  f1=1.000  tok=205  reason=eos  n_sup=4/10
+[ 43] id=d8dd8102084e11ebbd56ac1f6bf848b6  em=1  f1=1.000  tok=256  reason=answer_marker  n_sup=4/10
+[ 44] id=d6003284088e11ebbd70ac1f6bf848b6  em=1  f1=1.000  tok=118  reason=eos  n_sup=2/10
+[ 45] id=899ecc9e0bb011ebab90acde48001122  em=0  f1=0.500  tok=160  reason=eos  n_sup=2/10
+[ 46] id=d977eef20bd911eba7f7acde48001122  em=0  f1=0.500  tok=96  reason=answer_marker  n_sup=2/10
+[ 47] id=59f0b4d608b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 48] id=ac7e29440bdd11eba7f7acde48001122  em=0  f1=0.000  tok=208  reason=answer_marker  n_sup=2/10
+[ 49] id=82cf1051087111ebbd63ac1f6bf848b6  em=1  f1=1.000  tok=255  reason=eos  n_sup=4/10
+[ 50] id=f9e63d80085d11ebbd5cac1f6bf848b6  em=1  f1=1.000  tok=272  reason=answer_marker  n_sup=4/10
+[ 51] id=16e7a8480bdc11eba7f7acde48001122  em=0  f1=0.000  tok=464  reason=answer_marker  n_sup=2/10
+[ 52] id=2da46a3f08f311ebbdaaac1f6bf848b6  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 53] id=70dd6dec0bdc11eba7f7acde48001122  em=0  f1=0.000  tok=432  reason=answer_marker  n_sup=2/10
+[ 54] id=838692a808b611ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=256  reason=answer_marker  n_sup=4/10
+[ 55] id=d627e23a0bdd11eba7f7acde48001122  em=0  f1=0.000  tok=592  reason=answer_marker  n_sup=2/10
+[ 56] id=14d00b8508b411ebbd87ac1f6bf848b6  em=1  f1=1.000  tok=222  reason=eos  n_sup=4/10
+[ 57] id=29d3c6f80bdc11eba7f7acde48001122  em=1  f1=1.000  tok=101  reason=eos  n_sup=2/10
+[ 58] id=2ed33a200bb011ebab90acde48001122  em=1  f1=1.000  tok=185  reason=eos  n_sup=2/10
+[ 59] id=10d9966e0baf11ebab90acde48001122  em=1  f1=1.000  tok=152  reason=eos  n_sup=2/10
+[ 60] id=3b05d7d808bf11ebbd8aac1f6bf848b6  em=1  f1=1.000  tok=240  reason=answer_marker  n_sup=4/10
+[ 61] id=6a5604a00bde11eba7f7acde48001122  em=0  f1=0.000  tok=221  reason=eos  n_sup=2/10
+[ 62] id=9baacb02087911ebbd67ac1f6bf848b6  em=1  f1=1.000  tok=208  reason=answer_marker  n_sup=4/10
+[ 63] id=3a1dbb720bdc11eba7f7acde48001122  em=1  f1=1.000  tok=122  reason=eos  n_sup=2/10
+[ 64] id=3470afb20bb011ebab90acde48001122  em=1  f1=1.000  tok=134  reason=eos  n_sup=2/10
+[ 65] id=cac4e3ac096711ebbdafac1f6bf848b6  em=1  f1=1.000  tok=194  reason=eos  n_sup=2/10
+[ 66] id=36787917086811ebbd5eac1f6bf848b6  em=1  f1=1.000  tok=240  reason=answer_marker  n_sup=2/10
+[ 67] id=68a9e3c60bdc11eba7f7acde48001122  em=0  f1=0.667  tok=128  reason=answer_marker  n_sup=2/10
+[ 68] id=f1d6a4080bdd11eba7f7acde48001122  em=0  f1=0.500  tok=137  reason=eos  n_sup=2/10
+[ 69] id=594402520bde11eba7f7acde48001122  em=1  f1=1.000  tok=101  reason=eos  n_sup=2/10
+[ 70] id=061998c008ce11ebbd94ac1f6bf848b6  em=1  f1=1.000  tok=159  reason=eos  n_sup=2/10
+[ 71] id=810be29808b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=208  reason=answer_marker  n_sup=2/10
+[ 72] id=00de046a0bb011ebab90acde48001122  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[ 73] id=b942cafc08c411ebbd8eac1f6bf848b6  em=1  f1=1.000  tok=251  reason=eos  n_sup=4/10
+[ 74] id=01b7e8280bde11eba7f7acde48001122  em=0  f1=0.500  tok=112  reason=answer_marker  n_sup=2/10
+[ 75] id=7bb996ce0bdb11eba7f7acde48001122  em=0  f1=0.333  tok=128  reason=answer_marker  n_sup=2/10
+[ 76] id=582f4d4c0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=80  reason=answer_marker  n_sup=2/10
+[ 77] id=35615aae089811ebbd77ac1f6bf848b6  em=1  f1=1.000  tok=256  reason=answer_marker  n_sup=4/10
+[ 78] id=9d06ec120bdd11eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=eos  n_sup=2/10
+[ 79] id=1dbdfcea0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=80  reason=eos  n_sup=2/10
+[ 80] id=e48935f308b011ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=336  reason=answer_marker  n_sup=4/10
+[ 81] id=c09a65420baf11ebab90acde48001122  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[ 82] id=e4db3498085511ebbd59ac1f6bf848b6  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 83] id=ad9c8d6e08dd11ebbd9eac1f6bf848b6  em=1  f1=1.000  tok=256  reason=answer_marker  n_sup=4/10
+[ 84] id=2e612b41089c11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=252  reason=eos  n_sup=4/10
+[ 85] id=70dc266a0bde11eba7f7acde48001122  em=0  f1=0.000  tok=576  reason=answer_marker  n_sup=2/10
+[ 86] id=a01468fa0bdb11eba7f7acde48001122  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[ 87] id=3009165e0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=136  reason=eos  n_sup=2/10
+[ 88] id=3b76b5c80bdc11eba7f7acde48001122  em=0  f1=0.000  tok=112  reason=eos  n_sup=2/10
+[ 89] id=3ac032da0baf11ebab90acde48001122  em=0  f1=0.800  tok=119  reason=eos  n_sup=2/10
+[ 90] id=a60dbb0a08e111ebbda3ac1f6bf848b6  em=1  f1=1.000  tok=197  reason=eos  n_sup=4/10
+[ 91] id=5dd21fb508a711ebbd7fac1f6bf848b6  em=1  f1=1.000  tok=272  reason=answer_marker  n_sup=4/10
+[ 92] id=355ac9940bb011ebab90acde48001122  em=1  f1=1.000  tok=174  reason=eos  n_sup=2/10
+[ 93] id=c19b29260bdd11eba7f7acde48001122  em=0  f1=0.667  tok=180  reason=eos  n_sup=2/10
+[ 94] id=db2b0d96086f11ebbd62ac1f6bf848b6  em=0  f1=0.667  tok=262  reason=eos  n_sup=4/10
+[ 95] id=b592bb5c0bd911eba7f7acde48001122  em=0  f1=0.000  tok=256  reason=answer_marker  n_sup=2/10
+[ 96] id=207cff740bdd11eba7f7acde48001122  em=0  f1=0.667  tok=80  reason=answer_marker  n_sup=2/10
+[ 97] id=2302f685089c11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=138  reason=eos  n_sup=2/10
+[ 98] id=ef0e486b08aa11ebbd80ac1f6bf848b6  em=0  f1=0.667  tok=144  reason=answer_marker  n_sup=2/10
+[ 99] id=8d122a72096611ebbdafac1f6bf848b6  em=1  f1=1.000  tok=96  reason=eos  n_sup=2/10
+[100] id=416d82040bdc11eba7f7acde48001122  em=1  f1=1.000  tok=77  reason=eos  n_sup=2/10
+[101] id=01a3f8600bdc11eba7f7acde48001122  em=0  f1=0.000  tok=112  reason=answer_marker  n_sup=2/10
+[102] id=d2b2c30008a811ebbd7fac1f6bf848b6  em=1  f1=1.000  tok=264  reason=eos  n_sup=4/10
+[103] id=193a12b0093a11ebbdaeac1f6bf848b6  em=0  f1=0.667  tok=112  reason=answer_marker  n_sup=2/10
+[104] id=c737b33408ce11ebbd94ac1f6bf848b6  em=1  f1=1.000  tok=275  reason=eos  n_sup=4/10
+[105] id=1567b4a6088d11ebbd70ac1f6bf848b6  em=1  f1=1.000  tok=91  reason=eos  n_sup=2/10
+[106] id=ef48a3720baf11ebab90acde48001122  em=0  f1=0.750  tok=227  reason=eos  n_sup=2/10
+[107] id=6b526de608a811ebbd7fac1f6bf848b6  em=0  f1=0.800  tok=203  reason=eos  n_sup=4/10
+[108] id=4aa035e00bd911eba7f7acde48001122  em=0  f1=0.444  tok=144  reason=answer_marker  n_sup=2/10
+[109] id=0864c8b40baf11ebab90acde48001122  em=1  f1=1.000  tok=162  reason=eos  n_sup=2/10
+[110] id=ac47c76508c411ebbd8eac1f6bf848b6  em=1  f1=1.000  tok=120  reason=eos  n_sup=2/10
+[111] id=8dfa2e9e0bda11eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[112] id=b50d85db08b511ebbd88ac1f6bf848b6  em=0  f1=0.667  tok=272  reason=answer_marker  n_sup=2/10
+[113] id=fd49afe6084811ebbd55ac1f6bf848b6  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[114] id=9cbbf2ac0bdd11eba7f7acde48001122  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[115] id=63240f22089d11ebbd78ac1f6bf848b6  em=1  f1=1.000  tok=298  reason=eos  n_sup=4/10
+[116] id=e6bdda040bd911eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=eos  n_sup=2/10
+[117] id=70ef2e500bdd11eba7f7acde48001122  em=0  f1=0.000  tok=96  reason=answer_marker  n_sup=2/10
+[118] id=673943fa0bdd11eba7f7acde48001122  em=0  f1=0.857  tok=96  reason=answer_marker  n_sup=2/10
+[119] id=5cfd6cd00bde11eba7f7acde48001122  em=0  f1=0.667  tok=95  reason=eos  n_sup=2/10
+[120] id=955ddc6a0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[121] id=131fe1ba087011ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=365  reason=eos  n_sup=2/10
+[122] id=527ee6120bd911eba7f7acde48001122  em=1  f1=1.000  tok=185  reason=eos  n_sup=2/10
+[123] id=32ef13800bde11eba7f7acde48001122  em=0  f1=0.200  tok=130  reason=eos  n_sup=2/10
+[124] id=07932ed80bde11eba7f7acde48001122  em=1  f1=1.000  tok=73  reason=eos  n_sup=2/10
+[125] id=44a138ee0bdc11eba7f7acde48001122  em=0  f1=0.400  tok=126  reason=eos  n_sup=2/10
+[126] id=400808b608b311ebbd86ac1f6bf848b6  em=1  f1=1.000  tok=263  reason=eos  n_sup=4/10
+[127] id=eeb17f51093011ebbdaeac1f6bf848b6  em=0  f1=0.000  tok=128  reason=answer_marker  n_sup=2/10
+[128] id=a5e486bc0bda11eba7f7acde48001122  em=0  f1=0.750  tok=132  reason=eos  n_sup=2/10
+[129] id=6a7725140bb011ebab90acde48001122  em=0  f1=0.857  tok=128  reason=answer_marker  n_sup=2/10
+[130] id=02102208088011ebbd6cac1f6bf848b6  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[131] id=95a081f508a411ebbd7dac1f6bf848b6  em=1  f1=1.000  tok=248  reason=eos  n_sup=4/10
+[132] id=34ff3ed60bdc11eba7f7acde48001122  em=0  f1=0.571  tok=128  reason=answer_marker  n_sup=2/10
+[133] id=de26abaa095411ebbdaeac1f6bf848b6  em=0  f1=0.667  tok=160  reason=answer_marker  n_sup=2/10
+[134] id=c77d1fc60bdc11eba7f7acde48001122  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[135] id=145806c6087111ebbd63ac1f6bf848b6  em=1  f1=1.000  tok=144  reason=answer_marker  n_sup=2/10
+[136] id=8eafc6a808b711ebbd88ac1f6bf848b6  em=1  f1=1.000  tok=198  reason=eos  n_sup=2/10
+[137] id=79f69dd80bda11eba7f7acde48001122  em=1  f1=1.000  tok=144  reason=answer_marker  n_sup=2/10
+[138] id=6fc6126e08ad11ebbd83ac1f6bf848b6  em=0  f1=0.000  tok=176  reason=answer_marker  n_sup=2/10
+[139] id=be1e5c620bda11eba7f7acde48001122  em=1  f1=1.000  tok=96  reason=answer_marker  n_sup=2/10
+[140] id=7247b1320bb011ebab90acde48001122  em=0  f1=0.667  tok=144  reason=answer_marker  n_sup=2/10
+[141] id=2231ab5e0bdc11eba7f7acde48001122  em=1  f1=1.000  tok=164  reason=eos  n_sup=2/10
+[142] id=2237c12d085711ebbd59ac1f6bf848b6  em=0  f1=0.667  tok=176  reason=answer_marker  n_sup=2/10
+[143] id=335443cc0bde11eba7f7acde48001122  em=0  f1=0.667  tok=144  reason=answer_marker  n_sup=2/10
+[144] id=b025e878095011ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=160  reason=answer_marker  n_sup=2/10
+[145] id=fcb1a7f4086c11ebbd61ac1f6bf848b6  em=1  f1=1.000  tok=223  reason=eos  n_sup=4/10
+[146] id=385c3978086f11ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=262  reason=eos  n_sup=4/10
+[147] id=37ff2e860bda11eba7f7acde48001122  em=0  f1=0.500  tok=88  reason=eos  n_sup=2/10
+[148] id=b9a3d70a0baf11ebab90acde48001122  em=0  f1=0.000  tok=352  reason=answer_marker  n_sup=2/10
+[149] id=6c0b26320bb011ebab90acde48001122  em=0  f1=0.800  tok=158  reason=eos  n_sup=2/10
+[150] id=f02ac77f096711ebbdafac1f6bf848b6  em=0  f1=0.400  tok=112  reason=answer_marker  n_sup=2/10
+[151] id=bd9054fc0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=110  reason=eos  n_sup=2/10
+[152] id=88be48840bda11eba7f7acde48001122  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[153] id=6b582dcc087011ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=198  reason=eos  n_sup=4/10
+[154] id=4fa9d2780baf11ebab90acde48001122  em=0  f1=0.750  tok=152  reason=eos  n_sup=2/10
+[155] id=8e410d9a0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=93  reason=eos  n_sup=2/10
+[156] id=b73268780bdd11eba7f7acde48001122  em=0  f1=0.500  tok=112  reason=answer_marker  n_sup=2/10
+[157] id=c137025f086611ebbd5eac1f6bf848b6  em=1  f1=1.000  tok=254  reason=eos  n_sup=4/10
+[158] id=ffc7b33c08c611ebbd91ac1f6bf848b6  em=1  f1=1.000  tok=208  reason=answer_marker  n_sup=2/10
+[159] id=a4f3d22e0baf11ebab90acde48001122  em=1  f1=1.000  tok=176  reason=answer_marker  n_sup=2/10
+[160] id=060505ae089211ebbd73ac1f6bf848b6  em=1  f1=1.000  tok=153  reason=eos  n_sup=4/10
+[161] id=505840b40bb011ebab90acde48001122  em=0  f1=0.667  tok=573  reason=eos  n_sup=2/10
+[162] id=8d4ce1380baf11ebab90acde48001122  em=1  f1=1.000  tok=142  reason=eos  n_sup=2/10
+[163] id=172d29020bde11eba7f7acde48001122  em=1  f1=1.000  tok=176  reason=answer_marker  n_sup=2/10
+[164] id=7e9fc27c084911ebbd55ac1f6bf848b6  em=0  f1=0.667  tok=292  reason=eos  n_sup=4/10
+[165] id=fea547400bdb11eba7f7acde48001122  em=0  f1=0.000  tok=240  reason=answer_marker  n_sup=2/10
+[166] id=3cf8f328087511ebbd67ac1f6bf848b6  em=1  f1=1.000  tok=112  reason=answer_marker  n_sup=2/10
+[167] id=2efc2c3b08bf11ebbd8aac1f6bf848b6  em=1  f1=1.000  tok=256  reason=answer_marker  n_sup=4/10
+[168] id=5a7b4936088d11ebbd70ac1f6bf848b6  em=1  f1=1.000  tok=172  reason=eos  n_sup=4/10
+[169] id=95d5a67208b311ebbd86ac1f6bf848b6  em=0  f1=0.667  tok=144  reason=answer_marker  n_sup=2/10
+[170] id=3bb4c10c0bdb11eba7f7acde48001122  em=1  f1=1.000  tok=86  reason=eos  n_sup=2/10
+[171] id=d6ef9ae60bdd11eba7f7acde48001122  em=1  f1=1.000  tok=137  reason=eos  n_sup=2/10
+[172] id=6f7115240bde11eba7f7acde48001122  em=0  f1=0.667  tok=80  reason=answer_marker  n_sup=2/10
+[173] id=39af8adc0bda11eba7f7acde48001122  em=0  f1=0.500  tok=106  reason=eos  n_sup=2/10
+[174] id=c9249d980bd911eba7f7acde48001122  em=0  f1=0.667  tok=143  reason=eos  n_sup=2/10
+[175] id=188088f7095311ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=128  reason=answer_marker  n_sup=2/10
+[176] id=fdbb770408da11ebbd9cac1f6bf848b6  em=1  f1=1.000  tok=231  reason=eos  n_sup=4/10
+[177] id=4b4cb9eb086f11ebbd62ac1f6bf848b6  em=1  f1=1.000  tok=272  reason=answer_marker  n_sup=4/10
+[178] id=1a1c0bd40bdd11eba7f7acde48001122  em=1  f1=1.000  tok=144  reason=eos  n_sup=2/10
+[179] id=2705d338093811ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=106  reason=eos  n_sup=2/10
+[180] id=a42b97c80bdc11eba7f7acde48001122  em=0  f1=0.000  tok=144  reason=answer_marker  n_sup=2/10
+[181] id=6637584408b211ebbd85ac1f6bf848b6  em=1  f1=1.000  tok=254  reason=eos  n_sup=4/10
+[182] id=ab622778089911ebbd77ac1f6bf848b6  em=1  f1=1.000  tok=189  reason=eos  n_sup=4/10
+[183] id=753c92260bde11eba7f7acde48001122  em=0  f1=0.000  tok=134  reason=eos  n_sup=2/10
+[184] id=373e7ab2087c11ebbd69ac1f6bf848b6  em=1  f1=1.000  tok=268  reason=eos  n_sup=4/10
+[185] id=7ff949800bdd11eba7f7acde48001122  em=0  f1=0.000  tok=288  reason=answer_marker  n_sup=2/10
+[186] id=5e3bb8cc0bd911eba7f7acde48001122  em=1  f1=1.000  tok=312  reason=eos  n_sup=2/10
+[187] id=9e57efbe0bdb11eba7f7acde48001122  em=0  f1=0.000  tok=160  reason=answer_marker  n_sup=2/10
+[188] id=33c7739b088311ebbd6dac1f6bf848b6  em=1  f1=1.000  tok=110  reason=eos  n_sup=2/10
+[189] id=612322280bde11eba7f7acde48001122  em=1  f1=1.000  tok=192  reason=answer_marker  n_sup=2/10
+[190] id=32ecfc7c0bb011ebab90acde48001122  em=0  f1=0.800  tok=175  reason=eos  n_sup=2/10
+[191] id=a89f2d8c0bdd11eba7f7acde48001122  em=0  f1=0.667  tok=115  reason=eos  n_sup=2/10
+[192] id=5418bd9b08c811ebbd91ac1f6bf848b6  em=1  f1=1.000  tok=256  reason=answer_marker  n_sup=4/10
+[193] id=ade965ba0baf11ebab90acde48001122  em=0  f1=0.444  tok=128  reason=answer_marker  n_sup=2/10
+[194] id=d326dd80084e11ebbd56ac1f6bf848b6  em=1  f1=1.000  tok=259  reason=eos  n_sup=4/10
+[195] id=e56e5c7e089c11ebbd78ac1f6bf848b6  em=0  f1=0.667  tok=128  reason=answer_marker  n_sup=2/10
+[196] id=0388710c095811ebbdaeac1f6bf848b6  em=1  f1=1.000  tok=151  reason=eos  n_sup=2/10
+[197] id=f7ff7626098911ebbdb0ac1f6bf848b6  em=1  f1=1.000  tok=108  reason=eos  n_sup=2/10
+[198] id=b8ffdece0bdd11eba7f7acde48001122  em=1  f1=1.000  tok=208  reason=answer_marker  n_sup=2/10
+[199] id=2e90b7440bde11eba7f7acde48001122  em=0  f1=0.000  tok=245  reason=eos  n_sup=2/10
+[200] id=8dab3a8e0bb011ebab90acde48001122  em=0  f1=0.000  tok=512  reason=answer_marker  n_sup=2/10
+
+[ok] wrote runs/v2_headline_gemma-4-26b-a4b-it/E2_oracle_wiki.jsonl
+     n=200  EM=121/200 (60.5%)  meanF1=0.772
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it] ==== gemma-4-26b-a4b-it complete ====
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   B_smoke_hotpot: 5 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   D1_closed_hotpot: 200 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   D2_closed_wiki: 200 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   E1_oracle_hotpot: 200 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   E2_oracle_wiki: 200 rows
+[ckpt] manifest -> runs/v2_headline_gemma-4-26b-a4b-it/checkpoints/slice_manifest.json
+[2026-05-15T05:12:25Z] [gemma-4-26b-a4b-it] elapsed=123514s (34h 18m)
+[2026-05-15T05:12:25Z] [gemma-4-26b-a4b-it] ABORT: wall-clock cap (30 h) exceeded

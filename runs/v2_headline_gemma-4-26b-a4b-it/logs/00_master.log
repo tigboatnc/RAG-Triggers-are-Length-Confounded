@@ -3,3 +3,13 @@
 [2026-05-13T21:23:45Z] [gemma-4-26b-a4b-it] ==== B: smoke decode (n=5, HotpotQA) ====
 [2026-05-13T21:41:37Z] [gemma-4-26b-a4b-it] ==== D: D1_closed_hotpot closed-book (n=200 from data/hotpotqa_distractor_500_v2test.jsonl, resuming from 0) ====
 [2026-05-14T11:41:28Z] [gemma-4-26b-a4b-it] ==== D: D2_closed_wiki closed-book (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl, resuming from 0) ====
+[2026-05-15T03:47:06Z] [gemma-4-26b-a4b-it] ==== E: E1_oracle_hotpot oracle decode (n=200 from data/hotpotqa_distractor_500_v2test.jsonl) ====
+[2026-05-15T04:25:31Z] [gemma-4-26b-a4b-it] ==== E: E2_oracle_wiki oracle decode (n=200 from data/2wikimultihop_distractor_500_v2test.jsonl) ====
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it] ==== gemma-4-26b-a4b-it complete ====
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   B_smoke_hotpot: 5 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   D1_closed_hotpot: 200 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   D2_closed_wiki: 200 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   E1_oracle_hotpot: 200 rows
+[2026-05-15T05:12:23Z] [gemma-4-26b-a4b-it]   E2_oracle_wiki: 200 rows
+[2026-05-15T05:12:25Z] [gemma-4-26b-a4b-it] elapsed=123514s (34h 18m)
+[2026-05-15T05:12:25Z] [gemma-4-26b-a4b-it] ABORT: wall-clock cap (30 h) exceeded

@@ -136,12 +136,16 @@ def report_target(rows, label: str, target_name: str, label_fn, B: int):
         survives = "✓ >0.5" if au_res > 0.50 else "—"
         print(f"  {name:<32} {au_raw:>10.3f} {au_res:>12.3f} {delta:>+8.3f}   {survives:>10}")
 
-    print(f"\n--- (3) PAIRED BOOTSTRAP (signal − tokens) AUROC, B={B} ---")
+    print(f"\n--- (3) PAIRED BOOTSTRAP Δ = AUROC(s_resid) − AUROC(tokens), B={B} ---")
     print(f"  {'signal':<32} {'Δ vs tokens':>13} {'95% CI':>22} {'sig?':>6}")
     for key, name, family in SIGNALS:
         if key == "tokens":
             continue
-        m, lo, hi, _ = bootstrap_auroc_diff(rows, key, "tokens", label_fn, B=B)
+        # D1 fix (2026-05-16): bootstrap the RESIDUALISED signal vs raw tokens,
+        # matching paper §3.7 / Table 1 caption formula.
+        # Residual key `{key}_resid` was populated in section (2) above.
+        resid_key = f"{key}_resid"
+        m, lo, hi, _ = bootstrap_auroc_diff(rows, resid_key, "tokens", label_fn, B=B)
         sig = "✓" if (lo == lo and hi == hi and (lo > 0 or hi < 0)) else "—"
         # Direction matters: positive = signal beats tokens
         marker = ""

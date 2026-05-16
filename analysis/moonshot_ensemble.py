@@ -106,6 +106,16 @@ def report_one(rows, label, keys: list[tuple[str, str]], B: int):
     pop = sum(1 for r in rows if is_lift_pos(r))
     n = len(rows)
     print(f"  n={n}  pop={pop}  base={pop/n:.3f}\n")
+
+    # Pre-compute min_majority length-residualised once for this rowset, so
+    # the Δ-vs-min_majority bootstrap can compare residualised signal vs
+    # residualised reference survivor (matches the §3.7 paper formula).
+    mm_valid = [r for r in rows if r.get("min_majority") is not None]
+    if mm_valid:
+        mm_res_map, _ = ols_residual(mm_valid, "min_majority", x_key="log_tokens")
+        for r in mm_valid:
+            r["__res_mm__"] = mm_res_map[id(r)]
+
     print(f"  {'signal':<48} {'valid':>6} {'rawAUC':>7} {'resAUC':>7}    {'Δ vs tokens':>22}    {'Δ vs min_majority':>24}")
     for key, name in keys:
         valid = [r for r in rows if r.get(key) is not None]
@@ -121,7 +131,8 @@ def report_one(rows, label, keys: list[tuple[str, str]], B: int):
         if key == "tokens":
             d_tok = "(baseline)            "
         else:
-            m, lo, hi, _ = bootstrap_auroc_diff(valid, key, "tokens", is_lift_pos, B=B, seed=11)
+            # Δ = AUROC(s_resid) − AUROC(tokens_generated)  (matches paper §3.7)
+            m, lo, hi, _ = bootstrap_auroc_diff(valid, "__res__", "tokens", is_lift_pos, B=B, seed=11)
             star = " *" if (lo > 0 or hi < 0) else "  "
             d_tok = f"{m:+.3f} [{lo:+.3f},{hi:+.3f}]{star}"
         if key == "min_majority":
@@ -131,12 +142,17 @@ def report_one(rows, label, keys: list[tuple[str, str]], B: int):
             if len(valid_both) < 6:
                 d_mm = "n/a"
             else:
-                m2, lo2, hi2, _ = bootstrap_auroc_diff(valid_both, key, "min_majority", is_lift_pos, B=B, seed=13)
+                # Δ = AUROC(s_resid) − AUROC(min_majority_resid):
+                # consistent residualised head-to-head against the reference survivor.
+                m2, lo2, hi2, _ = bootstrap_auroc_diff(valid_both, "__res__", "__res_mm__", is_lift_pos, B=B, seed=13)
                 star2 = " *" if (lo2 > 0 or hi2 < 0) else "  "
                 d_mm = f"{m2:+.3f} [{lo2:+.3f},{hi2:+.3f}]{star2}"
         for r in valid:
             r.pop("__res__", None)
         print(f"  {name:<48} {len(valid):>6} {au:>7.3f} {res_au:>7.3f}    {d_tok}    {d_mm}")
+
+    for r in mm_valid:
+        r.pop("__res_mm__", None)
 
 
 def per_cell_table(rows, keys: list[tuple[str, str]]):

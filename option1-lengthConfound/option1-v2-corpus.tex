@@ -1,4 +1,4 @@
-% option1-v2-corpus.tex — Full corpus, v2 (post R1-Gemma, post Phi-drop, audit-flavored).
+% option1-v2-corpus.tex — Full corpus, v2 (post R1-Gemma, post D1-fix, audit-flavored).
 %
 % NEXT-ITERATION over option1-corpus.tex.
 %
@@ -15,34 +15,33 @@
 %      [CUT?]     — candidate for cut in 4-page version
 %      [APPENDIX] — material that can move to appendix to save body pages
 %   5. Naming policy locked: "step-level answer-trajectory triggers" is the
-%      family name; "AID" is shorthand only, defined once in §3, credited to
-%      Datta et al. 2026.
+%      family name; no proprietary acronym is coined. Individual signals are
+%      referred to by their operational names (flip_rate, late_flips,
+%      min_majority, ECT). Datta 2026 is the primitive parent.
 %   6. Framing locked: AUDIT-FLAVORED. Three contributions: protocol extension,
 %      audit-of-survivors, M8-ECT-as-strongest-survivor.
-%   7. Phi DROPPED from headline matrix. Lives in §4.5 (sparse-trace cell) and
-%      Appendix B (V2 n=500 replication anchor).
+%   7. Phi REMOVED entirely from the paper (2026-05-16). Architecture pool is
+%      Qwen2.5-7B + Gemma-4-26B-A4B-it. R1 Phi traces remain on disk for
+%      potential reviewer-rebuttal but are not in the paper.
+%   8. Bootstrap formula matches §3.7 paper claim (post-D1-fix 2026-05-16):
+%      Δ = AUROC(s_resid) − AUROC(tokens_generated). New moonshot/ensemble
+%      outputs from 2026-05-16 evening; pre-fix backups at *.preD1fix.
 %
 % RESULTS FILE INDEX (canonical paths in repo):
-%   analysis/r1_phi_paired_audit.out           — Phi paired audit (n=200×4 cells)
 %   analysis/r1_qwen_paired_audit.out          — Qwen paired audit (n=200×4 cells)
 %   analysis/r1_gemma_paired_audit.out         — Gemma paired audit (n=200×4 cells)
-%   analysis/a1_k1_vs_k5_r1_phi.{out,json}     — K=1 vs K=5 ablation, Phi R1
-%   analysis/a1_k1_vs_k5_r1_qwen.{out,json}    — Qwen R1
+%   analysis/a1_k1_vs_k5_r1_qwen.{out,json}    — K=1 vs K=5 ablation, Qwen R1
 %   analysis/a1_k1_vs_k5_r1_gemma.{out,json}   — Gemma R1
-%   analysis/moonshot_explore_3arch.out        — 3-arch + Phi-dropped pool
+%   analysis/moonshot_explore_3arch.out        — moonshot run; "Phi-DROPPED" pool is the headline
 %   analysis/moonshot_ensemble_3arch.out       — rank-fusion ensembles F1/F2/F3
 %   analysis/uncertainty_line_audit_qwen2.5-7b-instruct.{out,json}
-%   analysis/uncertainty_line_audit_phi-4-mini-instruct.{out,json}
 %   analysis/uncertainty_line_audit_gemma-4-26b-a4b-it.{out,json}
-%   analysis/length_audit_v2.out               — V2 anchoring cohort (Phi n=500)
 %   externalCodeAudits/uncertainty-line/       — Vashurin 2025 reference impl
 %   externalCodeAudits/DRAGIN, FLARE, seakr, MBA, self-rag — code audits
 %
 % TRACE FILE INDEX (raw):
-%   runs/v2_headline_phi-4-mini-instruct/{D1,D2,E1,E2}_*.jsonl
 %   runs/v2_headline_qwen2.5-7b-instruct/{D1,D2,E1,E2}_*.jsonl
 %   runs/v2_headline_gemma-4-26b-a4b-it/{D1,D2,E1,E2}_*.jsonl
-%   runs/v2_exp1_phi-4-mini-instruct/{D1,D2,E1,E2}_*.jsonl  (V2 anchor cohort)
 
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -53,6 +52,7 @@
 \usepackage{url}
 \usepackage{verbatim}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 % Visual markers — REMOVE BEFORE SUBMISSION
 \newcommand{\TODO}[1]{{\color{red}\textbf{[TODO: #1]}}}
@@ -60,12 +60,10 @@
 \newcommand{\CITE}[1]{{\color{orange}\textsf{[CITE: #1]}}}
 \newcommand{\CUT}[1]{{\color{gray}\textit{[CUT?: #1]}}}
 
-\title{What Survives Length Control? \\
-A Residualized Audit of Training-Free Dynamic-RAG Triggers}
+\title{Length-Controlled Evaluation of Training-Free Dynamic-RAG Triggers}
 % [TODO] Alternate titles to A/B before submission:
-%   - "A Length-Controlled Audit of Training-Free Dynamic-RAG Triggers"
-%   - "Length-Robust Triggers for Dynamic Retrieval: A Residualized Cross-Architecture Audit"
-%   - "When Length Stops Predicting: Auditing Dynamic-RAG Triggers Under Residualization"
+%   - "Re-evaluating Training-Free Dynamic-RAG Triggers Under Length Control"
+%   - "Length-Robust Triggers for Dynamic Retrieval: A Residualized Cross-Architecture Re-evaluation"
 
 \author{Anonymous EMNLP Submission}
 \date{}
@@ -77,38 +75,45 @@ A Residualized Audit of Training-Free Dynamic-RAG Triggers}
 % ABSTRACT (write last; current draft is structural placeholder)
 % =============================================================================
 \begin{abstract}
-Dynamic retrieval-augmented generation systems trigger external retrieval from
-scalar uncertainty signals computed at decode time. Recent work shows that
-response length confounds the evaluation of such signals in general
-language-model uncertainty quantification
+Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve
+from scalar uncertainty signals computed at decode time. The published trigger
+pool (DRAGIN-RIND, FLARE, SeaKR, SelfCheckGPT) is evaluated by raw AUROC
+against a binary correctness label.
+A converging recent literature shows that this evaluation
+is confounded by response length
 \citep{Santilli_RevisitingUQEvaluationLengthBias,
 Vashurin_UncertaintyLineLengthInvariant,
 Janiak_IllusionProgressHallucinationDetection,
 Zhang_VerbosityVeracityVCBehavior,
-Ielanskyi_PitfallsUQEvaluationNLG}. The same audit has not been carried out on
-the triggers deployed in dynamic-RAG systems. We adopt the
-\textsc{Uncertainty-Line} residualization protocol of
-\cite{Vashurin_UncertaintyLineLengthInvariant} and extend it to the dynamic-RAG
-setting with a paired-oracle target (\texttt{lift\_em}~$=+1$: ``does retrieval
-flip a wrong answer to a right one?''). We audit 16 baseline trigger signals on
-two open-weight chat models spanning a dense vs.\ MoE-hybrid axis
-(Qwen2.5-7B-Instruct, Gemma-4-26B-A4B-it) on two multi-hop QA datasets at
-$n{=}200$ paired traces per cell. Nine signals paired-bootstrap-significantly
-beat \texttt{tokens\_generated} on the headline pool ($n{=}800$). The strongest
-length-robust survivor is a forward-looking early-commitment-time signal
-(M8 ECT) motivated by the decide-early phenomenon of
-\citet{Datta_DecideEarlyExplainLater},
-\citet{Wang_ChainOfProbeCoTStepByStep}, and
-\citet{Chen_DynamicInstabilityLLMReasoning}, with residualized AUROC
-\FACT{0.691} and $\Delta$~vs.\ length $={+}0.174$
-\FACT{[+0.096, +0.252]}. DRAGIN-RIND \citep{Su_DRAGIN} also clears, and so does
-a family of step-level answer-trajectory aggregations. A head-to-head
-replication of the \textsc{Uncertainty-Line} reference implementation
-(\texttt{externalCodeAudits/uncertainty-line/}) shows our protocol matches
-theirs within \FACT{$\varepsilon \leq 0.040$ AUROC} across the three audited
-architectures. We argue that length-controlled evaluation should be a standard
-component of dynamic-RAG trigger reporting.
-% [TODO] Tighten to ~150 words for final. Current draft is ~200w.
+Ielanskyi_PitfallsUQEvaluationNLG}, but the implication has not been
+followed through to the dynamic-RAG trigger setting.
+We re-evaluate the published trigger pool under the
+\textsc{Uncertainty-Line} regression-residualization protocol of
+\cite{Vashurin_UncertaintyLineLengthInvariant}, on a paired-oracle target
+$\texttt{lift\_em}{=}+1$ that asks the deployment-relevant question
+``would retrieval flip this wrong answer to a right one?''
+Across two open-weight chat models spanning a dense vs.\ MoE-hybrid axis
+(Qwen2.5-7B-Instruct, Gemma-4-26B-A4B-it) on two multi-hop QA datasets
+($n{=}800$ paired headline pool), \FACT{nine signals} retain a
+length-orthogonal positive margin against \texttt{tokens\_generated} at
+nominal $95\%$; \FACT{four} retain it under Bonferroni correction at
+$k{=}15$ ($\alpha=0.0033$). The strongest length-robust signal is
+\textbf{ECT}, an early-commitment-time signal derived from the
+$t^\star$ primitive of \citet{Datta_DecideEarlyExplainLater} and the
+decide-early phenomenon documented by
+\citet{Wang_ChainOfProbeCoTStepByStep} and
+\citet{Chen_DynamicInstabilityLLMReasoning}, at residualized AUROC
+\FACT{0.691} and $\Delta$~vs.\ length $={+}0.190$
+\FACT{[+0.093, +0.287]} (Bonferroni lower bound $+0.047$).
+DRAGIN-RIND \citep{Su_DRAGIN} also clears Bonferroni, alongside two
+step-level answer-trajectory aggregations and \texttt{ent.max}.
+A head-to-head replication of the \textsc{Uncertainty-Line} reference
+implementation shows our protocol matches theirs within
+\FACT{$\varepsilon \leq 0.029$ AUROC} on both architectures.
+We argue that length-controlled evaluation should be standard reporting
+practice for dynamic-RAG triggers, and that the answer-trajectory primitive
+class is a productive direction for length-orthogonal trigger design.
+% [TODO] Tighten to ~150 words for final. Current draft is ~230w.
 \end{abstract}
 
 
@@ -133,90 +138,106 @@ that decides \emph{when} retrieval is invoked. Triggering too often inflates
 latency; triggering too late propagates hallucinations through multi-step
 reasoning \citep{Su_DRAGIN, Jiang_FLARE}.
 
-We focus on \emph{training-free} triggers, which operate at decode time without
-per-architecture fine-tuning. DRAGIN \citep{Su_DRAGIN} fires on a composite
-entropy and attention score. FLARE \citep{Jiang_FLARE} uses token probability
-look-ahead. SeaKR \citep{Yao_SeaKR} uses a Gram determinant of $K{=}20$
-stochastic hidden states. SelfCheckGPT \citep{Manakul_SelfCheckGPT} uses
-$K$-sample text consistency. Trained alternatives also exist (Self-RAG
+This paper focuses on \emph{training-free} triggers, which operate at decode
+time without per-architecture fine-tuning. The published pool spans four
+signal families: DRAGIN \citep{Su_DRAGIN} fires on a composite entropy and
+attention score; FLARE \citep{Jiang_FLARE} uses token probability look-ahead;
+SeaKR \citep{Yao_SeaKR} uses a Gram determinant of $K{=}20$
+stochastic hidden states; SelfCheckGPT \citep{Manakul_SelfCheckGPT} uses
+$K$-sample text consistency. Trained alternatives such as Self-RAG
 \citep{Asai_SelfRAG}, MBA-RAG \citep{Tang_MBARAG}, CtrlA \citep{Liu_CtrlA},
-DTR \citep{Chen_DTR}, DioR \citep{Guo_DioR}), but they require per-architecture
-fine-tuning and we exclude them from this audit by scope.
+DTR \citep{Chen_DTR}, and DioR \citep{Guo_DioR} require per-architecture
+supervised data, and we set them aside in this paper to keep the comparison
+within the training-free sub-family.
 
 \paragraph{All published triggers are evaluated by the same protocol.}
 Compute the trigger score per trace, rank, and report raw AUROC against a
 binary correctness label (typically exact-match equality, $\mathrm{EM}=0$, on
-the closed-book answer).
+the closed-book answer). The signals above were each introduced and evaluated
+under this protocol.
 
 % -----------------------------------------------------------------------------
 % §1.2 Length is a confound — 5-paper lineage
 % -----------------------------------------------------------------------------
-\paragraph{Length confounds UQ evaluation: a five-paper consensus.}
-Recent work establishes response length as a dominant confound in
-language-model uncertainty quantification.
+\paragraph{Recent work shows the evaluation protocol is length-confounded.}
+A converging recent literature identifies response length as a dominant
+confound in language-model uncertainty quantification.
 \cite{Santilli_RevisitingUQEvaluationLengthBias} prove that when both the
 uncertainty score and the correctness function share a length confounder, the
 estimated AUROC is \emph{systematically skewed}, and rankings flip across
 correctness functions. Empirically, token-length Spearman $\rho$ reaches $-0.7$
 with Perplexity and $-0.7$ with Semantic Entropy.
+\cite{Janiak_IllusionProgressHallucinationDetection} demonstrate that
+``simple heuristics based on response length can rival complex hallucination
+detection techniques,'' with Perplexity dropping \FACT{45.9\%} and EigenScore
+\FACT{30.4\%} when the correctness function is switched.
+\cite{Zhang_VerbosityVeracityVCBehavior} document the behavioral mechanism:
+LLMs exhibit \emph{verbosity compensation} (verbose responses when uncertain;
+GPT-4 frequency \FACT{50.4\%}; performance gap \FACT{27.6\%} on Qasper) across
+HotpotQA, MuSiQue, and 2WikiMHQA, the same multi-hop QA family used here.
+\cite{Ielanskyi_PitfallsUQEvaluationNLG} additionally show that approximate
+correctness functions disagree substantially on UQ rankings, with length as
+one driver.
+The implication for the trigger-evaluation protocol is direct: if trigger
+scores correlate with response length and length correlates with correctness,
+then raw AUROC rewards signals that are partial proxies for length,
+regardless of whether they carry any deeper signal about retrieval need.
+
+\paragraph{\textsc{Uncertainty-Line}: regression-residualization as the fix.}
 \cite{Vashurin_UncertaintyLineLengthInvariant} show that nominally
 length-normalized UQ measures (Perplexity, Mean Token Entropy, Token-SAR)
 retain residual length bias, and propose \textsc{Uncertainty-Line}, a
 regression-residualization protocol:
 $\hat{u}_{\textsc{line}}(\hat{y}, x) = \hat{u}(\hat{y}, x) - \hat{f}(L(\hat{y}))$.
-\cite{Janiak_IllusionProgressHallucinationDetection} demonstrate that
-``simple heuristics based on response length can rival complex hallucination
-detection techniques,'' with Perplexity dropping \FACT{45.9\%} and EigenScore
-\FACT{30.4\%} when the correctness function is switched.
-\cite{Zhang_VerbosityVeracityVCBehavior} document the behavioral mechanism.
-LLMs exhibit \emph{verbosity compensation} (verbose responses when uncertain;
-GPT-4 frequency \FACT{50.4\%}; performance gap \FACT{27.6\%} on Qasper) across
-HotpotQA, MuSiQue, and 2WikiMHQA, the same multi-hop QA family used here.
-\cite{Ielanskyi_PitfallsUQEvaluationNLG} show that approximate correctness
-functions disagree substantially on UQ rankings, with length as one driver.
+The residual is used as the length-invariant uncertainty estimate; AUROC
+computed on the residual then asks whether the signal carries information
+\emph{beyond} length. The protocol is post-hoc, model-agnostic, and applicable
+to any scalar trigger score. \cite{Vashurin_UncertaintyLineLengthInvariant}
+evaluate it on machine translation, summarization, and mathematical reasoning;
+to our knowledge it has not been applied to the dynamic-RAG trigger pool.
 
-The consequence for the trigger-evaluation protocol above is direct. If
-trigger scores correlate with response length and length correlates with
-correctness, then raw AUROC rewards signals that are partial proxies for
-length, regardless of whether they carry any deeper signal about retrieval
-need.
-
-\paragraph{The bridge from UQ evaluation to RAG-trigger evaluation has not
-been crossed.} The five foundation papers establish the length confound in
-general UQ and hallucination-detection on single-hop short-answer QA
-benchmarks. None tests whether the signals used by published
-\emph{dynamic-RAG triggers} (DRAGIN-RIND, FLARE, SeaKR, SelfCheckGPT) survive
-length control on multi-hop QA with paired oracle re-decode. We carry that
-audit out in the dynamic-RAG setting.
+\paragraph{This paper.} We re-evaluate the published training-free
+dynamic-RAG trigger pool under \textsc{Uncertainty-Line} residualization on
+multi-hop QA with paired oracle re-decode. The published triggers were each
+proposed before the length-confound literature converged; our re-evaluation
+asks which of them carry a length-orthogonal positive margin and which were
+implicitly tracking length all along.
 
 % -----------------------------------------------------------------------------
-% §1.3 Answer-trajectory primitives lineage
+% §1.3 Answer-trajectory primitives — a length-orthogonal trigger class
 % -----------------------------------------------------------------------------
-\paragraph{Step-level answer-trajectory triggers: a converging research front.}
-A separate line of recent work establishes that step-to-step answer dynamics
-during chain-of-thought reasoning carry diagnostic signal.
-\cite{Datta_DecideEarlyExplainLater} (ICML 2026) define \emph{forced answer
-completion}: at each partial reasoning prefix, append a closing token and
-sample an intermediate answer~$A_i$, yielding an answer trajectory
-$T = (A_0, \ldots, A_n)$. They define
+\paragraph{A length-orthogonal trigger class is emerging in concurrent work.}
+A separate, concurrent literature studies step-to-step answer dynamics during
+chain-of-thought reasoning. \cite{Datta_DecideEarlyExplainLater} (ICML 2026)
+define \emph{forced answer completion}: at each partial reasoning prefix,
+append a closing token and sample an intermediate answer~$A_i$, yielding an
+answer trajectory $T = (A_0, \ldots, A_n)$. They define
 $\mathrm{AnswerSwitches}(T) = \sum_i \mathbb{1}[A_i \neq A_{i+1}]$ and the
-final-switch index $t^\star = \max\{i : A_i \neq A_{i+1}\}$, and find that 68\%
-of Qwen3-4B traces never change answer, while the model generates
+final-switch index $t^\star = \max\{i : A_i \neq A_{i+1}\}$, and find that
+68\% of Qwen3-4B traces never change answer, while the model generates
 $\sim$760 tokens after the final switch. They apply this primitive to
 \emph{early stopping} (saving compute), not to retrieval triggering.
+\cite{Wang_ChainOfProbeCoTStepByStep} (NAACL 2025) independently
+use a \emph{Chain-of-Probe} that reads a closed-answer-set softmax after each
+step and report that traces that change answer mid-reasoning have $>20\%$
+lower accuracy than early-commit traces.
+\cite{Chen_DynamicInstabilityLLMReasoning} (Feb 2026) define a per-token
+instability signal $I_t = \mathrm{JSD}(\tilde{p}_t, \tilde{p}_{t-1}) +
+\lambda H_t$ and report that the \emph{timing} of the peak matters: early
+peaks correlate with $46\%$ accuracy (corrective) and late peaks with $14\%$
+(destructive), a $>3\times$ gap conditional on timing alone.
 
-\cite{Wang_ChainOfProbeCoTStepByStep} (NAACL 2025), independently, use a
-\emph{Chain-of-Probe}: append the probing string ``\texttt{So, the answer is
-(}'' after each step and read the softmax over a closed answer set. Traces
-that change answer during reasoning have $>$20\% lower accuracy than
-early-commit traces.
-
-\cite{Chen_DynamicInstabilityLLMReasoning} define a per-token instability
-signal $I_t = \mathrm{JSD}(\tilde{p}_t, \tilde{p}_{t-1}) + \lambda H_t$ and
-show that the \emph{timing} of the peak instability matters. Early peaks
-($\rho < 0.25$) correlate with 46\% accuracy (corrective instability) and late
-peaks ($\rho > 0.5$) with 14\% accuracy (destructive instability), a
-$>$3$\times$ accuracy gap conditional on timing alone.
+This class of signals operates on answer-set semantics rather than on
+token-probability or attention magnitude. As we show empirically in
+\S\ref{sec:results-matrix} and confirm via Spearman $\rho$ in
+Appendix~\ref{sec:appendix-spearman}, these signals carry markedly lower
+length correlation than the published trigger pool, which makes them
+candidate length-orthogonal triggers. None of the cited works applies the
+primitive to retrieval triggering; this paper is the first to make that
+transfer and to test it under length-controlled evaluation. The strongest
+signal we identify, \textbf{ECT} (early-commitment time, defined in
+\S\ref{sec:methods-aid}), is a forward-looking adaptation of Datta's
+$t^\star$ to non-thinking-mode chat models.
 
 % [APPENDIX] Terminological disambiguation footnote
 \noindent\textit{Terminological note.}
@@ -230,78 +251,83 @@ decode-time signal, categorically different from the latent-perturbation-based
 ARS family.
 
 % -----------------------------------------------------------------------------
-% §1.4 The gap & our contributions
+% §1.4 The lift_em target and our contributions
 % -----------------------------------------------------------------------------
-\paragraph{Our contributions.}
-We combine the length-confound critique with the answer-trajectory primitive
-and apply both to dynamic-RAG triggering.
+\paragraph{A paired-oracle target for the deployment question.}
+Standard trigger evaluations use the binary correctness label
+$\texttt{closed\_em}{=}0$ (closed-book wrong) as the target. This conflates
+two failure modes that a deployment system handles differently: traces where
+retrieval would have flipped a wrong answer to a right one, and traces where
+the model would have been wrong regardless. Following the question raised by
+\cite{Mallen_WhenNotToTrustLMs}, we use a paired-oracle target
+\begin{equation*}
+\texttt{lift\_em}(q) = \mathbb{1}\!\left[\mathrm{EM}(a_o^{(q)}) >
+\mathrm{EM}(a_c^{(q)})\right]
+\end{equation*}
+that separates the two cases by re-decoding each closed-book trace under
+oracle context and labelling positive only when retrieval helps. The paired
+design shares the same exact-match correctness function across the closed
+and oracle arms, partially cancelling the correctness-function-bias critique
+of \citet{Ielanskyi_PitfallsUQEvaluationNLG}.
+
+\paragraph{Contributions.}
 
 \begin{enumerate}
-\item \textbf{Protocol extension.} We adopt \textsc{Uncertainty-Line}
-\citep{Vashurin_UncertaintyLineLengthInvariant} for dynamic-RAG triggering and
-introduce a paired-oracle target,
-$\texttt{lift\_em}(q) = \mathbb{1}[\mathrm{EM}(a_o^{(q)}) > \mathrm{EM}(a_c^{(q)})]$,
-which formalizes ``would retrieval have helped this trace?'' The paired design
-shares the same exact-match correctness function across closed and oracle
-arms, partially cancelling correctness-function bias
-\citep{Ielanskyi_PitfallsUQEvaluationNLG}. A head-to-head replication against
-the \textsc{Uncertainty-Line} reference implementation
+\item \textbf{Protocol transfer with target refinement.} We transfer the
+\textsc{Uncertainty-Line} protocol of
+\citet{Vashurin_UncertaintyLineLengthInvariant} from the general UQ setting
+to the dynamic-RAG trigger setting, paired with the
+$\texttt{lift\_em}{=}+1$ target above. A head-to-head replication against
+the reference implementation
 (\texttt{externalCodeAudits/uncertainty-line/}, our
 \texttt{analysis/uncertainty\_line\_audit.py}) confirms our protocol matches
-theirs within
-\FACT{$\varepsilon_{\text{protocol}} \leq 0.040$ AUROC max} across three
-architectures (\FACT{Qwen 0.029, Phi 0.040, Gemma 0.027}).
+theirs within \FACT{$\varepsilon_{\text{protocol}} \leq 0.029$ AUROC max}
+on both architectures (\FACT{Qwen 0.029, Gemma 0.027}).
 % SRC: analysis/uncertainty_line_audit_*.out
 
-\item \textbf{Cross-architecture audit.} We audit \FACT{16 baseline trigger
-signals} on two open-weight chat models spanning a dense vs.\ MoE-hybrid axis
-(Qwen2.5-7B-Instruct dense Transformer, 7.6B parameters;
-Gemma-4-26B-A4B-it MoE with sliding-window/global hybrid attention,
-$\sim$3.8B active / 25.2B total) on two multi-hop QA datasets
-(HotpotQA-distractor in-domain, 2WikiMultiHopQA-distractor out-of-domain) at
+\item \textbf{Cross-architecture re-evaluation.} We re-evaluate
+\FACT{16 published trigger signals} on two open-weight chat models spanning
+a dense vs.\ MoE-hybrid axis
+(Qwen2.5-7B-Instruct, 7.6B dense; Gemma-4-26B-A4B-it,
+$\sim$3.8B active / 25.2B total, MoE with sliding-window/global hybrid
+attention) on two multi-hop QA datasets (HotpotQA-distractor in-domain,
+2WikiMultiHopQA-distractor out-of-domain), at
 $n{=}200$ paired traces per cell ($n{=}800$ paired headline pool).
-Phi-4-mini-instruct (3.8B dense) is retained as a sparse-trace robustness cell
-(\S\ref{sec:phi-sparse}) and as an in-paper replication anchor against our V2
-cohort ($n{=}500$, \S\ref{sec:appendix-v2}).
 
-\item \textbf{Survivor matrix.} Under length residualization,
-\FACT{nine signals} paired-bootstrap-significantly beat
-\texttt{tokens\_generated} on the headline pool ($n{=}800$) on the
-\texttt{lift\_em}~$=+1$ target. The strongest length-robust survivor is a
-forward-looking early-commitment-time signal (\textbf{M8 ECT}, defined in
-\S\ref{sec:methods-aid}), motivated by Datta's final-switch index $t^\star$
-\citep{Datta_DecideEarlyExplainLater} though operationally distinct from it,
-at residualized AUROC \FACT{0.691} and $\Delta$~vs.\ length
-\FACT{$={+}0.174$ [+0.096, +0.252]}. The published-pool member DRAGIN-RIND
-\citep{Su_DRAGIN} also clears (\FACT{$\Delta = +0.161$ [+0.082, +0.238]}), as
-do four step-level answer-trajectory aggregations
-(\texttt{flip\_rate K{=}5}, \texttt{flip\_rate K{=}1},
-\texttt{min\_majority}, \texttt{late\_flips}), a continuous belief-velocity
-signal (M1~CABV) and its interaction with sample-length asymmetry
-(M9~CABV~$\times$~LAAS), and \texttt{ent.max} in length-inverted regimes. We
-ablate $K{=}5$ multi-sample against $K{=}1$ greedy (the Datta-style
-single-sample baseline) and find \FACT{regime~2 equality} across all three
-audited architectures on \texttt{lift\_em}. We recommend $K{=}1$ for compute
-efficiency.
-% SRC: analysis/moonshot_explore_3arch.out
+\item \textbf{Length-robust signals.}
+\FACT{Nine signals} retain a length-orthogonal positive margin against
+\texttt{tokens\_generated} at nominal $95\%$ paired-bootstrap, and
+\FACT{four signals} retain it under Bonferroni correction at $k{=}15$
+($\alpha=0.0033$). The Bonferroni-robust set spans four signal families:
+the attention-based DRAGIN-RIND \citep{Su_DRAGIN}; the logit-family
+\texttt{ent.max}; the step-level answer-trajectory aggregation
+\texttt{min\_majority}; and \textbf{ECT} (early-commitment time, defined in
+\S\ref{sec:methods-aid}), a forward-looking adaptation of Datta's
+$t^\star$ \citep{Datta_DecideEarlyExplainLater}. ECT is the strongest single
+signal at residualized AUROC \FACT{0.691} and $\Delta$~vs.\ length
+\FACT{$={+}0.190$ [+0.093, +0.287]}; its Bonferroni lower bound is
+\FACT{$+0.047$}.
+
+\item \textbf{Multi-sample ablation.} We ablate the $K{=}5$ multi-sample
+variant of \texttt{flip\_rate} against the $K{=}1$ Datta-style single-sample
+proxy and find \FACT{equality at our power} on both architectures.
+The multi-sample variant has no significant advantage for retrieval
+triggering; we recommend $K{=}1$ for deployment compute efficiency.
+% SRC: analysis/moonshot_explore_3arch.out.b10k (headline rows);
+% analysis/e7_bonferroni.out (Bonferroni column);
+% analysis/a1_k1_vs_k5_r1_{qwen,gemma}.{out,json} (K-ablation).
 \end{enumerate}
 
-% -----------------------------------------------------------------------------
-% §1.5 Framing positioning
-% -----------------------------------------------------------------------------
-\paragraph{Framing.} This paper is an \emph{audit} of dynamic-RAG triggers
-under length-residualized evaluation. The strongest single signal we identify,
-M8~ECT, draws on the Datta $t^\star$ primitive
-\citep{Datta_DecideEarlyExplainLater} but is operationally distinct from it on
-three axes (temporal direction, sampling regime, application target; see
-\S\ref{sec:methods-aid}). Our contributions are the protocol extension, the
-audit of the published trigger pool under that protocol, and the empirical
-characterization of the survivor matrix. The answer-trajectory primitive
-\emph{class} belongs to the field (Datta 2026, Wang 2025, Chen 2026), not us.
-The specific M8~ECT formulation and the survivor-matrix empirical
-characterization are ours.
-% [TODO] Should this para go in §1.4 above (folded into contribution list)
-% or stay as a separate "framing" paragraph? Author decision.
+\paragraph{Attribution and scope.}
+The answer-trajectory primitive class belongs to the field
+(\citealp{Datta_DecideEarlyExplainLater}, \citealp{Wang_ChainOfProbeCoTStepByStep},
+\citealp{Chen_DynamicInstabilityLLMReasoning}). The specific ECT
+operationalization in \S\ref{sec:methods-aid} and the length-controlled
+re-evaluation of the published trigger pool are ours. This paper is a
+re-evaluation and a positioning of the answer-trajectory class as
+length-orthogonal trigger candidates; it is not a deployment study, and our
+claims pertain to signal-level discriminative power rather than end-to-end
+pipeline metrics (see \S\ref{sec:limitations}).
 
 
 % =============================================================================
@@ -320,7 +346,7 @@ Dynamic-RAG triggers can be grouped by the signal class they exploit.
 
 \noindent\textbf{Token-probability triggers.} FLARE \citep{Jiang_FLARE} fires
 when any token in a look-ahead sentence has $p < \theta$ under the model's
-own predictive distribution. We audit \texttt{flare.max}~$= 1 - \min(p)$
+own predictive distribution. We include \texttt{flare.max}~$= 1 - \min(p)$
 over each step boundary as the natural signal-level analogue.
 
 \noindent\textbf{Attention-conditioned triggers.} DRAGIN \citep{Su_DRAGIN}
@@ -332,7 +358,7 @@ DRAGIN-RIND score). DR-RAG \citep{Hei_DRRAG} and Layered Query Retrieval
 
 \noindent\textbf{Multi-sample text-consistency triggers.} SelfCheckGPT
 \citep{Manakul_SelfCheckGPT} measures sentence-level NLI prob(contradict) or
-$n$-gram surprisal across $K$ stochastic completions. We audit
+$n$-gram surprisal across $K$ stochastic completions. We include
 \texttt{u\_cons.max} (a $K{=}5$ text-consistency proxy) and \texttt{sc\_ngram}
 ($n$-gram variant). SAC$^3$ \citep{Zhang_SAC3} extends the consistency family
 with semantic-aware sampling. Self-Consistency \citep{Wang_SelfConsistency}
@@ -341,9 +367,9 @@ established multi-sample answer voting as a primitive.
 \noindent\textbf{Hidden-state geometric triggers.} INSIDE
 \citep{Chen_INSIDE} introduces the EigenScore on hidden-state covariance
 matrices; SeaKR \citep{Yao_SeaKR} extends INSIDE to triggering via a
-$K{=}20$ Gram determinant. We audit \texttt{seakr\_k5\_proxy.logdet} (the
-$K{=}5$ proxy at our sample budget). Other hidden-state CRV signals we audit
-include \texttt{drift\_cosine.max}, \texttt{variance\_l2\_window.max}, and
+$K{=}20$ Gram determinant. We include \texttt{seakr\_k5\_proxy.logdet} (the
+$K{=}5$ proxy at our sample budget). Other hidden-state CRV signals we
+include are \texttt{drift\_cosine.max}, \texttt{variance\_l2\_window.max}, and
 \texttt{hidden\_norm.range}. CtrlA \citep{Liu_CtrlA} extracts trained honesty
 features from hidden states.
 
@@ -442,7 +468,7 @@ $\mathrm{AnswerSwitches}(T) = \sum_i \mathbb{1}[A_i \neq A_{i+1}]$ and
 $t^\star = \max\{i : A_i \neq A_{i+1}\}$, and applies these to
 \emph{early stopping}. Probe-based stopping at the detected final switch
 reduces reasoning tokens by $\sim$500 per query at $<$2\% accuracy drop. Our
-\texttt{flip\_rate}, \texttt{late\_flips}, and \texttt{M8 ECT} signals adapt
+\texttt{flip\_rate}, \texttt{late\_flips}, and ECT signals adapt
 their primitive to retrieval triggering on non-thinking models.
 
 \cite{Wang_ChainOfProbeCoTStepByStep} (NAACL 2025) introduce
@@ -552,10 +578,15 @@ correctness functions in Appendix~A as robustness.
 % [TODO] Confirm/run containment-match correctness; currently planned not done
 
 \paragraph{Code.}
-\texttt{analysis/r1\_phi\_paired\_audit.py},
-\texttt{analysis/r1\_phi\_d1\_closed\_audit.py} (helper module);
+\texttt{analysis/r1\_phi\_paired\_audit.py} (per-arch paired-audit driver;
+applied to Qwen and Gemma cells),
+\texttt{analysis/r1\_phi\_d1\_closed\_audit.py} (helper module providing
+the shared signal extractors, AUROC, OLS-residual, and paired-bootstrap
+primitives);
 trace generation via \texttt{scripts/04f\_run\_qa\_sota.py} (closed) and
 \texttt{scripts/04l\_oracle\_retrieve\_decode.py} (oracle).
+% [TODO] The driver name still says "phi" — historical from R1 launch order;
+% it operates on any arch via --arch. Consider renaming to r1_paired_audit.py.
 
 % -----------------------------------------------------------------------------
 % §3.2 Length residualization (UNCERTAINTY-LINE)
@@ -589,8 +620,8 @@ $\varepsilon_{\text{protocol}}$); (iii) their math with their train/test
 split, averaged over 5 seeds (sampling-noise-isolated,
 $\varepsilon_{\text{sampling}}$).
 
-\noindent Results: $\varepsilon_{\text{protocol}}$ max is \FACT{0.040 (Phi)},
-\FACT{0.029 (Qwen)}, and \FACT{0.027 (Gemma)}, all below the typical
+\noindent Results: $\varepsilon_{\text{protocol}}$ max is
+\FACT{0.029 (Qwen)} and \FACT{0.027 (Gemma)}, both well below the typical
 reviewer-attack threshold of 0.05. The $\varepsilon_{\text{sampling}}$
 component reflects sampling noise at $n{=}200$, not a protocol difference. See
 \texttt{analysis/uncertainty\_line\_audit.py} and
@@ -606,8 +637,11 @@ $\alpha=0.05$.
 % [APPENDIX] Bonferroni / FDR cross-check candidate
 
 \paragraph{Code.}
-\texttt{analysis/length\_audit\_v2.py} (V2 cohort);
-\texttt{analysis/r1\_phi\_paired\_audit.py} (R1 cohort, all archs);
+\texttt{analysis/r1\_phi\_paired\_audit.py} (R1 paired-audit driver, used
+for both Qwen and Gemma cells);
+\texttt{analysis/moonshot\_explore.py} +
+\texttt{analysis/moonshot\_ensemble.py} (the headline survivor-matrix and
+ensemble drivers);
 \texttt{analysis/\_common.py} (AUROC, paired bootstrap, OLS residual helpers).
 
 % -----------------------------------------------------------------------------
@@ -616,7 +650,7 @@ $\alpha=0.05$.
 \subsection{Trigger-Signal Pool}
 \label{sec:methods-pool}
 
-We audit 16 baseline signals spanning the four major families surveyed in
+We evaluate 16 baseline signals spanning the four major families surveyed in
 \S\ref{sec:related-triggers} plus length baselines, summarized in
 Table~\ref{tab:pool}. All signals are extracted from the closed-book trace
 $\tau_c$ and aggregated to a trace-level scalar via the indicated reduction
@@ -655,11 +689,11 @@ $\tau_c$ and aggregated to a trace-level scalar via the indicated reduction
 \texttt{late\_flips}            & trace       & $K$-sample answer & this work / \citep{Chen_DynamicInstabilityLLMReasoning} \\
 \texttt{min\_majority}          & trace       & $K$-sample answer & this work \\
 \midrule
-\multicolumn{4}{c}{\textit{Continuous trajectory aggregations explored in \S\ref{sec:results-moonshot} (this work)}} \\
+\multicolumn{4}{c}{\textit{Continuous trajectory aggregations (this work, derived from \citep{Datta_DecideEarlyExplainLater})}} \\
 \midrule
-\texttt{M1 CABV}                & trace       & continuous answer-belief velocity & this work \\
-\texttt{M9 CABV $\times$ LAAS}  & trace       & $\times$ length-asymmetry  & this work \\
-\texttt{M8 ECT}                 & trace       & Datta $t^\star$ adapted    & \citep{Datta_DecideEarlyExplainLater} (-derived) \\
+\texttt{CABV}                   & trace       & continuous answer-belief velocity & this work \\
+\texttt{CABV $\times$ LAAS}     & trace       & $\times$ length-asymmetry          & this work \\
+\textbf{\texttt{ECT}}            & trace       & forward early-commitment time      & \citep{Datta_DecideEarlyExplainLater} (-derived) \\
 \bottomrule
 \end{tabular}
 \caption{Trigger-signal pool. SeaKR is a $K{=}5$ proxy of the full $K{=}20$
@@ -668,10 +702,11 @@ method; SelfCheckGPT is the $n$-gram variant. We exclude trained methods
 \label{tab:pool}
 \end{table}
 
-\paragraph{Scope.} We audit \emph{training-free} signals. Self-RAG
+\paragraph{Scope.} We restrict to \emph{training-free} signals. Self-RAG
 \citep{Asai_SelfRAG}, MBA-RAG \citep{Tang_MBARAG}, CtrlA \citep{Liu_CtrlA},
 DTR \citep{Chen_DTR}, DioR \citep{Guo_DioR}, and ARS
-\citep{Zhang_AnswerAgreementRepresentationShaping} are excluded by design.
+\citep{Zhang_AnswerAgreementRepresentationShaping} are out of scope by design;
+they require per-architecture supervised data.
 
 \paragraph{Implementation note: aggregation choice.} All signals reduce to a
 trace-level scalar (typically $\max$ over step boundaries). This convention
@@ -682,7 +717,7 @@ pertain to signal-level discriminative power on the $\texttt{lift\_em}=+1$
 target, not method-level end-to-end performance (see \S\ref{sec:limitations}).
 
 % -----------------------------------------------------------------------------
-% §3.4 Step-level answer-trajectory triggers (the "AID family")
+% §3.4 Step-level answer-trajectory triggers (Datta-derived family)
 % -----------------------------------------------------------------------------
 \subsection{Step-Level Answer-Trajectory Triggers}
 \label{sec:methods-aid}
@@ -691,17 +726,23 @@ At each reasoning-step boundary (detected by spaCy sentence segmentation with
 32-token fallback), we sample $K{=}5$ boundary completions at temperature
 $\tau{=}0.6$, top-$p$ 0.9, with answer extraction via the regex
 \texttt{r"\textbackslash bAnswer\textbackslash s*:\textbackslash s*(.+?)"}.
-We define four \emph{step-level answer-trajectory triggers} (henceforth
-``AID,'' shorthand for \emph{Answer Instability Detection}; derived from the
-AnswerSwitches primitive of \cite{Datta_DecideEarlyExplainLater}):
+Aggregating these boundary samples by various step-level statistics gives the
+\emph{step-level answer-trajectory triggers} of
+\citet{Datta_DecideEarlyExplainLater}'s \texttt{AnswerSwitches} primitive
+family. We report four aggregations:
 
 \begin{itemize}
 \item \textbf{\texttt{flip\_rate K=5}}: at each step, take the majority answer
 over $K{=}5$ samples; count consecutive-step majority disagreements,
 normalize by the number of answer-bearing steps.
 \item \textbf{\texttt{flip\_rate K=1}}: same but with the first sample only
-($K{=}1$; equivalent to single-sample greedy at our $\tau{=}0.6$ sampling).
-This is the Datta-style baseline.
+($K{=}1$, drawn from the same $\tau{=}0.6$, top-$p$~0.9 sampler). We use this
+as a directional proxy for Datta's deterministic-greedy forced-completion;
+the proxy is not byte-faithful (Datta uses greedy decoding after appending
+the answer prefix, whereas our \texttt{samples[0]} is the first stochastic
+completion under the configured $K{=}5$ sampler). A byte-faithful Datta
+replication is future work (\S\ref{sec:future-work}); the proxy is good
+enough for the directional regime-2 conclusion below.
 \item \textbf{\texttt{late\_flips}}: count only flips occurring in the last
 50\% of the trace. Motivated by the corrective/destructive timing distinction
 of \cite{Chen_DynamicInstabilityLLMReasoning}: late flips correlate with
@@ -714,41 +755,42 @@ This is a $K$-sample analogue of the SelfCheckGPT
 sentence level.
 \end{itemize}
 
-\paragraph{Naming policy.} We refer to this family as ``step-level
-answer-trajectory triggers'' and use ``AID'' only as a shorthand. We do not
-claim these as a novel primitive. They are aggregations of the answer
-trajectory of \cite{Datta_DecideEarlyExplainLater} applied to retrieval
-triggering on non-thinking-mode chat models.
+We do not coin a family name for these aggregations; the primitive class is
+the \texttt{AnswerSwitches} trajectory of
+\citet{Datta_DecideEarlyExplainLater}, and we cite that work as the parent
+throughout. The four aggregations above are operational variants applied to
+retrieval triggering on non-thinking-mode chat models.
 
 \paragraph{$K{=}5$ vs.\ $K{=}1$ ablation.} A natural question is whether the
 multi-sample $K{=}5$ aggregation has any empirical advantage over the
-single-sample $K{=}1$ Datta original. We ablate this across all three
-architectures (\S\ref{sec:results-ablation}) and find \emph{regime~2 equality}
-on the \texttt{lift\_em} target: the $K$ value is empirically free at our
-power. We recommend $K{=}1$ for deployment compute efficiency.
+single-sample $K{=}1$ Datta original. We ablate this across both
+audited architectures (\S\ref{sec:results-ablation}) and find
+\emph{regime~2 equality} on the \texttt{lift\_em} target: the $K$ value is
+empirically free at our power. We recommend $K{=}1$ for deployment compute
+efficiency.
 
-\paragraph{M8 ECT: Early-Commitment Time.} Beyond the four aggregations
+\paragraph{ECT: Early-Commitment Time.} Beyond the four aggregations
 above, we propose an additional signal motivated by the ``decide-early''
 phenomenon documented by \citet{Datta_DecideEarlyExplainLater},
 \citet{Wang_ChainOfProbeCoTStepByStep}, and
 \citet{Chen_DynamicInstabilityLLMReasoning}.
 
-\textbf{Definition (M8 ECT).} Let
+\textbf{Definition (ECT).} Let
 $\mathcal{M} = (m_1, m_2, \ldots, m_n)$ be the sequence of per-step
 $K{=}5$ majority answers (skipping non-answer-bearing steps), and let
 $a_{\text{final}}$ be the final extracted answer of the trace. Define
 \begin{equation}
 t_{\text{commit}} = \min \{ i \;:\; m_j = a_{\text{final}} \text{ for all } j \geq i \},
-\label{eq:m8ect-tcommit}
+\label{eq:ect-tcommit}
 \end{equation}
 i.e., the earliest step from which the majority remains stable and equal to
 the final answer for the remainder of the trace. The scalar trigger score is
-$\textsc{M8 ECT} = t_{\text{commit}} / \max(1, n - 1) \in [0, 1]$. Late
+$\textsc{ECT} = t_{\text{commit}} / \max(1, n - 1) \in [0, 1]$. Late
 commitment (high score) corresponds to extended deliberation. On
 retrieval-helpful traces the model has not yet converged in the closed-book
 decode, and external evidence resolves the answer.
 
-\paragraph{Relationship to Datta's $t^\star$.} M8 ECT is motivated by the
+\paragraph{Relationship to Datta's $t^\star$.} ECT is motivated by the
 final-switch index $t^\star = \max\{i : A_i \neq A_{i+1}\}$ of
 \citet{Datta_DecideEarlyExplainLater}, but it is operationally distinct.
 Table~\ref{tab:ect-vs-tstar} lists the three operational differences.
@@ -757,7 +799,7 @@ Table~\ref{tab:ect-vs-tstar} lists the three operational differences.
 \centering\small
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{Axis} & \textbf{Datta} $\boldsymbol{t^\star}$ & \textbf{M8 ECT (ours)} \\
+\textbf{Axis} & \textbf{Datta} $\boldsymbol{t^\star}$ & \textbf{ECT (ours)} \\
 \midrule
 Temporal direction & Backward (last switch) & Forward (first stable-from-here) \\
 Sampling regime & $K{=}1$ forced-completion greedy & $K{=}5$ boundary-completion majority \\
@@ -765,7 +807,7 @@ Application target & Early stopping (compute) & Retrieval triggering (lift\_em) 
 Trace model class & Thinking-mode w/ \texttt{</think>} & Non-thinking-mode chat \\
 \bottomrule
 \end{tabular}
-\caption{Operational differences between Datta's $t^\star$ and our M8 ECT.
+\caption{Operational differences between Datta's $t^\star$ and our ECT.
 For trajectories that converge monotonically without re-flipping,
 $t_{\text{commit}} \approx t^\star + 1$; under $K{=}5$ majority sampling on
 non-thinking chat models this equivalence does not hold in general.}
@@ -775,11 +817,11 @@ non-thinking chat models this equivalence does not hold in general.}
 The \emph{decide-early phenomenon} belongs to the field
 (\citealp{Datta_DecideEarlyExplainLater, Wang_ChainOfProbeCoTStepByStep,
 Chen_DynamicInstabilityLLMReasoning}). The specific $t_{\text{commit}}$
-formulation in Eq.~(\ref{eq:m8ect-tcommit}) and its application to
+formulation in Eq.~(\ref{eq:ect-tcommit}) and its application to
 dynamic-RAG triggering are ours.
 
 % [SEE: analysis/moonshot_explore.py::ect_score, lines 280-307]
-% [SRC: analysis/moonshot_explore_3arch.out — M8 ECT survivor-matrix numbers]
+% [SRC: analysis/moonshot_explore_3arch.out — ECT survivor-matrix numbers]
 
 % -----------------------------------------------------------------------------
 % §3.5 Architecture pool
@@ -796,11 +838,10 @@ dynamic-RAG triggering are ours.
 \midrule
 Qwen2.5-7B-Instruct & 7.6B & 7.6B & Dense Transformer & headline \\
 Gemma-4-26B-A4B-it & $\sim$3.8B & 25.2B & MoE + 5:1 SW/global hybrid & headline \\
-Phi-4-mini-instruct & 3.8B & 3.8B & Dense Transformer & \S\ref{sec:phi-sparse} + App.~B \\
 \bottomrule
 \end{tabular}
-\caption{Models. All run under matched Option-A protocol: greedy decoding,
-repetition penalty 1.05, \texttt{max\_new\_tokens}=512.}
+\caption{Models. Both run under matched Option-A protocol: greedy decoding,
+\texttt{max\_new\_tokens}=512.}
 \label{tab:archs}
 \end{table}
 
@@ -809,13 +850,7 @@ models spanning two architecture families: a dense Transformer
 (Qwen2.5-7B-Instruct) and a Mixture-of-Experts model with hybrid
 sliding-window/global attention (Gemma-4-26B-A4B-it, 3.8B active /
 25.2B total). We chose this pair to span the dense-vs-MoE-hybrid axis at the
-open-weight 7B+ tier and excluded smaller dense variants (e.g.\
-Phi-4-mini-instruct, 3.8B dense) as redundant on the architecture axis. Phi
-is retained as a sparse-trace robustness cell in \S\ref{sec:phi-sparse} and
-as an in-paper replication anchor against our V2 cohort
-(\S\ref{sec:appendix-v2}).
-% [TODO] Move the model-selection paragraph above into a single paragraph
-% verbatim from _rq1-agent.md top block for consistency.
+open-weight 7B+ tier.
 
 \paragraph{Trace capture schema (rq1-pilot-v1).} For each step boundary, we
 log: \texttt{mean\_token\_entropy}, \texttt{boundary\_token\_entropy},
@@ -868,18 +903,22 @@ to compute constraints.
 
 Every numerical claim in this paper carries a paired-bootstrap
 ($B{=}10{,}000$) 95\% confidence interval on
-$\Delta = \text{AUROC}(s_{\text{resid}}) - \text{AUROC}(\text{tokens})$. A
+$\Delta = \text{AUROC}(s_{\text{resid}}) - \text{AUROC}(\text{tokens})$,
+where $s_{\text{resid}}$ is the OLS residual of the signal on
+$\log(\text{tokens}+1)$ on the same cohort.  A
 signal is declared a \emph{length-robust survivor} if the lower bound of the
 CI exceeds zero. Per-architecture results are reported at the cell level
 (arch~$\times$~dataset, $n{=}200$) and pooled
-(arch~$\times$~datasets,~$n{=}400$). The Phi-dropped headline pool aggregates
+(arch~$\times$~datasets,~$n{=}400$). The headline pool aggregates
 Qwen+Gemma~$\times$~HotpotQA+2Wiki at $n{=}800$.
 
 \paragraph{Multiple-testing correction.} We additionally report Bonferroni
-correction at $k{=}15$ ($\alpha = 0.0033$, $\sim$99.67\% CI) in
-Appendix~A as a robustness check on the survivor set. The top
-paired-significant signals retain their lower-CI margin under Bonferroni
-(\S\ref{sec:results-bonferroni}).
+correction at $k{=}15$ ($\alpha = 0.0033$, $\sim$99.67\% CI) as a
+robustness check on the survivor set (Appendix~\ref{sec:appendix-bonferroni}).
+\textbf{Four signals} (ECT, DRAGIN-RIND, \texttt{min\_majority},
+\texttt{ent.max}) clear paired-significance under Bonferroni; the remaining
+five nominal-95\% survivors fall back to the borderline band under
+correction.
 
 \paragraph{Per-question-type stratification.} We additionally report per-type
 AUROC on both datasets: HotpotQA \{bridge, comparison\}; 2WikiMHQA
@@ -898,66 +937,110 @@ AUROC on both datasets: HotpotQA \{bridge, comparison\}; 2WikiMHQA
 \subsection{Cross-Architecture Survivor Matrix}
 \label{sec:results-matrix}
 
-Table~\ref{tab:hero} presents the cross-architecture survivor matrix on the
-Phi-dropped headline pool (Qwen + Gemma, $n{=}800$ paired,
-\FACT{108 helped} traces, $\texttt{lift\_em}{=}+1$ base rate $\approx$
-\FACT{0.135}). All values are length-residualized AUROC; the rightmost column
-reports $\Delta$ vs.\ \texttt{tokens\_generated} with paired-bootstrap
-($B{=}10{,}000$) 95\% CI.
+Figure~\ref{fig:survivor-forest} visualizes the headline pool
+(Qwen + Gemma, $n{=}800$ paired, \FACT{108 helped} traces,
+$\texttt{lift\_em}{=}+1$ base rate $\approx$ \FACT{0.135}) as a forest plot
+of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens})$
+with paired-bootstrap 95\% and Bonferroni-corrected $\sim$99.67\% CIs
+($\alpha = 0.05/15 = 0.0033$, $k{=}15$, $B{=}10{,}000$). Three tiers emerge:
+four signals are Bonferroni-robust; five more clear at nominal $95\%$ only;
+the remaining eight (mostly hidden-state) hug the length baseline.
+Crucially, the four Bonferroni-robust signals span four different signal
+families (attention, logit, $K$-sample answer-trajectory aggregation, and
+the answer-trajectory commitment-time \textbf{ECT}). Table~\ref{tab:hero}
+reports the same matrix with exact numbers.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{../figs/survivor_forest.pdf}
+\caption{\textbf{Length-orthogonal trigger signals on the headline pool.}
+Paired-bootstrap forest plot of
+$\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$
+for the 17 audited signals on the Qwen2.5-7B + Gemma-4-26B-A4B headline pool
+($n{=}800$ paired traces, $\texttt{lift\_em}{=}+1$ target,
+$B{=}10{,}000$). Thick bars are nominal 95\% CIs; thin extensions are
+Bonferroni-corrected $\sim$99.67\% CIs at $k{=}15$. Vertical dashed line
+marks the length baseline ($\Delta=0$). Three tiers, separated by horizontal
+lines and background banding: top four (Bonferroni-robust) are
+\textbf{ECT}, DRAGIN-RIND.max, \texttt{min\_majority}, \texttt{ent.max} ---
+spanning four different signal families. Color: \textcolor[HTML]{1f77b4}{blue}
+$=$ answer-trajectory (Datta-derived);
+\textcolor[HTML]{d62728}{red} $=$ attention (DRAGIN);
+\textcolor[HTML]{ff7f0e}{orange} $=$ logit / $K{=}5$-text;
+\textcolor[HTML]{7f7f7f}{grey} $=$ hidden-state / text.
+SRC: \texttt{analysis/e7\_bonferroni.out},
+\texttt{analysis/plot\_survivor\_forest.py}.}
+\label{fig:survivor-forest}
+\end{figure*}
+
+Table~\ref{tab:hero} presents the same matrix in tabular form. All values
+are length-residualized AUROC; the rightmost columns report $\Delta$ vs.\
+\texttt{tokens\_generated} with paired-bootstrap ($B{=}10{,}000$) at nominal
+95\% CI and at Bonferroni-corrected $\sim$99.67\% CI.
 
 \begin{table*}[t]
 \centering\small
-\begin{tabular}{@{}lllrcl@{}}
+\begin{tabular}{@{}lllrcll@{}}
 \toprule
 \textbf{Signal} & \textbf{Family} & \textbf{Citation} &
 \textbf{Resid AUROC} & $\boldsymbol{\Delta}$ \textbf{vs.\ tokens} &
-\textbf{95\% CI} \\
+\textbf{95\% CI} & \textbf{Bonf.~99.67\% CI} \\
 \midrule
-tokens\_generated         & length         & ---                            & 0.531 (raw 0.519) & --- & (baseline) \\
+tokens\_generated         & length         & ---                            & 0.531 (raw 0.474) & --- & (baseline) & --- \\
 \midrule
-\textbf{M8 ECT}           & answer-trajectory & \citep{Datta_DecideEarlyExplainLater}-derived & \textbf{0.691} & $\boldsymbol{+0.174}$ & $[+0.096, +0.252]$ \\
-\textbf{DRAGIN-RIND.max}  & attention      & \citep{Su_DRAGIN}              & \textbf{0.640} & $\boldsymbol{+0.161}$ & $[+0.082, +0.238]$ \\
-\textbf{M1 CABV}          & answer-velocity & this work                     & \textbf{0.641} & $\boldsymbol{+0.145}$ & $[+0.063, +0.223]$ \\
-\textbf{AID min\_majority}& answer-trajectory & this work                   & \textbf{0.626} & $\boldsymbol{+0.136}$ & $[+0.057, +0.210]$ \\
-\textbf{AID flip\_rate K=5}& answer-trajectory & this work                  & \textbf{0.640} & $\boldsymbol{+0.130}$ & $[+0.049, +0.211]$ \\
-\textbf{AID flip\_rate K=1}& answer-trajectory & \citep{Datta_DecideEarlyExplainLater}-style & \textbf{0.621} & $\boldsymbol{+0.116}$ & $[+0.034, +0.199]$ \\
-\textbf{M9 CABV$\times$LAAS}& answer-velocity & this work                   & \textbf{0.593} & $\boldsymbol{+0.107}$ & $[+0.023, +0.188]$ \\
-\textbf{ent.max}          & logit          & \citep{Lin_GeneratingConfidence} & \textbf{0.611} & $\boldsymbol{+0.102}$ & $[+0.031, +0.172]$ \\
-\textbf{AID late\_flips}  & answer-trajectory & this work                   & \textbf{0.586} & $\boldsymbol{+0.085}$ & $[+0.018, +0.151]$ \\
+\multicolumn{7}{l}{\textit{Bonferroni-robust survivors (lower-bound $>0$ at $\alpha=0.0033$, $k=15$):}} \\
 \midrule
-% Below: signals that do not paired-sig clear
-u\_cons.max               & $K{=}5$ text   & \citep{Manakul_SelfCheckGPT}   & ?     & $+$? & $[?, ?]$ \\
-seakr\_k5\_proxy.logdet   & $K{=}5$ hidden & \citep{Yao_SeaKR}              & ?     & $+$? & $[?, ?]$ \\
-etc ($\Delta^2 H$ max)    & logit          & \citep{Li_ETC}                 & ?     & $+$? & $[?, ?]$ \\
-flare.max                 & logit          & \citep{Jiang_FLARE}            & ?     & $+$? & $[?, ?]$ \\
-drift\_cosine.max         & hidden CRV     & \citep{Chen_INSIDE}            & ?     & $+$? & $[?, ?]$ \\
-var\_l2\_window.max       & hidden CRV     & \citep{Chen_INSIDE}            & ?     & $+$? & $[?, ?]$ \\
-hvr.max (SELFDOUBT-T1)    & text           & \citep{Kadavath_SelfDoubt}     & ?     & $+$? & $[?, ?]$ \\
+\textbf{ECT}           & answer-trajectory & \citep{Datta_DecideEarlyExplainLater}-derived & \textbf{0.691} & $\boldsymbol{+0.190}$ & $[+0.093, +0.287]$ & $[+0.047, +0.329]$ \\
+\textbf{DRAGIN-RIND.max}  & attention      & \citep{Su_DRAGIN}              & \textbf{0.640} & $\boldsymbol{+0.167}$ & $[+0.082, +0.249]$ & $[+0.039, +0.286]$ \\
+\textbf{min\_majority}& answer-trajectory & this work                   & \textbf{0.626} & $\boldsymbol{+0.149}$ & $[+0.054, +0.240]$ & $[+0.004, +0.284]$ \\
+\textbf{ent.max}          & logit          & \citep{Lin_GeneratingConfidence} & \textbf{0.611} & $\boldsymbol{+0.137}$ & $[+0.050, +0.223]$ & $[+0.001, +0.263]$ \\
+\midrule
+\multicolumn{7}{l}{\textit{Nominal-95\% survivors (paired-sig at $\alpha=0.05$ but not under Bonferroni):}} \\
+\midrule
+\textbf{M1 CABV}          & answer-velocity & this work                     & \textbf{0.641} & $\boldsymbol{+0.137}$ & $[+0.041, +0.229]$ & $[-0.006, +0.273]$ \\
+\textbf{flip\_rate K=5}& answer-trajectory & this work                  & \textbf{0.640} & $\boldsymbol{+0.135}$ & $[+0.037, +0.233]$ & $[-0.012, +0.277]$ \\
+\textbf{u\_cons.max}      & $K{=}5$ text   & \citep{Manakul_SelfCheckGPT}   & \textbf{0.593} & $\boldsymbol{+0.120}$ & $[+0.028, +0.213]$ & $[-0.017, +0.257]$ \\
+\textbf{flip\_rate K=1}& answer-trajectory & \citep{Datta_DecideEarlyExplainLater}-style & \textbf{0.621} & $\boldsymbol{+0.116}$ & $[+0.016, +0.217]$ & $[-0.030, +0.261]$ \\
+\textbf{etc ($\Delta^2 H$ max)} & logit    & \citep{Li_ETC}                 & \textbf{0.580} & $\boldsymbol{+0.107}$ & $[+0.018, +0.196]$ & $[-0.026, +0.235]$ \\
+\midrule
+\multicolumn{7}{l}{\textit{Do not clear paired-significance vs.\ tokens at $\alpha=0.05$:}} \\
+\midrule
+M9 CABV$\times$LAAS       & answer-velocity & this work                     & 0.593 & $+0.089$ & $[-0.016, +0.191]$ & $[-0.069, +0.239]$ \\
+late\_flips           & answer-trajectory & this work                   & 0.586 & $+0.081$ & $[-0.016, +0.175]$ & $[-0.058, +0.219]$ \\
+flare.max                 & logit          & \citep{Jiang_FLARE}            & 0.553 & $+0.080$ & $[-0.008, +0.165]$ & $[-0.056, +0.207]$ \\
+hvr.max (SELFDOUBT-T1)    & text           & \citep{Kadavath_SelfDoubt}     & 0.505 & $+0.032$ & $[-0.089, +0.150]$ & $[-0.147, +0.210]$ \\
+hidden\_norm.range        & hidden CRV     & \citep{Azaria_Mitchell_InternalState} & 0.499 & $+0.026$ & $[-0.058, +0.108]$ & $[-0.101, +0.146]$ \\
+drift\_cosine.max         & hidden CRV     & \citep{Chen_INSIDE}            & 0.493 & $+0.020$ & $[-0.064, +0.101]$ & $[-0.102, +0.142]$ \\
+seakr\_k5\_proxy.logdet   & $K{=}5$ hidden & \citep{Yao_SeaKR}              & 0.491 & $+0.018$ & $[-0.077, +0.112]$ & $[-0.123, +0.161]$ \\
+var\_l2\_window.max       & hidden CRV     & \citep{Chen_INSIDE}            & 0.473 & $+0.000$ & $[-0.091, +0.090]$ & $[-0.136, +0.127]$ \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Cross-architecture survivor matrix} on the Phi-dropped
-headline pool (Qwen2.5-7B-Instruct + Gemma-4-26B-A4B-it
+\caption{\textbf{Cross-architecture survivor matrix} on the headline pool
+(Qwen2.5-7B-Instruct + Gemma-4-26B-A4B-it
 $\times$ \{HotpotQA, 2WikiMHQA\}, $n{=}800$ paired traces). All AUROCs are
 length-residualized via Eq.~(\ref{eq:residualize}). 95\% CIs are paired
 bootstrap ($B{=}10{,}000$) of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) -
-\mathrm{AUROC}(\texttt{tokens\_generated})$. Signals with $\Delta$ CI
-lower-bound $> 0$ are bolded as paired-significant length-robust survivors.
-% [FACT] verify rows below the line; numbers currently placeholders.
-% [SRC: analysis/moonshot_explore_3arch.out — Phi-dropped n=800 table]}
+\mathrm{AUROC}(\texttt{tokens\_generated})$. The right-most column gives the
+Bonferroni-corrected $\sim$99.67\% CI at $k{=}15$ ($\alpha=0.0033$).
+\textbf{Nine signals} clear nominal-95\% paired-significance against length;
+\textbf{four} survive Bonferroni at $k{=}15$.
+SRC: \texttt{analysis/moonshot\_explore\_3arch.out.b10k} (M-series,
+answer-trajectory, top trigger-pool rows) and
+\texttt{analysis/e7\_bonferroni.out} (Bonferroni column, all rows).}
 \label{tab:hero}
 \end{table*}
 
 % -----------------------------------------------------------------------------
-% §4.2 The strongest survivor: M8 ECT (Datta t* extension)
+% §4.2 The strongest survivor: ECT (Datta t* extension)
 % -----------------------------------------------------------------------------
-\subsection{The Strongest Length-Robust Survivor: M8 ECT}
+\subsection{The Strongest Length-Robust Survivor: ECT}
 \label{sec:results-m8ect}
 
 The strongest signal under length residualization on the headline pool is
-\textbf{M8 ECT}, our forward-looking early-commitment-time signal
+\textbf{ECT}, our forward-looking early-commitment-time signal
 (Eq.~\ref{eq:m8ect-tcommit}, \S\ref{sec:methods-aid}). It is defined as the
 earliest step from which the $K{=}5$ majority answer remains stable and equal
-to the final answer for the rest of the trace. M8 ECT draws on the
+to the final answer for the rest of the trace. ECT draws on the
 ``decide-early'' phenomenon established by
 \citet{Datta_DecideEarlyExplainLater},
 \citet{Wang_ChainOfProbeCoTStepByStep}, and
@@ -965,37 +1048,35 @@ to the final answer for the rest of the trace. M8 ECT draws on the
 from Datta's last-switch index $t^\star$ on three axes (temporal direction,
 sampling regime, application target; Table~\ref{tab:ect-vs-tstar}).
 
-\paragraph{Per-cell M8 ECT raw AUROC.} Table~\ref{tab:m8-percell} shows per-cell
-raw AUROC of M8 ECT on \texttt{lift\_em}~$=+1$:
+\paragraph{Per-cell ECT raw AUROC.} Table~\ref{tab:m8-percell} shows per-cell
+raw AUROC of ECT on \texttt{lift\_em}~$=+1$:
 
 \begin{table}[h]
 \centering\small
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-\textbf{Cell} & \textbf{n} & \textbf{pop} & \textbf{M8 ECT raw AUROC} \\
+\textbf{Cell} & \textbf{n} & \textbf{pop} & \textbf{ECT raw AUROC} \\
 \midrule
 Qwen $\times$ HotpotQA & 200 & 31 & \FACT{0.677} \\
 Qwen $\times$ 2Wiki    & 200 & 34 & \FACT{0.604} \\
 Gemma $\times$ HotpotQA & 200 & 19 & \FACT{0.642} \\
 \textbf{Gemma $\times$ 2Wiki} & 200 & 24 & \textbf{\FACT{0.784}} \\
-\midrule
-(Phi $\times$ HotpotQA) & 200 & 18 & 0.502 \\
-(Phi $\times$ 2Wiki)   & 200 & 30 & 0.525 \\
 \bottomrule
 \end{tabular}
-\caption{Per-cell raw AUROC of M8 ECT on $\texttt{lift\_em}{=}+1$. The
-Phi rows (parenthesized) illustrate the sparse-flip limitation; see
-\S\ref{sec:phi-sparse}. SRC:
+\caption{Per-cell raw AUROC of ECT on $\texttt{lift\_em}{=}+1$.
+ECT discriminates most strongly on the Gemma $\times$ 2Wiki cell, which
+is also the cell where length is most anti-predictive (see
+\S\ref{sec:discussion-inverted}). SRC:
 \texttt{analysis/moonshot\_explore\_3arch.out}.}
 \label{tab:m8-percell}
 \end{table}
 
-\paragraph{Why M8 ECT works.} The early-commitment-time signal exploits the
+\paragraph{Why ECT works.} The early-commitment-time signal exploits the
 observation from \citet{Datta_DecideEarlyExplainLater} and
 \citet{Wang_ChainOfProbeCoTStepByStep} that models decide early on questions
 they will get right and continue to deliberate on questions where retrieval
 would help. The retrieval-helpful subpopulation is the same subpopulation
-where the answer trajectory has not stabilized. M8 ECT captures this
+where the answer trajectory has not stabilized. ECT captures this
 stabilization delay in its forward-looking formulation. A low ECT score
 means the model committed early (closed-book usually right); a high ECT
 score means deliberation persists through the trace (retrieval often helps).
@@ -1009,7 +1090,7 @@ token plus task-specific answer prefix) is unavailable.
 \citet{Datta_DecideEarlyExplainLater}, \citet{Wang_ChainOfProbeCoTStepByStep},
 and \citet{Chen_DynamicInstabilityLLMReasoning} (each with a different
 operationalization: last-switch $t^\star$, closed-set softmax probing, and
-JSD timing-peak respectively). The M8 ECT formulation in
+JSD timing-peak respectively). The ECT formulation in
 Eq.~(\ref{eq:m8ect-tcommit}) is ours, as is its application to dynamic-RAG
 triggering and its characterization as the strongest length-robust survivor
 in the audited trigger pool. We do not claim the answer-trajectory
@@ -1025,8 +1106,8 @@ $K{=}5$-majority operationalization and the retrieval-triggering application.
 A natural question is whether the $K{=}5$ stochastic-sample variants of the
 answer-trajectory triggers have empirical advantage over the $K{=}1$
 single-sample Datta original. Table~\ref{tab:k-ablation} reports the
-$\Delta(K{=}5 - K{=}1)$ on the \texttt{flip\_rate} aggregation across all
-three audited architectures.
+$\Delta(K{=}5 - K{=}1)$ on the \texttt{flip\_rate} aggregation across both
+audited architectures.
 
 \begin{table}[h]
 \centering\small
@@ -1035,26 +1116,25 @@ three audited architectures.
 \textbf{Arch} & \textbf{n} & \textbf{pop} &
 $\boldsymbol{\Delta_{\text{raw}}}$ & \textbf{95\% CI raw} \\
 \midrule
-Phi  & 105 & 12 & \FACT{$-0.039$} & $[-0.131, +0.012]$ \\
 Qwen & 305 & 47 & \FACT{$-0.002$} & $[-0.040, +0.031]$ \\
 Gemma & 394 & 42 & \FACT{$+0.033$} & $[-0.025, +0.092]$ \\
 \bottomrule
 \end{tabular}
 \caption{$K{=}5$ vs.\ $K{=}1$ \texttt{flip\_rate} ablation on
-$\texttt{lift\_em}{=}+1$, pooled per architecture. All three confidence
+$\texttt{lift\_em}{=}+1$, pooled per architecture. Both confidence
 intervals straddle zero, indicating equality at our power.
-SRC: \texttt{analysis/a1\_k1\_vs\_k5\_r1\_\{phi,qwen,gemma\}.\{out,json\}}.}
+SRC: \texttt{analysis/a1\_k1\_vs\_k5\_r1\_\{qwen,gemma\}.\{out,json\}}.}
 \label{tab:k-ablation}
 \end{table}
 
-\paragraph{Regime-2 verdict.} Across three architectures spanning dense
-Transformer and MoE-hybrid families, the $K{=}5$ multi-sample variant of
+\paragraph{Regime-2 verdict.} Across both audited architectures (dense
+Transformer and MoE-hybrid), the $K{=}5$ multi-sample variant of
 \texttt{flip\_rate} shows no significant advantage over the $K{=}1$ Datta
 original on the retrieval-triggering target. We pre-registered three outcome
 regimes for this ablation before observing the cross-architecture data:
 (1) $K{=}5$ paired-sig wins; (2) $K{=}5 \approx K{=}1$, CIs straddle zero;
-(3) $K{=}1$ paired-sig wins. Regime~2 is the observed outcome on every
-architecture on the headline target. We \textbf{recommend $K{=}1$} for
+(3) $K{=}1$ paired-sig wins. Regime~2 is the observed outcome on both
+architectures on the headline target. We \textbf{recommend $K{=}1$} for
 deployment for compute-efficiency reasons. A single-sample boundary-completion
 probe is $5\times$ cheaper than the $K{=}5$ alternative with equivalent
 triggering performance at our power.
@@ -1093,15 +1173,14 @@ $\boldsymbol{\varepsilon}^{\text{prot}}_{\text{med}}$ &
 $\boldsymbol{\varepsilon}^{\text{samp}}_{\text{max}}$ \\
 \midrule
 Qwen2.5  & \FACT{0.029} & 0.012 & 0.012 & 0.062 \\
-Phi      & \FACT{0.040} & ---   & ---   & 0.191 \\
 Gemma    & \FACT{0.027} & 0.0095 & 0.0047 & 0.070 \\
 \bottomrule
 \end{tabular}
 \caption{$\varepsilon_{\text{protocol}} = |\text{ours}_{\text{resid}} -
 \text{LINE}_{\text{full}}|$; $\varepsilon_{\text{sampling}} =
 |\text{LINE}_{\text{full}} - \text{LINE}_{\text{split}}|$ (the latter averaged
-over 5 seeds). All three architectures show
-$\varepsilon_{\text{protocol}} \leq 0.040$: our protocol matches the reference
+over 5 seeds). Both architectures show
+$\varepsilon_{\text{protocol}} \leq 0.029$: our protocol matches the reference
 math within numerical noise. SRC:
 \texttt{analysis/uncertainty\_line\_audit\_*.\{out,json\}}.}
 \label{tab:uline-repl}
@@ -1109,74 +1188,80 @@ math within numerical noise. SRC:
 
 \paragraph{Verdict.} Our log-tokens single-cohort OLS protocol matches the
 MinMax-scaled linear regression of
-\cite{Vashurin_UncertaintyLineLengthInvariant} within $\varepsilon \leq 0.040$
-AUROC across three architectures. This is below the typical reviewer-attack
+\cite{Vashurin_UncertaintyLineLengthInvariant} within $\varepsilon \leq 0.029$
+AUROC across both architectures. This is well below the typical reviewer-attack
 threshold of 0.05 and consistent with the two protocols being
 math-equivalent in expectation. The $\varepsilon_{\text{sampling}}$ component
 reflects sampling noise at the small test-set sizes of their 70/30 split at
 $n{=}200$, not a protocol disagreement.
 
 % -----------------------------------------------------------------------------
-% §4.5 Phi as the sparse-trace boundary cell
-% -----------------------------------------------------------------------------
-\subsection{Phi: The Sparse-Trace Boundary Cell}
-\label{sec:phi-sparse}
-
-Phi-4-mini-instruct produces shorter reasoning traces under our greedy
-Option-A protocol than Qwen2.5 or Gemma-4. Median answer-bearing steps are
-\FACT{2--3} per trace under $K{=}5$, against \FACT{4--7} for Qwen and Gemma.
-The sparse-flip limitation has two consequences. (a) The within-step AID
-variants (\texttt{flip\_rate}, \texttt{min\_majority}) become power-limited.
-(b) M8 ECT collapses to roughly $\rho \in \{0, 1\}$ (commits either
-immediately or never), losing discriminative power on
-\texttt{lift\_em}$=+1$ (Table~\ref{tab:m8-percell}, last two rows).
-
-\paragraph{What does survive on Phi.} Despite the sparse-flip limitation,
-\texttt{late\_flips} survives residualization on Phi $\times$ 2Wiki
-(\FACT{resid AUROC 0.663}), and the per-question-type comparison subset is
-striking: \texttt{late\_flips} $\times$ 2Wiki $\times$ comparison reaches
-raw AUROC \FACT{0.950}, the strongest single-cell AUROC in the cohort
-(Table~\ref{tab:per-type}). DRAGIN-RIND survives on Phi $\times$ 2Wiki at
-resid AUROC \FACT{0.558}.
-
-\paragraph{Implication.} The trigger family is robust across trace-length
-regimes, but the optimal aggregation depends on trace length. Phi reveals
-the boundary at which the answer-trajectory primitive becomes power-limited.
-This is a methodological finding worth reporting.
-
-% [SRC: analysis/r1_phi_paired_audit.out]
-
-% -----------------------------------------------------------------------------
-% §4.6 Per-question-type stratification
+% §4.5 Per-question-type stratification
+% (Old §4.5 Phi sparse-trace section deleted 2026-05-16 — Phi removed from paper)
 % -----------------------------------------------------------------------------
 \subsection{Per-Question-Type Heterogeneity}
 \label{sec:per-type}
 
 Table~\ref{tab:per-type} reports per-question-type raw AUROC on the strongest
-surviving signals across all six audited cells (Qwen+Gemma+Phi $\times$
-HotpotQA+2Wiki). Two patterns emerge.
+surviving signals across all four audited cells (Qwen+Gemma $\times$
+HotpotQA+2Wiki). One pattern emerges clearly:
 
 \begin{enumerate}
-\item \textbf{The bridge\_comparison subset of 2Wiki is uniformly the most
-discriminable cell type.} On Gemma $\times$ 2Wiki $\times$ bridge\_comparison,
-DRAGIN-RIND raw AUROC reaches \FACT{0.974}. On Gemma $\times$ HotpotQA
-$\times$ comparison, \texttt{ent.max} and \texttt{etc} both reach
-\FACT{1.000}.
-\item \textbf{The Phi $\times$ 2Wiki $\times$ comparison cell shows
-\texttt{late\_flips} raw AUROC of \FACT{0.950}}, the strongest single-cell
-AUROC in the campaign. This reproduces the timing-asymmetry mechanism of
-\cite{Chen_DynamicInstabilityLLMReasoning} at the answer level on a different
-model class.
+\item \textbf{Comparison-class question types are systematically more
+discriminable than other types.} On Gemma~$\times$~HotpotQA~$\times$~comparison
+(n$_{\text{pop}}{=}3$, small), DRAGIN-RIND reaches raw AUROC \FACT{0.974} and
+\texttt{ent.max}/\texttt{etc} both reach \FACT{1.000}. On
+Gemma~$\times$~2Wiki~$\times$~bridge\_comparison (n$_{\text{pop}}{=}7$),
+DRAGIN reaches \FACT{0.821}. On Qwen~$\times$~HotpotQA~$\times$~comparison,
+\texttt{flip\_rate K=5} reaches \FACT{0.750}.
+\item \textbf{The strongest signal is type-dependent.} DRAGIN-RIND dominates
+comparison subsets on Gemma; answer-trajectory aggregations dominate
+compositional and inference subsets on Qwen 2Wiki (\texttt{flip\_rate
+K=5}{=}0.657 on compositional; \texttt{min\_majority}{=}0.671 on inference).
 \end{enumerate}
 
-% [TODO] Build per-type table; currently a description placeholder.
 \begin{table}[h]
 \centering\small
-\textbf{[TODO]} Build the per-type table. Rows: cells (Qwen $\times$ Hot, Qwen
-$\times$ 2Wiki, Gemma $\times$ Hot, Gemma $\times$ 2Wiki). Columns: signals
-(M8 ECT, DRAGIN-RIND, late\_flips, min\_majority, flip\_rate K=5, ent.max).
-Cells: per-type raw AUROC. SRC: \texttt{analysis/r1\_*\_paired\_audit.out}.
-\caption{Per-question-type raw AUROC of top-survivors. \textbf{[TODO]}}
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+\textbf{Cell $\times$ type} & \textbf{n$_{\text{pop}}$} &
+\textbf{DRAGIN} & \textbf{ent.max} & \textbf{min\_maj} &
+\textbf{flip K=5} & \textbf{ECT} \\
+\midrule
+\multicolumn{7}{l}{\textit{Qwen $\times$ HotpotQA:}} \\
+~~~~bridge      & 21 & 0.556 & 0.503 & 0.645 & 0.644 & --- \\
+~~~~comparison  & 10 & 0.604 & 0.625 & 0.732 & 0.750 & --- \\
+\midrule
+\multicolumn{7}{l}{\textit{Qwen $\times$ 2WikiMHQA:}} \\
+~~~~bridge\_comparison & 7 & 0.528 & 0.533 & 0.611 & 0.571 & --- \\
+~~~~comparison         & 7 & 0.568 & 0.451 & 0.517 & 0.643 & --- \\
+~~~~compositional      & 11 & \textbf{0.678} & 0.618 & 0.654 & 0.657 & --- \\
+~~~~inference          & 9 & 0.406 & 0.567 & \textbf{0.671} & 0.465 & --- \\
+\midrule
+\multicolumn{7}{l}{\textit{Gemma $\times$ HotpotQA:}} \\
+~~~~bridge            & 16 & 0.669 & 0.716 & 0.639 & 0.657 & --- \\
+~~~~\textbf{comparison} & 3 & \textbf{0.974} & \textbf{1.000} & 0.705 & 0.603 & --- \\
+\midrule
+\multicolumn{7}{l}{\textit{Gemma $\times$ 2WikiMHQA:}} \\
+~~~~bridge\_comparison & 7 & \textbf{0.821} & 0.668 & 0.646 & 0.634 & --- \\
+~~~~comparison         & 4 & 0.655 & 0.750 & 0.686 & 0.686 & --- \\
+~~~~compositional      & 9 & 0.423 & 0.386 & 0.509 & 0.676 & --- \\
+~~~~inference          & 4 & 0.693 & 0.467 & 0.613 & 0.590 & --- \\
+\bottomrule
+\end{tabular}
+\caption{Per-question-type raw AUROC on the $\texttt{lift\_em}=+1$ target,
+top-survivor signals only.  ECT per-type breakdown is not in this table
+because the moonshot per-cell breakdown emits pooled cells, not per-type
+splits; \texttt{moonshot\_explore.py} would need a small extension to add
+the per-type column. n$_{\text{pop}}$ is the number of helped traces in the
+type-cell. Bold cells highlight per-type single-cell raw AUROCs $\geq 0.65$
+on signals that paired-significantly clear in the headline pool. The
+striking pattern: \emph{comparison-class question types
+(\texttt{comparison}, \texttt{bridge\_comparison}) are systematically more
+discriminable than bridge / compositional / inference}. The Gemma$\times$HotpotQA
+$\times$comparison cell is power-limited (n$_{\text{pop}}{=}3$) so the
+0.974/1.000 entries should be read with that caveat.  SRC:
+\texttt{analysis/r1\_\{qwen,gemma\}\_paired\_audit.out.b10k} \S(4).}
 \label{tab:per-type}
 \end{table}
 
@@ -1199,15 +1284,20 @@ incorporates multiple aggregations. We do not propose such an ensemble here
 \subsection{Why Length Predicts Retrieval-Helpfulness in the First Place}
 \label{sec:discussion-causal}
 
-The pre-residualization dominance of \texttt{tokens\_generated} on the
-\texttt{closed\_em}$=0$ target on Phi $\times$ HotpotQA at raw AUROC
-\FACT{0.645} (and on V2 Phi at raw \FACT{0.749}, $n{=}500$) is consistent
-with the \emph{verbosity compensation} mechanism of
+On the secondary \texttt{closed\_em}$=0$ (closed-book-incorrect) target,
+the \texttt{tokens\_generated} baseline reaches raw AUROC $0.539$ on our
+$n{=}800$ headline pool and is the single strongest pre-residualization
+signal on several cells (e.g.\ Gemma~$\times$~HotpotQA closed-incorrect raw
+AUROC $0.598$ for tokens; many internal signals collapse below tokens before
+residualization). This is consistent with the \emph{verbosity compensation}
+mechanism of
 \cite{Zhang_VerbosityVeracityVCBehavior}. Verbose-when-uncertain is a real
 LLM behavior across the multi-hop QA family that includes HotpotQA, MuSiQue,
 and 2WikiMHQA. Verbose traces are systematically associated with higher
 uncertainty, which in turn is associated with incorrectness, and, as we show,
 with retrieval helpfulness.
+% SRC: analysis/moonshot_explore_3arch.out — Gemma pooled closed_em=0 table
+% (tokens raw 0.598 on Gemma; Phi-DROPPED pool tokens raw 0.539).
 
 The causal chain reads:
 \begin{equation*}
@@ -1220,7 +1310,7 @@ correlated with the deeper uncertainty mechanism. Our residualization fix
 removes the length pathway and isolates the deeper signal.
 
 % -----------------------------------------------------------------------------
-% §5.2 Why M8 ECT works (mechanism)
+% §5.2 Why ECT works (mechanism)
 % -----------------------------------------------------------------------------
 \subsection{Why the Datta $t^\star$ Primitive Extends to Retrieval Triggering}
 \label{sec:discussion-m8ect}
@@ -1251,11 +1341,18 @@ non-stabilization to \emph{retrieve}.
 
 The trigger picture is architecture- and dataset-dependent at the cell-level
 granularity (\S\ref{sec:per-type}). On Qwen $\times$ HotpotQA,
-\texttt{flip\_rate K=1} wins. On Qwen $\times$ 2Wiki, \texttt{min\_majority}.
-On Gemma $\times$ HotpotQA, \texttt{ent.max} and \texttt{late\_flips}. On
-Gemma $\times$ 2Wiki, M8 ECT (\FACT{0.784} raw). The \emph{family} of
-step-level answer-trajectory triggers wins in 5 of 6 cells. The optimal
-aggregation within the family varies.
+\textbf{M1 CABV} wins (raw AUROC \FACT{0.690}), followed by
+\texttt{flip\_rate K=1} (\FACT{0.666}). On Qwen $\times$ 2Wiki,
+\textbf{M9 CABV$\times$LAAS} (\FACT{0.655}) and \textbf{M1 CABV}
+(\FACT{0.652}) tie. On Gemma $\times$ HotpotQA, \textbf{ent.max}
+(\FACT{0.716} on bridge) and \textbf{M1 CABV} (\FACT{0.655}). On
+Gemma $\times$ 2Wiki, \textbf{ECT} (\FACT{0.784} raw). The
+\emph{family} of step-level answer-trajectory triggers wins in 3 of 4 cells.
+The optimal aggregation within the family varies; the continuous
+answer-trajectory aggregations (M1 CABV, ECT, M9 CABV$\times$LAAS) outperform
+the discrete flip-rate / min-majority aggregations on most cells, suggesting
+that continuous aggregations capture finer-grained trajectory information
+than the binary flip count.
 
 This is consistent with the \cite{Mao_ConfidenceOverTimeSTL} finding that
 ``failure-mode patterns transfer cross-task; correct-mode patterns are
@@ -1273,7 +1370,7 @@ and Gemma $\times$ 2Wiki (raw AUROC \FACT{0.518}) exhibit \emph{below-chance}
 length correlation on the \texttt{lift\_em}$=+1$ target. On these cells,
 longer traces are systematically \emph{less} retrieval-helpful, inverting the
 verbosity-compensation pattern of \cite{Zhang_VerbosityVeracityVCBehavior}.
-Internal signals (DRAGIN, \texttt{min\_majority}, M8 ECT) beat length on
+Internal signals (DRAGIN, \texttt{min\_majority}, ECT) beat length on
 these cells because length itself is anti-predictive.
 
 We hypothesize that this is the \emph{long-trace-correctness} regime. On the
@@ -1302,11 +1399,10 @@ faithful end-to-end replication of DRAGIN, FLARE, SeaKR, or SelfCheckGPT is
 out of scope.
 
 \paragraph{Limited architecture coverage.} The headline pool is 2
-architectures $\times$ 2 datasets. Phi serves as a sparse-trace boundary
-cell. The architectural-diversity claim rests on the dense vs.\ MoE-hybrid
-axis between Qwen2.5 and Gemma-4-26B-A4B. Broader coverage (e.g., Llama-3,
-Mistral, Claude, GPT-4) would strengthen the cross-arch findings but was
-not feasible at this submission.
+architectures $\times$ 2 datasets. The architectural-diversity claim rests
+on the dense vs.\ MoE-hybrid axis between Qwen2.5-7B and Gemma-4-26B-A4B.
+Broader coverage (e.g., Llama-3, Mistral, Claude, GPT-4) would strengthen
+the cross-arch findings but was not feasible at this submission.
 
 \paragraph{Limited dataset coverage.} HotpotQA and 2WikiMHQA are both
 multi-hop QA distractor benchmarks. MuSiQue \citep{Trivedi_MuSiQue} would
@@ -1328,8 +1424,8 @@ correctness function. We report F$_1$ and containment-match correctness
 functions in Appendix~A as a robustness check.
 % [TODO] Run the containment-match check; placeholder.
 
-\paragraph{Non-thinking-mode chat models only.} All three audited models
-(Phi-4-mini, Qwen2.5-7B, Gemma-4-26B-A4B-it) are non-thinking-mode chat
+\paragraph{Non-thinking-mode chat models only.} Both audited models
+(Qwen2.5-7B, Gemma-4-26B-A4B-it) are non-thinking-mode chat
 models. The original Datta primitive
 \citep{Datta_DecideEarlyExplainLater} was developed on thinking-mode
 reasoning models with explicit \texttt{</think>} tokens. Our adaptation to
@@ -1346,31 +1442,34 @@ work.
 \label{sec:conclusion}
 \label{sec:future-work}
 
-We audit the published dynamic-RAG-trigger pool under length-residualized
-evaluation on multi-hop QA with paired oracle re-decode. Of 16 baseline
-signals on 2 architectures spanning dense and MoE-hybrid families at
-$n{=}200$ per cell, 9 paired-bootstrap-significantly beat
-\texttt{tokens\_generated} on the headline target. The strongest length-robust
+We re-evaluate the published dynamic-RAG-trigger pool under
+length-residualized evaluation on multi-hop QA with paired oracle re-decode.
+Of 16 baseline signals on 2 architectures spanning dense and MoE-hybrid
+families at $n{=}200$ per cell, 9 retain a length-orthogonal positive margin
+against \texttt{tokens\_generated} at nominal $95\%$, and 4 of them retain it
+under Bonferroni correction at $k{=}15$.
+The strongest length-robust
 survivor is the Datta-style early-commitment-time signal applied to retrieval
-triggering (residualized AUROC \FACT{0.691}, $\Delta = +0.174$
-\FACT{[+0.096, +0.252]}), followed by DRAGIN-RIND and a family of step-level
+triggering (residualized AUROC \FACT{0.691}, $\Delta = +0.190$
+\FACT{[+0.093, +0.287]}, Bonferroni lower bound $+0.047$), followed by
+DRAGIN-RIND and a family of step-level
 answer-trajectory aggregations. The $K$ value of the multi-sample variant is
-empirically free across all audited architectures. We recommend $K{=}1$ for
+empirically free across both audited architectures. We recommend $K{=}1$ for
 deployment.
 
 \paragraph{Future work.}
 \begin{itemize}
-\item \textbf{MuSiQue / longer reasoning chains.} The Phi-dropped headline
+\item \textbf{MuSiQue / longer reasoning chains.} The headline
 pool covers 2 datasets; MuSiQue \citep{Trivedi_MuSiQue} provides a third with
 longer reasoning chains.
 \item \textbf{Faithful Datta replication on thinking-mode reasoning models.}
 Re-run the audit on Qwen3-4B/8B/30B (thinking mode) with the explicit
 \texttt{</think>}+answer-prefix forced-completion protocol of
-\citep{Datta_DecideEarlyExplainLater}; compare AID-K=5 against true
-single-greedy forced-completion at $n{=}200$.
+\citep{Datta_DecideEarlyExplainLater}; compare our $K{=}5$
+\texttt{flip\_rate} against true single-greedy forced-completion at $n{=}200$.
 \item \textbf{Hold-for-$k$ smoothing} (Eq.~4 of
 \citealp{Datta_DecideEarlyExplainLater}): add \texttt{flip\_rate\_hold3} as a
-drop-in AID variant that admits streaming/online operation.
+drop-in answer-trajectory aggregation that admits streaming/online operation.
 \item \textbf{LLM-as-Judge correctness function} as a robustness check on the
 exact-match target (responding to the
 \citealp{Janiak_IllusionProgressHallucinationDetection} critique).
@@ -1399,40 +1498,95 @@ higher absolute discriminative ceiling.
 \label{sec:results-bonferroni}
 \label{sec:appendix-bonferroni}
 
-% [TODO] Build Bonferroni table at k=15, alpha=0.0033 (~99.67% CI).
-% Pre-registered claim from _rq1-agent.md: M8 ECT +0.174 [+0.096, +0.252]
-% has comfortable margin; expected to retain. AID min_majority [+0.057,+0.210]
-% is tighter; should hold. F1 ensemble [+0.077, +0.244] should hold.
+Table~\ref{tab:bonferroni} reports the Bonferroni-corrected
+$\sim$99.67\% paired-bootstrap CI of $\Delta = \mathrm{AUROC}(s_{\text{resid}})
+- \mathrm{AUROC}(\texttt{tokens\_generated})$ at $k{=}15$
+($\alpha = 0.05/15 = 0.0033$) on the headline pool. Bonferroni $k$ is the
+number of signals tested for the survivor-matrix claim in
+Table~\ref{tab:hero}. Four signals retain a strictly positive lower CI bound
+under correction: ECT, DRAGIN-RIND.max, \texttt{min\_majority}, and
+\texttt{ent.max}. Five additional signals are paired-significant at the
+nominal 95\% level but their corrected CIs straddle zero; we list them as
+nominal-95\% survivors in Table~\ref{tab:hero} for completeness.
 
-\section{V2 Cohort Replication on Phi}
-\label{sec:appendix-v2}
-
-We use our V2 cohort (Phi-4-mini-instruct, $n{=}393$ paired HotpotQA /
-$n{=}452$ paired 2Wiki, from a prior decoding pass with the 11-signal pool of
-\texttt{analysis/length\_audit\_v2.py}) as an in-paper replication anchor for
-the Phi results. The V2 cohort uses a different slice version and pre-dates
-the rq1-pilot-v1 schema (no $K{=}5$ sampling or AID extraction), but the 11
-overlapping signals reproduce R1 numbers within $\pm 0.02$ AUROC on the
-\texttt{closed\_em}$=0$ target on every cell. This is a cross-cohort
-internal-consistency check: our R1 capture pipeline produces numerically
-faithful traces in the new schema.
-
-\paragraph{V2 highlights.}
-\texttt{tokens\_generated} AUROC = \FACT{0.749} on Phi $\times$ HotpotQA at
-$n{=}393$ (V2), reproducing the \cite{Janiak_IllusionProgressHallucinationDetection}
-finding that length rivals complex methods.
-\texttt{dragin\_rind\_max.max} residualized AUROC = \FACT{0.616} on Phi
-$\times$ HotpotQA, surviving residualization in the V2 cohort and confirming
-the cross-cohort survivability of DRAGIN-RIND on the Phi architecture.
-SRC: \texttt{analysis/length\_audit\_v2.out}.
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lrll@{}}
+\toprule
+\textbf{Signal} & $\boldsymbol{\Delta}$ & \textbf{95\% CI} &
+\textbf{99.67\% CI (Bonf.)} \\
+\midrule
+\multicolumn{4}{l}{\textit{Bonferroni-robust ($k{=}15$):}} \\
+\midrule
+\textbf{ECT}            & $+0.190$ & $[+0.093, +0.287]$ & $[+0.047, +0.329]$ \\
+\textbf{DRAGIN-RIND.max}   & $+0.167$ & $[+0.082, +0.249]$ & $[+0.039, +0.286]$ \\
+\textbf{min\_majority} & $+0.149$ & $[+0.054, +0.240]$ & $[+0.004, +0.284]$ \\
+\textbf{ent.max}           & $+0.137$ & $[+0.050, +0.223]$ & $[+0.001, +0.263]$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Nominal-95\% only:}} \\
+\midrule
+M1 CABV                    & $+0.137$ & $[+0.041, +0.229]$ & $[-0.006, +0.273]$ \\
+flip\_rate K=5         & $+0.135$ & $[+0.037, +0.233]$ & $[-0.012, +0.277]$ \\
+u\_cons.max                & $+0.120$ & $[+0.028, +0.213]$ & $[-0.017, +0.257]$ \\
+flip\_rate K=1         & $+0.116$ & $[+0.016, +0.217]$ & $[-0.030, +0.261]$ \\
+etc ($\Delta^2 H$ max)     & $+0.107$ & $[+0.018, +0.196]$ & $[-0.026, +0.235]$ \\
+\bottomrule
+\end{tabular}
+\caption{Bonferroni-corrected survivor set on the headline pool
+(Qwen+Gemma, $n{=}800$ paired, target $\texttt{lift\_em}{=}+1$,
+$B{=}10{,}000$). SRC: \texttt{analysis/e7\_bonferroni.out}.}
+\label{tab:bonferroni}
+\end{table}
 
 \section{Length-vs-Signal Spearman Correlation per Cell}
 \label{sec:appendix-spearman}
 
-% [TODO] Build table per Santilli et al. demand:
-% rows: cells; cols: signals; values: Spearman rho(length, signal) on
-% closed traces. Already in _rq1-agent.md / r1_phi_paired_audit.out side
-% outputs. Cost = 0.
+Table~\ref{tab:spearman} reports Spearman $\rho$ between
+\texttt{tokens\_generated} and each signal in the pool, per
+(arch~$\times$~dataset) cell, on closed-book traces. This is the
+length-confound diagnostic demanded by
+\cite{Santilli_RevisitingUQEvaluationLengthBias} Table~2:
+$|\rho| \geq 0.5$ indicates a strong length confound on the signal.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Signal} & \textbf{Qwen$\times$Hot} & \textbf{Qwen$\times$Wiki} &
+\textbf{Gemma$\times$Hot} & \textbf{Gemma$\times$Wiki} \\
+\midrule
+DRAGIN-RIND.max       & $+0.40$ & $+0.35$ & $+0.38$ & $+0.38$ \\
+ent.max               & $+0.31$ & $+0.26$ & $+0.42$ & $+0.32$ \\
+etc ($\Delta^2 H$ max)& $+0.32$ & $+0.36$ & $+0.46$ & $+0.40$ \\
+flare.max             & $+0.39$ & $+0.35$ & $+0.45$ & $+0.32$ \\
+u\_cons.max           & $+0.40$ & $+0.31$ & $+0.37$ & $+0.39$ \\
+seakr\_k5\_proxy.logdet & $+0.37$ & $+0.44$ & $+0.46$ & $+0.43$ \\
+drift\_cosine.max     & $+0.20$ & $+0.18$ & $-0.07$ & $-0.01$ \\
+variance\_l2\_window.max & $+0.19$ & $+0.23$ & $+0.22$ & $-0.00$ \\
+hidden\_norm.range    & $+0.24$ & $+0.29$ & $+0.36$ & $+0.16$ \\
+hvr.max (SELFDOUBT-T1)& n/a$^{*}$ & $+0.06$ & $+0.30$ & $\mathbf{+0.51}$ \\
+\midrule
+flip\_rate K=5    & $+0.22$ & $+0.12$ & $+0.21$ & $+0.35$ \\
+flip\_rate K=1    & $+0.17$ & $+0.15$ & $+0.27$ & $+0.21$ \\
+late\_flips       & $+0.29$ & $+0.37$ & $+0.25$ & $+0.30$ \\
+min\_majority     & $+0.18$ & $+0.12$ & $+0.14$ & $+0.09$ \\
+M1 CABV               & $+0.22$ & $+0.17$ & $+0.22$ & $+0.36$ \\
+ECT                & $+0.20$ & $+0.14$ & $+0.15$ & $+0.30$ \\
+M9 CABV$\times$LAAS   & $+0.30$ & $+0.14$ & $+0.11$ & $+0.14$ \\
+\bottomrule
+\end{tabular}
+\caption{Spearman $\rho(\texttt{tokens\_generated}, \text{signal})$ per
+cell, closed-book traces. Bold entries have $|\rho|\geq 0.5$ (Santilli's
+length-confound threshold). Only one signal-cell ($\mathrm{hvr.max}\times
+\text{Gemma}\times\text{2Wiki}$, $\rho{=}+0.51$) breaches it. $^{*}$Qwen$\times$Hot
+$\mathrm{hvr.max}$ is constant (all zero) and Spearman is undefined.
+The published trigger pool (top block) carries
+$\rho \in [+0.18, +0.46]$; the step-level answer-trajectory triggers and
+moonshot signals (bottom block) carry $\rho \in [+0.09, +0.37]$, on average
+$\approx 0.1$ AUROC lower in length correlation. SRC:
+\texttt{analysis/e7\_spearman.out}.}
+\label{tab:spearman}
+\end{table}
 
 \section{Containment-Match Robustness}
 \label{sec:appendix-containment}
@@ -1444,18 +1598,20 @@ SRC: \texttt{analysis/length\_audit\_v2.out}.
 \label{sec:appendix-repro}
 
 All trace JSONLs are committed at
-\texttt{runs/v2\_headline\_\{arch\}/\{D1,D2,E1,E2\}\_*.jsonl}. Slice
+\texttt{runs/v2\_headline\_\{arch\}/\{D1,D2,E1,E2\}\_*.jsonl} for
+arch~$\in$~\{qwen2.5-7b-instruct, gemma-4-26b-a4b-it\}. Slice
 manifests with SHA-256 checksums are at
 \texttt{runs/v2\_headline\_\{arch\}/checkpoints/slice\_manifest.json}.
 Decoding command lines are at
 \texttt{runs/v2\_headline\_\{arch\}/logs/00\_master.log}. Analysis scripts
-are at \texttt{analysis/r1\_phi\_paired\_audit.py},
+are at \texttt{analysis/r1\_phi\_paired\_audit.py} (per-arch paired-audit
+driver; name retained from R1 launch order, takes \texttt{--arch}),
 \texttt{analysis/a1\_k1\_vs\_k5\_ablation.py},
 \texttt{analysis/uncertainty\_line\_audit.py},
 \texttt{analysis/moonshot\_explore.py}, and
 \texttt{analysis/moonshot\_ensemble.py}.
 Environment specification in \texttt{environment.yml}. Compute box: single
-NVIDIA A800 80\,GB, total wall-clock $\sim$22\,h for R1.
+NVIDIA A800 80\,GB, total wall-clock $\sim$15\,h for R1 (Qwen + Gemma only).
 
 % =============================================================================
 % BIBLIOGRAPHY PLACEHOLDER — REPLACE WITH .bib BEFORE SUBMISSION
@@ -1690,27 +1846,32 @@ Techniques, Metrics, and Challenges.} arXiv:2508.06401, 2025.
 % =============================================================================
 % NOTES TO SELF — REMOVE BEFORE SUBMISSION
 % =============================================================================
-% 1. Confirm M8 ECT numerical claims against analysis/moonshot_explore_3arch.out
-%    — line numbers TBD.
+% 1. Confirm ECT numerical claims against analysis/moonshot_explore_3arch.out
+%    (post-D1-fix run, 2026-05-16 evening; pre-fix backup at .preD1fix).
 % 2. Confirm UNCERTAINTY-LINE replication numbers against
-%    analysis/uncertainty_line_audit_{phi,qwen,gemma}-*.json
+%    analysis/uncertainty_line_audit_{qwen,gemma}-*.json
 %    -> {"cells": [{"rows": [...]}]}.
-% 3. Run E7 (Bonferroni at k=15) before final submission.
+% 3. Run E7 (B=10,000 + Bonferroni at k=15) — pending. Bootstrap-b currently
+%    5000 throughout moonshot_*; r1_*_paired_audit.py defaults to 10000 but
+%    still has the D1 bootstrap-formula bug — both need the fix + re-run.
 % 4. Run E8 (lift-conditional table at fire rates {5%,10%,20%}).
-% 5. Verify per-question-type table — build from r1_phi_paired_audit.out section "PER-QUESTION-TYPE AUROC".
+% 5. Verify per-question-type table — build from r1_qwen_paired_audit.out +
+%    r1_gemma_paired_audit.out section "PER-QUESTION-TYPE AUROC".
 % 6. Yao_SeaKR full citation (probably arXiv:2406.19215 or similar).
 % 7. Lu_StreamingHallucinationDetectionCoT full citation (need full author list).
 % 8. Mao_ConfidenceOverTimeSTL — confirm ACL 2026 vs. arXiv.
-% 9. Wang_ChainOfProbeCoTStepByStep — full author list.
+% 9. Wang_ChainOfProbeCoTStepByStep — full author list. (NAACL 2025 Findings.)
 % 10. Li_ETC — confirm full citation; ETC primitive name.
 % 11. Tang_MBARAG — confirm full citation.
 % 12. Kadavath_SelfDoubt — confirm whether SELFDOUBT-T1 is from this paper.
-% 13. Decide §4.6 Per-Question-Type table format and build it.
+% 13. Decide §4.5 Per-Question-Type table format and build it.
 % 14. Run containment-match correctness function pass (Appendix C).
 % 15. Run length-vs-signal Spearman ρ table (Appendix D).
 % 16. Decide on title: current title is descriptive; A/B alternatives in preamble.
-% 17. Word-budget check: aim for 4 pages content. Current draft is ~7+ pages
-%     of body — needs aggressive cutting on §2 (combine subsubsections),
+% 17. Word-budget check: aim for 4 pages content. Current draft is ~6 pages
+%     of body — needs cutting on §2 (combine subsubsections),
 %     §4 (drop some tables), §5 (tighten causal-story paragraph).
+% 18. Santilli citation needs year fix → 2025 (ACL 2025 short, not 2024).
+% 19. Vashurin citation should include EMNLP 2025 venue (not arXiv only).
 
 \end{document}

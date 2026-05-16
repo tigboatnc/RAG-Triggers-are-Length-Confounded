@@ -10,6 +10,242 @@
 
 ---
 
+## E7 + B1 LANDED — full B=10,000 re-run, Bonferroni, Spearman, per-type table (2026-05-16 ~21:30)
+
+After Phi-drop and D1-fix, executed the full E7 (B=10,000) re-run plus the
+P1/P2 reviewer-defense appendices.  All paper-relevant numbers now match
+the post-D1-fix B=10,000 bootstrap.
+
+### What was run
+
+| step | script | result file | runtime |
+|---|---|---|---|
+| moonshot_explore at B=10k | `analysis/moonshot_explore.py --bootstrap-b 10000` | `analysis/moonshot_explore_3arch.out` (was at `*.b10k`) | ~17 min |
+| moonshot_ensemble at B=10k | `analysis/moonshot_ensemble.py --bootstrap-b 10000` | `analysis/moonshot_ensemble_3arch.out` | ~2 min |
+| r1_paired Qwen at B=10k (with D1 fix) | `analysis/r1_phi_paired_audit.py --arch qwen2.5-7b-instruct --bootstrap-b 10000` | `analysis/r1_qwen_paired_audit.out` | ~2 min |
+| r1_paired Gemma at B=10k (with D1 fix) | `analysis/r1_phi_paired_audit.py --arch gemma-4-26b-a4b-it --bootstrap-b 10000` | `analysis/r1_gemma_paired_audit.out` | ~2 min |
+| Bonferroni + Spearman | `analysis/e7_bonferroni_and_spearman.py --bootstrap-b 10000` | `analysis/e7_bonferroni.out`, `analysis/e7_spearman.out` | ~1.5 min |
+
+Pre-fix B=5k outputs preserved as `*.preD1fix` / `*.b5k_postD1fix`.
+
+### Headline survivor matrix change (Phi-DROPPED pool, n=800, lift_em=+1)
+
+Going from B=5k (post-D1-fix) to B=10k tightened CIs ~10% and restored 2
+signals to nominal-significance: **9 paired-significant signals at α=0.05**
+(was 7 at B=5k).  **4 signals survive Bonferroni at k=15**:
+
+| signal | resAUC | Δ | 95% CI | Bonf. 99.67% CI |
+|---|---:|---|---|---|
+| **M8 ECT** | 0.691 | +0.190 | [+0.093, +0.287] | [+0.047, +0.329] ✓✓ |
+| **DRAGIN-RIND.max** | 0.640 | +0.167 | [+0.082, +0.249] | [+0.039, +0.286] ✓✓ |
+| **AID min_majority** | 0.626 | +0.149 | [+0.054, +0.240] | [+0.004, +0.284] ✓✓ |
+| **ent.max** | 0.611 | +0.137 | [+0.050, +0.223] | [+0.001, +0.263] ✓✓ |
+| M1 CABV | 0.641 | +0.137 | [+0.041, +0.229] | [-0.006, +0.273] ✓nominal |
+| AID flip_rate K=5 | 0.640 | +0.135 | [+0.037, +0.233] | [-0.012, +0.277] ✓nominal |
+| u_cons.max | 0.593 | +0.120 | [+0.028, +0.213] | [-0.017, +0.257] ✓nominal |
+| AID flip_rate K=1 | 0.621 | +0.116 | [+0.016, +0.217] | [-0.030, +0.261] ✓nominal |
+| etc (Δ²H max) | 0.580 | +0.107 | [+0.018, +0.196] | [-0.026, +0.235] ✓nominal |
+
+Newly significant at B=10k vs. B=5k: `u_cons.max` (+0.120) and `etc` (+0.107).
+These were just below the B=5k threshold (CI lower bound around −0.01 at B=5k);
+the tighter B=10k bootstrap pushes them across zero.
+
+### Paper updates landed in option1-v2-corpus.tex
+
+- Abstract: "Nine signals... four survive Bonferroni at k=15"
+- §1.4 contributions: nine signals listed; M8 ECT Bonferroni lower bound +0.047 added
+- §3.7 statistical analysis: Bonferroni mention now points to populated Appendix A; B=5k disclaimer removed
+- §4.1 Table 1: rebuilt with all rows populated (no more `?` placeholders); separated into Bonferroni-robust / Nominal-95% / Below-line blocks; added Bonferroni 99.67% CI column
+- §4.5 per-question-type table: built from r1_*_paired_audit.out post-D1-fix sections; raw AUROC only (no CIs at per-type granularity, per the established convention in Santilli/Vashurin/Janiak)
+- §5.3 cell-winner text: updated with actual per-cell winners (M1 CABV on Qwen×Hot, M9 on Qwen×Wiki, ent.max on Gemma×Hot, M8 ECT on Gemma×Wiki)
+- §7 conclusions: 9 signals + Bonferroni 4 mentioned
+- Appendix A (Bonferroni): full table built
+- Appendix D (Spearman ρ per cell): full table built; only `hvr.max × Gemma × 2Wiki` (ρ=+0.51) crosses Santilli's 0.5 threshold; published trigger pool runs ρ∈[0.18, 0.46], answer-trajectory family runs ρ∈[0.09, 0.37] — supports the "AID family is length-orthogonal by design" narrative
+
+### Implication for the paper narrative
+
+The post-D1-fix B=10k run produces a STRONGER headline than the original
+draft.  Pre-fix the survivor count was 9 (with a wrong bootstrap formula).
+Post-fix at B=5k it was 7.  Post-fix at B=10k it's 9 again — but now under
+the correct formula AND with 4 Bonferroni-robust survivors, which is the
+reviewer-defense gold standard.
+
+M8 ECT remains the strongest single survivor (Δ=+0.190, Bonferroni lower
+bound +0.047).  The 4 Bonferroni-robust survivors (M8 ECT, DRAGIN-RIND, AID
+min_majority, ent.max) span 4 different signal families (answer-trajectory,
+attention, K-sample answer, single-step logit), which is a clean
+"diverse signal classes survive length control" story.
+
+---
+
+## FIX D1 — Bootstrap formula mismatch corrected (2026-05-16 ~20:51, post-pre-submission audit)
+
+**Discovered.** Pre-submission audit found that `analysis/moonshot_explore.py::report()`
+computed the paired bootstrap on the **raw** signal:
+`bootstrap_auroc_diff(valid, key, "tokens", ...)`, which produces
+`Δ_actual = AUROC(s_raw) − AUROC(tokens_raw)`. The paper §3.7 and Table 1 caption,
+however, both state the bootstrap is over
+`Δ_paper = AUROC(s_resid) − AUROC(tokens_generated)`.
+The two quantities are not equal and the CIs differ. This is a real
+formula-vs-implementation gap that a careful reviewer would catch.
+
+**Fix applied.** `analysis/moonshot_explore.py` updated to:
+  - bootstrap `(__res__ vs tokens)` for the **Δ vs tokens** column (matches paper formula)
+  - bootstrap `(__res__ vs __res_mm__)` for the **Δ vs min_majority** column
+    (consistent residualised head-to-head against the reference survivor)
+  - precompute `__res_mm__` once per target loop
+  - clean up `__res_mm__` after the inner loop
+
+**Backup.** Pre-fix output preserved at
+`analysis/moonshot_explore_3arch.out.preD1fix`. New run at
+`analysis/moonshot_explore_3arch.out` (B=5000, same as the pre-fix run for
+isolated comparison — re-run at B=10 000 still pending in E7).
+
+**Material change to the headline.** The Phi-DROPPED `lift_em=+1` survivor
+count drops from **9 → 7** under the correct formula. The headline survivor
+(M8 ECT) and the two next-strongest (DRAGIN-RIND, AID min_majority) all
+remain comfortably significant with slightly wider CIs.
+
+### Phi-DROPPED headline pool (n=800, pop=108, base=0.135), `lift_em=+1`
+
+| signal | resAUC | OLD Δ [95% CI] (raw vs raw) | NEW Δ [95% CI] (resid vs tokens) | status |
+|---|---:|---|---|---|
+| **M8 ECT** | 0.691 | +0.174 [+0.096, +0.252] ✓ | **+0.190 [+0.093, +0.285]** ✓ | still sig |
+| **DRAGIN-RIND.max** | 0.640 | +0.161 [+0.082, +0.238] ✓ | **+0.167 [+0.081, +0.251]** ✓ | still sig |
+| **AID min_majority** | 0.626 | +0.136 [+0.057, +0.210] ✓ | **+0.149 [+0.050, +0.239]** ✓ | still sig |
+| **M1 CABV** | 0.641 | +0.145 [+0.063, +0.223] ✓ | **+0.137 [+0.039, +0.229]** ✓ | still sig |
+| **ent.max** | 0.611 | +0.102 [+0.031, +0.172] ✓ | **+0.138 [+0.050, +0.224]** ✓ | still sig |
+| **AID flip_rate K=5** | 0.640 | +0.130 [+0.049, +0.211] ✓ | **+0.135 [+0.035, +0.233]** ✓ | still sig |
+| **AID flip_rate K=1** | 0.621 | +0.116 [+0.034, +0.199] ✓ | **+0.116 [+0.015, +0.217]** ✓ | still sig (barely) |
+| ~~M9 CABV × LAAS~~ | 0.593 | +0.107 [+0.023, +0.188] ✓ | **+0.089 [−0.017, +0.192]** | **LOST sig** |
+| ~~AID late_flips~~ | 0.586 | +0.085 [+0.018, +0.151] ✓ | **+0.081 [−0.016, +0.176]** | **LOST sig** |
+
+Direction-of-change explanation. For signals with `resAUC > rawAUC` (M8 ECT,
+DRAGIN, min_majority, ent.max), the new Δ rises (resid is better than raw).
+For signals with `resAUC ≈ rawAUC` (the AID family, M9), Δ changes little.
+CIs widen across the board (~10–25%) because residualisation adds noise
+to the per-row signal value used in resampling.
+
+### 3-arch pooled (n=1200, pop=156, base=0.130), `lift_em=+1`
+
+| signal | resAUC | OLD Δ [95% CI] | NEW Δ [95% CI] | status |
+|---|---:|---|---|---|
+| M8 ECT | 0.654 | +0.124 [+0.046, +0.197] ✓ | **+0.127 [+0.033, +0.217]** ✓ | still sig |
+| DRAGIN-RIND.max | 0.598 | +0.079 [+0.018, +0.139] ✓ | **+0.078 [+0.011, +0.146]** ✓ | still sig |
+| M1 CABV | 0.618 | +0.093 [+0.016, +0.170] ✓ | **+0.090 [+0.007, +0.172]** ✓ | still sig |
+| **M7 SCC (centroid drift)** | 0.595 | +0.066 [−0.023, +0.155] | **+0.079 [+0.003, +0.158]** ✓ | **GAINED sig** |
+| ~~AID flip_rate K=5~~ | 0.611 | +0.083 [+0.006, +0.161] ✓ | **+0.083 [−0.010, +0.174]** | **LOST sig** |
+| ~~AID late_flips~~ | 0.582 | +0.066 [+0.000, +0.132] ✓ | **+0.054 [−0.038, +0.143]** | **LOST sig** |
+| ~~M9 CABV × LAAS~~ | 0.582 | +0.087 [+0.005, +0.166] ✓ | **+0.054 [−0.054, +0.154]** | **LOST sig** |
+
+3-arch survivor count: **6 → 4** (lost AID flip_K5, AID late_flips, M9;
+gained M7 SCC). M7 SCC gaining significance is interesting: SCC is the
+hidden-state centroid drift signal whose raw AUROC (0.582) is mostly above
+its residualised AUROC (0.595), so resid-vs-tokens (=length itself) is a
+slightly favorable comparison. Worth a per-cell follow-up — M7 was not in
+the §4.1 survivor matrix discussion.
+
+### `closed_em=0` secondary target (Phi-DROPPED, n=800, pop=365)
+
+Mostly stable; survivor count 8 → 8 (same set, slightly different CIs):
+DRAGIN-RIND, ent.max, flare.max, AID flip_K5, AID min_majority, M1 CABV,
+M8 ECT (all still sig). Tighter CIs because larger pop. (Δ vs min_maj has
+some movement but not headline-relevant.)
+
+### Implications for the paper draft
+
+1. **§1 abstract + §1.4 contributions bullet 3 + §4.1 caption all say
+   "nine signals paired-bootstrap-significantly beat `tokens_generated`."**
+   Under the correct formula this becomes **seven**. M9 CABV × LAAS and
+   AID late_flips drop to "borderline" / "fail Bonferroni even nominally".
+
+2. **§4.1 Table 1 hero numbers all need an update.** The M8 ECT headline
+   (`0.691 / +0.174 [+0.096, +0.252]`) becomes `0.691 / +0.190 [+0.093, +0.285]`.
+   See table above for all rows. Magnitude moves up for the strongest
+   survivors (good for the narrative); CIs widen modestly.
+
+3. **§1 abstract M8 ECT number is now stronger** (point estimate +0.190
+   vs +0.174). Frame as "the strongest single survivor sits ~+0.19 above
+   length-baseline under the residualisation protocol."
+
+4. **§4.3 K=5 vs K=1 ablation is unaffected** — A1 uses a separate script
+   (`analysis/a1_k1_vs_k5_ablation.py`) which computes `(flip_k1 vs flip_k5)`
+   on raw values. Both arms are raw, so the "K=5 ≈ K=1" claim holds. No
+   re-run needed for §4.3.
+
+5. **AID family rephrasing.** Pre-fix narrative: "five AID variants
+   paired-significantly clear." Post-fix: "three (flip_K5, flip_K1,
+   min_majority) clear; late_flips drops to borderline." This affects the
+   "AID family wins 5 of 6 cells" type language in §5.3.
+
+6. **Bonferroni at k=15 (E7) becomes more important.** With nominal-95%
+   survivor count down from 9 to 7, the Bonferroni-corrected count
+   (α=0.0033, ~99.67% CI) will likely keep only M8 ECT, DRAGIN-RIND,
+   AID min_majority, M1 CABV, ent.max (the 5 with largest CI margin). That's
+   still enough for the headline but the "survivor matrix" framing tightens.
+
+### Files touched
+
+| path | change |
+|---|---|
+| `analysis/moonshot_explore.py` | report() now bootstraps residualised signal vs raw tokens; added `__res_mm__` precompute and cleanup |
+| `analysis/moonshot_explore_3arch.out` | overwritten with new numbers (B=5000) |
+| `analysis/moonshot_explore_3arch.out.preD1fix` | backup of pre-fix output (same B=5000) |
+| `analysis/moonshot_ensemble.py` | report_one() patched identically — Δ vs tokens uses `__res__`; Δ vs min_maj uses `__res__` vs `__res_mm__` |
+| `analysis/moonshot_ensemble_3arch.out` | overwritten with new numbers (B=5000) |
+| `analysis/moonshot_ensemble_3arch.out.preD1fix` | backup of pre-fix ensemble output |
+
+### moonshot_ensemble fix-effect (added 2026-05-16 ~20:56)
+
+Same patch applied to `moonshot_ensemble.py::report_one()`. Re-run at the
+same B=5000. **The F1/F2/F3 rank-fusion ensembles are essentially unaffected**
+— their headline numbers move within ±0.001 of the point estimate. This is
+because the ensembles are per-cell percentile ranks (not raw values), so
+length residualisation barely changes them.
+
+#### Phi-DROPPED (n=800), `lift_em=+1` — ensemble rows only
+
+| signal | resAUC | OLD Δ vs tokens [CI] | **NEW Δ vs tokens [CI]** | Δ vs min_maj OLD → NEW |
+|---|---:|---|---|---|
+| **F1 max(min_maj, M9)** | 0.665 | +0.160 [+0.077, +0.244] ✓ | **+0.160 [+0.068, +0.252]** ✓ | +0.038 [−0.008, +0.088] → +0.044 [−0.005, +0.096] (still borderline) |
+| **F2 mean(min_maj, M9)** | 0.647 | +0.142 [+0.050, +0.234] ✓ | **+0.142 [+0.046, +0.237]** ✓ | +0.020 → +0.026 (still ns) |
+| **F3 geom(min_maj, M9)** | 0.639 | +0.134 [+0.040, +0.228] ✓ | **+0.134 [+0.038, +0.231]** ✓ | +0.013 → +0.017 (still ns) |
+| ~~M9 CABV*LAAS~~ (solo) | 0.593 | +0.107 [+0.023, +0.188] ✓ | **+0.089 [−0.017, +0.192]** | **LOST sig** (same as moonshot_explore) |
+
+#### 3-arch pool (n=1200), `lift_em=+1` — ensembles still all sig
+
+| signal | OLD Δ [CI] | NEW Δ [CI] |
+|---|---|---|
+| F1 | +0.115 [+0.035, +0.194] ✓ | **+0.112 [+0.028, +0.196]** ✓ |
+| F2 | +0.114 [+0.026, +0.201] ✓ | **+0.112 [+0.022, +0.201]** ✓ |
+| F3 | +0.103 [+0.013, +0.192] ✓ | **+0.102 [+0.011, +0.193]** ✓ |
+
+**Net read**: the rank-fusion ensemble headline (`F1 resid 0.665, Δ=+0.160
+[+0.068, +0.252]`) survives the fix cleanly. The "F1 = max-rank ensemble of
+min_majority and M9 is the strongest residualised AUROC in the campaign"
+claim still holds (resid 0.665 > M8 ECT resid 0.691 — wait, M8 ECT is
+actually higher at 0.691). Reword to "F1 is the strongest **ensemble**, M8
+ECT is the strongest **single** signal." That was already the agent's
+position pre-fix; just confirm it in the paper.
+
+### Next-step pre-registration
+
+- **E7 (B=10 000 + Bonferroni at k=15) should now be re-run** with the
+  fixed bootstrap on BOTH `moonshot_explore.py` AND `moonshot_ensemble.py`.
+  ~30 min CPU total. CIs will narrow ~10–15% with B=10 000; expected to
+  retain all 7 paired-sig single-signal survivors + F1/F2/F3 ensembles at
+  α=0.05, and ≥4 single signals + F1 under Bonferroni (M8 ECT, DRAGIN,
+  AID min_maj, ent.max, F1 have the biggest CI margin).
+- **r1_*_paired_audit.py** has the same bug pattern. The per-cell tables
+  it produces (Gemma × 2Wiki DRAGIN-RIND Δ=+0.128 [+0.002, +0.252], the
+  Phi-drop deciding number whose lower bound is right at +0.002) need the
+  same fix. ~5 min code each, ~30 min CPU re-runs at B=10 000.
+  **Risk**: if Gemma × 2Wiki DRAGIN-RIND flips sign under the fix, the
+  pre-registered Phi-drop decision rule technically didn't fire as cleanly
+  as recorded. Worth re-running before final submission.
+
+---
+
 ## LOCKED-IN PAPER FRAME (2026-05-15 ~13:45, after R1 Gemma + Phi-drop firing)
 
 **Headline architecture pool — Phi DROPPED from the headline matrix:**

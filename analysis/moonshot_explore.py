@@ -440,6 +440,15 @@ def report(rows, label: str, B: int):
             continue
         banner(f"[{label}] target={target_name}    n={n}    pop={pop}    base={pop/n:.3f}")
 
+        # Pre-compute min_majority length-residualised once for the target so
+        # the Δ-vs-min_majority bootstrap can compare residualised signal vs
+        # residualised reference survivor (consistent with the paper formula).
+        mm_valid = [r for r in rows_with_tok if r.get("min_majority") is not None]
+        if mm_valid:
+            mm_res_map, _ = ols_residual(mm_valid, "min_majority", x_key="log_tokens")
+            for r in mm_valid:
+                r["__res_mm__"] = mm_res_map[id(r)]
+
         # paired bootstrap baselines: reference signals are tokens AND min_majority
         print(f"\n  {'signal':<48} {'valid':>6} {'rawAUC':>7} {'resAUC':>7}   "
               f"{'Δ vs tokens':>14}        {'Δ vs min_maj':>14}")
@@ -458,7 +467,10 @@ def report(rows, label: str, B: int):
             if key == "tokens":
                 d_tok_str = "(baseline)            "
             else:
-                m, lo, hi, _ = bootstrap_auroc_diff(valid, key, "tokens", label_fn, B=B, seed=11)
+                # Bootstrap of  Δ = AUROC(s_resid) − AUROC(tokens_generated)
+                # matches paper §3.7 / Table 1 caption formula. The signal is
+                # length-residualised on log(tokens+1); tokens stays raw.
+                m, lo, hi, _ = bootstrap_auroc_diff(valid, "__res__", "tokens", label_fn, B=B, seed=11)
                 star = " *" if (lo > 0 or hi < 0) else "  "
                 d_tok_str = f"{m:+.3f} [{lo:+.3f},{hi:+.3f}]{star}"
 
@@ -470,7 +482,9 @@ def report(rows, label: str, B: int):
                 if len(valid_both) < 6:
                     d_mm_str = "n/a"
                 else:
-                    m2, lo2, hi2, _ = bootstrap_auroc_diff(valid_both, key, "min_majority", label_fn, B=B, seed=13)
+                    # Δ = AUROC(s_resid) − AUROC(min_majority_resid):
+                    # consistent residualised head-to-head against the reference survivor.
+                    m2, lo2, hi2, _ = bootstrap_auroc_diff(valid_both, "__res__", "__res_mm__", label_fn, B=B, seed=13)
                     star2 = " *" if (lo2 > 0 or hi2 < 0) else "  "
                     d_mm_str = f"{m2:+.3f} [{lo2:+.3f},{hi2:+.3f}]{star2}"
 
@@ -478,6 +492,9 @@ def report(rows, label: str, B: int):
                   f"{d_tok_str:<22}  {d_mm_str}")
             for r in valid:
                 r.pop("__res__", None)
+
+        for r in mm_valid:
+            r.pop("__res_mm__", None)
 
 
 def main():

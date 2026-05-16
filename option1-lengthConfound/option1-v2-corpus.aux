@@ -11,9 +11,6 @@
 \citation{Lewis_RAG,Gao_RAGSurvey}
 \citation{Trivedi_IRCoT,Shao_IterRetGen,Yan_CorrectiveRAG}
 \citation{Su_DRAGIN,Jiang_FLARE}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
-\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
-\@writefile{toc}{\contentsline {paragraph}{Dynamic retrieval-augmented generation needs triggers.}{1}{section*.1}\protected@file@percent }
 \citation{Su_DRAGIN}
 \citation{Jiang_FLARE}
 \citation{Yao_SeaKR}
@@ -24,24 +21,34 @@
 \citation{Chen_DTR}
 \citation{Guo_DioR}
 \citation{Santilli_RevisitingUQEvaluationLengthBias}
-\citation{Vashurin_UncertaintyLineLengthInvariant}
 \citation{Janiak_IllusionProgressHallucinationDetection}
 \citation{Zhang_VerbosityVeracityVCBehavior}
 \citation{Ielanskyi_PitfallsUQEvaluationNLG}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Dynamic retrieval-augmented generation needs triggers.}{2}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{All published triggers are evaluated by the same protocol.}{2}{section*.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Length confounds UQ evaluation: a five-paper consensus.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Recent work shows the evaluation protocol is length-confounded.}{2}{section*.3}\protected@file@percent }
+\citation{Vashurin_UncertaintyLineLengthInvariant}
+\citation{Vashurin_UncertaintyLineLengthInvariant}
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Wang_ChainOfProbeCoTStepByStep}
 \citation{Chen_DynamicInstabilityLLMReasoning}
+\@writefile{toc}{\contentsline {paragraph}{\textsc  {Uncertainty-Line}: regression-residualization as the fix.}{3}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{This paper.}{3}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{A length-orthogonal trigger class is emerging in concurrent work.}{3}{section*.6}\protected@file@percent }
 \citation{Zhang_AnswerAgreementRepresentationShaping}
-\@writefile{toc}{\contentsline {paragraph}{The bridge from UQ evaluation to RAG-trigger evaluation has not been crossed.}{3}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Step-level answer-trajectory triggers: a converging research front.}{3}{section*.5}\protected@file@percent }
-\citation{Vashurin_UncertaintyLineLengthInvariant}
+\citation{Mallen_WhenNotToTrustLMs}
 \citation{Ielanskyi_PitfallsUQEvaluationNLG}
-\citation{Datta_DecideEarlyExplainLater}
+\citation{Vashurin_UncertaintyLineLengthInvariant}
+\@writefile{toc}{\contentsline {paragraph}{A paired-oracle target for the deployment question.}{4}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{4}{section*.8}\protected@file@percent }
 \citation{Su_DRAGIN}
 \citation{Datta_DecideEarlyExplainLater}
-\@writefile{toc}{\contentsline {paragraph}{Our contributions.}{4}{section*.6}\protected@file@percent }
+\citation{Datta_DecideEarlyExplainLater}
+\citation{Wang_ChainOfProbeCoTStepByStep}
+\citation{Chen_DynamicInstabilityLLMReasoning}
+\@writefile{toc}{\contentsline {paragraph}{Attribution and scope.}{5}{section*.9}\protected@file@percent }
 \citation{Jiang_FLARE}
 \citation{Su_DRAGIN}
 \citation{Hei_DRRAG}
@@ -57,57 +64,56 @@
 \citation{Chen_DTR}
 \citation{Guo_DioR}
 \citation{Su_DyPRAG}
-\@writefile{toc}{\contentsline {paragraph}{Framing.}{5}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{5}{section.2}\protected@file@percent }
-\newlabel{sec:related}{{2}{5}{Related Work}{section.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Dynamic-RAG Triggering Methods}{5}{subsection.2.1}\protected@file@percent }
-\newlabel{sec:related-triggers}{{2.1}{5}{Dynamic-RAG Triggering Methods}{subsection.2.1}{}}
 \citation{Jeong_AdaptiveRAG}
 \citation{Yan_CorrectiveRAG}
 \citation{Mallen_WhenNotToTrustLMs}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{6}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{6}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Dynamic-RAG Triggering Methods}{6}{subsection.2.1}\protected@file@percent }
+\newlabel{sec:related-triggers}{{2.1}{6}{Dynamic-RAG Triggering Methods}{subsection.2.1}{}}
 \citation{Santilli_RevisitingUQEvaluationLengthBias}
 \citation{Vashurin_UncertaintyLineLengthInvariant}
 \citation{Janiak_IllusionProgressHallucinationDetection}
 \citation{Zhang_VerbosityVeracityVCBehavior}
 \citation{Ielanskyi_PitfallsUQEvaluationNLG}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Length as a Confound in UQ Evaluation}{6}{subsection.2.2}\protected@file@percent }
-\newlabel{sec:related-length-confound}{{2.2}{6}{Length as a Confound in UQ Evaluation}{subsection.2.2}{}}
 \citation{Mao_ConfidenceOverTimeSTL}
 \citation{Chen_DynamicInstabilityLLMReasoning}
 \citation{Datta_DecideEarlyExplainLater}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Length as a Confound in UQ Evaluation}{7}{subsection.2.2}\protected@file@percent }
+\newlabel{sec:related-length-confound}{{2.2}{7}{Length as a Confound in UQ Evaluation}{subsection.2.2}{}}
 \citation{Wang_ChainOfProbeCoTStepByStep}
 \citation{Chen_DynamicInstabilityLLMReasoning}
 \citation{Zhang_AnswerAgreementRepresentationShaping}
 \citation{Lu_StreamingHallucinationDetectionCoT}
 \citation{Mao_ConfidenceOverTimeSTL}
 \citation{Datta_DecideEarlyExplainLater}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Step-Level Answer-Trajectory Primitives}{7}{subsection.2.3}\protected@file@percent }
-\newlabel{sec:related-answer-trajectory}{{2.3}{7}{Step-Level Answer-Trajectory Primitives}{subsection.2.3}{}}
 \citation{Lu_StreamingHallucinationDetectionCoT}
 \citation{Zhang_AnswerAgreementRepresentationShaping}
 \citation{Liu_CtrlA}
 \citation{Azaria_Mitchell_InternalState}
 \citation{Burns_CCS}
-\citation{Mallen_WhenNotToTrustLMs}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Step-Level Answer-Trajectory Primitives}{8}{subsection.2.3}\protected@file@percent }
+\newlabel{sec:related-answer-trajectory}{{2.3}{8}{Step-Level Answer-Trajectory Primitives}{subsection.2.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Stepwise and Streaming Uncertainty in Chain-of-Thought}{8}{subsection.2.4}\protected@file@percent }
 \newlabel{sec:related-streaming}{{2.4}{8}{Stepwise and Streaming Uncertainty in Chain-of-Thought}{subsection.2.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Hidden-State Probes (Out of Scope, Cited for Completeness)}{8}{subsection.2.5}\protected@file@percent }
-\newlabel{sec:related-hidden-probes}{{2.5}{8}{Hidden-State Probes (Out of Scope, Cited for Completeness)}{subsection.2.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Methods}{8}{section.3}\protected@file@percent }
-\newlabel{sec:methods}{{3}{8}{Methods}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Paired-Oracle Protocol and the \texttt  {lift\_em} Target}{8}{subsection.3.1}\protected@file@percent }
-\newlabel{sec:methods-protocol}{{3.1}{8}{Paired-Oracle Protocol and the \texttt {lift\_em} Target}{subsection.3.1}{}}
-\newlabel{eq:lift-em}{{1}{8}{Paired-Oracle Protocol and the \texttt {lift\_em} Target}{equation.1}{}}
+\citation{Mallen_WhenNotToTrustLMs}
 \citation{Ielanskyi_PitfallsUQEvaluationNLG}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Hidden-State Probes (Out of Scope, Cited for Completeness)}{9}{subsection.2.5}\protected@file@percent }
+\newlabel{sec:related-hidden-probes}{{2.5}{9}{Hidden-State Probes (Out of Scope, Cited for Completeness)}{subsection.2.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Methods}{9}{section.3}\protected@file@percent }
+\newlabel{sec:methods}{{3}{9}{Methods}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Paired-Oracle Protocol and the \texttt  {lift\_em} Target}{9}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:methods-protocol}{{3.1}{9}{Paired-Oracle Protocol and the \texttt {lift\_em} Target}{subsection.3.1}{}}
+\newlabel{eq:lift-em}{{1}{9}{Paired-Oracle Protocol and the \texttt {lift\_em} Target}{equation.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Why paired-oracle.}{9}{section*.10}\protected@file@percent }
 \citation{Vashurin_UncertaintyLineLengthInvariant}
 \citation{Vashurin_UncertaintyLineLengthInvariant}
-\@writefile{toc}{\contentsline {paragraph}{Why paired-oracle.}{9}{section*.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Defense against correctness-function bias.}{9}{section*.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Code.}{9}{section*.10}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Length Residualization}{9}{subsection.3.2}\protected@file@percent }
-\newlabel{sec:methods-residualization}{{3.2}{9}{Length Residualization}{subsection.3.2}{}}
-\newlabel{eq:residualize}{{2}{9}{Length Residualization}{equation.2}{}}
-\@writefile{toc}{\contentsline {paragraph}{Replication of \textsc  {Uncertainty-Line}.}{9}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Defense against correctness-function bias.}{10}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Code.}{10}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Length Residualization}{10}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:methods-residualization}{{3.2}{10}{Length Residualization}{subsection.3.2}{}}
+\newlabel{eq:residualize}{{2}{10}{Length Residualization}{equation.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Replication of \textsc  {Uncertainty-Line}.}{10}{section*.13}\protected@file@percent }
 \citation{Lin_GeneratingConfidence}
 \citation{Li_ETC}
 \citation{Jiang_FLARE}
@@ -122,6 +128,7 @@
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Chen_DynamicInstabilityLLMReasoning}
+\citation{Datta_DecideEarlyExplainLater}
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Asai_SelfRAG}
 \citation{Tang_MBARAG}
@@ -130,54 +137,193 @@
 \citation{Guo_DioR}
 \citation{Zhang_AnswerAgreementRepresentationShaping}
 \citation{Datta_DecideEarlyExplainLater}
-\@writefile{toc}{\contentsline {paragraph}{Statistical significance.}{10}{section*.12}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Code.}{10}{section*.13}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Trigger-Signal Pool}{10}{subsection.3.3}\protected@file@percent }
-\newlabel{sec:methods-pool}{{3.3}{10}{Trigger-Signal Pool}{subsection.3.3}{}}
-\@writefile{toc}{\contentsline {paragraph}{Scope.}{10}{section*.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Implementation note: aggregation choice.}{10}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Step-Level Answer-Trajectory Triggers}{10}{subsection.3.4}\protected@file@percent }
-\newlabel{sec:methods-aid}{{3.4}{10}{Step-Level Answer-Trajectory Triggers}{subsection.3.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Statistical significance.}{11}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Code.}{11}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Trigger-Signal Pool}{11}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:methods-pool}{{3.3}{11}{Trigger-Signal Pool}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Scope.}{11}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Implementation note: aggregation choice.}{11}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Step-Level Answer-Trajectory Triggers}{11}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:methods-aid}{{3.4}{11}{Step-Level Answer-Trajectory Triggers}{subsection.3.4}{}}
 \citation{Chen_DynamicInstabilityLLMReasoning}
 \citation{Manakul_SelfCheckGPT}
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Wang_ChainOfProbeCoTStepByStep}
 \citation{Chen_DynamicInstabilityLLMReasoning}
-\@writefile{toc}{\contentsline {paragraph}{Naming policy.}{11}{section*.16}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{$K{=}5$ vs.\ $K{=}1$ ablation.}{11}{section*.17}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{M8 ECT: Early-Commitment Time.}{11}{section*.18}\protected@file@percent }
-\newlabel{eq:m8ect-tcommit}{{3}{11}{M8 ECT: Early-Commitment Time}{equation.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{$K{=}5$ vs.\ $K{=}1$ ablation.}{12}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{ECT: Early-Commitment Time.}{12}{section*.19}\protected@file@percent }
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Datta_DecideEarlyExplainLater,Wang_ChainOfProbeCoTStepByStep,Chen_DynamicInstabilityLLMReasoning}
 \citation{Yang_HotpotQA}
 \citation{Ho_2WikiMHQA}
-\@writefile{toc}{\contentsline {paragraph}{Relationship to Datta's $t^\star $.}{12}{section*.19}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Architecture Pool}{12}{subsection.3.5}\protected@file@percent }
-\newlabel{sec:methods-archs}{{3.5}{12}{Architecture Pool}{subsection.3.5}{}}
-\@writefile{toc}{\contentsline {paragraph}{Trace capture schema (rq1-pilot-v1).}{12}{section*.20}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Datasets}{12}{subsection.3.6}\protected@file@percent }
-\newlabel{sec:methods-data}{{3.6}{12}{Datasets}{subsection.3.6}{}}
+\newlabel{eq:ect-tcommit}{{3}{13}{ECT: Early-Commitment Time}{equation.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Relationship to Datta's $t^\star $.}{13}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Architecture Pool}{13}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:methods-archs}{{3.5}{13}{Architecture Pool}{subsection.3.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Trace capture schema (rq1-pilot-v1).}{13}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Datasets}{13}{subsection.3.6}\protected@file@percent }
+\newlabel{sec:methods-data}{{3.6}{13}{Datasets}{subsection.3.6}{}}
 \citation{Su_DRAGIN,Yao_SeaKR,Tang_MBARAG,Zhang_VerbosityVeracityVCBehavior}
 \citation{Trivedi_MuSiQue}
-\@writefile{toc}{\contentsline {paragraph}{Sample slice.}{13}{section*.21}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{MuSiQue.}{13}{section*.22}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Statistical Analysis}{13}{subsection.3.7}\protected@file@percent }
-\newlabel{sec:methods-stats}{{3.7}{13}{Statistical Analysis}{subsection.3.7}{}}
-\@writefile{toc}{\contentsline {paragraph}{Multiple-testing correction.}{13}{section*.23}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Per-question-type stratification.}{13}{section*.24}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{13}{section.4}\protected@file@percent }
-\newlabel{sec:results}{{4}{13}{Results}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Cross-Architecture Survivor Matrix}{13}{subsection.4.1}\protected@file@percent }
-\newlabel{sec:results-matrix}{{4.1}{13}{Cross-Architecture Survivor Matrix}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Sample slice.}{14}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MuSiQue.}{14}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Statistical Analysis}{14}{subsection.3.7}\protected@file@percent }
+\newlabel{sec:methods-stats}{{3.7}{14}{Statistical Analysis}{subsection.3.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Multiple-testing correction.}{14}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Per-question-type stratification.}{14}{section*.25}\protected@file@percent }
 \citation{Datta_DecideEarlyExplainLater}
 \citation{Su_DRAGIN}
-\citation{Datta_DecideEarlyExplainLater}
 \citation{Lin_GeneratingConfidence}
 \citation{Manakul_SelfCheckGPT}
-\citation{Yao_SeaKR}
+\citation{Datta_DecideEarlyExplainLater}
 \citation{Li_ETC}
 \citation{Jiang_FLARE}
-\citation{Chen_INSIDE}
-\citation{Chen_INSIDE}
 \citation{Kadavath_SelfDoubt}
+\citation{Azaria_Mitchell_InternalState}
+\citation{Chen_INSIDE}
+\citation{Yao_SeaKR}
+\citation{Chen_INSIDE}
+\citation{Datta_DecideEarlyExplainLater}
+\citation{Wang_ChainOfProbeCoTStepByStep}
+\citation{Chen_DynamicInstabilityLLMReasoning}
+\citation{Datta_DecideEarlyExplainLater}
+\citation{Wang_ChainOfProbeCoTStepByStep}
+\citation{Datta_DecideEarlyExplainLater}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{15}{section.4}\protected@file@percent }
+\newlabel{sec:results}{{4}{15}{Results}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Cross-Architecture Survivor Matrix}{15}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:results-matrix}{{4.1}{15}{Cross-Architecture Survivor Matrix}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}The Strongest Length-Robust Survivor: ECT}{15}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:results-m8ect}{{4.2}{15}{The Strongest Length-Robust Survivor: ECT}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Per-cell ECT raw AUROC.}{15}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why ECT works.}{15}{section*.27}\protected@file@percent }
+\citation{Datta_DecideEarlyExplainLater}
+\citation{Wang_ChainOfProbeCoTStepByStep}
+\citation{Chen_DynamicInstabilityLLMReasoning}
+\@writefile{toc}{\contentsline {paragraph}{Attribution.}{16}{section*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}$K{=}5$ vs.\ $K{=}1$: The Multi-Sample Ablation is Null}{16}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:results-ablation}{{4.3}{16}{$K{=}5$ vs.\ $K{=}1$: The Multi-Sample Ablation is Null}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Regime-2 verdict.}{16}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Honest scope of the claim.}{16}{section*.30}\protected@file@percent }
+\citation{Vashurin_UncertaintyLineLengthInvariant}
+\citation{Vashurin_UncertaintyLineLengthInvariant}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}\textsc  {Uncertainty-Line} Reference Replication}{17}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:results-uline}{{4.4}{17}{\textsc {Uncertainty-Line} Reference Replication}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Verdict.}{17}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Per-Question-Type Heterogeneity}{17}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:per-type}{{4.5}{17}{Per-Question-Type Heterogeneity}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Implication for deployment.}{17}{section*.32}\protected@file@percent }
+\citation{Zhang_VerbosityVeracityVCBehavior}
+\citation{Datta_DecideEarlyExplainLater}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{18}{section.5}\protected@file@percent }
+\newlabel{sec:discussion}{{5}{18}{Discussion}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Why Length Predicts Retrieval-Helpfulness in the First Place}{18}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:discussion-causal}{{5.1}{18}{Why Length Predicts Retrieval-Helpfulness in the First Place}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Why the Datta $t^\star $ Primitive Extends to Retrieval Triggering}{18}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:discussion-m8ect}{{5.2}{18}{Why the Datta $t^\star $ Primitive Extends to Retrieval Triggering}{subsection.5.2}{}}
+\citation{Mao_ConfidenceOverTimeSTL}
+\citation{Zhang_VerbosityVeracityVCBehavior}
+\citation{Chen_DynamicInstabilityLLMReasoning}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Per-Cell Heterogeneity Is a Feature, Not a Bug}{19}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:discussion-types}{{5.3}{19}{Per-Cell Heterogeneity Is a Feature, Not a Bug}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Inverted-Length-Correlation Cells}{19}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:discussion-inverted}{{5.4}{19}{Inverted-Length-Correlation Cells}{subsection.5.4}{}}
+\citation{Trivedi_MuSiQue}
+\citation{Ielanskyi_PitfallsUQEvaluationNLG}
+\citation{Datta_DecideEarlyExplainLater}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Limitations}{20}{section.6}\protected@file@percent }
+\newlabel{sec:limitations}{{6}{20}{Limitations}{section.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Signal-level audit, not end-to-end pipeline replication.}{20}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limited architecture coverage.}{20}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Limited dataset coverage.}{20}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Sample size.}{20}{section*.36}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Correctness function.}{20}{section*.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Non-thinking-mode chat models only.}{20}{section*.38}\protected@file@percent }
+\citation{Trivedi_MuSiQue}
+\citation{Datta_DecideEarlyExplainLater}
+\citation{Datta_DecideEarlyExplainLater}
+\citation{Janiak_IllusionProgressHallucinationDetection}
+\citation{}
+\citation{Lu_StreamingHallucinationDetectionCoT,Liu_CtrlA,Zhang_AnswerAgreementRepresentationShaping}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusions and Future Work}{21}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{21}{Conclusions and Future Work}{section.7}{}}
+\newlabel{sec:future-work}{{7}{21}{Conclusions and Future Work}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Future work.}{21}{section*.39}\protected@file@percent }
+\citation{Santilli_RevisitingUQEvaluationLengthBias}
+\bibcite{Santilli_RevisitingUQEvaluationLengthBias}{{1}{2024}{{Santilli et al.}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Bonferroni-Corrected Survivor Set}{22}{appendix.A}\protected@file@percent }
+\newlabel{sec:results-bonferroni}{{A}{22}{Bonferroni-Corrected Survivor Set}{appendix.A}{}}
+\newlabel{sec:appendix-bonferroni}{{A}{22}{Bonferroni-Corrected Survivor Set}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Length-vs-Signal Spearman Correlation per Cell}{22}{appendix.B}\protected@file@percent }
+\newlabel{sec:appendix-spearman}{{B}{22}{Length-vs-Signal Spearman Correlation per Cell}{appendix.B}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Containment-Match Robustness}{22}{appendix.C}\protected@file@percent }
+\newlabel{sec:appendix-containment}{{C}{22}{Containment-Match Robustness}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Reproducibility}{22}{appendix.D}\protected@file@percent }
+\newlabel{sec:appendix-repro}{{D}{22}{Reproducibility}{appendix.D}{}}
+\bibcite{Vashurin_UncertaintyLineLengthInvariant}{{2}{2025}{{Vashurin et al.}}{{}}}
+\bibcite{Janiak_IllusionProgressHallucinationDetection}{{3}{2025}{{Janiak et al.}}{{}}}
+\bibcite{Zhang_VerbosityVeracityVCBehavior}{{4}{2024}{{Zhang et al.}}{{}}}
+\bibcite{Ielanskyi_PitfallsUQEvaluationNLG}{{5}{2025}{{Ielanskyi et al.}}{{}}}
+\bibcite{Datta_DecideEarlyExplainLater}{{6}{2026}{{Datta et al.}}{{}}}
+\bibcite{Wang_ChainOfProbeCoTStepByStep}{{7}{2025}{{Wang et al.}}{{}}}
+\bibcite{Chen_DynamicInstabilityLLMReasoning}{{8}{2026}{{Chen et al.}}{{}}}
+\bibcite{Zhang_AnswerAgreementRepresentationShaping}{{9}{2026}{{Zhang et al.}}{{}}}
+\bibcite{Lu_StreamingHallucinationDetectionCoT}{{10}{2026}{{Lu et al.}}{{}}}
+\bibcite{Mao_ConfidenceOverTimeSTL}{{11}{2026}{{Mao et al.}}{{}}}
+\bibcite{Su_DRAGIN}{{12}{2024}{{Su et al.}}{{}}}
+\bibcite{Jiang_FLARE}{{13}{2023}{{Jiang et al.}}{{}}}
+\bibcite{Yao_SeaKR}{{14}{}{{Yao et al.}}{{}}}
+\bibcite{Manakul_SelfCheckGPT}{{15}{2023}{{Manakul et al.}}{{}}}
+\bibcite{Asai_SelfRAG}{{16}{2024}{{Asai et al.}}{{}}}
+\bibcite{Tang_MBARAG}{{Tang et al.}{}{{}}{{}}}
+\bibcite{Liu_CtrlA}{{18}{2024}{{Liu et al.}}{{}}}
+\bibcite{Chen_DTR}{{19}{2026}{{Chen et al.}}{{}}}
+\bibcite{Guo_DioR}{{20}{2025}{{Guo et al.}}{{}}}
+\bibcite{Su_DyPRAG}{{21}{2025}{{Su et al.}}{{}}}
+\bibcite{Hei_DRRAG}{{22}{2024}{{Hei et al.}}{{}}}
+\bibcite{Huang_LayeredQR}{{23}{2024}{{Huang et al.}}{{}}}
+\bibcite{Yan_CorrectiveRAG}{{24}{2024}{{Yan et al.}}{{}}}
+\bibcite{Jeong_AdaptiveRAG}{{25}{2024}{{Jeong et al.}}{{}}}
+\bibcite{Trivedi_IRCoT}{{26}{2023}{{Trivedi et al.}}{{}}}
+\bibcite{Shao_IterRetGen}{{27}{2023}{{Shao et al.}}{{}}}
+\bibcite{Lewis_RAG}{{28}{2020}{{Lewis et al.}}{{}}}
+\bibcite{Gao_RAGSurvey}{{29}{2023}{{Gao et al.}}{{}}}
+\bibcite{Mallen_WhenNotToTrustLMs}{{30}{2023}{{Mallen et al.}}{{}}}
+\bibcite{Chen_INSIDE}{{31}{2024}{{Chen et al.}}{{}}}
+\bibcite{Kuhn_SemanticUncertainty}{{32}{2023}{{Kuhn et al.}}{{}}}
+\bibcite{Lin_GeneratingConfidence}{{33}{2024}{{Lin et al.}}{{}}}
+\bibcite{Wang_SelfConsistency}{{34}{2022}{{Wang et al.}}{{}}}
+\bibcite{Zhang_SAC3}{{35}{2023}{{Zhang et al.}}{{}}}
+\bibcite{Azaria_Mitchell_InternalState}{{36}{2023}{{Azaria \& Mitchell}}{{}}}
+\bibcite{Burns_CCS}{{37}{2023}{{Burns et al.}}{{}}}
+\bibcite{Kadavath_SelfDoubt}{{38}{2022}{{Kadavath et al.}}{{}}}
+\bibcite{Li_ETC}{{39}{2023}{{Li et al.}}{{}}}
+\bibcite{Yang_HotpotQA}{{40}{2018}{{Yang et al.}}{{}}}
+\bibcite{Ho_2WikiMHQA}{{41}{2020}{{Ho et al.}}{{}}}
+\bibcite{Trivedi_MuSiQue}{{42}{2022}{{Trivedi et al.}}{{}}}
+\bibcite{Brown_RAGSurvey}{{43}{2025}{{Brown et al.}}{{}}}
+\providecommand\NAT@force@numbers{}\NAT@force@numbers
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Trigger-signal pool. SeaKR is a $K{=}5$ proxy of the full $K{=}20$ method; SelfCheckGPT is the $n$-gram variant. We exclude trained methods (Self-RAG, MBA-RAG, CtrlA, ARS) by training-free scope.}}{27}{table.1}\protected@file@percent }
+\newlabel{tab:pool}{{1}{27}{Trigger-signal pool. SeaKR is a $K{=}5$ proxy of the full $K{=}20$ method; SelfCheckGPT is the $n$-gram variant. We exclude trained methods (Self-RAG, MBA-RAG, CtrlA, ARS) by training-free scope}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Operational differences between Datta's $t^\star $ and our ECT. For trajectories that converge monotonically without re-flipping, $t_{\text  {commit}} \approx t^\star + 1$; under $K{=}5$ majority sampling on non-thinking chat models this equivalence does not hold in general.}}{27}{table.2}\protected@file@percent }
+\newlabel{tab:ect-vs-tstar}{{2}{27}{Operational differences between Datta's $t^\star $ and our ECT. For trajectories that converge monotonically without re-flipping, $t_{\text {commit}} \approx t^\star + 1$; under $K{=}5$ majority sampling on non-thinking chat models this equivalence does not hold in general}{table.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Models. Both run under matched Option-A protocol: greedy decoding, \texttt  {max\_new\_tokens}=512.}}{28}{table.3}\protected@file@percent }
+\newlabel{tab:archs}{{3}{28}{Models. Both run under matched Option-A protocol: greedy decoding, \texttt {max\_new\_tokens}=512}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Length-orthogonal trigger signals on the headline pool.} Paired-bootstrap forest plot of $\Delta = \mathrm  {AUROC}(s_{\text  {resid}}) - \mathrm  {AUROC}(\texttt  {tokens\_generated})$ for the 17 audited signals on the Qwen2.5-7B + Gemma-4-26B-A4B headline pool ($n{=}800$ paired traces, $\texttt  {lift\_em}{=}+1$ target, $B{=}10{,}000$). Thick bars are nominal 95\% CIs; thin extensions are Bonferroni-corrected $\sim $99.67\% CIs at $k{=}15$. Vertical dashed line marks the length baseline ($\Delta =0$). Three tiers, separated by horizontal lines and background banding: top four (Bonferroni-robust) are \textbf  {ECT}, DRAGIN-RIND.max, \texttt  {min\_majority}, \texttt  {ent.max} --- spanning four different signal families. Color: \textcolor [HTML]{1f77b4}{blue} $=$ answer-trajectory (Datta-derived); \textcolor [HTML]{d62728}{red} $=$ attention (DRAGIN); \textcolor [HTML]{ff7f0e}{orange} $=$ logit / $K{=}5$-text; \textcolor [HTML]{7f7f7f}{grey} $=$ hidden-state / text. SRC: \texttt  {analysis/e7\_bonferroni.out}, \texttt  {analysis/plot\_survivor\_forest.py}.}}{29}{figure.1}\protected@file@percent }
+\newlabel{fig:survivor-forest}{{1}{29}{\textbf {Length-orthogonal trigger signals on the headline pool.} Paired-bootstrap forest plot of $\Delta = \mathrm {AUROC}(s_{\text {resid}}) - \mathrm {AUROC}(\texttt {tokens\_generated})$ for the 17 audited signals on the Qwen2.5-7B + Gemma-4-26B-A4B headline pool ($n{=}800$ paired traces, $\texttt {lift\_em}{=}+1$ target, $B{=}10{,}000$). Thick bars are nominal 95\% CIs; thin extensions are Bonferroni-corrected $\sim $99.67\% CIs at $k{=}15$. Vertical dashed line marks the length baseline ($\Delta =0$). Three tiers, separated by horizontal lines and background banding: top four (Bonferroni-robust) are \textbf {ECT}, DRAGIN-RIND.max, \texttt {min\_majority}, \texttt {ent.max} --- spanning four different signal families. Color: \textcolor [HTML]{1f77b4}{blue} $=$ answer-trajectory (Datta-derived); \textcolor [HTML]{d62728}{red} $=$ attention (DRAGIN); \textcolor [HTML]{ff7f0e}{orange} $=$ logit / $K{=}5$-text; \textcolor [HTML]{7f7f7f}{grey} $=$ hidden-state / text. SRC: \texttt {analysis/e7\_bonferroni.out}, \texttt {analysis/plot\_survivor\_forest.py}}{figure.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {Cross-architecture survivor matrix} on the headline pool (Qwen2.5-7B-Instruct + Gemma-4-26B-A4B-it $\times $ \{HotpotQA, 2WikiMHQA\}, $n{=}800$ paired traces). All AUROCs are length-residualized via Eq.~(\ref {eq:residualize}). 95\% CIs are paired bootstrap ($B{=}10{,}000$) of $\Delta = \mathrm  {AUROC}(s_{\text  {resid}}) - \mathrm  {AUROC}(\texttt  {tokens\_generated})$. The right-most column gives the Bonferroni-corrected $\sim $99.67\% CI at $k{=}15$ ($\alpha =0.0033$). \textbf  {Nine signals} clear nominal-95\% paired-significance against length; \textbf  {four} survive Bonferroni at $k{=}15$. SRC: \texttt  {analysis/moonshot\_explore\_3arch.out.b10k} (M-series, answer-trajectory, top trigger-pool rows) and \texttt  {analysis/e7\_bonferroni.out} (Bonferroni column, all rows).}}{30}{table.4}\protected@file@percent }
+\newlabel{tab:hero}{{4}{30}{\textbf {Cross-architecture survivor matrix} on the headline pool (Qwen2.5-7B-Instruct + Gemma-4-26B-A4B-it $\times $ \{HotpotQA, 2WikiMHQA\}, $n{=}800$ paired traces). All AUROCs are length-residualized via Eq.~(\ref {eq:residualize}). 95\% CIs are paired bootstrap ($B{=}10{,}000$) of $\Delta = \mathrm {AUROC}(s_{\text {resid}}) - \mathrm {AUROC}(\texttt {tokens\_generated})$. The right-most column gives the Bonferroni-corrected $\sim $99.67\% CI at $k{=}15$ ($\alpha =0.0033$). \textbf {Nine signals} clear nominal-95\% paired-significance against length; \textbf {four} survive Bonferroni at $k{=}15$. SRC: \texttt {analysis/moonshot\_explore\_3arch.out.b10k} (M-series, answer-trajectory, top trigger-pool rows) and \texttt {analysis/e7\_bonferroni.out} (Bonferroni column, all rows)}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Per-cell raw AUROC of ECT on $\texttt  {lift\_em}{=}+1$. ECT discriminates most strongly on the Gemma $\times $ 2Wiki cell, which is also the cell where length is most anti-predictive (see \S  \ref {sec:discussion-inverted}). SRC: \texttt  {analysis/moonshot\_explore\_3arch.out}.}}{31}{table.5}\protected@file@percent }
+\newlabel{tab:m8-percell}{{5}{31}{Per-cell raw AUROC of ECT on $\texttt {lift\_em}{=}+1$. ECT discriminates most strongly on the Gemma $\times $ 2Wiki cell, which is also the cell where length is most anti-predictive (see \S \ref {sec:discussion-inverted}). SRC: \texttt {analysis/moonshot\_explore\_3arch.out}}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces $K{=}5$ vs.\ $K{=}1$ \texttt  {flip\_rate} ablation on $\texttt  {lift\_em}{=}+1$, pooled per architecture. Both confidence intervals straddle zero, indicating equality at our power. SRC: \texttt  {analysis/a1\_k1\_vs\_k5\_r1\_\{qwen,gemma\}.\{out,json\}}.}}{31}{table.6}\protected@file@percent }
+\newlabel{tab:k-ablation}{{6}{31}{$K{=}5$ vs.\ $K{=}1$ \texttt {flip\_rate} ablation on $\texttt {lift\_em}{=}+1$, pooled per architecture. Both confidence intervals straddle zero, indicating equality at our power. SRC: \texttt {analysis/a1\_k1\_vs\_k5\_r1\_\{qwen,gemma\}.\{out,json\}}}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces $\varepsilon _{\text  {protocol}} = |\text  {ours}_{\text  {resid}} - \text  {LINE}_{\text  {full}}|$; $\varepsilon _{\text  {sampling}} = |\text  {LINE}_{\text  {full}} - \text  {LINE}_{\text  {split}}|$ (the latter averaged over 5 seeds). Both architectures show $\varepsilon _{\text  {protocol}} \leq 0.029$: our protocol matches the reference math within numerical noise. SRC: \texttt  {analysis/uncertainty\_line\_audit\_*.\{out,json\}}.}}{31}{table.7}\protected@file@percent }
+\newlabel{tab:uline-repl}{{7}{31}{$\varepsilon _{\text {protocol}} = |\text {ours}_{\text {resid}} - \text {LINE}_{\text {full}}|$; $\varepsilon _{\text {sampling}} = |\text {LINE}_{\text {full}} - \text {LINE}_{\text {split}}|$ (the latter averaged over 5 seeds). Both architectures show $\varepsilon _{\text {protocol}} \leq 0.029$: our protocol matches the reference math within numerical noise. SRC: \texttt {analysis/uncertainty\_line\_audit\_*.\{out,json\}}}{table.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Per-question-type raw AUROC on the $\texttt  {lift\_em}=+1$ target, top-survivor signals only. ECT per-type breakdown is not in this table because the moonshot per-cell breakdown emits pooled cells, not per-type splits; \texttt  {moonshot\_explore.py} would need a small extension to add the per-type column. n$_{\text  {pop}}$ is the number of helped traces in the type-cell. Bold cells highlight per-type single-cell raw AUROCs $\geq 0.65$ on signals that paired-significantly clear in the headline pool. The striking pattern: \emph  {comparison-class question types (\texttt  {comparison}, \texttt  {bridge\_comparison}) are systematically more discriminable than bridge / compositional / inference}. The Gemma$\times $HotpotQA $\times $comparison cell is power-limited (n$_{\text  {pop}}{=}3$) so the 0.974/1.000 entries should be read with that caveat. SRC: \texttt  {analysis/r1\_\{qwen,gemma\}\_paired\_audit.out.b10k} \S  (4).}}{32}{table.8}\protected@file@percent }
+\newlabel{tab:per-type}{{8}{32}{Per-question-type raw AUROC on the $\texttt {lift\_em}=+1$ target, top-survivor signals only. ECT per-type breakdown is not in this table because the moonshot per-cell breakdown emits pooled cells, not per-type splits; \texttt {moonshot\_explore.py} would need a small extension to add the per-type column. n$_{\text {pop}}$ is the number of helped traces in the type-cell. Bold cells highlight per-type single-cell raw AUROCs $\geq 0.65$ on signals that paired-significantly clear in the headline pool. The striking pattern: \emph {comparison-class question types (\texttt {comparison}, \texttt {bridge\_comparison}) are systematically more discriminable than bridge / compositional / inference}. The Gemma$\times $HotpotQA $\times $comparison cell is power-limited (n$_{\text {pop}}{=}3$) so the 0.974/1.000 entries should be read with that caveat. SRC: \texttt {analysis/r1\_\{qwen,gemma\}\_paired\_audit.out.b10k} \S (4)}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Bonferroni-corrected survivor set on the headline pool (Qwen+Gemma, $n{=}800$ paired, target $\texttt  {lift\_em}{=}+1$, $B{=}10{,}000$). SRC: \texttt  {analysis/e7\_bonferroni.out}.}}{33}{table.9}\protected@file@percent }
+\newlabel{tab:bonferroni}{{9}{33}{Bonferroni-corrected survivor set on the headline pool (Qwen+Gemma, $n{=}800$ paired, target $\texttt {lift\_em}{=}+1$, $B{=}10{,}000$). SRC: \texttt {analysis/e7\_bonferroni.out}}{table.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Spearman $\rho (\texttt  {tokens\_generated}, \text  {signal})$ per cell, closed-book traces. Bold entries have $|\rho |\geq 0.5$ (Santilli's length-confound threshold). Only one signal-cell ($\mathrm  {hvr.max}\times \text  {Gemma}\times \text  {2Wiki}$, $\rho {=}+0.51$) breaches it. $^{*}$Qwen$\times $Hot $\mathrm  {hvr.max}$ is constant (all zero) and Spearman is undefined. The published trigger pool (top block) carries $\rho \in [+0.18, +0.46]$; the step-level answer-trajectory triggers and moonshot signals (bottom block) carry $\rho \in [+0.09, +0.37]$, on average $\approx 0.1$ AUROC lower in length correlation. SRC: \texttt  {analysis/e7\_spearman.out}.}}{34}{table.10}\protected@file@percent }
+\newlabel{tab:spearman}{{10}{34}{Spearman $\rho (\texttt {tokens\_generated}, \text {signal})$ per cell, closed-book traces. Bold entries have $|\rho |\geq 0.5$ (Santilli's length-confound threshold). Only one signal-cell ($\mathrm {hvr.max}\times \text {Gemma}\times \text {2Wiki}$, $\rho {=}+0.51$) breaches it. $^{*}$Qwen$\times $Hot $\mathrm {hvr.max}$ is constant (all zero) and Spearman is undefined. The published trigger pool (top block) carries $\rho \in [+0.18, +0.46]$; the step-level answer-trajectory triggers and moonshot signals (bottom block) carry $\rho \in [+0.09, +0.37]$, on average $\approx 0.1$ AUROC lower in length correlation. SRC: \texttt {analysis/e7\_spearman.out}}{table.10}{}}
+\gdef \@abspage@last{34}

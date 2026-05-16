@@ -1,0 +1,32 @@
+E7 — Bonferroni-corrected paired bootstrap, headline pool (Qwen+Gemma)
+  n=800  pop=108  base=0.135  target=lift_em=+1  B=10000
+  Bonferroni at k=15: α=0.0033, ~99.67% CI
+
+  Bootstrap formula: Δ = AUROC(s_resid) − AUROC(tokens_generated)
+  s_resid = OLS residual of signal on log(tokens+1)
+
+  signal                           resAUC        Δ                  95% CI                99.67% CI   95%?  Bonf?
+  ---------------------------------------------------------------------------------------------------------------
+  tokens_generated                  0.531        —   (baseline, raw 0.474)                        —     —      —
+  DRAGIN-RIND.max                   0.640   +0.167  [+0.082,+0.249]   [+0.039,+0.286]      ✓       ✓✓
+  ent.max                           0.611   +0.137  [+0.050,+0.223]   [+0.001,+0.263]      ✓       ✓✓
+  etc (Δ²H max)                     0.580   +0.107  [+0.018,+0.196]   [-0.026,+0.235]      ✓        —
+  flare.max (1-min p)               0.553   +0.080  [-0.008,+0.165]   [-0.056,+0.207]      —        —
+  u_cons.max                        0.593   +0.120  [+0.028,+0.213]   [-0.017,+0.257]      ✓        —
+  seakr_k5_proxy.logdet             0.491   +0.018  [-0.077,+0.112]   [-0.123,+0.161]      —        —
+  drift_cosine.max                  0.493   +0.020  [-0.064,+0.101]   [-0.102,+0.142]      —        —
+  variance_l2_window.max            0.473   +0.000  [-0.091,+0.090]   [-0.136,+0.127]      —        —
+  hidden_norm.range                 0.499   +0.026  [-0.058,+0.108]   [-0.101,+0.146]      —        —
+  hvr.max (SELFDOUBT-T1)            0.505   +0.032  [-0.089,+0.150]   [-0.147,+0.210]      —        —
+  AID flip_rate K=5                 0.640   +0.135  [+0.037,+0.233]   [-0.012,+0.277]      ✓        —
+  AID flip_rate K=1                 0.621   +0.116  [+0.016,+0.217]   [-0.030,+0.261]      ✓        —
+  AID late_flips                    0.586   +0.081  [-0.016,+0.175]   [-0.058,+0.219]      —        —
+  AID min_majority                  0.626   +0.149  [+0.054,+0.240]   [+0.004,+0.284]      ✓       ✓✓
+  M1 CABV                           0.641   +0.137  [+0.041,+0.229]   [-0.006,+0.273]      ✓        —
+  M8 ECT                            0.691   +0.190  [+0.093,+0.287]   [+0.047,+0.329]      ✓       ✓✓
+  M9 CABV×LAAS                      0.593   +0.089  [-0.016,+0.191]   [-0.069,+0.239]      —        —
+
+  Reading guide:
+    ✓     paired-significant at α=0.05 (nominal)
+    ✓✓    survives Bonferroni at k=15 (α=0.0033, ~99.67% CI)
+    —     CI straddles 0 at that α level

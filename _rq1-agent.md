@@ -10,11 +10,35 @@
 
 ---
 
+## LOCKED-IN PAPER FRAME (2026-05-15 ~13:45, after R1 Gemma + Phi-drop firing)
+
+**Headline architecture pool — Phi DROPPED from the headline matrix:**
+
+> *"We evaluate on two open-weight chat models spanning two architecture families: a dense Transformer (Qwen2.5-7B-Instruct) and a Mixture-of-Experts model with hybrid sliding-window/global attention (Gemma-4-26B-A4B-it, 3.8B active / 25.2B total). This pair was chosen to span the dense-vs-MoE-hybrid axis at the open-weight 7B+ tier; we excluded smaller dense variants (e.g. Phi-4-mini-instruct, 3.8B dense) as redundant on the architecture axis."*
+
+**This is the §3 model-selection paragraph for the paper.** Drop into the LaTeX corpus verbatim.
+
+Phi remains as: (a) §4.3 sparse-trace robustness cell — *"on Phi-4-mini, where decoding produces 2-3 answer-bearing steps under K=5, within-step AID variants collapse but `late_flips` survives residualization on 2Wiki"*; (b) Appendix B replication evidence (V2 n=500 + R1 n=200 reproduce DRAGIN-RIND as a length-robust survivor on Phi). Phi numbers are NOT in the headline table; Phi-dropped pool (Qwen + Gemma, n=800) carries the survivor-matrix claim.
+
+**Paper framing: AUDIT-FLAVORED.** Title direction (working): *"What Survives Length Control? A Residualized Audit of Dynamic-RAG Triggers"* or *"A Length-Controlled Audit of Training-Free Dynamic-RAG Triggers"*. The contribution is the audit + protocol + the survivor matrix. Three contributions (analysis paper architecture, per the 2026-05-15 audit-vs-methods decision):
+
+1. **Protocol extension** — UNCERTAINTY-LINE (Vashurin et al. 2025) applied to dynamic-RAG triggers + paired-oracle `lift_em` target. Replication ε_protocol ≤ 0.040 across all 3 archs (Qwen 0.029, Phi 0.040, Gemma 0.027).
+2. **Audit** — of 16 baseline trigger signals on (Qwen + Gemma) × {HotpotQA, 2Wiki} at n=200/cell, most do not survive length-residualization on `lift_em = +1`. Two non-AID published-trigger-pool members survive across the matrix: **DRAGIN-RIND** and **ent.max** (in length-inverted regimes).
+3. **Survivor signal finding** — the strongest length-robust survivor on the Phi-dropped headline pool (n=800) is **M8 ECT** (Datta-style early-commitment time, applied to retrieval-triggering), at residualized AUROC 0.691 and Δ vs tokens = +0.174 [+0.096, +0.252]. Eight additional signals also clear paired-significance, including the AID family aggregations (`min_majority`, `flip_rate K=5/K=1`, `late_flips`), M1 CABV, M9 CABV×LAAS, and DRAGIN-RIND. Family-level framing: *step-level answer-trajectory triggers* (descriptive, no proprietary acronym; AID kept as shorthand only with explicit attribution to Datta et al. 2026).
+
+**Naming policy.** Refer to the family as *"step-level answer-trajectory triggers"*. AID is a shorthand defined once in §3: *"step-level answer-trajectory triggers, hereafter AID for brevity; derived from the AnswerSwitches primitive of Datta et al. (2026)."* The K=5 multi-sample variant is empirically null vs K=1 (regime 2 across Phi+Qwen+Gemma `lift_em`); paper recommends K=1 for compute economy. **Do not over-claim K=5 as a contribution.**
+
+**Submission target.** EMNLP 2026 main (ARR cycle May 25 2026) OR next ARR cycle for EACL/NAACL/EMNLP 2027 — decision pending paper-readiness audit, default to next-cycle for first-paper polish.
+
+**See "R1 Gemma full landing + Phi-drop decision + 3-arch headline" section below for the full numbers backing this frame.**
+
+---
+
 ## Three goals (one-liner each, full text in `_rq1-plan.md`)
 
-- **G1 — TEST.** Falsify or confirm *DRAGIN-RIND is the sole length-robust survivor* under the residualization protocol.
-- **G2 — POST-HOC READINESS.** Heavy logging / schema-superset capture so re-analyses don't require re-decoding.
-- **G3 — DOMAIN LEARNING.** Each external method audited teaches us something for the discussion / future work section.
+- **G1 — TEST.** ~~Falsify or confirm *DRAGIN-RIND is the sole length-robust survivor* under the residualization protocol.~~ **RESOLVED 2026-05-15: DRAGIN-RIND is NOT the sole survivor; 9 signals paired-bootstrap-significantly beat `tokens_generated` on the Phi-dropped n=800 pool under residualization, with M8 ECT (Datta `t*` extension) the strongest.** Updated G1 statement: *the audit identifies the length-robust survivor matrix on the dynamic-RAG-trigger pool under UNCERTAINTY-LINE residualization.*
+- **G2 — POST-HOC READINESS.** Heavy logging / schema-superset capture so re-analyses don't require re-decoding. **DONE; the moonshot signals (M8, M1, M9) were computed entirely from existing trace fields.**
+- **G3 — DOMAIN LEARNING.** Each external method audited teaches us something for the discussion / future work section. **DONE; per-arch / per-cell heterogeneity findings + Datta-t* extension findings + length-inverted-regime (Qwen 2Wiki, Gemma 2Wiki) findings all populate §5 discussion.**
 
 ---
 
@@ -249,11 +273,14 @@ E3/E4 superseded by R1 (which does all 3 archs in one run with the enriched sche
 **A1 adds 0 h compute** (post-hoc analysis on existing K=5 sample texts).
 
 **Recommended sequencing:** R1 (headline n=200 cross-arch) → A1 (K=1 vs K=5
-ablation on R1 traces, ~30 min analyzer extension) → Phi-drop decision rule (post-Gemma-2Wiki, see block below)
-→ E7+E8 (statistical hardening, analysis-only) → writing. R1 + A1 produce a
-submittable EMNLP-short with honest attribution to Datta et al. MuSiQue (R2)
-was dropped on 2026-05-15: locked-in scope is 2-3 archs × 2 datasets; MuSiQue
-breadth not needed for the headline survivor-pair narrative.
+ablation on R1 traces, ~30 min analyzer extension) → Phi-drop decision rule
+(**FIRED 2026-05-15** — Phi out of headline matrix; Qwen + Gemma carry; see
+"LOCKED-IN PAPER FRAME" block at top of file) → E7+E8 (statistical hardening,
+analysis-only) → writing. R1 + A1 produced a submittable audit-flavored
+EMNLP-short with honest attribution to Datta et al. and Vashurin et al.
+MuSiQue (R2) was dropped on 2026-05-15: locked-in scope is **2 archs × 2
+datasets (Qwen + Gemma)**; MuSiQue breadth not needed for the headline
+survivor-matrix narrative.
 
 ---
 

@@ -1,4 +1,27 @@
-## EMNLP-short likelihood with current data only
+## UPDATE 2026-05-15 ~13:45 — outlook revised after R1 complete + Phi-drop fired
+
+**The estimates below are STALE.** They predate R1 (n=200 × 3 archs × 2 datasets), the moonshot 3-arch finding, and the Phi-drop decision. Current reality (see `_rq1-agent.md` "R1 Gemma full landing + Phi-drop decision + 3-arch headline" section):
+
+| scenario | original estimate | **current estimate** |
+|---|---:|---:|
+| EMNLP-short acceptance, audit-flavored, Phi-dropped | n/a | **~50-60% combined (main + Findings)** |
+| EMNLP-short main-track only | 30-35% with current-data-only | **~25-35%** |
+| EMNLP-short Findings only | n/a (estimated path) | **~25-30%** |
+
+**Why the upgrade.** Post-R1 + post-moonshot evidence dramatically strengthens the audit-paper:
+1. **9 signals paired-bootstrap-significantly beat `tokens_generated`** on the Phi-dropped n=800 headline pool under length-residualization. Pre-R1 estimate was 2 (DRAGIN + 1 AID variant).
+2. **M8 ECT** (Datta-`t*` extension, resid AUROC 0.691, Δ=+0.174 [+0.096, +0.252]) is a clean, citable, paired-significant strongest-survivor finding. **Provides the audit paper with a concrete name-able result.**
+3. **UNCERTAINTY-LINE replication** at ε_protocol ≤ 0.040 across all 3 archs disarms the methodology-reimplementation reviewer attack.
+4. **Cross-arch K=1 vs K=5 = regime 2** on `lift_em` across all 3 archs — the multi-sample walkback is no longer a paper risk; it's a clean ablation with a defensible recommendation (K=1 for compute).
+5. **Phi sparse-flip becomes a feature, not bug** — moves to §4.3 as the "sparse-trace boundary cell" robustness finding. The Phi-dropped headline matrix is strictly cleaner.
+
+**Why not higher.** The Datta-2026 precedent is still real; the contribution arithmetic is "audit + protocol + survivor matrix + M8-ECT-as-Datta-extension" — defensible but not breakthrough. **First paper, no in-domain advisor: realistic ceiling is Findings.** Main-track is plausible but not the default expectation.
+
+**Submission decision.** Audit-flavored. Locked in `_rq1-agent.md` top-of-file. ARR submission deadline May 25, 2026 is 10 days out — recommend next-cycle submission for first-paper polish unless deadline pressure is real.
+
+---
+
+## EMNLP-short likelihood with current data only (HISTORICAL — see UPDATE above)
 
 Honest, calibrated rating below. I'm using EMNLP-short base rate ~25-30% acceptance, then conditioning on what you actually have.
 

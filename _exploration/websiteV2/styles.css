@@ -206,3 +206,58 @@ p { margin: 0 0 8px 0; }
     color: #0369a1;
     font-size: 12px;
 }
+
+/* Lightbulb helper / explainer box */
+.helper-box {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-left: 4px solid #f59e0b;
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.helper-box h4 {
+    color: #92400e;
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.helper-box h4::before {
+    content: "💡";
+    font-size: 14px;
+}
+
+.helper-box p { margin: 0 0 6px 0; }
+.helper-box p:last-child { margin-bottom: 0; }
+.helper-box code { background: #fef3c7; padding: 1px 4px; border-radius: 2px; }
+
+.helper-box pre {
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    overflow-x: auto;
+    margin: 6px 0;
+}
+
+.helper-box .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.helper-box .compare-grid > div {
+    background: white;
+    border: 1px solid #fde68a;
+    border-radius: 3px;
+    padding: 8px;
+    font-size: 11.5px;
+}

@@ -87,32 +87,33 @@ Janiak_IllusionProgressHallucinationDetection,
 Zhang_VerbosityVeracityVCBehavior,
 Ielanskyi_PitfallsUQEvaluationNLG}, but the implication has not been
 followed through to the dynamic-RAG trigger setting.
-We re-evaluate the published trigger pool under the
-\textsc{Uncertainty-Line} regression-residualization protocol of
-\cite{Vashurin_UncertaintyLineLengthInvariant}, on a paired-oracle target
-$\texttt{lift\_em}{=}+1$ that asks the deployment-relevant question
-``would retrieval flip this wrong answer to a right one?''
-Across two open-weight chat models spanning a dense vs.\ MoE-hybrid axis
-(Qwen2.5-7B-Instruct, Gemma-4-26B-A4B-it) on two multi-hop QA datasets
-($n{=}800$ paired headline pool), \FACT{nine signals} retain a
-length-orthogonal positive margin against \texttt{tokens\_generated} at
-nominal $95\%$; \FACT{four} retain it under Bonferroni correction at
-$k{=}15$ ($\alpha=0.0033$). The strongest length-robust signal is
-\textbf{ECT}, an early-commitment-time signal derived from the
-$t^\star$ primitive of \citet{Datta_DecideEarlyExplainLater} and the
-decide-early phenomenon documented by
-\citet{Wang_ChainOfProbeCoTStepByStep} and
-\citet{Chen_DynamicInstabilityLLMReasoning}, at residualized AUROC
-\FACT{0.691} and $\Delta$~vs.\ length $={+}0.190$
-\FACT{[+0.093, +0.287]} (Bonferroni lower bound $+0.047$).
-DRAGIN-RIND \citep{Su_DRAGIN} also clears Bonferroni, alongside two
-step-level answer-trajectory aggregations and \texttt{ent.max}.
-A head-to-head replication of the \textsc{Uncertainty-Line} reference
-implementation shows our protocol matches theirs within
-\FACT{$\varepsilon \leq 0.029$ AUROC} on both architectures.
-We argue that length-controlled evaluation should be standard reporting
-practice for dynamic-RAG triggers, and that the answer-trajectory primitive
-class is a productive direction for length-orthogonal trigger design.
+We re-evaluate the published trigger pool under length-residualized AUROC
+\citep{Vashurin_UncertaintyLineLengthInvariant} on a paired-oracle target
+($\texttt{lift\_em}{=}+1$: ``does retrieval flip a wrong answer to a right
+one?''). Across two open-weight chat models spanning a dense vs.\
+MoE-hybrid axis (Qwen2.5-7B-Instruct, Gemma-4-26B-A4B-it) on two
+multi-hop QA datasets ($n{=}800$ paired headline pool), \FACT{nine
+signals} retain a length-orthogonal positive margin against
+\texttt{tokens\_generated} at nominal $95\%$; \FACT{four} retain it under
+Bonferroni correction at $k{=}15$ ($\alpha=0.0033$). The strongest
+length-robust signal we identify is \textbf{ECT}, a forward-looking
+early-commitment-time signal at residualized AUROC \FACT{0.691} and
+$\Delta$~vs.\ length $={+}0.190$ \FACT{[+0.093, +0.287]} (Bonferroni
+lower bound $+0.047$); it draws on the decide-early phenomenon
+\citep{Datta_DecideEarlyExplainLater, Wang_ChainOfProbeCoTStepByStep,
+Chen_DynamicInstabilityLLMReasoning} and is operationally distinguished
+from Datta's $t^\star$ in \S\ref{sec:methods-aid}. DRAGIN-RIND
+\citep{Su_DRAGIN} also clears Bonferroni, alongside two step-level
+answer-trajectory aggregations and \texttt{ent.max}. We replicate the
+\textsc{Uncertainty-Line} reference implementation within
+\FACT{$\varepsilon \leq 0.029$ AUROC} on both architectures, and a
+GPT-4o-Mini semantic-equivalence judge agrees with EM labels at Cohen's
+$\kappa{=}\FACT{0.707}$ on the headline pool, under which ECT
+\emph{strengthens} ($\Delta{=}+0.222$ vs $+0.190$) and $8$ of $9$
+paired-significant survivors are preserved. Length-controlled evaluation
+should be standard reporting practice for dynamic-RAG triggers; the
+answer-trajectory primitive class is a productive direction for
+length-orthogonal trigger design.
 % [TODO] Tighten to ~150 words for final. Current draft is ~230w.
 \end{abstract}
 
@@ -197,11 +198,12 @@ evaluate it on machine translation, summarization, and mathematical reasoning;
 to our knowledge it has not been applied to the dynamic-RAG trigger pool.
 
 \paragraph{This paper.} We re-evaluate the published training-free
-dynamic-RAG trigger pool under \textsc{Uncertainty-Line} residualization on
-multi-hop QA with paired oracle re-decode. The published triggers were each
-proposed before the length-confound literature converged; our re-evaluation
-asks which of them carry a length-orthogonal positive margin and which were
-implicitly tracking length all along.
+dynamic-RAG trigger pool under length-residualized AUROC
+\citep{Vashurin_UncertaintyLineLengthInvariant} on multi-hop QA with
+paired oracle re-decode. The published triggers were each proposed before
+the length-confound literature converged; we ask which of them carry a
+length-orthogonal positive margin and which were implicitly tracking
+length all along.
 
 % -----------------------------------------------------------------------------
 % §1.3 Answer-trajectory primitives — a length-orthogonal trigger class
@@ -232,12 +234,14 @@ token-probability or attention magnitude. As we show empirically in
 \S\ref{sec:results-matrix} and confirm via Spearman $\rho$ in
 Appendix~\ref{sec:appendix-spearman}, these signals carry markedly lower
 length correlation than the published trigger pool, which makes them
-candidate length-orthogonal triggers. None of the cited works applies the
-primitive to retrieval triggering; this paper is the first to make that
-transfer and to test it under length-controlled evaluation. The strongest
-signal we identify, \textbf{ECT} (early-commitment time, defined in
-\S\ref{sec:methods-aid}), is a forward-looking adaptation of Datta's
-$t^\star$ to non-thinking-mode chat models.
+candidate length-orthogonal triggers. We test this class under
+length-controlled evaluation on retrieval triggering, the first such
+application of the primitive to our knowledge. The strongest signal we
+identify is \textbf{ECT} (early-commitment time, defined in
+\S\ref{sec:methods-aid}), a forward-looking commitment-time signal for
+non-thinking-mode chat models, drawing on the decide-early phenomenon
+\citep{Datta_DecideEarlyExplainLater, Wang_ChainOfProbeCoTStepByStep,
+Chen_DynamicInstabilityLLMReasoning}.
 
 % [APPENDIX] Terminological disambiguation footnote
 \noindent\textit{Terminological note.}
@@ -273,16 +277,16 @@ of \citet{Ielanskyi_PitfallsUQEvaluationNLG}.
 \paragraph{Contributions.}
 
 \begin{enumerate}
-\item \textbf{Protocol transfer with target refinement.} We transfer the
-\textsc{Uncertainty-Line} protocol of
-\citet{Vashurin_UncertaintyLineLengthInvariant} from the general UQ setting
-to the dynamic-RAG trigger setting, paired with the
-$\texttt{lift\_em}{=}+1$ target above. A head-to-head replication against
-the reference implementation
+\item \textbf{Length-controlled trigger evaluation for dynamic RAG.}
+Under length-residualized AUROC
+\citep{Vashurin_UncertaintyLineLengthInvariant} paired with the
+deployment-relevant $\texttt{lift\_em}{=}+1$ target above, we re-evaluate
+the published trigger pool on a $n{=}800$ paired headline cohort. We
+replicate the reference implementation
 (\texttt{externalCodeAudits/uncertainty-line/}, our
-\texttt{analysis/uncertainty\_line\_audit.py}) confirms our protocol matches
-theirs within \FACT{$\varepsilon_{\text{protocol}} \leq 0.029$ AUROC max}
-on both architectures (\FACT{Qwen 0.029, Gemma 0.027}).
+\texttt{analysis/uncertainty\_line\_audit.py}) within
+\FACT{$\varepsilon_{\text{protocol}} \leq 0.029$ AUROC max} on both
+architectures (\FACT{Qwen 0.029, Gemma 0.027}).
 % SRC: analysis/uncertainty_line_audit_*.out
 
 \item \textbf{Cross-architecture re-evaluation.} We re-evaluate
@@ -301,31 +305,47 @@ $n{=}200$ paired traces per cell ($n{=}800$ paired headline pool).
 ($\alpha=0.0033$). The Bonferroni-robust set spans four signal families:
 the attention-based DRAGIN-RIND \citep{Su_DRAGIN}; the logit-family
 \texttt{ent.max}; the step-level answer-trajectory aggregation
-\texttt{min\_majority}; and \textbf{ECT} (early-commitment time, defined in
-\S\ref{sec:methods-aid}), a forward-looking adaptation of Datta's
-$t^\star$ \citep{Datta_DecideEarlyExplainLater}. ECT is the strongest single
-signal at residualized AUROC \FACT{0.691} and $\Delta$~vs.\ length
-\FACT{$={+}0.190$ [+0.093, +0.287]}; its Bonferroni lower bound is
-\FACT{$+0.047$}.
+\texttt{min\_majority}; and \textbf{ECT} (early-commitment time, defined
+in \S\ref{sec:methods-aid}), the strongest single signal in our pool, at
+residualized AUROC \FACT{0.691} and $\Delta$~vs.\ length
+\FACT{$={+}0.190$ [+0.093, +0.287]} (Bonferroni lower bound
+\FACT{$+0.047$}). ECT draws on the decide-early phenomenon
+\citep{Datta_DecideEarlyExplainLater, Wang_ChainOfProbeCoTStepByStep,
+Chen_DynamicInstabilityLLMReasoning}; operational differences from
+Datta's $t^\star$ are tabulated in \S\ref{sec:methods-aid}.
 
 \item \textbf{Multi-sample ablation.} We ablate the $K{=}5$ multi-sample
 variant of \texttt{flip\_rate} against the $K{=}1$ Datta-style single-sample
 proxy and find \FACT{equality at our power} on both architectures.
 The multi-sample variant has no significant advantage for retrieval
 triggering; we recommend $K{=}1$ for deployment compute efficiency.
+
+\item \textbf{Correctness-function robustness.} As a direct response to
+the \citet{Janiak_IllusionProgressHallucinationDetection},
+\citet{Santilli_RevisitingUQEvaluationLengthBias}, and
+\citet{Ielanskyi_PitfallsUQEvaluationNLG} critiques of EM- /
+lexical-overlap-based evaluation, we re-label both arms of every paired
+trace via a GPT-4o-Mini semantic-equivalence judge (Janiak's exact
+choice) and re-run the full survivor matrix. EM and the judge agree at
+Cohen's $\kappa{=}\FACT{0.707}$ on the headline pool. Eight of the nine
+paired-significant survivors under EM remain paired-significant under
+the judge; the headline signal ECT \emph{strengthens} under the judge
+($\Delta{=}+0.222~[+0.132,+0.312]$ vs $+0.190~[+0.093,+0.287]$ under
+EM). See Appendix~\ref{sec:appendix-llmjudge}.
 % SRC: analysis/moonshot_explore_3arch.out.b10k (headline rows);
 % analysis/e7_bonferroni.out (Bonferroni column);
-% analysis/a1_k1_vs_k5_r1_{qwen,gemma}.{out,json} (K-ablation).
+% analysis/a1_k1_vs_k5_r1_{qwen,gemma}.{out,json} (K-ablation);
+% analysis/llm_judge_audit_both.{out,json} (LLM-as-Judge robustness).
 \end{enumerate}
 
-\paragraph{Attribution and scope.}
+\paragraph{Scope.}
 The answer-trajectory primitive class belongs to the field
 (\citealp{Datta_DecideEarlyExplainLater}, \citealp{Wang_ChainOfProbeCoTStepByStep},
-\citealp{Chen_DynamicInstabilityLLMReasoning}). The specific ECT
-operationalization in \S\ref{sec:methods-aid} and the length-controlled
-re-evaluation of the published trigger pool are ours. This paper is a
-re-evaluation and a positioning of the answer-trajectory class as
-length-orthogonal trigger candidates; it is not a deployment study, and our
+\citealp{Chen_DynamicInstabilityLLMReasoning}); we credit it explicitly
+and disambiguate ECT from $t^\star$ in \S\ref{sec:methods-aid}. This
+paper is a length-controlled re-evaluation of the published trigger pool
+and a positioning of the answer-trajectory class as length-orthogonal
+trigger candidates; it is not a deployment study, and our
 claims pertain to signal-level discriminative power rather than end-to-end
 pipeline metrics (see \S\ref{sec:limitations}).
 
@@ -570,12 +590,34 @@ introduce noise. The \texttt{lift\_em}$=+1$ target isolates (a).
 
 \paragraph{Defense against correctness-function bias.}
 \cite{Ielanskyi_PitfallsUQEvaluationNLG} show that approximate correctness
-functions can disagree substantially across UQ-method rankings. The paired
-design in Eq.~(\ref{eq:lift-em}) shares the same exact-match correctness
-function across the two arms; mutual length-bias and EM-judgement bias
-partially cancel. We additionally report F$_1$ and containment-match
-correctness functions in Appendix~A as robustness.
-% [TODO] Confirm/run containment-match correctness; currently planned not done
+functions can disagree substantially across UQ-method rankings, with
+pairwise mutual AUROC dropping as low as $0.53$ for some pairs on the
+COQA benchmark.
+\cite{Janiak_IllusionProgressHallucinationDetection} report that switching
+ROUGE-L $\to$ LLM-as-Judge labels drops Perplexity AUROC by $45.9\%$ and
+EigenScore AUROC by $30.4\%$. Our paired design in
+Eq.~(\ref{eq:lift-em}) is partially insulated by construction: both arms
+of \texttt{lift\_em} share the same exact-match correctness function, so
+EM-specific bias and length-correlated lexical-overlap bias partially
+cancel within each paired comparison. This is a structural defense but
+not a substitute for a direct test.
+
+\paragraph{LLM-as-Judge robustness check.} To test the survivor matrix
+under a less length-biased correctness function, we re-label both arms
+of every paired trace via a \texttt{gpt-4o-mini} semantic-equivalence
+judge (\citealp{Janiak_IllusionProgressHallucinationDetection}'s choice).
+The judge issues a binary $\textsc{YES}/\textsc{NO}$ verdict under a
+strict prompt, and we recompute the paired-oracle target as
+$\texttt{lift\_em}_{\textsc{judge}}(q) =
+\mathbb{1}[\mathrm{judge}(a_o^{(q)}){=}\textsc{YES} \wedge
+\mathrm{judge}(a_c^{(q)}){=}\textsc{NO}]$, then re-run the full
+survivor-matrix analysis with paired bootstrap $B{=}10{,}000$. EM and
+judge labels agree at Cohen's $\kappa = \FACT{0.707}$ on the headline
+pool — substantial agreement per the \citet{LandisKoch_Kappa} scale.
+Eight of the nine paired-significant survivors under EM remain
+paired-significant under the judge, with one out-in swap that does not
+affect the Bonferroni-robust four. Full results in
+Appendix~\ref{sec:appendix-llmjudge}.
 
 \paragraph{Code.}
 \texttt{analysis/r1\_phi\_paired\_audit.py} (per-arch paired-audit driver;
@@ -682,18 +724,18 @@ $\tau_c$ and aggregated to a trace-level scalar via the indicated reduction
 \texttt{sc\_ngram}              & trace       & $K{=}5$ text & \citep{Manakul_SelfCheckGPT} \\
 \texttt{seakr\_k5\_logdet}      & $\max_t$    & $K{=}5$ hidden & \citep{Yao_SeaKR} \\
 \midrule
-\multicolumn{4}{c}{\textit{Step-level answer-trajectory aggregations (this work, adapted from \citep{Datta_DecideEarlyExplainLater})}} \\
+\multicolumn{4}{c}{\textit{Step-level answer-trajectory aggregations (this work; cf.\ \citealp{Datta_DecideEarlyExplainLater})}} \\
 \midrule
 \texttt{flip\_rate K=5}         & trace       & $K$-sample answer & this work \\
-\texttt{flip\_rate K=1}         & trace       & 1-sample answer & \citep{Datta_DecideEarlyExplainLater} (-style) \\
-\texttt{late\_flips}            & trace       & $K$-sample answer & this work / \citep{Chen_DynamicInstabilityLLMReasoning} \\
+\texttt{flip\_rate K=1}         & trace       & 1-sample answer & this work; cf.\ \citealp{Datta_DecideEarlyExplainLater} \\
+\texttt{late\_flips}            & trace       & $K$-sample answer & this work; cf.\ \citealp{Chen_DynamicInstabilityLLMReasoning} \\
 \texttt{min\_majority}          & trace       & $K$-sample answer & this work \\
 \midrule
-\multicolumn{4}{c}{\textit{Continuous trajectory aggregations (this work, derived from \citep{Datta_DecideEarlyExplainLater})}} \\
+\multicolumn{4}{c}{\textit{Continuous trajectory aggregations (this work)}} \\
 \midrule
 \texttt{CABV}                   & trace       & continuous answer-belief velocity & this work \\
 \texttt{CABV $\times$ LAAS}     & trace       & $\times$ length-asymmetry          & this work \\
-\textbf{\texttt{ECT}}            & trace       & forward early-commitment time      & \citep{Datta_DecideEarlyExplainLater} (-derived) \\
+\textbf{\texttt{ECT}}            & trace       & forward early-commitment time      & this work; cf.\ \citealp{Datta_DecideEarlyExplainLater} \\
 \bottomrule
 \end{tabular}
 \caption{Trigger-signal pool. SeaKR is a $K{=}5$ proxy of the full $K{=}20$
@@ -726,10 +768,10 @@ At each reasoning-step boundary (detected by spaCy sentence segmentation with
 32-token fallback), we sample $K{=}5$ boundary completions at temperature
 $\tau{=}0.6$, top-$p$ 0.9, with answer extraction via the regex
 \texttt{r"\textbackslash bAnswer\textbackslash s*:\textbackslash s*(.+?)"}.
-Aggregating these boundary samples by various step-level statistics gives the
-\emph{step-level answer-trajectory triggers} of
-\citet{Datta_DecideEarlyExplainLater}'s \texttt{AnswerSwitches} primitive
-family. We report four aggregations:
+We aggregate these boundary samples into four \emph{step-level
+answer-trajectory triggers} operating on the
+\texttt{AnswerSwitches}-style primitive class
+\citep{Datta_DecideEarlyExplainLater}:
 
 \begin{itemize}
 \item \textbf{\texttt{flip\_rate K=5}}: at each step, take the majority answer
@@ -1271,6 +1313,45 @@ question-type-conditional trigger selection or (b) a per-cell ensemble that
 incorporates multiple aggregations. We do not propose such an ensemble here
 (see future work, \S\ref{sec:future-work}).
 
+% -----------------------------------------------------------------------------
+% §4.6 LLM-as-Judge correctness-function robustness
+% -----------------------------------------------------------------------------
+\subsection{Correctness-Function Robustness: LLM-as-Judge}
+\label{sec:results-llmjudge}
+
+The headline AUROC numbers reported above are computed against the
+exact-match correctness function. To test the survivor matrix under a
+less length-biased correctness function
+\citep{Janiak_IllusionProgressHallucinationDetection,
+Santilli_RevisitingUQEvaluationLengthBias,
+Ielanskyi_PitfallsUQEvaluationNLG}, we re-label both arms of every
+paired trace in the headline pool with a \texttt{gpt-4o-mini}
+semantic-equivalence judge and re-run the full survivor matrix.
+Inter-label agreement is Cohen's $\kappa = \FACT{0.707}$ (substantial,
+per \citealp{LandisKoch_Kappa}). Eight of the nine paired-significant
+survivors under EM remain paired-significant under the judge, with one
+out-in swap (\texttt{etc} loses significance; \texttt{flare.max} gains
+it); the four Bonferroni-robust survivors under EM (ECT, DRAGIN-RIND,
+\texttt{min\_majority}, \texttt{ent.max}) all remain nominal-95\%
+significant under the judge. The headline signal $\textbf{ECT}$
+\emph{strengthens} from $\Delta{=}+0.190~[+0.093, +0.287]$ under EM to
+$\Delta{=}+0.222~[+0.132, +0.312]$ under the judge.
+We report the full side-by-side survivor matrix in
+Appendix~\ref{sec:appendix-llmjudge} (Table~\ref{tab:llmjudge}). The
+trigger-pool ranking is robust to correctness-function choice across the
+two most-recommended targets in the length-confound literature.
+
+\paragraph{Acknowledged caveat.} The LLM-as-Judge has its own documented
+verbosity bias (\citealp{Zheng_LLMasaJudge},
+\citealp{Wang_NotFairEvaluators}). Our cross-correctness-function
+agreement therefore evidences \emph{pattern stability} across two
+correctness functions, not full verbosity-independence. The
+length-orthogonality argument in the paper rests on
+\textsc{Uncertainty-Line} residualization
+(\S\ref{sec:methods-residualization}) and the paired-oracle
+\texttt{lift\_em} design (\S\ref{sec:methods-protocol}), not on the
+judge.
+
 
 % =============================================================================
 % §5 DISCUSSION
@@ -1312,26 +1393,29 @@ removes the length pathway and isolates the deeper signal.
 % -----------------------------------------------------------------------------
 % §5.2 Why ECT works (mechanism)
 % -----------------------------------------------------------------------------
-\subsection{Why the Datta $t^\star$ Primitive Extends to Retrieval Triggering}
+\subsection{Why Answer-Trajectory Stability Predicts Retrieval Need}
 \label{sec:discussion-m8ect}
 
-\cite{Datta_DecideEarlyExplainLater} interpret their \texttt{AnswerSwitches}
-and $t^\star$ primitives in terms of \emph{premature commitment}. The model
+The mechanism behind ECT reads naturally in terms of
+\emph{premature commitment} — the interpretation
+\citet{Datta_DecideEarlyExplainLater} give to their
+\texttt{AnswerSwitches} and $t^\star$ primitives. The model
 ``decides'' on an answer early and then continues to verbalize reasoning
 that supports the commitment, with most subsequent steps being
-\emph{post-decision-tail}. They apply this to early stopping: if the model
-has decided, no further compute is needed.
+\emph{post-decision-tail}. \citeauthor{Datta_DecideEarlyExplainLater}
+apply this observation to early stopping (if the model has decided, no
+further compute is needed).
 
-Our adaptation reads in the opposite causal direction. Traces where the model
-has \emph{not} decided, where the answer trajectory continues to flip through
-the reasoning, are the traces where external evidence would resolve the
-uncertainty. The application target $\texttt{lift\_em}=+1$ formalizes the
-question: ``where would retrieval flip a wrong answer to a right answer?''
+Retrieval triggering reads the same primitive in the opposite causal
+direction: traces where the model has \emph{not} decided, where the
+answer trajectory continues to flip through the reasoning, are the
+traces where external evidence would resolve the uncertainty. The
+application target $\texttt{lift\_em}=+1$ formalizes the question
+``where would retrieval flip a wrong answer to a right answer?''
 
-Both Datta's early-stopping question and our retrieval-triggering question
-operate on the same underlying primitive (the answer trajectory) but use
-opposite directions. Datta detects stabilization to \emph{stop}; we detect
-non-stabilization to \emph{retrieve}.
+The same answer-trajectory primitive thus supports two complementary
+operations: detect stabilization to \emph{stop}; detect non-stabilization
+to \emph{retrieve}.
 
 % -----------------------------------------------------------------------------
 % §5.3 Per-cell heterogeneity discussion
@@ -1417,12 +1501,24 @@ is power-limited; only patterns across cells and pooled estimates clear
 paired-significance.
 
 \paragraph{Correctness function.} We use exact-match equality as the
-correctness function on both arms of the paired-oracle target. The paired
-design partially insulates against the correctness-function-disagreement
-critique of \cite{Ielanskyi_PitfallsUQEvaluationNLG}, but we do not vary the
-correctness function. We report F$_1$ and containment-match correctness
-functions in Appendix~A as a robustness check.
-% [TODO] Run the containment-match check; placeholder.
+primary correctness function on both arms of the paired-oracle target.
+The paired design partially insulates against the
+correctness-function-disagreement critique of
+\cite{Ielanskyi_PitfallsUQEvaluationNLG} by sharing the same EM
+function across the closed and oracle arms. We additionally report a
+direct LLM-as-Judge robustness check
+(Appendix~\ref{sec:appendix-llmjudge}) using
+\texttt{gpt-4o-mini} as the semantic-equivalence judge, matching the
+choice of \citet{Janiak_IllusionProgressHallucinationDetection}; EM and
+judge labels agree at Cohen's $\kappa{=}\FACT{0.707}$, and $8$ of $9$
+paired-significant survivors under EM are preserved under the judge. We
+do not additionally vary the correctness function to F$_1$ or
+containment-match; these would be cheap insurance but the judge check is
+the stronger response to the cited critiques because the judge is the
+specific correctness function those critiques recommend. The remaining
+caveat is that the LLM-as-Judge has its own documented verbosity bias
+(\citealp{Zheng_LLMasaJudge}, \citealp{Wang_NotFairEvaluators}); see
+discussion in Appendix~\ref{sec:appendix-llmjudge}.
 
 \paragraph{Non-thinking-mode chat models only.} Both audited models
 (Qwen2.5-7B, Gemma-4-26B-A4B-it) are non-thinking-mode chat
@@ -1443,19 +1539,20 @@ work.
 \label{sec:future-work}
 
 We re-evaluate the published dynamic-RAG-trigger pool under
-length-residualized evaluation on multi-hop QA with paired oracle re-decode.
+length-residualized AUROC on multi-hop QA with paired oracle re-decode.
 Of 16 baseline signals on 2 architectures spanning dense and MoE-hybrid
-families at $n{=}200$ per cell, 9 retain a length-orthogonal positive margin
-against \texttt{tokens\_generated} at nominal $95\%$, and 4 of them retain it
-under Bonferroni correction at $k{=}15$.
-The strongest length-robust
-survivor is the Datta-style early-commitment-time signal applied to retrieval
-triggering (residualized AUROC \FACT{0.691}, $\Delta = +0.190$
-\FACT{[+0.093, +0.287]}, Bonferroni lower bound $+0.047$), followed by
-DRAGIN-RIND and a family of step-level
-answer-trajectory aggregations. The $K$ value of the multi-sample variant is
-empirically free across both audited architectures. We recommend $K{=}1$ for
-deployment.
+families at $n{=}200$ per cell, 9 retain a length-orthogonal positive
+margin against \texttt{tokens\_generated} at nominal $95\%$, and 4 retain
+it under Bonferroni correction at $k{=}15$. The strongest length-robust
+signal we identify is \textbf{ECT}, a forward-looking
+early-commitment-time signal for retrieval triggering, at residualized
+AUROC \FACT{0.691}, $\Delta = +0.190$ \FACT{[+0.093, +0.287]} (Bonferroni
+lower bound $+0.047$); see \S\ref{sec:methods-aid} for its operational
+relationship to the $t^\star$ primitive of
+\citet{Datta_DecideEarlyExplainLater}. DRAGIN-RIND \citep{Su_DRAGIN} and
+a family of step-level answer-trajectory aggregations also clear. The
+$K$ value of the multi-sample variant is empirically free across both
+audited architectures; we recommend $K{=}1$ for deployment.
 
 \paragraph{Future work.}
 \begin{itemize}
@@ -1470,9 +1567,19 @@ Re-run the audit on Qwen3-4B/8B/30B (thinking mode) with the explicit
 \item \textbf{Hold-for-$k$ smoothing} (Eq.~4 of
 \citealp{Datta_DecideEarlyExplainLater}): add \texttt{flip\_rate\_hold3} as a
 drop-in answer-trajectory aggregation that admits streaming/online operation.
-\item \textbf{LLM-as-Judge correctness function} as a robustness check on the
-exact-match target (responding to the
-\citealp{Janiak_IllusionProgressHallucinationDetection} critique).
+% LLM-as-Judge robustness check moved from future work to Appendix C
+% (sec:appendix-llmjudge) on 2026-05-17: we ran it, κ=0.707, 8/9 survivors
+% preserved, ECT strengthens.
+
+\item \textbf{Additional correctness functions} beyond EM and
+LLM-as-Judge --- specifically a containment-match function and F$_1$
+threshold variants --- would complete the
+\citet{Ielanskyi_PitfallsUQEvaluationNLG} ``marginalize over correctness
+functions'' recommendation. We have the data for these but did not
+include them in this submission because the LLM-as-Judge result in
+Appendix~\ref{sec:appendix-llmjudge} already answers the central
+correctness-function-robustness question.
+
 \item \textbf{End-to-end deployment evaluation.} Plug each surviving signal
 into a full dynamic-RAG pipeline and measure end-to-end EM/F1 gains rather
 than trigger-level AUROC.
@@ -1588,11 +1695,173 @@ $\approx 0.1$ AUROC lower in length correlation. SRC:
 \label{tab:spearman}
 \end{table}
 
-\section{Containment-Match Robustness}
+\section{Correctness-Function Robustness: LLM-as-Judge}
 \label{sec:appendix-containment}
+\label{sec:appendix-llmjudge}
 
-% [TODO] Re-run paired-bootstrap with containment-match correctness function;
-% cheap insurance per Ielanskyi 2025 critique.
+\paragraph{Motivation.} The five-paper length-confound foundation
+(\citealp{Santilli_RevisitingUQEvaluationLengthBias},
+\citealp{Vashurin_UncertaintyLineLengthInvariant},
+\citealp{Janiak_IllusionProgressHallucinationDetection},
+\citealp{Zhang_VerbosityVeracityVCBehavior},
+\citealp{Ielanskyi_PitfallsUQEvaluationNLG}) does not merely critique length
+bias in uncertainty scores; it also critiques the correctness function on
+which AUROC is evaluated. \cite{Janiak_IllusionProgressHallucinationDetection}
+report that switching ROUGE-L $\to$ LLM-as-Judge labels drops Perplexity
+AUROC by $45.9\%$ and EigenScore AUROC by $30.4\%$.
+\cite{Ielanskyi_PitfallsUQEvaluationNLG} demonstrate that approximate
+correctness functions disagree to the point of pairwise mutual AUROC
+$\approx 0.53$ on COQA / Llama-3-8B-IT. The natural response is to test
+whether our survivor matrix is robust to the choice of correctness
+function. Our paired-oracle \texttt{lift\_em} design
+(Eq.~\ref{eq:lift-em}) is partially insulated by the within-pair shared
+correctness function, but this is not a substitute for a direct check.
+
+\paragraph{Protocol.} For each of the $n{=}800$ paired traces in the
+headline pool, we re-label both arms via an OpenAI \texttt{gpt-4o-mini}
+semantic-equivalence judge (Janiak~2025's exact choice). The judge receives
+the question, the gold answer, and the model-predicted answer, and emits a
+binary $\textsc{YES}/\textsc{NO}$ verdict under a strict system prompt
+(``You are a strict semantic-equivalence judge for multi-hop QA.\ldots
+Reply with exactly one word: YES or NO. No explanation.''). The
+\texttt{lift\_em}$=+1$ analogue under the judge is
+\begin{equation}
+\texttt{lift\_em}_{\textsc{judge}}(q) =
+\mathbb{1}\!\bigl[\mathrm{judge}(a_o^{(q)}){=}\textsc{YES} \;\wedge\;
+\mathrm{judge}(a_c^{(q)}){=}\textsc{NO}\bigr] \in \{0, 1\}.
+\label{eq:lift-em-judge}
+\end{equation}
+We then re-run the full headline survivor matrix
+(Table~\ref{tab:hero}) with paired bootstrap $B{=}10{,}000$ on the new
+target. The judge model is pinned to \texttt{gpt-4o-mini} for
+reproducibility against the Janiak~2025 reference; cache files at
+\texttt{analysis/llm\_judge\_cache/} preserve every judgement
+(question/gold/prediction/verdict/raw response/timestamp) for
+reproducibility audit. Total API cost: \FACT{$\sim$\$0.05}.
+
+\paragraph{Inter-label agreement.}
+Of the $n{=}800$ paired traces, EM identifies \FACT{$108$ helped} and the
+judge identifies \FACT{$113$ helped}; intersection is \FACT{$87$}. The two
+labels jointly produce Cohen's $\kappa{=}\FACT{0.707}$ over the 3-class
+$\{+1, 0, -1\}$ label set, which falls in the ``substantial agreement''
+band (\citealp{LandisKoch_Kappa}). For context,
+\citet{Janiak_IllusionProgressHallucinationDetection} report
+$\kappa{=}0.799$ between GPT-4o-Mini and human raters on a parallel
+hallucination-detection task; our $\kappa{=}0.707$ between two
+\emph{automated} labels (EM and the same GPT-4o-Mini judge) is consistent
+with the expected gap. The $26$ ``judge-only'' helped traces (judge says
+YES on oracle, NO on closed; EM disagrees) are predominantly cases where
+EM is over-strict on entity paraphrases (e.g.\ \texttt{"Tom Cruise"} vs
+\texttt{"the actor Tom Cruise"}). The $21$ ``EM-only'' helped traces
+(EM accepts both arms with different match-equivalence verdicts than the
+judge) are mostly inverse paraphrase cases.
+
+\paragraph{Survivor matrix transfer.}
+Table~\ref{tab:llmjudge} reports the headline pool survivor matrix under
+both correctness functions side-by-side. Of the \textbf{nine signals} that
+clear nominal-95\% paired-significance against \texttt{tokens\_generated}
+under EM, \textbf{eight} clear under the judge. The one signal that loses
+significance is \texttt{etc} ($\Delta^2 H$~max), whose 95\% CI lower bound moves
+from $+0.018$ to $-0.002$. In compensation, \texttt{flare.max} gains
+significance under the judge (from $-0.008$ to $+0.032$). The headline
+signal $\textbf{ECT}$ \emph{strengthens} from
+$\Delta{=}+0.190~[+0.093, +0.287]$ under EM to
+$\Delta{=}+0.222~[+0.132, +0.312]$ under the judge — a $+17\%$
+improvement in point estimate and a $+42\%$ improvement in the 95\%~CI
+lower-bound margin. All four Bonferroni-robust survivors under EM
+(\textbf{ECT, DRAGIN-RIND.max, \texttt{min\_majority}, \texttt{ent.max}};
+see Appendix~\ref{sec:appendix-bonferroni}) remain nominal-95\%
+paired-significant under the judge.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Signal} &
+$\boldsymbol{\Delta}_{\textsc{em}}$ \textbf{[95\% CI]} &
+$\boldsymbol{\Delta}_{\textsc{judge}}$ \textbf{[95\% CI]} &
+\textbf{Status} \\
+\midrule
+\multicolumn{4}{l}{\textit{Bonferroni-robust under EM (Appendix~\ref{sec:appendix-bonferroni}):}} \\
+\midrule
+\textbf{ECT}              & $+0.190$ $[+0.093, +0.287]$ \checkmark & $\mathbf{+0.222}$ $\mathbf{[+0.132, +0.312]}$ \checkmark & \emph{strengthens} \\
+\textbf{DRAGIN-RIND.max}  & $+0.167$ $[+0.082, +0.249]$ \checkmark & $+0.157$ $[+0.074, +0.237]$ \checkmark & stable \\
+\textbf{min\_majority}    & $+0.149$ $[+0.054, +0.240]$ \checkmark & $+0.155$ $[+0.062, +0.246]$ \checkmark & stable \\
+\textbf{ent.max}          & $+0.137$ $[+0.050, +0.223]$ \checkmark & $+0.125$ $[+0.042, +0.208]$ \checkmark & stable \\
+\midrule
+\multicolumn{4}{l}{\textit{Nominal-95\% only under EM:}} \\
+\midrule
+M1 CABV                   & $+0.137$ $[+0.041, +0.229]$ \checkmark & $+0.177$ $[+0.088, +0.268]$ \checkmark & \emph{strengthens} \\
+flip\_rate K=5            & $+0.135$ $[+0.037, +0.233]$ \checkmark & $+0.178$ $[+0.088, +0.269]$ \checkmark & \emph{strengthens} \\
+u\_cons.max               & $+0.120$ $[+0.028, +0.213]$ \checkmark & $+0.157$ $[+0.070, +0.244]$ \checkmark & \emph{strengthens} \\
+flip\_rate K=1            & $+0.116$ $[+0.016, +0.217]$ \checkmark & $+0.171$ $[+0.081, +0.261]$ \checkmark & \emph{strengthens} \\
+etc ($\Delta^2 H$ max)    & $+0.107$ $[+0.018, +0.196]$ \checkmark & $+0.088$ $[-0.002, +0.175]$ & \emph{LOST sig} \\
+\midrule
+\multicolumn{4}{l}{\textit{Did not clear under EM:}} \\
+\midrule
+flare.max (1-min p)       & $+0.080$ $[-0.008, +0.165]$ & $+0.115$ $[+0.032, +0.194]$ \checkmark & \emph{GAINED sig} \\
+M9 CABV$\times$LAAS       & $+0.089$ $[-0.016, +0.191]$ & $+0.096$ $[-0.009, +0.199]$ & stable (NS) \\
+late\_flips               & $+0.081$ $[-0.016, +0.175]$ & $+0.081$ $[-0.015, +0.175]$ & stable (NS) \\
+hvr.max (SELFDOUBT-T1)    & $+0.032$ $[-0.089, +0.150]$ & $+0.051$ $[-0.066, +0.167]$ & stable (NS) \\
+hidden\_norm.range        & $+0.026$ $[-0.058, +0.108]$ & $-0.031$ $[-0.118, +0.054]$ & stable (NS) \\
+drift\_cosine.max         & $+0.020$ $[-0.064, +0.101]$ & $-0.017$ $[-0.099, +0.062]$ & stable (NS) \\
+seakr\_k5\_proxy.logdet   & $+0.018$ $[-0.077, +0.112]$ & $+0.029$ $[-0.065, +0.122]$ & stable (NS) \\
+var\_l2\_window.max       & $+0.000$ $[-0.091, +0.090]$ & $-0.045$ $[-0.138, +0.046]$ & stable (NS) \\
+\midrule
+\textbf{Sig count} & \textbf{9 / 17} & \textbf{8 / 17} & 1-out, 1-in swap \\
+\bottomrule
+\end{tabular}
+\caption{Survivor matrix under EM (left) and LLM-as-Judge (right) on the
+headline pool ($n{=}800$, Qwen2.5-7B+Gemma-4-26B-A4B-it $\times$
+\{HotpotQA, 2WikiMHQA\}). Both columns use the same paired bootstrap of
+$\Delta = \mathrm{AUROC}(s_{\mathrm{resid}}) -
+\mathrm{AUROC}(\texttt{tokens\_generated})$ at $B{=}10{,}000$; the only
+difference is the target label
+(\texttt{lift\_em} vs \texttt{lift\_em}$_{\textsc{judge}}$).
+\checkmark $=$ 95\% CI lower bound $> 0$. Headline signal ECT
+strengthens under the judge ($\Delta{=}+0.222$ vs $+0.190$ under EM); all
+four Bonferroni-robust signals under EM retain nominal-95\% significance
+under the judge. The one signal that loses significance (\texttt{etc})
+is replaced by \texttt{flare.max} gaining it. SRC:
+\texttt{analysis/llm\_judge\_audit\_both.\{out,json\}}.}
+\label{tab:llmjudge}
+\end{table}
+
+\paragraph{Verdict.} The trigger-pool ranking is robust to the choice of
+correctness function. Of the $9$ paired-significant survivors under EM,
+$8$ remain paired-significant under the LLM-as-Judge label, with one
+out-in swap (\texttt{etc} $\to$ \texttt{flare.max}) that does not affect
+the Bonferroni-robust four. The headline signal ECT not only survives the
+switch but \emph{strengthens} (CI lower-bound $+0.132$ under judge vs
+$+0.093$ under EM; Bonferroni-corrected lower bound under EM at $k{=}15$
+is $+0.047$, see Appendix~\ref{sec:appendix-bonferroni}).
+This addresses the
+\citet{Janiak_IllusionProgressHallucinationDetection} and
+\citet{Ielanskyi_PitfallsUQEvaluationNLG} critiques directly: our
+survivor matrix is not a quirk of EM's lexical-overlap construction.
+
+\paragraph{Honest caveat: the judge has its own length bias.}
+\cite{Zheng_LLMasaJudge} document a verbosity bias in GPT-4-tier judges
+that prefers longer responses, and \cite{Wang_NotFairEvaluators}
+report analogous positional and self-preference biases. Our LLM-as-Judge
+robustness check is therefore evidence of cross-correctness-function
+\emph{pattern stability}, not evidence of full verbosity-independence. The
+load-bearing length-orthogonality argument in the paper rests on the
+\textsc{Uncertainty-Line} residualization protocol
+(\S\ref{sec:methods-residualization}) and the paired-oracle
+\texttt{lift\_em} design (\S\ref{sec:methods-protocol}); the judge
+robustness check confirms the survivor matrix is not the artifact of any
+\emph{single} correctness function in either of those two protocols.
+
+\paragraph{Reproducibility.}
+The judge audit script is
+\texttt{analysis/llm\_judge\_audit.py}. The cache directory at
+\texttt{analysis/llm\_judge\_cache/} contains 800 per-call JSON files
+recording (question, gold, predicted, judge verdict, raw response,
+elapsed time). The run log
+\texttt{analysis/llm\_judge\_audit.log} records every API call. To
+reproduce, set \texttt{OPENAI\_API\_KEY} and run
+\verb|python analysis/llm_judge_audit.py --arch both --model gpt-4o-mini --bootstrap-b 10000|.
 
 \section{Reproducibility}
 \label{sec:appendix-repro}
@@ -1814,6 +2083,25 @@ Supervision (CCS).} ICLR 2023.
 S.~Kadavath et al.
 \textit{Language Models (Mostly) Know What They Know.}
 arXiv:2207.05221, 2022.
+
+\bibitem[Zheng et al.(2023)]{Zheng_LLMasaJudge}
+L.~Zheng, W.-L.~Chiang, Y.~Sheng, S.~Zhuang, Z.~Wu, Y.~Zhuang, Z.~Lin,
+Z.~Li, D.~Li, E.~P.~Xing, H.~Zhang, J.~E.~Gonzalez, I.~Stoica.
+\textit{Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.}
+NeurIPS 2023.
+
+\bibitem[Wang et al.(2023)]{Wang_NotFairEvaluators}
+P.~Wang, L.~Li, L.~Chen, Z.~Cai, D.~Zhu, B.~Lin, Y.~Cao, Q.~Liu, T.~Liu,
+Z.~Sui.
+\textit{Large Language Models are not Fair Evaluators.}
+arXiv:2305.17926, 2023.
+
+\bibitem[Landis \& Koch(1977)]{LandisKoch_Kappa}
+J.~R.~Landis, G.~G.~Koch.
+\textit{The Measurement of Observer Agreement for Categorical Data.}
+Biometrics 33(1):159--174, 1977. ($\kappa$ interpretation bands:
+0.21--0.40 fair, 0.41--0.60 moderate, 0.61--0.80 substantial,
+0.81--1.00 almost perfect.)
 
 \bibitem[Li et al.(2023)]{Li_ETC}
 \textit{Entropy Trajectory Cumulant (ETC) signal for sequence-level

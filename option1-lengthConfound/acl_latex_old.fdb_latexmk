@@ -1,0 +1,18 @@
+# Fdb version 4
+["pdflatex"] 1778998736.61928 "/Users/sanegi/Documents/projects/recollection.local/option1-lengthConfound/acl_latex_old.tex" "acl_latex_old.pdf" "acl_latex_old" 1778998736.74519 2
+  "/Users/sanegi/Documents/projects/recollection.local/option1-lengthConfound/acl_latex_old.tex" 1778998736.07262 14500 ca12f6ad32f71e100a3fc1fa7b731c1e ""
+  "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
+  "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
+  "/usr/local/texlive/2025/texmf-dist/tex/latex/base/article.cls" 1738182759 20144 63d8bacaf52e5abf4db3bc322373e1d4 ""
+  "/usr/local/texlive/2025/texmf-dist/tex/latex/base/size11.clo" 1738182759 8464 e73911cdcc738e82d6adccd28e654bb1 ""
+  "/usr/local/texlive/2025/texmf-dist/web2c/texmf.cnf" 1739380943 42148 61becc7c670cd061bb319c643c27fdd4 ""
+  "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1751985853 3345744 35217db18e4050361146ea5e7e3a92ea ""
+  "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
+  "acl.sty" 0 -1 0 ""
+  "acl_latex_old.aux" 1778998736.6189 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "acl_latex_old.tex" 1778998736.07262 14500 ca12f6ad32f71e100a3fc1fa7b731c1e ""
+  (generated)
+  "acl_latex_old.aux"
+  "acl_latex_old.log"
+  "acl_latex_old.pdf"
+  (rewritten before read)

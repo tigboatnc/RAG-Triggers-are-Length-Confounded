@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.7.8)  16 MAY 2026 22:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.7.8)  17 MAY 2026 02:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -336,7 +336,7 @@ See the natbib package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.306 ...and\NAT@force@numbers{}\NAT@force@numbers
+l.351 ...and\NAT@force@numbers{}\NAT@force@numbers
                                                   
 Check the bibliography entries for non-compliant syntax,
 or select author-year BibTeX style, e.g. plainnat
@@ -402,7 +402,7 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 73.
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Overfull \hbox (1.86064pt too wide) in paragraph at lines 130--140
+Overfull \hbox (1.86064pt too wide) in paragraph at lines 131--141
  []\OT1/cmr/bx/n/10.95 Dynamic retrieval-augmented gen-er-a-tion needs trig-ger
 s.[] \OT1/cmr/m/n/10.95 Retrieval-
  []
@@ -411,15 +411,16 @@ s.[] \OT1/cmr/m/n/10.95 Retrieval-
 
 [1
 
-{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
+al/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
 
 [2]
 
 LaTeX Font Warning: Font shape `OT1/cmr/bx/sc' undefined
-(Font)              using `OT1/cmr/bx/n' instead on input line 187.
+(Font)              using `OT1/cmr/bx/n' instead on input line 188.
 
 
-Overfull \hbox (5.45486pt too wide) in paragraph at lines 187--198
+Overfull \hbox (5.45486pt too wide) in paragraph at lines 188--199
 \OT1/cmr/m/n/10.95 En-tropy, Token-SAR) re-tain resid-ual length bias, and pro-
 pose \OT1/cmr/m/sc/10.95 Uncertainty-
  []
@@ -427,41 +428,34 @@ pose \OT1/cmr/m/sc/10.95 Uncertainty-
 
 
 [3]
-Overfull \hbox (26.24649pt too wide) in paragraph at lines 243--252
+Overfull \hbox (12.04697pt too wide) in paragraph at lines 232--245
+\OT1/cmr/m/n/10.95 can-di-date length-orthogonal trig-gers. We test this class 
+un-der length-controlled
+ []
+
+
+Overfull \hbox (26.24649pt too wide) in paragraph at lines 247--256
 \OT1/cmr/m/n/10.95 trig-gers'' de-notes step-to-step dis-agree-ment un-der $\OM
 L/cmm/m/it/10.95 K$\OT1/cmr/m/n/10.95 -sample boundary-completion
  []
 
 
-Overfull \hbox (41.23106pt too wide) in paragraph at lines 276--287
-[]\OT1/cmr/bx/n/10.95 Protocol trans-fer with tar-get re-fine-ment. \OT1/cmr/m/
-n/10.95 We trans-fer the \OT1/cmr/m/sc/10.95 Uncertainty-
- []
-
-
-Overfull \hbox (120.37111pt too wide) in paragraph at lines 276--287
-\OT1/cmr/m/n/10.95 tion (\OT1/cmtt/m/n/10.95 externalCodeAudits/uncertainty-lin
-e/\OT1/cmr/m/n/10.95 , our \OT1/cmtt/m/n/10.95 analysis/uncertainty[]line[]audi
-t.py\OT1/cmr/m/n/10.95 )
- []
-
-
-Overfull \hbox (4.57353pt too wide) in paragraph at lines 276--287
-\OT1/cmss/m/n/10.95 AU-ROC max][] \OT1/cmr/m/n/10.95 on both ar-chi-tec-tures (
-[]\OT1/cmss/m/n/10.95 [FACT: Qwen 0.029, Gemma 0.027][]\OT1/cmr/m/n/10.95 ). 
+Overfull \hbox (130.10446pt too wide) in paragraph at lines 280--291
+\OT1/cmr/m/n/10.95 ta-tion (\OT1/cmtt/m/n/10.95 externalCodeAudits/uncertainty-
+line/\OT1/cmr/m/n/10.95 , our \OT1/cmtt/m/n/10.95 analysis/uncertainty[]line[]a
+udit.py\OT1/cmr/m/n/10.95 )
  []
 
 
 
-[4{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
-}]
-Overfull \hbox (10.86732pt too wide) in paragraph at lines 288--296
+[4]
+Overfull \hbox (10.86732pt too wide) in paragraph at lines 292--300
 \OT1/cmr/m/n/10.95 26B-A4B-it, $\OMS/cmsy/m/n/10.95 ^^X$\OT1/cmr/m/n/10.95 3.8B
  ac-tive / 25.2B to-tal, MoE with sliding-window/global
  []
 
 
-Overfull \hbox (9.8378pt too wide) in paragraph at lines 297--310
+Overfull \hbox (9.8378pt too wide) in paragraph at lines 301--316
 []\OT1/cmr/bx/n/10.95 Length-robust sig-nals. []\OT1/cmss/m/n/10.95 [FACT: Nine
  sig-nals][] \OT1/cmr/m/n/10.95 re-tain a length-orthogonal
  []
@@ -469,20 +463,20 @@ Overfull \hbox (9.8378pt too wide) in paragraph at lines 297--310
 
 
 [5]
-Overfull \hbox (30.41765pt too wide) in paragraph at lines 352--358
+Overfull \hbox (30.41765pt too wide) in paragraph at lines 372--378
 \OT1/cmr/bx/n/10.95 Attention-conditioned trig-gers. \OT1/cmr/m/n/10.95 DRA-GIN
  ([]) de-fines a real-time information-
  []
 
 
-Overfull \hbox (12.5371pt too wide) in paragraph at lines 367--375
+Overfull \hbox (12.5371pt too wide) in paragraph at lines 387--395
 \OT1/cmr/m/n/10.95 trig-ger-ing via a $\OML/cmm/m/it/10.95 K[]\OT1/cmr/m/n/10.9
 5 20$ Gram de-ter-mi-nant. We in-clude \OT1/cmtt/m/n/10.95 seakr[]k5[]proxy.log
 det
  []
 
 
-Overfull \hbox (37.85648pt too wide) in paragraph at lines 367--375
+Overfull \hbox (37.85648pt too wide) in paragraph at lines 387--395
 \OT1/cmr/m/n/10.95 in-clude are \OT1/cmtt/m/n/10.95 drift[]cosine.max\OT1/cmr/m
 /n/10.95 , \OT1/cmtt/m/n/10.95 variance[]l2[]window.max\OT1/cmr/m/n/10.95 , and
  \OT1/cmtt/m/n/10.95 hidden[]norm.range\OT1/cmr/m/n/10.95 .
@@ -491,14 +485,14 @@ Overfull \hbox (37.85648pt too wide) in paragraph at lines 367--375
 
 
 [6]
-Overfull \hbox (10.20544pt too wide) in paragraph at lines 404--413
+Overfull \hbox (10.20544pt too wide) in paragraph at lines 424--433
 \OT1/cmr/m/n/10.95 cal Spear-man cor-re-la-tions (Ta-ble 2 of their pa-per) sho
 w $\OML/cmm/m/it/10.95 ^^Z\OT1/cmr/m/n/10.95 ([]\OML/cmm/m/it/10.95 ; []\OT1/cm
 r/m/n/10.95 ) =
  []
 
 
-Overfull \hbox (4.3995pt too wide) in paragraph at lines 404--413
+Overfull \hbox (4.3995pt too wide) in paragraph at lines 424--433
 \OMS/cmsy/m/n/10.95 ^^@\OT1/cmr/m/n/10.95 0\OML/cmm/m/it/10.95 :\OT1/cmr/m/n/10
 .95 7$, $\OML/cmm/m/it/10.95 ^^Z\OT1/cmr/m/n/10.95 ([]\OML/cmm/m/it/10.95 ; []\
 OT1/cmr/m/n/10.95 ) = \OMS/cmsy/m/n/10.95 ^^@\OT1/cmr/m/n/10.95 0\OML/cmm/m/it/
@@ -508,27 +502,27 @@ L/cmm/m/it/10.95 ; []\OT1/cmr/m/n/10.95 ) = \OMS/cmsy/m/n/10.95 ^^@\OT1/cmr/m/n
  []
 
 
-Overfull \hbox (0.22502pt too wide) in paragraph at lines 404--413
+Overfull \hbox (0.22502pt too wide) in paragraph at lines 424--433
 \OT1/cmr/m/n/10.95 and Token-Length it-self is a com-pet-i-tive UQ-method base-
 line on their leader-
  []
 
 
-Overfull \hbox (6.55173pt too wide) in paragraph at lines 451--455
+
+[7]
+Overfull \hbox (6.55173pt too wide) in paragraph at lines 471--475
 \OT1/cmr/m/n/10.95 trigger pool, which is the trig-ger set most di-rectly af-fe
 cted by length-correlated
  []
 
 
-Overfull \hbox (17.78683pt too wide) in paragraph at lines 463--473
+Overfull \hbox (17.78683pt too wide) in paragraph at lines 483--493
 \OT1/cmr/m/n/10.95 mode rea-son-ing model (Qwen3-4B/8B/30B-A3B), de-fines $[](\
 OML/cmm/m/it/10.95 T\OT1/cmr/m/n/10.95 ) =
  []
 
 
-
-[7]
-Overfull \hbox (5.25555pt too wide) in paragraph at lines 499--499
+Overfull \hbox (5.25555pt too wide) in paragraph at lines 519--519
 []\OT1/cmr/bx/n/12 Stepwise and Stream-ing Un-cer-tainty in Chain-of-Thought 
  []
 
@@ -536,9 +530,9 @@ Overfull \hbox (5.25555pt too wide) in paragraph at lines 499--499
 
 [8]
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 538.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 558.
 
-Overfull \hbox (7.03812pt too wide) in paragraph at lines 565--570
+Overfull \hbox (7.03812pt too wide) in paragraph at lines 585--590
  []\OT1/cmr/bx/n/10.95 Why paired-oracle.[] \OT1/cmr/m/n/10.95 A stan-dard al-t
 er-na-tive tar-get, $[] = 0$ (closed-
  []
@@ -546,69 +540,80 @@ er-na-tive tar-get, $[] = 0$ (closed-
 
 
 [9]
-Overfull \hbox (6.88632pt too wide) in paragraph at lines 581--590
+Overfull \hbox (7.31711pt too wide) in paragraph at lines 605--621
+\OT1/cmr/m/n/10.95 boot-strap $\OML/cmm/m/it/10.95 B[]\OT1/cmr/m/n/10.95 10[]00
+0$. EM and judge la-bels agree at Co-hen's $\OML/cmm/m/it/10.95 ^^T \OT1/cmr/m/
+n/10.95 = [][]$
+ []
+
+
+Overfull \hbox (6.88632pt too wide) in paragraph at lines 623--632
 \OT1/cmr/m/n/10.95 (helper mod-ule pro-vid-ing the shared sig-nal ex-trac-tors,
  AU-ROC, OLS-residual,
  []
 
 
-Overfull \hbox (39.90416pt too wide) in paragraph at lines 581--590
+Overfull \hbox (39.90416pt too wide) in paragraph at lines 623--632
 \OT1/cmr/m/n/10.95 and paired-bootstrap prim-i-tives); trace gen-er-a-tion via 
 \OT1/cmtt/m/n/10.95 scripts/04f[]run[]qa[]sota.py
  []
 
 
-Overfull \hbox (86.23376pt too wide) in paragraph at lines 610--622
+
+[10]
+Overfull \hbox (86.23376pt too wide) in paragraph at lines 652--664
 \OT1/cmr/m/sc/10.95 Line \OT1/cmr/m/n/10.95 im-ple-men-ta-tion ([]; \OT1/cmtt/m
 /n/10.95 externalCodeAudits/uncertainty-line/utils.py::detrend[]ue\OT1/cmr/m/n/
 10.95 ).
  []
 
 
-Overfull \hbox (69.94064pt too wide) in paragraph at lines 610--622
+Overfull \hbox (69.94064pt too wide) in paragraph at lines 652--664
 \OT1/cmr/m/n/10.95 The ref-er-ence math is MinMax-scale sig-nal and length, fit
  \OT1/cmtt/m/n/10.95 LinearRegression(signal[]norm
  []
 
 
-Overfull \hbox (94.40213pt too wide) in paragraph at lines 623--629
+Overfull \hbox (94.40213pt too wide) in paragraph at lines 665--671
 \OT1/cmtt/m/n/10.95 analysis/uncertainty[]line[]audit.py \OT1/cmr/m/n/10.95 and
  \OT1/cmtt/m/n/10.95 analysis/uncertainty[]line[]audit[]*.out,json\OT1/cmr/m/n/
 10.95 . 
  []
 
 
-Overfull \hbox (90.09627pt too wide) in paragraph at lines 630--636
+Overfull \hbox (90.09627pt too wide) in paragraph at lines 672--678
  []\OT1/cmr/bx/sc/10.95 Statistical sig-nif-i-cance.[] \OT1/cmr/m/n/10.95 Paire
 d boot-strap of $^^A([] \OMS/cmsy/m/n/10.95 ^^@ []\OT1/cmr/m/n/10.95 )$
  []
 
 
-
-[10]
-Overfull \hbox (137.49153pt too wide) in paragraph at lines 640--646
+Overfull \hbox (137.49153pt too wide) in paragraph at lines 682--688
 \OT1/cmr/m/n/10.95 for both Qwen and Gemma cells); \OT1/cmtt/m/n/10.95 analysis
 /moonshot[]explore.py \OT1/cmr/m/n/10.95 + \OT1/cmtt/m/n/10.95 analysis/moonsho
 t[]ensemble.py
  []
 
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 696.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 738.
 
-Overfull \hbox (61.92365pt too wide) in paragraph at lines 661--701
+Overfull \hbox (62.20142pt too wide) in paragraph at lines 703--743
  [][] 
  []
 
+
+
+[11]
 LaTeX Font Info:    Trying to load font information for OMS+cmtt on input line 
-728.
-LaTeX Font Info:    No file OMScmtt.fd. on input line 728.
+770.
+LaTeX Font Info:    No file OMScmtt.fd. on input line 770.
+
 
 LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
-(Font)              for symbol `textbackslash' on input line 728.
+(Font)              for symbol `textbackslash' on input line 770.
 
 
-Overfull \hbox (49.44553pt too wide) in paragraph at lines 725--733
+Overfull \hbox (49.44553pt too wide) in paragraph at lines 767--775
 \OT1/cmr/m/n/10.95 ture $\OML/cmm/m/it/10.95 ^^\[]\OT1/cmr/m/n/10.95 0\OML/cmm/
 m/it/10.95 :\OT1/cmr/m/n/10.95 6$, top-$\OML/cmm/m/it/10.95 p$ \OT1/cmr/m/n/10.
 95 0.9, with an-swer ex-trac-tion via the regex \OT1/cmtt/m/n/10.95 r"\OMS/cmtt
@@ -617,19 +622,17 @@ m/it/10.95 :\OT1/cmr/m/n/10.95 6$, top-$\OML/cmm/m/it/10.95 p$ \OT1/cmr/m/n/10.
  []
 
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 735.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 777.
 
 
-[11]
-Overfull \hbox (0.92464pt too wide) in paragraph at lines 772--777
+[12]
+Overfull \hbox (0.92464pt too wide) in paragraph at lines 814--819
 \OT1/cmr/m/n/10.95 we pro-pose an ad-di-tional sig-nal mo-ti-vated by the ``dec
 ide-early'' phe-nomenon
  []
 
 
-
-[12]
-Overfull \hbox (41.19527pt too wide) in paragraph at lines 800--813
+Overfull \hbox (41.19527pt too wide) in paragraph at lines 842--855
  [][] 
  []
 
@@ -637,7 +640,7 @@ Overfull \hbox (41.19527pt too wide) in paragraph at lines 800--813
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (8.44478pt too wide) in paragraph at lines 834--844
+Overfull \hbox (8.44478pt too wide) in paragraph at lines 876--886
  [][] 
  []
 
@@ -645,29 +648,29 @@ Overfull \hbox (8.44478pt too wide) in paragraph at lines 834--844
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (17.47134pt too wide) in paragraph at lines 848--854
+Overfull \hbox (17.47134pt too wide) in paragraph at lines 890--896
 \OT1/cmr/m/n/10.95 7B-Instruct) and a Mixture-of-Experts model with hy-brid sli
 ding-window/global
  []
 
 
-Overfull \hbox (17.9709pt too wide) in paragraph at lines 855--864
+
+[13]
+Overfull \hbox (17.9709pt too wide) in paragraph at lines 897--906
 \OT1/cmtt/m/n/10.95 mean[]token[]entropy\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.9
 5 boundary[]token[]entropy\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 per[]token[]
 max[]logprob \OT1/cmr/m/n/10.95 (post
  []
 
 
-Overfull \hbox (37.43382pt too wide) in paragraph at lines 855--864
+Overfull \hbox (37.43382pt too wide) in paragraph at lines 897--906
 \OT1/cmr/m/n/10.95 and pre rep-e-ti-tion penalty), \OT1/cmtt/m/n/10.95 dragin[]
 rind[]max\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 drift[]cosine\OT1/cmr/m/n/10.
 95 , \OT1/cmtt/m/n/10.95 variance[]l2[]window\OT1/cmr/m/n/10.95 ,
  []
 
 
-
-[13]
-Overfull \hbox (166.82599pt too wide) in paragraph at lines 887--892
+Overfull \hbox (166.82599pt too wide) in paragraph at lines 929--934
 \OT1/cmr/m/n/10.95 (\OT1/cmtt/m/n/10.95 n\OT1/cmr/m/n/10.95 =200/cell, 4 cells 
 per arch). Slice man-i-fest at \OT1/cmtt/m/n/10.95 runs/v2[]headline[]\OT1/cmtt
 /m/it/10.95 arch\OT1/cmtt/m/n/10.95 /checkpoints/slice[]manifest.json\OT1/cmr/m
@@ -675,108 +678,104 @@ per arch). Slice man-i-fest at \OT1/cmtt/m/n/10.95 runs/v2[]headline[]\OT1/cmtt
  []
 
 
-Overfull \hbox (16.84222pt too wide) in paragraph at lines 915--922
+
+[14]
+Overfull \hbox (16.84222pt too wide) in paragraph at lines 957--964
 \OT1/cmtt/m/n/10.95 ent.max\OT1/cmr/m/n/10.95 ) clear paired-significance un-de
 r Bon-fer-roni; the re-main-ing five nominal-
  []
 
 LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 9
-24.
+66.
 (/usr/local/texlive/2025/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2024/11/19 v2.5n Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 924.
-
-
-LaTeX Warning: Reference `fig:survivor-forest' on page 14 undefined on input li
-ne 940.
-
-
-
-[14]
-<../figs/survivor_forest.pdf, id=432, 469.32854pt x 405.76192pt>
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 966.
+<../figs/survivor_forest.pdf, id=454, 469.32854pt x 405.76192pt>
 File: ../figs/survivor_forest.pdf Graphic file (type pdf)
 <use ../figs/survivor_forest.pdf>
-Package pdftex.def Info: ../figs/survivor_forest.pdf  used on input line 955.
+Package pdftex.def Info: ../figs/survivor_forest.pdf  used on input line 997.
 (pdftex.def)             Requested size: 331.19934pt x 286.347pt.
 
-Underfull \hbox (badness 4072) in paragraph at lines 972--972
+Underfull \hbox (badness 4072) in paragraph at lines 1014--1014
 []\OT1/cmr/m/n/10.95 Figure 1: []\OT1/cmr/bx/sc/10.95 Length-orthogonal trig-ge
 r sig-nals on the head-
  []
 
 
-Overfull \hbox (1.29095pt too wide) in paragraph at lines 976--980
+Overfull \hbox (1.29095pt too wide) in paragraph at lines 1018--1022
 \OT1/cmr/m/n/10.95 residualized AU-ROC; the right-most columns re-port $^^A$ vs
 . \OT1/cmtt/m/n/10.95 tokens[]generated
  []
 
 
-Overfull \hbox (254.05156pt too wide) in paragraph at lines 983--1029
+Overfull \hbox (254.05156pt too wide) in paragraph at lines 1025--1071
  [][] 
  []
 
 
-Underfull \hbox (badness 3189) in paragraph at lines 1029--1029
+Underfull \hbox (badness 3189) in paragraph at lines 1071--1071
 []\OT1/cmr/m/n/10.95 Table 4: []\OT1/cmr/bx/sc/10.95 Cross-architecture sur-viv
 or ma-trix \OT1/cmr/m/n/10.95 on the head-line
  []
 
 
-Underfull \hbox (badness 6157) in paragraph at lines 1029--1029
+Underfull \hbox (badness 6157) in paragraph at lines 1071--1071
 \OT1/cmr/m/n/10.95 pool (Qwen2.5-7B-Instruct + Gemma-4-26B-A4B-it $\OMS/cmsy/m/
 n/10.95 ^^B$ f\OT1/cmr/m/n/10.95 HotpotQA,
  []
 
 
-Underfull \hbox (badness 3930) in paragraph at lines 1029--1029
+Underfull \hbox (badness 3930) in paragraph at lines 1071--1071
 \OT1/cmr/m/n/10.95 2WikiMHQA\OMS/cmsy/m/n/10.95 g\OT1/cmr/m/n/10.95 , $\OML/cmm
 /m/it/10.95 n[]\OT1/cmr/m/n/10.95 800$ paired traces). All AU-ROCs are length-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1029--1029
+Underfull \hbox (badness 10000) in paragraph at lines 1071--1071
 \OT1/cmr/m/n/10.95 of $^^A = [](\OML/cmm/m/it/10.95 s[]\OT1/cmr/m/n/10.95 ) \OM
 S/cmsy/m/n/10.95 ^^@ []\OT1/cmr/m/n/10.95 ([])$. The
  []
 
 
-Underfull \hbox (badness 5741) in paragraph at lines 1029--1029
+Underfull \hbox (badness 5741) in paragraph at lines 1071--1071
 \OT1/cmr/m/n/10.95 right-most col-umn gives the Bonferroni-corrected $\OMS/cmsy
 /m/n/10.95 ^^X$\OT1/cmr/m/n/10.95 99.67% CI at
  []
 
 
-Underfull \hbox (badness 3209) in paragraph at lines 1029--1029
+Underfull \hbox (badness 3209) in paragraph at lines 1071--1071
 \OML/cmm/m/it/10.95 k[]\OT1/cmr/m/n/10.95 15$ ($\OML/cmm/m/it/10.95  \OT1/cmr/
 m/n/10.95 = 0\OML/cmm/m/it/10.95 :\OT1/cmr/m/n/10.95 0033$). \OT1/cmr/bx/sc/10.
 95 Nine sig-nals \OT1/cmr/m/n/10.95 clear nominal-95% paired-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1029--1029
+Underfull \hbox (badness 10000) in paragraph at lines 1071--1071
 \OT1/cmtt/m/n/10.95 analysis/moonshot[]explore[]3arch.out.b10k \OT1/cmr/m/n/10.
 95 (M-series, answer-
  []
 
 
-Underfull \hbox (badness 2717) in paragraph at lines 1029--1029
+Underfull \hbox (badness 2717) in paragraph at lines 1071--1071
 \OT1/cmr/m/n/10.95 trajectory, top trigger-pool rows) and \OT1/cmtt/m/n/10.95 a
 nalysis/e7[]bonferroni.out
  []
 
 
 LaTeX Warning: Reference `eq:m8ect-tcommit' on page 15 undefined on input line 
-1041.
+1083.
 
 
-Underfull \hbox (badness 1521) in paragraph at lines 1070--1070
+
+[15]
+Underfull \hbox (badness 1521) in paragraph at lines 1112--1112
 []\OT1/cmr/m/n/10.95 Table 5: []Per-cell raw AU-ROC of ECT on $[][] + 1$. ECT
  []
 
 
-Underfull \hbox (badness 1281) in paragraph at lines 1070--1070
+Underfull \hbox (badness 1281) in paragraph at lines 1112--1112
 \OT1/cmr/m/n/10.95 dis-crim-i-nates most strongly on the Gemma $\OMS/cmsy/m/n/1
 0.95 ^^B$ \OT1/cmr/m/n/10.95 2Wiki cell, which is
  []
@@ -785,30 +784,24 @@ Underfull \hbox (badness 1281) in paragraph at lines 1070--1070
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-
-[15]
-
 LaTeX Warning: Reference `eq:m8ect-tcommit' on page 16 undefined on input line 
-1094.
+1136.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1103.
+(hyperref)                removing `math shift' on input line 1145.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1103.
+(hyperref)                removing `math shift' on input line 1145.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1103.
+(hyperref)                removing `math shift' on input line 1145.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1103.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
+(hyperref)                removing `math shift' on input line 1145.
 
 
 
@@ -817,7 +810,12 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (104.33366pt too wide) in paragraph at lines 1211--1217
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+
+[17]
+Overfull \hbox (104.33366pt too wide) in paragraph at lines 1253--1259
 \OT1/cmss/m/n/10.95 0.974][] \OT1/cmr/m/n/10.95 and \OT1/cmtt/m/n/10.95 ent.max
 \OT1/cmr/m/n/10.95 /\OT1/cmtt/m/n/10.95 etc \OT1/cmr/m/n/10.95 both reach []\OT
 1/cmss/m/n/10.95 [FACT: 1.000][]\OT1/cmr/m/n/10.95 . On Gemma $\OMS/cmsy/m/n/10
@@ -826,25 +824,25 @@ bridge[]comparison
  []
 
 
-Overfull \hbox (16.3326pt too wide) in paragraph at lines 1211--1217
+Overfull \hbox (16.3326pt too wide) in paragraph at lines 1253--1259
 \OT1/cmr/m/n/10.95 (n$[][]7$), DRA-GIN reaches []\OT1/cmss/m/n/10.95 [FACT: 0.8
 21][]\OT1/cmr/m/n/10.95 . On Qwen $\OMS/cmsy/m/n/10.95 ^^B$ \OT1/cmr/m/n/10.95 
 Hot-potQA $\OMS/cmsy/m/n/10.95 ^^B$ \OT1/cmr/m/n/10.95 com-
  []
 
 
-Overfull \hbox (13.1236pt too wide) in paragraph at lines 1217--1221
+Overfull \hbox (13.1236pt too wide) in paragraph at lines 1259--1263
 \OT1/cmr/m/n/10.95 dom-i-nate com-po-si-tional and in-fer-ence sub-sets on Qwen
  2Wiki (\OT1/cmtt/m/n/10.95 flip[]rate
  []
 
 
-Overfull \hbox (25.91408pt too wide) in paragraph at lines 1225--1264
+Overfull \hbox (25.91408pt too wide) in paragraph at lines 1267--1306
  [][] 
  []
 
 
-Underfull \hbox (badness 1057) in paragraph at lines 1264--1264
+Underfull \hbox (badness 1057) in paragraph at lines 1306--1306
 \OT1/cmr/m/n/10.95 so the 0.974/1.000 en-tries should be read with that caveat.
  SRC:
  []
@@ -853,67 +851,70 @@ Underfull \hbox (badness 1057) in paragraph at lines 1264--1264
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (1.32646pt too wide) in paragraph at lines 1268--1273
+Overfull \hbox (1.32646pt too wide) in paragraph at lines 1310--1315
  []\OT1/cmr/bx/sc/10.95 Implication for de-ploy-ment.[] \OT1/cmr/m/n/10.95 The 
 op-ti-mal ag-gre-ga-tion is cell-dependent.
  []
 
 
+Overfull \hbox (1.6089pt too wide) in paragraph at lines 1322--1343
+\OT1/cmr/m/n/10.95 robust sur-vivors un-der EM (ECT, DRAGIN-RIND, \OT1/cmtt/m/n
+/10.95 min[]majority\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 ent.max\OT1/cmr/m/
+n/10.95 )
+ []
 
-[17]
-Overfull \hbox (48.80367pt too wide) in paragraph at lines 1287--1301
+
+
+[18]
+Overfull \hbox (48.80367pt too wide) in paragraph at lines 1368--1382
 \OT1/cmr/m/n/10.95 On the sec-ondary \OT1/cmtt/m/n/10.95 closed[]em$\OT1/cmr/m/
 n/10.95 = 0$ (closed-book-incorrect) tar-get, the \OT1/cmtt/m/n/10.95 tokens[]g
 enerated
  []
 
 
-Overfull \hbox (2.27815pt too wide) in paragraph at lines 1287--1301
+Overfull \hbox (2.27815pt too wide) in paragraph at lines 1368--1382
 \OT1/cmr/m/n/10.95 sin-gle strongest pre-residualization sig-nal on sev-eral ce
 lls (e.g. Gemma $\OMS/cmsy/m/n/10.95 ^^B$ \OT1/cmr/m/n/10.95 Hot-
  []
 
 
-Overfull \hbox (66.35004pt too wide) detected at line 1305
+Overfull \hbox (66.35004pt too wide) detected at line 1386
 []  \OMS/cmsy/m/n/10.95 !  []  !  []  !  []  !  []\OML/cmm/m/it/10.95 :
  []
 
 
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1315.
+Overfull \hbox (7.27504pt too wide) in paragraph at lines 1396--1396
+[]\OT1/cmr/bx/sc/12 Why Answer-Trajectory Sta-bil-ity Pre-dicts Re-trieval Need
+ 
+ []
 
 
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `superscript' on input line 1315.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\star' on input line 1315.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 1315.
-
-
-
-[18]
 
 [19]
-Overfull \hbox (3.0841pt too wide) in paragraph at lines 1427--1436
+
+[20]
+
+[21]
+Overfull \hbox (3.0841pt too wide) in paragraph at lines 1523--1532
  []\OT1/cmr/bx/sc/10.95 Non-thinking-mode chat mod-els only.[] \OT1/cmr/m/n/10.
 95 Both au-dited mod-els (Qwen2.5-
  []
 
 
-Overfull \hbox (26.794pt too wide) in paragraph at lines 1445--1459
+Overfull \hbox (26.794pt too wide) in paragraph at lines 1541--1556
 \OT1/cmr/m/n/10.95 We re-evaluate the pub-lished dynamic-RAG-trigger pool un-de
 r length-residualized
  []
 
 
+Overfull \hbox (14.94807pt too wide) in paragraph at lines 1541--1556
+\OT1/cmr/m/n/10.95 per cell, 9 re-tain a length-orthogonal pos-i-tive mar-gin a
+gainst \OT1/cmtt/m/n/10.95 tokens[]generated
+ []
 
-[20]
-Overfull \hbox (14.99419pt too wide) in paragraph at lines 1465--1470
+
+Overfull \hbox (14.99419pt too wide) in paragraph at lines 1562--1567
 \OT1/cmr/m/n/10.95 com-pare our $\OML/cmm/m/it/10.95 K[]\OT1/cmr/m/n/10.95 5$ \
 OT1/cmtt/m/n/10.95 flip[]rate \OT1/cmr/m/n/10.95 against true single-greedy for
 ced-completion
@@ -921,14 +922,14 @@ ced-completion
 
 
 
-[21]
-Overfull \hbox (4.52933pt too wide) in paragraph at lines 1501--1511
+[22]
+Overfull \hbox (4.52933pt too wide) in paragraph at lines 1608--1618
 \OT1/cmr/m/n/10.95 lower CI bound un-der cor-rec-tion: ECT, DRAGIN-RIND.max, \O
 T1/cmtt/m/n/10.95 min[]majority\OT1/cmr/m/n/10.95 ,
  []
 
 
-Underfull \hbox (badness 4217) in paragraph at lines 1537--1537
+Underfull \hbox (badness 4217) in paragraph at lines 1644--1644
 []\OT1/cmr/m/n/10.95 Table 9: []Bonferroni-corrected sur-vivor set on the head-
 line pool
  []
@@ -937,12 +938,14 @@ line pool
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (3.31456pt too wide) in paragraph at lines 1541--1541
+Overfull \hbox (3.31456pt too wide) in paragraph at lines 1648--1648
 []\OT1/cmr/bx/n/14.4 Length-vs-Signal Spear-man Cor-re-la-tion per Cell 
  []
 
 
-Overfull \hbox (65.84648pt too wide) in paragraph at lines 1553--1587
+
+[23]
+Overfull \hbox (65.84648pt too wide) in paragraph at lines 1660--1694
  [][] 
  []
 
@@ -950,7 +953,53 @@ Overfull \hbox (65.84648pt too wide) in paragraph at lines 1553--1587
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (60.48506pt too wide) in paragraph at lines 1600--1615
+Overfull \hbox (14.53137pt too wide) in paragraph at lines 1698--1698
+[]\OT1/cmr/bx/n/14.4 Correctness-Function Ro-bust-ness: LLM-as-Judge 
+ []
+
+
+Overfull \hbox (121.83417pt too wide) in paragraph at lines 1733--1741
+\OT1/cmr/m/n/10.95 files at \OT1/cmtt/m/n/10.95 analysis/llm[]judge[]cache/ \OT
+1/cmr/m/n/10.95 pre-serve ev-ery judge-ment (ques-tion/gold/prediction/verdict/
+raw
+ []
+
+
+Overfull \hbox (1.52579pt too wide) in paragraph at lines 1743--1758
+ []\OT1/cmr/bx/sc/10.95 Inter-label agree-ment.[] \OT1/cmr/m/n/10.95 Of the $\O
+ML/cmm/m/it/10.95 n[]\OT1/cmr/m/n/10.95 800$ paired traces, EM iden-ti-fies []\
+OT1/cmss/m/n/10.95 [FACT:
+ []
+
+
+
+[24]
+Overfull \hbox (113.55605pt too wide) in paragraph at lines 1778--1826
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+
+[25]
+Overfull \hbox (10.28772pt too wide) in paragraph at lines 1857--1865
+ []\OT1/cmr/bx/sc/10.95 Reproducibility.[] \OT1/cmr/m/n/10.95 The judge au-dit 
+script is \OT1/cmtt/m/n/10.95 analysis/llm[]judge[]audit.py\OT1/cmr/m/n/10.95 .
+
+ []
+
+
+Overfull \hbox (385.77254pt too wide) in paragraph at lines 1857--1865
+\OT1/cmr/m/n/10.95 API call. To re-pro-duce, set \OT1/cmtt/m/n/10.95 OPENAI[]AP
+I[]KEY \OT1/cmr/m/n/10.95 and run [][]\OT1/cmtt/m/n/10.95 python analysis/llm_j
+udge_audit.py --arch both --model gpt-4o-mini --bootstrap-b 10000[]\OT1/cmr/m/n
+/10.95 . 
+ []
+
+
+Overfull \hbox (60.48506pt too wide) in paragraph at lines 1869--1884
 \OT1/cmr/m/n/10.95 All trace JSONLs are com-mit-ted at \OT1/cmtt/m/n/10.95 runs
 /v2[]headline[]\OMS/cmsy/m/n/10.95 f\OT1/cmtt/m/n/10.95 arch\OMS/cmsy/m/n/10.95
  g\OT1/cmtt/m/n/10.95 /\OMS/cmsy/m/n/10.95 f\OT1/cmtt/m/n/10.95 D1,D2,E1,E2\OMS
@@ -958,40 +1007,40 @@ Overfull \hbox (60.48506pt too wide) in paragraph at lines 1600--1615
  []
 
 
-Overfull \hbox (80.2246pt too wide) in paragraph at lines 1600--1615
+Overfull \hbox (80.2246pt too wide) in paragraph at lines 1869--1884
 \OT1/cmr/m/n/10.95 SHA-256 check-sums are at \OT1/cmtt/m/n/10.95 runs/v2[]headl
 ine[]\OMS/cmsy/m/n/10.95 f\OT1/cmtt/m/n/10.95 arch\OMS/cmsy/m/n/10.95 g\OT1/cmt
 t/m/n/10.95 /checkpoints/slice[]manifest.json\OT1/cmr/m/n/10.95 .
  []
 
 
-Overfull \hbox (27.78714pt too wide) in paragraph at lines 1600--1615
+Overfull \hbox (27.78714pt too wide) in paragraph at lines 1869--1884
 \OT1/cmr/m/n/10.95 De-cod-ing com-mand lines are at \OT1/cmtt/m/n/10.95 runs/v2
 []headline[]\OMS/cmsy/m/n/10.95 f\OT1/cmtt/m/n/10.95 arch\OMS/cmsy/m/n/10.95 g\
 OT1/cmtt/m/n/10.95 /logs/00[]master.log\OT1/cmr/m/n/10.95 .
  []
 
 
-Overfull \hbox (1.14272pt too wide) in paragraph at lines 1600--1615
+Overfull \hbox (1.14272pt too wide) in paragraph at lines 1869--1884
 \OT1/cmr/m/n/10.95 Anal-y-sis scripts are at \OT1/cmtt/m/n/10.95 analysis/r1[]p
 hi[]paired[]audit.py \OT1/cmr/m/n/10.95 (per-arch paired-
  []
 
 
-Overfull \hbox (127.65793pt too wide) in paragraph at lines 1600--1615
+Overfull \hbox (127.65793pt too wide) in paragraph at lines 1869--1884
 \OT1/cmr/m/n/10.95 audit driver; name re-tained from R1 launch or-der, takes \O
 T1/cmtt/m/n/10.95 --arch\OT1/cmr/m/n/10.95 ), \OT1/cmtt/m/n/10.95 analysis/a1[]
 k1[]vs[]k5[]ablation.py\OT1/cmr/m/n/10.95 ,
  []
 
 
-Overfull \hbox (0.34975pt too wide) in paragraph at lines 1600--1615
+Overfull \hbox (0.34975pt too wide) in paragraph at lines 1869--1884
 \OT1/cmtt/m/n/10.95 analysis/uncertainty[]line[]audit.py\OT1/cmr/m/n/10.95 , \O
 T1/cmtt/m/n/10.95 analysis/moonshot[]explore.py\OT1/cmr/m/n/10.95 ,
  []
 
 
-Overfull \hbox (59.0706pt too wide) in paragraph at lines 1600--1615
+Overfull \hbox (59.0706pt too wide) in paragraph at lines 1869--1884
 \OT1/cmr/m/n/10.95 and \OT1/cmtt/m/n/10.95 analysis/moonshot[]ensemble.py\OT1/c
 mr/m/n/10.95 . En-vi-ron-ment spec-i-fi-ca-tion in \OT1/cmtt/m/n/10.95 environm
 ent.yml\OT1/cmr/m/n/10.95 .
@@ -999,43 +1048,35 @@ ent.yml\OT1/cmr/m/n/10.95 .
 
 
 
-[22]
-
-[23]
-Underfull \hbox (badness 3029) in paragraph at lines 1688--1691
+[26]
+Underfull \hbox (badness 3029) in paragraph at lines 1957--1960
 []\OT1/cmr/m/n/10.95 Z. Jiang, F. Xu, L. Gao, Z. Sun, Q. Liu, J. Dwivedi-Yu,
  []
 
 
-Underfull \hbox (badness 3895) in paragraph at lines 1694--1695
+Underfull \hbox (badness 3895) in paragraph at lines 1963--1964
 []\OT1/cmr/m/it/10.95 SeaKR: Self-aware Knowl-edge Re-trieval for Adap-tive Ret
 rieval-
  []
 
 
-Underfull \hbox (badness 2469) in paragraph at lines 1708--1709
+
+[27]
+Underfull \hbox (badness 2469) in paragraph at lines 1977--1978
 []\OT1/cmr/m/it/10.95 MBA-RAG: A Ban-dit Ap-proach for Adap-tive Retrieval-
  []
 
 
-
-[24]
-Underfull \hbox (badness 1953) in paragraph at lines 1762--1765
+Underfull \hbox (badness 1953) in paragraph at lines 2031--2034
 []\OT1/cmr/m/n/10.95 P. Lewis et al. \OT1/cmr/m/it/10.95 Retrieval-Augmented Ge
 n-er-a-tion for Knowledge-
  []
 
 
 
-[25]
-
-[26]
-
-[27]
-
 [28]
 
-[29 <../figs/survivor_forest.pdf>]
+[29]
 
 [30]
 
@@ -1043,9 +1084,19 @@ n-er-a-tion for Knowledge-
 
 [32]
 
-[33]
+[33 <../figs/survivor_forest.pdf>]
 
-[34] (./option1-v2-corpus.aux)
+[34]
+
+[35]
+
+[36]
+
+[37]
+
+[38]
+
+[39] (./option1-v2-corpus.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -1060,17 +1111,23 @@ LaTeX Warning: There were undefined references.
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
-Package rerunfilecheck Info: File `option1-v2-corpus.out' has not changed.
-(rerunfilecheck)             Checksum: FF8FDFC9F93A05FC80919F2CFE8646AA;6855.
+
+Package rerunfilecheck Warning: File `option1-v2-corpus.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `option1-v2-corpus.out':
+(rerunfilecheck)             Before: 1F0D88FCBA8828B372D350C81474F93A;7232
+(rerunfilecheck)             After:  3925657B9CF9DE567E76D4E006F16591;7213.
  ) 
 Here is how much of TeX's memory you used:
- 11107 strings out of 473190
- 169456 string characters out of 5715801
- 625673 words of memory out of 5000000
- 34037 multiletter control sequences out of 15000+600000
- 576712 words of font info for 104 fonts, out of 8000000 for 9000
+ 11151 strings out of 473190
+ 170148 string characters out of 5715801
+ 639072 words of memory out of 5000000
+ 34058 multiletter control sequences out of 15000+600000
+ 578594 words of font info for 110 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,17n,79p,1240b,626s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,17n,79p,1240b,634s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></
@@ -1097,12 +1154,15 @@ e/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2025/t
 exmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2025/te
-xmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/202
-5/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on option1-v2-corpus.pdf (34 pages, 460910 bytes).
+xmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/202
+5/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive
+/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2
+025/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/local/texlive/202
+5/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
+Output written on option1-v2-corpus.pdf (39 pages, 496693 bytes).
 PDF statistics:
- 885 PDF objects out of 1000 (max. 8388607)
- 679 compressed objects within 7 object streams
- 172 named destinations out of 1000 (max. 500000)
- 262 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1005 PDF objects out of 1200 (max. 8388607)
+ 787 compressed objects within 8 object streams
+ 193 named destinations out of 1000 (max. 500000)
+ 270 words of extra memory for PDF output out of 10000 (max. 10000000)
 

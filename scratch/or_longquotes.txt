@@ -1,0 +1,600 @@
+
+
+=========================================================
+## iclr25_lengthbias_reward: Post-hoc Reward Calibration: A Case Study on Length Bias
+   ratings: [6, 8, 6, 8]
+=========================================================
+
+--- R0  rating=6  sound=2  pres=3  contrib=2 ---
+WEAKNESSES:
+**Assumption**:
+The assumption of “Independence of the biased characteristic” may be overly restrictive in practical applications, especially given that this study focuses on text length as the biased characteristic. My understanding of this assumption (line 166) is that even when $x_1$ and $x_2$ are fixed at any arbitrary lengths $c_1$ and $c_2$, respectively, the true reward difference between $x_1$ and $x_2$ would be expected to be zero, implying no correlation between reward and text length. However, in practical applications, this assumption will often not hold. For example, in cases where prompts explicitly request brevity or detail, such as “respond concisely” or “provide a detailed explanation,” reward often depends on the response length. This assumption could thus limit the generalizability of the proposed method, especially for tasks where length naturally influences quality. A more flexible approach that adjusts for prompt-specific length expectations could enhance applicability.
+
+**Baseline setting**:
+The Length Penalty hyperparameter $\alpha$ seems to be fixed at 0.001, which may not be optimal across different reward models (RMs) and tasks due to variations in scale. While the proposed method benefits from adaptive $d$ tuning, the baseline might perform better with an α adjusted per RM or task, ensuring a fairer comparison. For instance, $\alpha$ could be proportional to the RM’s reward scale.
+
+QUESTIONS:
+How is the sensitivity of the length penalty hyperparameter to the performance compared to the proposed methods?
+
+--- R1  rating=8  sound=3  pres=2  contrib=2 ---
+WEAKNESSES:
+The main weaknesses of the paper include:
+
+ * **Presentation:** I found the introduction of the method in Section 3 to be relatively clear, but the experiments in Sections 4 and 5 were much more difficult to understand. While I eventually could figure out the gist of the experiment design, it is often quite complicated and could be better presented. In particular, Section 4.2 is very dense. It describes multiple evaluation methods (AlpacaEval1, AlpacaEval2, ChatbotArena), which if I understand correctly in some cases used as both gold standard (AlpacaEval2) and as baselines (LC). The combination of many reward models, LLMs, calibration methods, and comparison rankings makes it quite important to carefully describe the purpose behind the experimental setup and why it is a good evaluation of the calibration methods. I think the current text requires several readings to understand these details. The rest of Sections 4 and 5 are also very dense and difficult to understand at first. It would be good to improve the presentation of these such that the results are easier to understand.
+
+ * **Lack of insight into the result of reward calibration:** while the authors present many experiments on how reward calibration affects downstream performance, they do not present what the actual calibration process looks like for typical reward models. It would be helpful to see what the actual $\hat{r}\_\theta(c)$ function looks like over a range of values for $c$ for various reward models. This could help readers understand why RC-Mean and RC-LWR outperform length penalty, especially if the $\hat{r}\_\theta(c)$ function is quite non-linear. On the other hand, if it is close to linear, then it would raise the question of why not simply tune the constant $\alpha$ in the linear length penalty. Perhaps the length penalty simply does not use the right coefficient—in fact, it seems that it should always be possible to remove the length correlation measured in Table 3 by using a linear length penalty with the right coefficient.
+
+ * Finally, the authors do not consider the extent to which the correlation between length and reward may not be entirely spurious—there may actually be some amou
+
+QUESTIONS:
+With regards to the second weakness above, it would be helpful if the authors could plot the learned $\hat{r}_\theta(c)$ function for several reward models to see what kind of affect subtracting it has compared to the linear length bias $\alpha \\, c$. Also, it would be helpful to compare to a baseline of a linear length bias where the factor $\alpha$ is tuned per reward model.
+
+--- R2  rating=6  sound=2  pres=3  contrib=2 ---
+WEAKNESSES:
+1.	Assumptions: The proposed method depends heavily on several assumptions, such as (1) decomposition of the biased reward, (2) independence of the bias characteristic, (3) sufficient density, and (4) Lipschitz continuity. These assumptions may not hold in all scenarios.
+
+2.	Difficulty in Determining $d$: In some scenarios, determining dd is difficult. While LWR can estimate Equation 5, linear approximation may often be inaccurate, necessitating further analysis.
+
+3.	Simple Baselines: The baselines used are relatively simple. Comparisons with more complex baselines, such as reward model engineering in reference, are needed.
+
+4.	Demonstrations Needed: Additional examples should be provided to showcase the method's effectiveness in various situations.
+
+6.	Bias Exploration: It would be beneficial to explore other biases beyond 'length' and 'style', given that significant improvements are mostly seen in 'length bias'.
+
+QUESTIONS:
+1.	Bias and Spurious Correlation: How does the characteristic bias $c$ lead to spurious correlations? Examples would facilitate a better understanding for the reader.
+
+
+2.	Hyperparameter Selection: What guidelines are there for selecting hyperparameters in different scenarios, such as $\beta_0$ and $\beta_1$?
+
+3.	Other Types of Bias: Are there experiments demonstrating bias beyond length and style?
+
+4.	Fig. 5 x-axis: What does the x-axis represent in Figure 5? Providing clarity would help readers interpret the results more effectively.
+
+5.	There are several methods that can mitigate length bias, particularly in DPO. Have you considered simple baselines such as simPO?
+
+--- R3  rating=8  sound=4  pres=4  contrib=3 ---
+WEAKNESSES:
+- A slight weakness is the majority focus on length bias. The experiments pretty much all focus on length bias, with one generalization task to markdown features. 
+
+- Another slight weakness is that only the combination of length penalty + RC-LWR was tested. A more interesting direction would be to test a combination of two biases, and whether you can apply the method multiple times to remove multiple biases.
+
+QUESTIONS:
+Typo between lines 224-225 “Based one LWR…”
+
+
+=========================================================
+## iclr25_uq_llm_eval: An Empirical Analysis of Uncertainty in Large Language Model Evaluations
+   ratings: [6, 6, 5, 6]
+=========================================================
+
+--- R0  rating=6  sound=3  pres=3  contrib=3 ---
+WEAKNESSES:
+- The paper adopts a simplified view on recent 'LLM-as-a-Judge' (LLMJ) literature, skipping some related work that aimed to improve confidence of LLMJ models via calibration (https://openreview.net/pdf?id=L3FHMoKZcS) or better prompt optimization (PO; https://arxiv.org/pdf/2406.11370). Improving LLMJ methods requires a multi-component/multi-aspectual approach, which requires combinations of prompt optimisation, calibration and uncertainty mitigation strategies, and the paper would be much stronger with additional experiments that aim to approach the problem in full scope, without reducing it only to uncertainty mitigation. NOTE: This has been corrected in the author response
+- This also means that it would be extremely useful to measure how uncertainty/confidence levels change when different bias mitigation or calibration or PO methods get applied. Do we need to handle uncertainty to the same extend and with the same benefits when it gets combined with other methods?
+- Speaking of simplifying the experimental protocol too much, there are also many potential approaches to measuring uncertainty, and taking only the logit as the proxy towards uncertainty, while grounded in some related literature, might still be too simple. I would recommend exploring different ways of measuring uncertainty (e.g., see https://arxiv.org/pdf/2404.15993 or https://arxiv.org/abs/2307.10236) and checking whether different definitions of uncertainty also have impact on the final findings (and to what extent). The decision on how we measure/capture uncertainty is a big assumption that seems to stay under the radar of this work. NOTE: This has also been mitigated with the author response.
+- Evaluation should get increased to more and more standard LLMJ datasets, including e.g., RewardBench and standard summarization and chat datasets used in prior work (SummEval, HANNA, etc). 
+- Minor: the paper spends too much introducing the basics of evaluation with LLMs (e.g., a large part of RW is too long) - that paper space could have been better used for some finer-grained experiments (e.g., understanding the relationships between calibration and certainty or introducing another way to measure unce
+
+QUESTIONS:
+- Is there any relationship and/or correlation between uncertainty in the responses of the evalauted mopdels and uncertainty of the evaluator models? How does uncertainty of the evaluated model reflect on the final scores?
+- I liked the finding showing how evaluators are more confident with responses coming from models within the same family. Is there a way to also mitigate this 'uncertainty bias' through fine-tuning as well?
+- It seems that 'Ties' cause a lot of trouble with confidence - how would discarding the 'Tie' option from the preferences output impact the results and the main findings? I would recommend adding an experiment checking on this.  
+- ConfiLM shows benefits with OOD data. Are there any benefits with in-domain or related-domain data or is the approach useful only in OOD scenarios?
+
+--- R1  rating=6  sound=3  pres=3  contrib=3 ---
+WEAKNESSES:
+- Previous studies, such as those by Lyu et al. [1], have shown that log probabilities do not always correlate with human preferences. This raises concerns about the reliability of using these metrics in LLM-as-Judge systems, which have become popular for their scalability and cost-effectiveness in automating evaluations that traditionally relied on human feedback. The paper could further explore how improving model confidence affects agreement with human evaluators. either via CoT or fine-tuning,  
+
+- The methodology assumes access to internal model probabilities, which might not be feasible with proprietary models. This limitation, acknowledged in the paper, constrains the generalizability and scalability of the proposed methods.
+
+[1] Lyu, Chenyang, Wu, Minghao  and Aji, Alham. Beyond Probabilities: Unveiling the Misalignment in Evaluating Large Language Models. In Proceedings of the 1st Workshop on Towards Knowledgeable Language Models (KnowLLM 2024)
+
+QUESTIONS:
+1. The paper explains how to compute evaluator and response confidence separately. it was not initially clear that the response confidence is solely utilized for the fine-tuning of ConfiLM and not combined with the evaluator confidence.
+2. Could the authors clarify how the results from the human annotators are aggregated? 
+3. In situations involving pairwise comparisons of models from two distinct families, the log probabilities can span different ranges. Did you consider any recalibration methods to address this issue?
+3. Does improving the confidence metrics within LLM evaluators guarantee improvements in their practical evaluation abilities? is this a to be expected outcome?
+
+--- R2  rating=5  sound=2  pres=3  contrib=2 ---
+WEAKNESSES:
+- In my opinion, the main issue with this paper is my uncertainty regarding **whether its research methodology adequately supports the conclusions it claims to draw**. 
+  - As demonstrated in the introduction, the core research question of this paper is "Can large language models provide consistent evaluation quality across different inputs and domains?" However, I am not convinced that the token probabilities predicted by the models sufficiently reflect the "evaluation quality" the authors aim to investigate. For instance, we can see that GPT-4o-mini exhibits significantly higher average prediction probabilities than GPT-4o across various datasets, can we truly infer that GPT-4o-mini possesses superior "evaluation quality"?
+  - The token probabilities of large models are influenced by numerous factors, such as the training data, input information, and alignment methods. Relying solely on token probabilities as a measure of uncertainty may affect the reliability and generalizability of the conclusions drawn. A model with a higher output probability is likely just over-confidence.
+  - In my opinion, rather than an evaluator that consistently outputs results with high probability, what we require is a well-calibrated evaluator, one whose output probabilities accurately reflect the precision of its assessments.
+- The authors claim that this is the first study to investigate uncertainty for LLM-as-judge paradigm. However, many prior studies have also addressed the analysis of evaluation uncertainty, albeit employing different methods for estimating uncertainty. For example, position bias refers to the evaluator providing inconsistent evaluation results when the positions of candidate responses are swapped. This, too, is a method for estimating the uncertainty of an evaluator.
+
+QUESTIONS:
+see weaknesses
+
+--- R3  rating=6  sound=3  pres=3  contrib=3 ---
+WEAKNESSES:
+- The paper claims to the first to study uncertainties in LLMs as evaluators, which might be incorrect given a previous work already delves in to the same topic of inaccuracies: [Finding Blind Spots in Evaluator LLMs with Interpretable Checklists](https://arxiv.org/abs/2406.13439). I really urge the authors to acknowledge this work in the Related Works section and show the difference with the current work. 
+- Somehow, I fail to see the use of `Self-Generated Reference`. What is the rationale behind it as compared to `Default` and `CoT`? Also, if the LLM-evaluator has to generate a "good" reference answer, it should first be well-versed with the domain and possess enough knowledge, and this might be difficult of smaller models. For example, the Olympics test set might be OOD for the evaluator as well, and the generated reference answer also might not be optimal, and this might lead to an inaccurate evaluation. 
+- The paper lacks novelty in some places and feels like a reiteration of existing facts, i.e., most of the findings in section 4.2 are well-known and documented. For example, the second point on self-bias is a long-standing idea and has been proven across multiple tasks and models. Also, there have been several discussions across LLMs excelling at `LMSys ChatBotArena`, however they fail on general tasks. and the last line in the third point of Section 4.2 is also obvious as evaluation is a hard task, and unless models are explicitly trained for it, they will not be suitable for it. Similarly, evaluation is a thorough reasoning task, as the evaluator has to take a proper decision based on the criterion, and input content, so `CoT` performing well in such a case is not a surprise. But, going by my last point in the Strengths, I do not wish to penalize the paper much for this, as these findings are known, but poorly documented, and this paper does a good job of collating them in one single research with appropriate justifications and experiments. 
+- While building `ConfiLM`, I see that the training instances are < 700 for an 8B model, and FFT was used to train the model. This is slightly concerning as the generalization of the model might be quite less, and t
+
+QUESTIONS:
+- When training the second model, `Llama-3-8B-Instruct-Finetune`, why was the learning rate lowered to 3e-5? If anything, for consistency and comparison, the exact same setup as `ConfiLM` should be used, by just removing $u_1$ and $u_2$. 
+- What happens when $u_1$ and $u_2$ are not verbalized? That would really be an interesting find. Will the model gain more insights from the exact numbers or falter as per previous works? The confidences are converted to discrete classes (Table-8) is slightly dubious as close values on the boundaries of these classes (ex. 0.59, 0.61) see an abrupt jump, which I understand is unavoidable. That's why, a simple experiment without this verbalization should also be studied. 
+- What is the distribution of $u_1$ and $u_2$ in the finetuning set?
+- I feel a very significant portion of the paper is dumped in the appendix. Without referring to the examples in the appendix Table 7-12) the write up about the Olympics Testset and `ConfiLM` evaluation is quite unclear and incomplete. I really urge that content be added to the main paper itself. 
+- The speculation on line 393 is unclear and needs further support. 
+- Also, why is the confidence modelled as an arit
+
+
+=========================================================
+## iclr25_sdlg: Improving Uncertainty Estimation through Semantically Diverse Language Generation
+   ratings: [6, 5, 8, 5]
+=========================================================
+
+--- R0  rating=6  sound=3  pres=2  contrib=3 ---
+WEAKNESSES:
+- Since the method relies heavily on the NLI model to assess semantic equivalence, any biases inherent in the NLI model could skew the uncertainty estimations. The paper lacks a discussion on how to handle or mitigate potential biases within the NLI models, which could affect the reliability of the uncertainty measurements. I recommend including a more comprehensive evaluation of how variations in NLI models might affect the uncertainty measurement. 
+- Also the dependency on an external NLI model that shares the same tokenizer as the language generation model could restrict the applicability of the method across different language models with varied tokenizers. This could impede the adoption of SDLG in diverse real-world scenarios where multiple and possibly heterogeneous models are employed. 
+- Due to space constraints, the current main paper does not include a detailed illustration of its scoring mechanism and how the specific token pairs are selected and replaced. I recommend reducing sections 2 and 7 or relocating parts of them to the appendix.
+
+QUESTIONS:
+1. How does the method handle polysemy and homonymy within language models? Given that words may have multiple meanings based on context, how does SDLG differentiate and handle these variations in semantic assessments?
+2. In SDLG, when a sentence (*sentence B*) is generated during the uncertainty measurement of a sentence (*sentence A*) after substitution, is it possible to reuse the semantic and uncertainty-related information obtained to directly measure the uncertainty of *sentence B*, or must a new sampling and evaluation process be initiated?
+3. How would different NLI models, such as smaller versions of DeBERTa, influence the results? Can the robustness of SDLG be maintained across different NLI models?
+4. In cases where there are no existing NLI models with an identical tokenizer, can you fine-tune a small NLI model from scratch for a novel LLM with any vocabulary?
+5. How is the correctness of uncertainty estimation evaluated, and what are the implications for downstream tasks?
+6. Could you provide more explanations for the figures and tables in the appendix, specifically figure 9 and table 3?
+7. Could you explain why, in Table 3, multinomial sampling approaches tend to gene
+
+--- R1  rating=5  sound=3  pres=2  contrib=3 ---
+WEAKNESSES:
+- **Experimental Clarity**: The experimental section lacks clarity, particularly in explaining how ROUGE and BLEURT metrics were applied. The reference in L.409 (“in general...”) requires citation if it’s a general principle, and L.411-414 discussing AUROC are somewhat confusing, particularly the sentence “AUROC is used as a metric for classifying.”
+- **Baselines and Related Work**: It is unclear why some relevant works, such as [1], are not included as baselines. Additionally, a recent paper [2] appears to be highly relevant (and also provides a clearer explanation of the evaluation setup).
+- **Model Choice**: Restricting the analysis to a single model family (which is not among the most recent) slightly impacts the work’s soundness. Expanding the analysis outside OPT's scope would strengthen the findings and make them more generalizable.
+
+[1] Lin et al., Generating with Confidence: Uncertainty Quantification for Black-box Large Language Models, 2023.
+
+[2] Chen et al., INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection, 2023.
+
+QUESTIONS:
+- See weaknesses.
+- L.441: I found the paragraph about semantic cluster unclear. What does this mean? "Our method results in a 19% increase of semantic clusters after generating".
+
+--- R2  rating=8  sound=3  pres=3  contrib=3 ---
+WEAKNESSES:
+Weaknesses include the following:
+
+- The new method relies on three scores, but their importance remains untested. 
+  -  The three scores are integral to the newly proposed method, but the paper lacks an ablation of the three scores (Ai, Sij , Iij ). The current evaluation uses a simple mean (line 426-428)  "we derive the final token score ranking by straightforwardly averaging the three individual token score". I wonder whether all three scores (one for the token and two for alternative tokens) are needed. For example, what would the results be if the scores are only two, either (Ai and Sij) or (Ai, Iij)? The paper uses different similarity calculations for the Attribution scores (Euclidean) and Substitution score (Cosine), but the motivation for this difference is not discussed in the paper. Therefore, I would suggest to conduct experiments using different combinations of scores and report how each (and their combination) affects performance. Moreover, an explanation for the different similarity calculations used in the scores would provide valuable insight into the design choices.
+
+- NLI models are trained on the sentence level, the method relies on the prefix and current token to score for entailment/contradiction, but the generation so far is only partial. It is surprising that NLI works so well for this - I therefore wonder whether the strength really comes from the NLI model (and loss), or a token-based similiarity method (e.g. something as simple as word2vec distances) would be sufficient here. The paper does not empirically show that NLI is needed. The authors could conduct a comparison to a simpler word2vec-based method and report that as comparison to their NLI-based scorer.
+- SE DBS is competitive with the proposed SDLG on TriviaQA (Table 1). This similar result is not sufficiently discussed in the paper. The examples in the appendix (Table 3) include only comparisons between SDLG and SE, but not DBS - To promote both baselines to the same level, adding examples for DBS and providing a detailed analysis of where and why SDLG outperforms DBS would strengthen the paper. 
+
+- Discrepancy in motivation and experimental evaluation. The paper starts out to 
+
+QUESTIONS:
+- Line 437-440 mentioned the improper semantic entropy. What is improper about the semantic entropy by Kuhn et al.? Have you described that in the paper?
+
+- Example generations in Table 3 in the appendix: 
+  - Can you elaborate on the example, why do you think do the SDLG ones lead to lower probs than MS typically? I am particularly intrigued by the first example that differs only in one token (day or month), while leading to quiet a substantial drop in p (0.793 -> 0.6x). What might explain this?
+  - How different are SDLG generations from DBS sampling? Do you have examples?
+  - Where do you think does the key advantage of SDLG come from, compared to DBS?
+
+- Why is the 30b OPT model often worse in AUROC (Table 1) compared to the 13b model? Is this in line with Kuhn's findings?
+
+Suggestions:
+- Line 430-431 mention the importance of using starting subwords (not internal subwords). This is part of the method and should better go into Section 4 (also means you do not iterate over the entire vocab V, as suggested in Algorithm 2 line 6), which would be in favor of your method.
+- When discussing results, link to actual result tables to provide evidence.
+- Consider moving some of the inter
+
+--- R3  rating=5  sound=3  pres=3  contrib=2 ---
+WEAKNESSES:
+* The experimental evaluations are not overall enough. This paper mainly focuses on several QA tasks, but other tasks where hallucinations exist can be further explored. 
+* This paper uses OPT model family for experiments, while more common models like LLaMA, GPT can be investigated.
+
+QUESTIONS:
+* Could you provide experiments on LLaMA, GPT model family?
+* SDLR uses an extra NLI model to compute the contribution of every token to the final semantics. Does this can be replaced by the attention score distribution?
+
+
+=========================================================
+## iclr25_redeep: ReDeEP: Detecting Hallucination in Retrieval-Augmented Generation via Mechanistic Interpretability
+   ratings: [8, 8, 6]
+=========================================================
+
+--- R0  rating=8  sound=3  pres=2  contrib=3 ---
+WEAKNESSES:
+## Lack of justification for PKS and ECS
+
+### No PKS justification
+Although PKS is correlated with a hallucination label (line 319) there is still no guarantee that it is adding parametric knowledge. Since you do not provide any theoretical justification for this score, at least an empirical justification is needed. You can run a simple experiment: use LogitLensed outputs before FFN as final outputs and check whether it removes the parametric knowledge bias using some of the setups for that, for example, the one from [1] (they study it through the prism of the phenomenon you encounter in RQ3 and Appendix E).
+
+### Questionable ECS justification
+Contrary to the PKS the authors provided empirical justification for the ECS measuring model reliance on context, however, I find it not very convincing so far.
+
+First of all, I do not see how the ratio of attention head attending vs mis-attending justifies ECS. It would make more sense to me if you provided such a ratio for mulitple different values of ECS and observed that the higher the ECS the more often a model attends.
+
+Secondly, I am not sure that ratio of attending is computed correctly. As far as I understood for LLama-7B you take hallucinated response (which means that it contradicts external context) and the most attended span in external context. Then you ask gpt-4o to evaluate whether this span supports existence of a conflict in response or not. If that is the case, I do not understand why this experiment shows whether the model attends (the attention span contains part of the context needed for the correct answer) or mis-attends. If attention span supports the existence of a conflict in response it might still not be relevant for the correct response itself, which means a conflict exists but we can not call it a hallucination according to your definition (hallucination = response is contradicting the context or is not supported by it - line 72).
+
+Please correct me if I misunderstood the experiment setting, what is meant by attending, or the way attending and mis-attending is computed.
+
+## Too many hyperparameters
+I am afraid that the proposed hallucination detection method is not applicable in practice as it
+
+QUESTIONS:
+- Why LLama2-7B (smaller and older version than others) has better results on Dolly in terms of F1 or Accuracy in Table 1?
+
+--- R1  rating=8  sound=4  pres=3  contrib=4 ---
+WEAKNESSES:
+Figure 3 is problematic. The starting point and flow of the diagram are unclear, with too many arrows, making it hard to identify the main computational paths. An effective graphic would show one main data processing pipeline, which is missing here. Additionally, the quantities computed are not well-defined. Panels (b) and (c) add no extra information and could be removed without loss.
+
+Otherwise, rather minor points:
+- l.281: Please describe the number of hallucinations and non-hallucinations (h = 0 and h = 1) in the evaluation set.
+- Pearson's Correlation in §3: Why measure Pearson’s correlation between ECS and hallucination labels (binary)? It would be more informative to report accuracy at a fixed threshold or detection metrics such as AUROC. Similarly, for PKS and hallucination, detection metrics like AUROC would be preferable.
+- l.465: Could you clarify the criteria for selecting thresholds for accuracy, recall, and F1?
+
+Even more nits:
+- Use full names for FFN, ReDeEP, and AARF, at least in the abstract.
+- In Figure 4(c), clarify what the colour bar values represent.
+- Overall, font sizes in the figures are too small.
+- Structure in §3.2 is difficult to follow. Stick to a standard structure using \section, \subsection, \subsubsection, \paragraph, etc., rather than introducing new hierarchies (boldface, underline, italics, numbering (1), (2), …).
+
+QUESTIONS:
+The paper offers valuable insights into how RAG-based LLMs produce hallucinated outputs. Building on these findings, it proposes a detection method and mitigation strategy grounded in this understanding. Presentation issues remain, particularly in the main figure explaining the method, yet the contribution is significant.
+
+--- R2  rating=6  sound=3  pres=3  contrib=3 ---
+WEAKNESSES:
+1. Performing this analysis at the token/chunk level might limit its practicality in real time or large scale settings - it would be nice to have a richer discussion of the trade-offs and real world feasibility. 
+
+2. The experiments are extensive - however they are all with the LLama family of models - testing (even a much smaller set) on a different model would be informative. 
+
+3. While the performance of AARF seems good (Figure 6) - it would be good to see some example outputs - its unclear how this could effect the model’s output in terms of coherence/writing in general.
+
+QUESTIONS:
+1. Could you discuss more the trade-offs of your method? In particular thinking about real time settings? 
+
+2. Have you tested your method on non-LLama models? Do you anticipate any challenges for different models? 
+
+3. Could you provide some example outputs pre and post using AARF? Or can you speak to the effect AARF has on the coherence of the model’s output after AARF?
+
+
+=========================================================
+## iclr24_inside: INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection
+   ratings: ['6: marginally above the acceptance threshold', '6: marginally above the acceptance threshold', '6: marginally above the acceptance threshold', '8: accept, good paper']
+=========================================================
+
+--- R0  rating=6: marginally above the acceptance threshold  sound=3 good  pres=3 good  contrib=2 fair ---
+WEAKNESSES:
+1. The related work comparison is not comprehensive. There is no related work comparison between the internal-state detection approach. For example, [1] investigates mitigating the hallucinations by editing the internal states of llm. They first measure the possibility of generating hallucinations by observing the internal states and then editing those internal states. It might be better if the authors can compare their approach with the internal state-based hallucination detection approaches, e.g., [1].
+2. The llm models involve multiple transformation blocks; which block internal state do the authors investigate? It would make the paper more impactful if the authors could present the ablation on transformation blocks.
+
+[1] Li, Kenneth, et al. "Inference-Time Intervention: Eliciting Truthful Answers from a Language Model." NeurIPS 2023.
+
+QUESTIONS:
+1. I find that the evaluation metrics are related to fact-checking. I wonder if there are diverse metrics to evaluate the hallucinations.
+
+--- R1  rating=6: marginally above the acceptance threshold  sound=3 good  pres=3 good  contrib=3 good ---
+WEAKNESSES:
+1. One of the obvious shortcomings of the proposed method is the applicability to blackbox LLMs, e.g., GPT, PaLM and Claude.  The method relies on the internal state of the model, e.g., LLaMA and OPT, but the authors may not discuss the limitation well. 
+
+2. The computational cost is another concern since essentially this method is a sampling-based approach. While the number of samples is not large, how to further reduce the cost for real production is still unsolved. 
+
+3. The proposed method is mainly inspired by uncertainty estimation but how to bridge the connection with hallucination detection is still unclear, even though the results look promising. 
+
+4. Beyond hallucination detection, is that possible to mitigate hallucination through the proposed framework eventually?
+
+QUESTIONS:
+1. How about the proposed method compared with this work [1] on the TruthfulQA dataset?  Both work relies on the internal state of the LLM models. 
+
+[1] Li, Kenneth, Oam Patel, Fernanda Viégas, Hanspeter Pfister, and Martin Wattenberg. "Inference-Time Intervention: Eliciting Truthful Answers from a Language Model." arXiv preprint arXiv:2306.03341 (2023).
+
+2. How about the effect of sentence embeddings on the final performance?  
+
+3. Can you provide the computational cost estimation of the whole framework and which type of resources you are using? 
+
+4. Since the evaluation metric is AUROC, I am wondering if, can you compare the proposed method with the GPT 3.5 or 4 performance. Or can you add some comparison with the hallucination detection baseline methods, e.g., selfcheckGPT as you mentioned in the paper? 
+
+5. The current baselines are mainly from the authors' choice without open baselines, e.g., semantic uncertainty (ICLR 2023). I noted that many related works are good baselines that can be used for comparison.
+
+
+---
+post rebuttal 
+
+I think the authors' response and experiments addressed my concerns so I raise my evaluation to support my decision.
+
+--- R2  rating=6: marginally above the acceptance threshold  sound=2 fair  pres=3 good  contrib=3 good ---
+WEAKNESSES:
+The experiment setting could be improved since this work targets hallucination detection, which is a broad area, and there are various types of datasets. Only reporting results on QA benchmarks may be insufficient to support the contribution. At least, I think truthfulQA is closer to the topic of hallucination compared to the benchmarks used in the paper. Additionally, it's better to include recent LLMs, such as LLaMA2 and Falcon. 
+
+The covariance of LLM internal states may contain distracting information, such as the diversity of expressions, styles, and terminology. Since there are multiple factors that influence the difference between internal states, it's hard to guarantee the generalization ability of the proposed method.
+
+QUESTIONS:
+For the correctness Measure, I agree that the evaluation of answers is challenging, but it's better to have an exact match score so that we can compare it with other existing works. 
+
+As feature clipping is claimed as a contribution of this work, could you provide some ablation studies for it? I am curious why it needs a dynamic memory bank. Does that mean the distribution of activation values changes a lot across samples?
+
+--- R3  rating=8: accept, good paper  sound=4 excellent  pres=4 excellent  contrib=3 good ---
+WEAKNESSES:
+Minor points and suggestions:
+- Regarding the outliers in the activations, it would be nice to see if these outliers really lead to overconfident predictions. For example, is there any correlation between the number of outliers and accuracy of the answer? At least, it could be informative to see a few generated examples corresponding to many outliers or no outliers.
+- For Table 2, it would be interesting to see if the quality of answers is increased after using clipping (as confident mistakes are excluded).
+- In general, it would be nice to see some qualitative examples of hallucinations that are detected by the proposed method, but not detected by the baselines.
+- centralized matrix -> centering matrix
+- Typos: "prior works that rectifying", "nli-roterta-large".
+
+QUESTIONS:
+I have only minor questions and suggestions and I would like to hear authors' discussion on those points.
+
+
+=========================================================
+## iclr24_selfrag: Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection
+   ratings: ['6: marginally above the acceptance threshold', '8: accept, good paper', '8: accept, good paper', '8: accept, good paper']
+=========================================================
+
+--- R0  rating=6: marginally above the acceptance threshold  sound=3 good  pres=2 fair  contrib=3 good ---
+WEAKNESSES:
+- Even though there are a lot of benchmarks and ablations, I still find that many of my questions are not answered by these evaluations
+    - Specifically, I'd like to separate out the contribution from the main two parts of the approach, the self-reflection, and RAG. I don't see much ablation or comparison on the self-reflection side. Only the `IsSup` token is ablated and that it.
+    - The RAG also has many details that I'm not certain have been compared against, other than simply changing the underlying model, which is not that interesting IMO. I believe simple changes to prompt, number of topk to retrieve, and order of retrieval (top first or top last) can produce highly nuanced results.
+    - I would have also liked to see at least an attempt at trying to combine self reflection with RAG without any pre-training
+- I find some of the numbers reported not convincing and in need of more investigation
+    - Ret-ChatGPT in Table 2: in all but the Long-form generation tasks, ChatGPT performs better than the retrieval-augmented version. This is curious and tells me either the model has seen the data (which makes the dataset slightly not a good representative of the RAG task) or that RAG is not being done correctly
+    - I have a similar (but less important) observation for the Alpaca models (specifically 13B). I can understand the reduced MAUVE score, but accuracy on PubMed has also been reduced which tells a similar story
+    - Same is true in Figure 3.a (ablations) where Self-RAG without retrieval is already better than all the other baselines in Table 2. Is this because there has been a data leak? If yes, that completely invalidates these results
+
+QUESTIONS:
+- The authors claim in the abstract that "Self-RAG outperforms ChatGPT ... on Open-domain QA ... tasks". However, the results in Table 2 are dominated by ChatGPT and Ret-ChatGPT. They only get outperformed in PopQA. Given that, I'm surprised that the authors would make this claim
+
+- The authors claim that "GPT-4 reflection token predictions show high agreement with human evaluations". I find that hard to believe, given personal experience and reported results, e.g. PandaLM which for their task reports an F1 accuracy of 66% when comparing the quality of different passages. I don't deny that GPT-4 evaluation predictions have a strong positive bias towards the truth, but I still would call it high agreement. Do you have data to support this? Or do you think the gap in observations is due to comparison on slightly different evaluation tasks?
+
+- The repetitive self-reflection methods of Self-RAG will likely have an outsized effect on the computation requirements and the latency of the model. As such, I would love to see some numbers and comparisons here. Specially because it's known that given more time/tokens/compute, LLMs can improve their results.
+
+--- R1  rating=8: accept, good paper  sound=3 good  pres=3 good  contrib=3 good ---
+WEAKNESSES:
+- The critic model plays a pivotal role within the framework, and the authors have reported its accuracy in the Appendix. However, the paper does not include an evaluation of the LLM's accuracy in predicting reflection tokens.
+- The retrieval threshold is predetermined, but the authors have not provided an analysis of how variations in the retrieval threshold might affect downstream task performance.
+- In the ablation study, the paper only investigates 'Retrieve top1,' while SELF-RAG utilizes top 5 or top 10. Furthermore, the study exclusively focuses on 'Remove[IsSup],' neglecting an examination of the other criticize tokens.
+
+QUESTIONS:
+- Did the authors investigate the influence of reflection token distributions on the performance of the critic model? 
+- Is there a possibility that the critic model may exhibit certain biases? Additionally, have they examined the distribution of retrieval tokens and its correlation with the retrieval threshold?
+
+--- R2  rating=8: accept, good paper  sound=4 excellent  pres=4 excellent  contrib=3 good ---
+WEAKNESSES:
+- There are some related search that prompts the model to decide when retrieval is needed and how to use retrieval during decoding. E.g., "Active retrieval augmented generation." by Jiang et al [1]. It would be nice to study what benefits the offline data augmentation & training approach can bring comparing to these prompting-based frameworks. 
+- Since most experiments uses automated evaluation focusing on accuracy and factuality, it is still unclear to me if such a training approach could hurt some aspects of the model, e.g., instruction following, creativity, or reasoning.  
+- One limitation of the proposed Self-RAG is that the model sees each passage independent from the others. The generator cannot synthesize multiple passages. 
+
+[1] Jiang, Zhengbao, et al. "Active retrieval augmented generation." arXiv preprint arXiv:2305.06983 (2023).
+
+QUESTIONS:
+- How does Self-RAG's training affect the model in terms of aspects other than factuality?  e.g., instruction following, creativity, or reasoning.  
+- How good is the model at deciding when to retrieve? It would be nice to show the triggering rates of "retrieval" token on different types of tasks. 
+- How much training data is needed? Does the training data needs to be carefully sampled, e.g., focusing on fact-seeking slices?
+
+--- R3  rating=8: accept, good paper  sound=3 good  pres=4 excellent  contrib=4 excellent ---
+WEAKNESSES:
+1.	The reflection tokens might be useful to select more promising generations during the decoding time. But it seems that they do not affect (or guide) the generation process from the beginning and might not help if none of the candidates is good. 
+2.	If GPT-4 somehow can decently provide the labeled data required for each reflection step, it seems intuitive to just instruct GPT-4 to obtain the ideal response that is grounded by the input. Also, GPT-4 might make the decisions on whether to retrieve or not differently from the small LMs as GPT-4 memorizes a lot more world knowledge. Therefore, the annotation given by GPT-4 might not be suitable for small LMs. It would be great to have some discussion or clarification on this.
+
+QUESTIONS:
+1.	In section 3.2.2, the authors mention that during the training time, they mask out the retrieved text chunks. What is the purpose of this masking step?
+2.	Other than just providing post hoc feedback on how good the current generation is, do the reflection tokens also affect/guide the generation process somehow?
+
+
+=========================================================
+## iclr24_selfcheck: SelfCheck: Using LLMs to Zero-Shot Check Their Own Step-by-Step Reasoning
+   ratings: ['5: marginally below the acceptance threshold', '6: marginally above the acceptance threshold', '5: marginally below the acceptance threshold', '8: accept, good paper']
+=========================================================
+
+--- R0  rating=5: marginally below the acceptance threshold  sound=2 fair  pres=2 fair  contrib=2 fair ---
+WEAKNESSES:
+- The paper presents a general purpose validation framework designed to assess the accuracy of multi-step mathematical reasoning tasks. Although this approach performs effectively well within a zero-shot prompting setup, it essentially relies on well-crafted prompts. It remains uncertain whether these four steps constitute the exclusive and comprehensive way of rigorously assessing the accuracy and the reasoning process in such tasks. There might be more ways to asses the quality of the reasoning chain and there is no gurantee that this is the only way or the best way. These four steps are not acquired through learning, generated by a model, nor rooted in learning science or based on any other theory. So it is very hard to judge it. It is plausible that their effectiveness is coincidental in the context of mathematical reasoning tasks and may not readily apply to other types of reasoning. Consequently, for broader applicability, the prompts would need to be rethought and rephrased, raising questions about the approach's generalizability.
+
+- Also, I dont see the usefulness of zero shot setting as if this comprehensive prompt for verification can be written, then 1 or 2 examples can also be provided. Utilizing a few-shot configuration could have yielded improved outcomes and enhanced the model's ability to adhere to the prompt, potentially resulting in better overall performance. Moreover, in a few-shot setup, the approach could have been benchmarked against previous methods. If the intention behind the zero-shot setup was to demonstrate the broad applicability of the approach, it would have been much better to include datasets that covered a wider range of domains, rather than solely focusing on mathematical reasoning.
+
+- The paper lacks a comparative analysis with other methods that have employed extensive prompts, such as PHP , faithful decomposition, verification based on subquestion decomposition, and similar approaches. So it is hard to judge if this prompting strategy is the best one for mathematical reasoning. 
+
+- No comparison has been drawn to the cost of the prompting method as for each sample, 4 extra verification steps are needed which makes 5 API cal
+
+QUESTIONS:
+Questions are mentioned in the weakness section. Please refer to that.
+
+--- R1  rating=6: marginally above the acceptance threshold  sound=3 good  pres=3 good  contrib=3 good ---
+WEAKNESSES:
+1. The authors claim that they provide a general-purpose, zero-shot approach to checking. However, the proposed schema is more tailored to maths problems to some extent as answering mathematical questions requires explicit computational steps and numerical formulas, which can be easily checked by LLMs. Hence, it is a little confusing to state the proposed SelfCheck is general-purpose. I wonder if the authors could conduct experiments on other types of reasoning tasks such as logical reasoning or commonsense reasoning.
+
+2. Confusion about the methodology design.
+
+- The authors check each step by evaluating the conditional correctness of each step based on the provided question and previous steps in the solution. I doubt whether there could be a phenomenon where step i is wrong, but the following steps are perfectly correct, i.e. the model is anot affected by the step i error. But if the authors evaluate using conditional errors, it’s quite possible that the model would determine all subsequent steps (after step i) are wrong. Could the authors provide more analysis or explanations?
+
+- The design of the integration function seems helpful as shown in the experimental results. Could the authors explain the insights of this design and the choices of hyperparameters?
+
+3. A lack of clarification regarding the experimental results.
+
+- The authors claim that SelfCheck significantly outperforms majority voting with both GPT-3.5 and GPT-4. However, results in Table 1 (Row 2) show that SelfCheck exhibits inferior performance in GSM8K with GPT-4 as the generator and checker.
+
+- Results in Figure 2 demonstrate that the SelfCheck did not exceed majority voting by much, but the inference cost of SelfCheck should be larger in comparison. Could the authors illustrate in detail the superiority of SelfCheck over majority voting?
+
+4. The writing can be improved. There are some typos and unclear descriptions. Please refer to the questions below for details.
+
+QUESTIONS:
+1. In Paragraph 2, Section 3.1, the authors state that ‘checking’ is a less common task in the training corpus of most LLMs. Can the authors provide some evidence of citations of this statement?
+
+2. In Paragraph 5, Section 3.1, the authors claim that LLM is usually able to perform the tasks of figuring out the target of the current step. Missing evidence or supplementary experiments should be added.
+
+3. In Section 3.1, the authors mention Information in both stages of Information collection and Step regeneration but the Information should refer to different contents according to the authors’ descriptions. A minor suggestion would be to modify the terms in the prompts in order to better distinguish them.
+
+4. The comparison between the proposed SelfCheck and DV/SV in Figure 2 is quite confusing. Could the authors give relevant explanations on how they compare these methods with varying scores and different generator models?
+
+5. Why did not the authors conduct experiments with GPT-3.5 as the Generator and GPT-4 as the Checker (in Table 1)? It would be helpful to provide appropriate descriptions.
+
+6. Minor comments on writing:
+
+(1)	Paragraph 2 in Section 1: ..., which is far below huma
+
+--- R2  rating=5: marginally below the acceptance threshold  sound=2 fair  pres=3 good  contrib=2 fair ---
+WEAKNESSES:
+1) I think discussing how to prompt some "incantations" to the LLMs (especially for such black-box LLMs) has no insight into this community. The proposed prompts for each component in the self-checking process are well-designed, especially for GPT-serial LLMs. In my opinion, they could not be well extended to other LLMs, such as LLama or Claude.
+
+2) Step-by-step checking may have the problem of error propagation.
+
+QUESTIONS:
+1) Why the authors do claim the solution is self-checking? In Table 1, the authors also employ different LLMs on the Generator and Checker. 
+
+2) Are the proposed checking components and prompts in each step useful for other LLMs?
+
+3) In equation (1), why lamda_-1 is setting to 1 and lamda_0 to 0.3? How to determine such parameters？
+
+4) Why there is no dot for DV and SV in Figure 2 (b)
+
+5) What is the meaning of the yellow curve in Figure 3?
+
+6) I think that the discussion in subsection 5.2 is of no use. The performance heavily relies on the prompts. So I think if we adopt an optimal prompt in the global checking setting, better results may be obtained.
+
+7) Why were the experiments conducted on the math-related tasks? I wonder where the performance goes when other types of reasoning are explored, such as logical reasoning, deductive reasoning, and temporal reasoning.
+
+--- R3  rating=8: accept, good paper  sound=3 good  pres=4 excellent  contrib=3 good ---
+WEAKNESSES:
+**A:** SelfCheck requires 3 LLM queries per substep. Consequently, the comparison between SelfCheck and SelfConsistency appears skewed, as SelfCheck inherently utilizes approximately 10x more samples (assuming an average of 3 substeps). Furthermore, the results with GPT-4 are based on a limited sample size, and given the analysis with Self-Consistency, the findings should be interpreted cautiously. 
+
+
+**B:** While the method is presented as 0-shot, it requires training samples (as seen in section 3.2) to learn hyperparameters, and thus, the criticism of approaches that require examples is unfair (We note though that these approaches are not directly comparable to SelfCheck in general, as they require additional exemplars which will often not be available in practice.). Additionally, the authors had to meticulously craft instructions for each step, which somewhat undermines their critique of other methods.
+
+QUESTIONS:
+Q1. If my observations in Weakness A are accurate, could Figure 5 simply result from comparing incompatible data points? Should we compare SelfCheck @ k with SelfConsistency @ m with m ~ 10 x k?
+
+Q2: What are the false positive rates at various thresholds?
+
+Q3: When devising the prompts, a small number of training samples from MathQA dataset were utilized. How were these examples used? 
+
+
+---
+
+### Comments
+
+- _Therefore, with SelfCheck, LLMs can effectively rectify their own biased beliefs by themselves._ While this insight is crucial, it might not be immediately apparent to a casual reader. In my opinion, this is an important takeaway from the paper. A more extensive analysis of this topic would be highly beneficial.
+
+- Missing citation: 
+
+Jiang, Weisen, Han Shi, Longhui Yu, Zhengying Liu, Yu Zhang, Zhenguo Li, and James T. Kwok. "Backward reasoning in large language models for verification." arXiv preprint arXiv:2308.07758 (2023).
+
+
+=========================================================
+## nips24_kernel_lang_entropy: Kernel Language Entropy: Fine-grained Uncertainty Quantification for LLMs from Semantic Similarities
+   ratings: [4, 6, 7, 7]
+=========================================================
+
+--- R0  rating=4  sound=3  pres=2  contrib=2 ---
+WEAKNESSES:
+1. **The claims are not backed by strong enough evidence.**  
+
+On line 59, the authors claim their approach achieves SoTA results. However, the empirical results (Table 1) are little to modest gains over baselines. Additionally, the bolding in Table 1 is misleading. Results should only be bolded if the method’s confidence interval is non-overlapping the confidence intervals of other methods (which they are not). For example, in Table 1 for AUROC on BioASQ, $0.88 \pm 0.03$ for KLE (K_FULL) is overlapping with P(True) at $0.86 \pm 0.03$. Likewise for SVAMP AUROC with $0.77 \pm 0.02$ for KLE (K Heat) and ER at $0.75 \pm 0.02$. This also makes me skeptical of how the authors are calculating the “win rates” for the other figures as well. 
+
+2. Additionally the authors do not investigate the **error/accuracy of intermediate models** that the experimental set-up relies upon.
+
+A key part of the authors pipeline is using DeBERTa-Large-MNLI to predict whether LLM outputs entail one another and create their semantic graph (line 262). However, DeBERTa-Large-MNLI is also an imperfect model. What was the accuracy of this model on the domains/datasets in the authors’ empirical pipeline? Are there ways to propagate uncertainty from this intermediate NLI model downstream to the final uncertainty calculations of other LLM’s outputs? 
+
+3. Additionally, see the questions below.
+
+QUESTIONS:
+1. In the abstract, you motivate this work by saying “by detecting factually incorrect model responses, commonly called hallucinations.” Yet, you never actually show that you detect hallucinations (which require world knowledge that is external and more complex than the “semantic uncertainty” you’re actually targeting). How do you justify this disconnect? 
+
+2. On line 25 you cite two works that you use to justify “As LLM predictions tend to be well-calibrated.” However there is an *enormous* body of literature that shows the opposite. I would recommend hedging on this statement or providing citations of the opposite (non-calibration) findings.  
+
+3. Figure 1 lacks some details and motivation. In this example, I would not expect the named entity outputs, (e.g., “Laplace” or “Kolmogorov and Laplace”) to have any other lexical variants that have similar semantic meaning because these are named entities. In this figure, what does the little boxes next to “Semantic Kernels” represent? I would recommend explaining this more (e.g., I think you’re implying that blue means more similarity between particular clusters?) 
+
+4. In Figure 3’s caption, please explain why only “values larger than o
+
+--- R1  rating=6  sound=4  pres=3  contrib=3 ---
+WEAKNESSES:
+1. KLE requires iterative sampling from the LLM, which is computationally costly. This leads to delayed responses and limits its applicability.
+
+2. It seems that this method can only estimate the confidence regarding whether the LM will correctly answer the query, but it cannot predict the confidence for a given answer. For example, in scenarios like ranking candidate answers, we can use P(True) or PE to estimate answer confidence, which KLE cannot do.
+
+QUESTIONS:
+1. Which sample do you choose as the final answer among multiple samples, the answer in the biggest cluster or just a random one? I did not find this detail (perhaps I missed it), but it is important.
+
+2. Since the answer correctness is determined by an 8b model, I am curious about how reliable the predicted label is. From my previous experience, even GPT-3.5 is not capable of reliably estimating the correctness of model responses, especially when the responses are phrases. Tian et al. [1] also noted a similar issue, as seen in their Appendix C.
+
+[1]. Just Ask for Calibration: Strategies for Eliciting Calibrated Confidence Scores from Language Models Fine-Tuned with Human Feedback.
+
+3. Can this method be applied to long-form responses? Considering that long-form responses typically consist of multiple claims.
+
+4. Missing the following related work:
+
+Language Models (Mostly) Know What They Know
+
+LitCab: Lightweight Language Model Calibration over Short- and Long-form Responses
+
+--- R2  rating=7  sound=3  pres=2  contrib=3 ---
+WEAKNESSES:
+The primary area for improvement is the paper's structure. The paper is quite difficult to follow due to definitions and expressions not being clearly contextualized, for instance:
+- **Sections and Headings**: Section 3 is inconsistent in its use of subsections and subheadings. It begins with a motivating example (subheading), followed by the formal definition of PSD kernels without a subheading. The definition of semantic kernels is embedded in the text without a subheading, making it less prominent than the practical approach for constructing semantic kernels, which has a dedicated subsection at the end of the section. Also, VNE is given more prominence than the main concept, KLE (starting with the definition of KLE (subheading) as the VNE, followed by deriving its properties, would improve coherence).
+- **Kernels**: In Section 3.1, two explicit kernels ($K_{heat}$ and $K_{Matérn}$) are introduced. In Section 5, the authors then propose to use $K_{heat}$ and $K_{full}$, with $K_{full}$ being a weighted sum of $K_{heat}$ and $K_{SE}$. The previously proposed $K_{Matérn}$ is no longer considered in the main experiments, while $K_{SE}$ has not been introduced before. It only becomes clear in Section B of the Appendix that $K_{SE}$ is equal to Semantic Entropy, which is referred to as $SE$ in Section 5. Also, the importance of the weighting factor for $K_{full}$ is not discussed. In general, the criteria for choosing between kernels are unclear (and not all kernels consistently outperform the baselines across datasets).
+
+QUESTIONS:
+- Is the rather small model Llama 3 8B Instruct capable of evaluating the correctness of an output sequence? Have you considered other (statistics-based) metrics to evaluate the correctness?
+- Have the authors considered utilizing a regression model that directly assigns a single value to the semantic similarity instead of unintuitively having to aggregate the three classes of the NLI model?
+
+--- R3  rating=7  sound=3  pres=4  contrib=3 ---
+WEAKNESSES:
+1.  The motivation is clear in Fig 1, but why choose the kernel to solve the problem, this part is not very clear.
+
+2. The proposed method looks like it depends on the sampling times, which is expensive. How is the performance when we sample few times?
+
+QUESTIONS:
+1. How do I get the final answer based on 10 samplings? For example, in fig 1, what could be the final answer of LLM2, majority vote?
+
+
+=========================================================
+## nips24_semantic_density: Semantic Density: Uncertainty Quantification for Large Language Models through Confidence Measurement in Semantic Space
+   ratings: [7, 6, 5, 5]
+=========================================================
+
+--- R0  rating=7  sound=3  pres=3  contrib=3 ---
+WEAKNESSES:
+- The paper is somewhat vague in distinguishing itself from the closest prior work on Semantic Entropy - this makes its specific contribution unclear.
+- Some details of the implementation of semantic density are unclear.
+
+QUESTIONS:
+- Sec 3.5: Please describe how the NLI model is used for computing p_c, p_n and p_e. NLI models typically accept pairs of texts, but these probabilities seem to contain three: y_*, y_i and x.
+- Do I understand correctly that embedding models (discussed in Sec 3.2) are never explicitly used in Semantic Density? Instead the NLI model is relied upon for establishing equivalence between texts and for the kernel function? If yes, the current presentation comes across as a bit confusing - please consider rewriting parts of the paper to make this more explicit.
+- As I understand, the proposed approach only estimates uncertainty rather than explicitly calibrating the underlying model - and yet the proposed uncertainty estimation method helps improve predictive performance in Table 1. Am I understanding correctly that the underlying models are somewhat well calibrated to begin with? To put it another way, are there generation tasks where one might expect SD to not be as reliable? For example, a summarization task. If this is a reasonable understanding, please consider discussing where SD is unlikely to work well.
+- The differences highlighted against Semantic Entropy in Lines 105-107 are va
+
+--- R1  rating=6  sound=3  pres=3  contrib=2 ---
+WEAKNESSES:
+* Only some of the llama and mistral models are tested
+* The results shown in Table 1 seem to be quite close for all the models (on each task), which are not so indicative for system comparison
+* No further analysis/discussions on different model sizes (7B vs. 70B), nor different architecture (MoE vs. Non-MoE)
+
+QUESTIONS:
+In Figure 1, different models have inconsistent performance across different tasks. Do you have any explanations?
+
+--- R2  rating=5  sound=3  pres=3  contrib=3 ---
+WEAKNESSES:
+1. The comparison with existing methods, although extensive, may not cover all possible alternatives. There are recent or lesser-known methods that also warrant consideration.
+2. While the method shows promise for free-form question-answering tasks, its applicability and performance in other types of tasks (e.g., summarization, translation) are not explored, which limits the generalizability of the findings.
+
+QUESTIONS:
+1. The literature review is not comprehensive, there are lots of related works [1, 2, 3] not mentioned or adopted in the experiment.  
+2. The AUROC is not enough the show the strength of the proposed model. It would be more beneficial to show Area under precision-recall curve for the misclassification detection task as well.  
+3. The prompt construction can have more details. In Sec. 3.2, it's worth denoting the final prompt structure, since the in-context learning examples and prompt structures can make the final result different.
+4. The dataset are mostly QA tasks, it seems the model can also handle other NLG tasks. Can you elaborate more on this?
+
+[1] Ling, Chen, et al., "Uncertainty Quantification for In-Context Learning of Large Language Models." (NAACL 2024)   
+[2] Fadeeva, Ekaterina, et al. "LM-polygraph: Uncertainty estimation for language models." (EMNLP 2023)    
+[3] Duan, Jinhao, Hao Cheng, Shiqi Wang, Chenan Wang, Alex Zavalny, Renjing Xu, Bhavya Kailkhura, and Kaidi Xu. "Shifting attention to relevance: Towards the uncertainty estimation of large language models." ACL (2024).
+
+--- R3  rating=5  sound=3  pres=3  contrib=2 ---
+WEAKNESSES:
+- **Theory**: Semantic Density is theoretically not well grounded in uncertainty quantification theory, but proposed as an ad-hoc solution for practical application. So, although it seems intriguing to assign an uncertainty score response-wise rather than prompt-wise, uncertainty theory suggests that the (aleatoric semantic) uncertainty has to be quantified prompt-wise, no matter what ends up being sampled as the response [1]. However, since the true uncertainty score for a given prompt is unknown, the performance of an uncertainty measure is usually evaluated by how well the scores align with the correctness of the most-likely response. 
+- **Experiments**: According to the experimental setup in line 897, an answer is considered to be correct if its Rouge-L to any of the reference answers is larger than 0.3 for all datasets. However, since the considered datasets usually result in short responses, a fixed threshold of 0.3 is not sufficient. For instance, in the TriviaQA question *What is the last Grand Slam tennis tournament played in a calendar year?* the reference answer *The US Open* and the sampled response *The Australian Open* achieve a Rouge-L of approximately 0.66. This highlights the fact that considering multiple thresholds is essential to assess the performance of uncertainty metrics.
+
+---
+[1] L. Aichberger, K. Schweighofer, M. Ielanskyi, and S. Hochreiter. Semantically Diverse Language Generation for Uncertainty Estimation in Language Models. arXiv preprint arXiv:2406.04306, 2024.
+
+QUESTIONS:
+- What do the authors exactly mean by Semantic Density rebuilding the output probability distribution from a semantic perspective? (line 58)
+- In line 277, the authors write "After investigation, the inherent sequence likelihood returned by the original LLM was badly calibrated in these two cases.". What is meant by badly calibrated sequence likelihoods? Why didn't the authors account for this by recomputing the sequence likelihood?
+- There exists independent work (Kernel Language Entropy) that is closely related to Semantic Density [2]. The authors should consider discussing this in their paper.
+- It would be insightful to additionally report the performance of existing uncertainty estimation methods when decreasing the number of reference responses instead of only reporting Semantic Density with different models (section 4.2)
+- Semantic Density uses diverse beam search to sample responses, requiring hyperparameters such as diversity penalty and number of groups. How have these hyperparameters been chosen? Is the method sensitive to the specific sampling strategy? An ablation study on the performance of Semantic Density compared to existing uncertainty estimation methods would be 

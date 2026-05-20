@@ -1,0 +1,3 @@
+# Copy to .dev.vars (gitignored). deploy.sh uploads these to Cloudflare.
+BASIC_AUTH_USER=review
+BASIC_AUTH_PASS=temp123

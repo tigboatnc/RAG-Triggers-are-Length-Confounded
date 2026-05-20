@@ -1,0 +1,206 @@
+
+
+========================================
+## iclr25_lengthbias_reward: Post-hoc Reward Calibration: A Case Study on Length Bias
+   ratings: [6, 8, 6, 8]
+========================================
+
+### [length_verbosity] (4/4 reviews)
+  > **Assumption**:
+The assumption of “Independence of the biased characteristic” may be overly restrictive in practical applications, especially given that this study focuses on text length as the biased characteristic.
+  > My understanding of this assumption (line 166) is that even when $x_1$ and $x_2$ are fixed at any arbitrary lengths $c_1$ and $c_2$, respectively, the true reward difference between $x_1$ and $x_2$ would be expected to be zero, implying no correlation between reward and text length.
+  > For example, in cases where prompts explicitly request brevity or detail, such as “respond concisely” or “provide a detailed explanation,” reward often depends on the response length.
+
+### [baseline_coverage] (3/4 reviews)
+  > **Baseline setting**:
+The Length Penalty hyperparameter $\alpha$ seems to be fixed at 0.001, which may not be optimal across different reward models (RMs) and tasks due to variations in scale.
+  > While the proposed method benefits from adaptive $d$ tuning, the baseline might perform better with an α adjusted per RM or task, ensuring a fairer comparison.
+  > It describes multiple evaluation methods (AlpacaEval1, AlpacaEval2, ChatbotArena), which if I understand correctly in some cases used as both gold standard (AlpacaEval2) and as baselines (LC).
+
+### [llm_judge_critique] (4/4 reviews)
+  > Assumptions: The proposed method depends heavily on several assumptions, such as (1) decomposition of the biased reward, (2) independence of the bias characteristic, (3) sufficient density, and (4) Lipschitz continuity.
+  > Bias Exploration: It would be beneficial to explore other biases beyond 'length' and 'style', given that significant improvements are mostly seen in 'length bias'.
+  > - A slight weakness is the majority focus on length bias.
+
+
+========================================
+## iclr25_uq_llm_eval: An Empirical Analysis of Uncertainty in Large Language Model Evaluations
+   ratings: [6, 6, 5, 6]
+========================================
+
+### [novelty_incremental] (3/4 reviews)
+  > - Evaluation should get increased to more and more standard LLMJ datasets, including e.g., RewardBench and standard summarization and chat datasets used in prior work (SummEval, HANNA, etc).
+  > I really urge the authors to acknowledge this work in the Related Works section and show the difference with the current work.
+  > - The paper lacks novelty in some places and feels like a reiteration of existing facts, i.e., most of the findings in section 4.2 are well-known and documented.
+
+### [datasets_coverage] (3/4 reviews)
+  > This limitation, acknowledged in the paper, constrains the generalizability and scalability of the proposed methods.
+  > Relying solely on token probabilities as a measure of uncertainty may affect the reliability and generalizability of the conclusions drawn.
+  > This is slightly concerning as the generalization of the model might be quite less, and there is a good chance of overfitting, especially with 6 epochs.
+
+### [llm_judge_critique] (4/4 reviews)
+  > - The paper adopts a simplified view on recent 'LLM-as-a-Judge' (LLMJ) literature, skipping some related work that aimed to improve confidence of LLMJ models via calibration (https://openreview.net/pdf?id=L3FHMoKZcS) or better prompt optimization (PO; https://arxiv.org/pdf/2406.11370).
+  > NOTE: This has been corrected in the author response
+- This also means that it would be extremely useful to measure how uncertainty/confidence levels change when different bias mitigation or calibration or PO methods get applied.
+  > This raises concerns about the reliability of using these metrics in LLM-as-Judge systems, which have become popular for their scalability and cost-effectiveness in automating evaluations that traditionally relied on human feedback.
+
+### [multitest_stats] (3/4 reviews)
+  > For instance, we can see that GPT-4o-mini exhibits significantly higher average prediction probabilities than GPT-4o across various datasets, can we truly infer that GPT-4o-mini possesses superior "evaluation quality"?
+
+
+========================================
+## iclr25_sdlg: Improving Uncertainty Estimation through Semantically Diverse Language Generation
+   ratings: [6, 5, 8, 5]
+========================================
+
+### [baseline_coverage] (4/4 reviews)
+  > The reference in L.409 (“in general...”) requires citation if it’s a general principle, and L.411-414 discussing AUROC are somewhat confusing, particularly the sentence “AUROC is used as a metric for classifying.”
+- **Baselines and Related Work**: It is unclear why some relevant works, such as [1], are not included as baselines.
+  > The examples in the appendix (Table 3) include only comparisons between SDLG and SE, but not DBS - To promote both baselines to the same level, adding examples for DBS and providing a detailed analysis of where and why SDLG outperforms DBS would strengthen the paper.
+
+### [auroc_eval] (2/4 reviews)
+  > The reference in L.409 (“in general...”) requires citation if it’s a general principle, and L.411-414 discussing AUROC are somewhat confusing, particularly the sentence “AUROC is used as a metric for classifying.”
+- **Baselines and Related Work**: It is unclear why some relevant works, such as [1], are not included as baselines.
+  > The current evaluation uses a simple mean (line 426-428)  "we derive the final token score ranking by straightforwardly averaging the three individual token score".
+
+### [causal_mechanism] (2/4 reviews)
+  > - Due to space constraints, the current main paper does not include a detailed illustration of its scoring mechanism and how the specific token pairs are selected and replaced.
+  > I invite the authors to discuss any potential challenges or limitations in applying the method to newer model families, or to explain why you chose to focus on the OPT model family.
+
+
+========================================
+## iclr25_redeep: ReDeEP: Detecting Hallucination in Retrieval-Augmented Generation via Mechanistic Interpre
+   ratings: [8, 8, 6]
+========================================
+
+### [writing_clarity] (3/3 reviews)
+  > ### Lack of sensitivity experiments
+Please provide sensitivity experiments to the numerous hyperparameters you introduced (see the section "Too many hyperparameters" for the hyperparameters)
+
+## Unclear writing
+- While being core concepts of the paper, Copying Heads (set A) Knowledge FFNs (set F) are not formally defined (line 381).
+  > The starting point and flow of the diagram are unclear, with too many arrows, making it hard to identify the main computational paths.
+  > While the performance of AARF seems good (Figure 6) - it would be good to see some example outputs - its unclear how this could effect the model’s output in terms of coherence/writing in general.
+
+### [baseline_coverage] (2/3 reviews)
+  > ## Insufficient experiments
+
+### Hallucination detection experiment
+- For RagTruth dataset there exist baselines provided by the original paper [2] which perform better than all the baselines considered by you, could you please include them?
+  > Baseline LLama2-13B results fine-tuned on RagTruth have 78.7 F1, see Table 5 in [2] vs yours 78.3 in Table 1.
+  > I think the comparison makes a lot of sense since you tune many hyperparams using RagTruth validation dataset while you could simply fine-tune that baseline on the same data instead.
+
+### [causal_mechanism] (1/3 reviews)
+  > If that is the case, I do not understand why this experiment shows whether the model attends (the attention span contains part of the context needed for the correct answer) or mis-attends.
+  > ### Causal experiment
+
+- First of all, I don’t see how a higher NLL difference for the experimental group than for the control group shows a causal relation between hallucinations occurrence and copying heads neglecting necessary knowledge, could you please elaborate?
+
+
+========================================
+## iclr24_selfrag: Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection
+   ratings: ['6: marginally above the acceptance threshold', '8: accept, good paper', '8: accept, good paper', '8: accept, good paper']
+========================================
+
+### [novelty_incremental] (3/4 reviews)
+  > - Even though there are a lot of benchmarks and ablations, I still find that many of my questions are not answered by these evaluations
+    - Specifically, I'd like to separate out the contribution from the main two parts of the approach, the self-reflection, and RAG.
+
+### [baseline_coverage] (2/4 reviews)
+  > I can understand the reduced MAUVE score, but accuracy on PubMed has also been reduced which tells a similar story
+    - Same is true in Figure 3.a (ablations) where Self-RAG without retrieval is already better than all the other baselines in Table 2.
+
+
+========================================
+## iclr24_inside: INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection
+   ratings: ['6: marginally above the acceptance threshold', '6: marginally above the acceptance threshold', '6: marginally above the acceptance threshold', '8: accept, good paper']
+========================================
+
+### [novelty_incremental] (2/4 reviews)
+  > Only reporting results on QA benchmarks may be insufficient to support the contribution.
+  > - centralized matrix -> centering matrix
+- Typos: "prior works that rectifying", "nli-roterta-large".
+
+### [writing_clarity] (3/4 reviews)
+  > The proposed method is mainly inspired by uncertainty estimation but how to bridge the connection with hallucination detection is still unclear, even though the results look promising.
+
+### [baseline_coverage] (2/4 reviews)
+  > - In general, it would be nice to see some qualitative examples of hallucinations that are detected by the proposed method, but not detected by the baselines.
+
+### [auroc_eval] (2/4 reviews)
+  > For example, is there any correlation between the number of outliers and accuracy of the answer?
+
+
+========================================
+## iclr24_selfcheck: SelfCheck: Using LLMs to Zero-Shot Check Their Own Step-by-Step Reasoning
+   ratings: ['5: marginally below the acceptance threshold', '6: marginally above the acceptance threshold', '5: marginally below the acceptance threshold', '8: accept, good paper']
+========================================
+
+### [multitest_stats] (2/4 reviews)
+  > - The authors claim that SelfCheck significantly outperforms majority voting with both GPT-3.5 and GPT-4.
+
+### [datasets_coverage] (2/4 reviews)
+  > Consequently, for broader applicability, the prompts would need to be rethought and rephrased, raising questions about the approach's generalizability.
+
+### [llm_judge_critique] (3/4 reviews)
+  > So it is hard to judge if this prompting strategy is the best one for mathematical reasoning.
+  > - The authors claim that SelfCheck significantly outperforms majority voting with both GPT-3.5 and GPT-4.
+  > However, results in Table 1 (Row 2) show that SelfCheck exhibits inferior performance in GSM8K with GPT-4 as the generator and checker.
+
+
+========================================
+## nips24_kernel_lang_entropy: Kernel Language Entropy: Fine-grained Uncertainty Quantification for LLMs from Semantic Si
+   ratings: [4, 6, 7, 7]
+========================================
+
+### [baseline_coverage] (3/4 reviews)
+  > However, the empirical results (Table 1) are little to modest gains over baselines.
+  > In general, the criteria for choosing between kernels are unclear (and not all kernels consistently outperform the baselines across datasets).
+
+### [multitest_stats] (2/4 reviews)
+  > Results should only be bolded if the method’s confidence interval is non-overlapping the confidence intervals of other methods (which they are not).
+
+### [auroc_eval] (2/4 reviews)
+  > For example, in Table 1 for AUROC on BioASQ, $0.88 \pm 0.03$ for KLE (K_FULL) is overlapping with P(True) at $0.86 \pm 0.03$.
+  > Likewise for SVAMP AUROC with $0.77 \pm 0.02$ for KLE (K Heat) and ER at $0.75 \pm 0.02$.
+  > For example, in scenarios like ranking candidate answers, we can use P(True) or PE to estimate answer confidence, which KLE cannot do.
+
+
+========================================
+## nips24_semantic_density: Semantic Density: Uncertainty Quantification for Large Language Models through Confidence 
+   ratings: [7, 6, 5, 5]
+========================================
+
+### [novelty_incremental] (3/4 reviews)
+  > - The paper is somewhat vague in distinguishing itself from the closest prior work on Semantic Entropy - this makes its specific contribution unclear.
+
+
+========================================
+## iclr25_hademif: HaDeMiF: Hallucination Detection and Mitigation in Large Language Models
+   ratings: [6, 6, 6, 6, 6]
+========================================
+
+### [datasets_coverage] (4/5 reviews)
+  > However, the authors did not specify the initialization of the detector's weights, which we believe could lead to incorrect gradients being applied to the LLM initially, thereby reducing its generalizability.
+  > This makes it difficult to assess the generalizability of the framework.
+
+### [auroc_eval] (3/5 reviews)
+  > Limited Metric Scope: While the framework considers multiple metrics, the scope is still relatively constrained, potentially limiting detection performance in more complex scenarios.
+  > Furthermore, we observe in the experimental results that the ECE metric, representing calibration, and the acc@50 metric, representing hallucination, show an inverse relationship to some extent in certain methods.
+  > However, they only provided the impact of various metrics on the output space in the experiments, without focusing on the interpretability of metric itself.
+
+
+========================================
+## iclr25_provence: Provence: efficient and robust context pruning for retrieval-augmented generation
+   ratings: [8, 3, 6, 8]
+========================================
+
+### [auroc_eval] (3/4 reviews)
+  > Thus, it may be helpful to introduce a unified metric that incorporates both compression ratio and LLM evaluation performance, potentially using a measure akin to AUROC.
+  > This work misses some relevant citations and does not compare to these methods, for example:
+
+[1] DSLR: Document Refinement with Sentence-Level Re-ranking and Reconstruction to Enhance Retrieval-Augmented Generation.
+
+### [writing_clarity] (2/4 reviews)
+  > - Figure 2’s main results are intuitive; however, this presentation style may open the door to different, subjective interpretations among readers.
+  > • Overall results figures are all hard to read, esp.

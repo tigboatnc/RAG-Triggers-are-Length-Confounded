@@ -1,0 +1,817 @@
+{
+  "iclr25_lengthbias_reward": {
+    "title": "Post-hoc Reward Calibration: A Case Study on Length Bias",
+    "reviews_count": 4,
+    "ratings": [
+      6,
+      8,
+      6,
+      8
+    ],
+    "bucket_hits": {
+      "length_verbosity": 4,
+      "auroc_eval": 3,
+      "novelty_incremental": 1,
+      "datasets_coverage": 2,
+      "multitest_stats": 1,
+      "baseline_coverage": 3,
+      "writing_clarity": 2,
+      "reproducibility": 0,
+      "llm_judge_critique": 4,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [
+        "**Assumption**:\nThe assumption of \u201cIndependence of the biased characteristic\u201d may be overly restrictive in practical applications, especially given that this study focuses on text length as the biased characteristic.",
+        "My understanding of this assumption (line 166) is that even when $x_1$ and $x_2$ are fixed at any arbitrary lengths $c_1$ and $c_2$, respectively, the true reward difference between $x_1$ and $x_2$ would be expected to be zero, implying no correlation between reward and text length.",
+        "For example, in cases where prompts explicitly request brevity or detail, such as \u201crespond concisely\u201d or \u201cprovide a detailed explanation,\u201d reward often depends on the response length."
+      ],
+      "auroc_eval": [
+        "My understanding of this assumption (line 166) is that even when $x_1$ and $x_2$ are fixed at any arbitrary lengths $c_1$ and $c_2$, respectively, the true reward difference between $x_1$ and $x_2$ would be expected to be zero, implying no correlation between reward and text length.",
+        "The combination of many reward models, LLMs, calibration methods, and comparison rankings makes it quite important to carefully describe the purpose behind the experimental setup and why it is a good evaluation of the calibration methods.",
+        "Perhaps the length penalty simply does not use the right coefficient\u2014in fact, it seems that it should always be possible to remove the length correlation measured in Table 3 by using a linear length penalty with the right coefficient."
+      ],
+      "novelty_incremental": [],
+      "datasets_coverage": [
+        "This assumption could thus limit the generalizability of the proposed method, especially for tasks where length naturally influences quality.",
+        "The experiments pretty much all focus on length bias, with one generalization task to markdown features."
+      ],
+      "multitest_stats": [
+        "Bias Exploration: It would be beneficial to explore other biases beyond 'length' and 'style', given that significant improvements are mostly seen in 'length bias'."
+      ],
+      "baseline_coverage": [
+        "**Baseline setting**:\nThe Length Penalty hyperparameter $\\alpha$ seems to be fixed at 0.001, which may not be optimal across different reward models (RMs) and tasks due to variations in scale.",
+        "While the proposed method benefits from adaptive $d$ tuning, the baseline might perform better with an \u03b1 adjusted per RM or task, ensuring a fairer comparison.",
+        "It describes multiple evaluation methods (AlpacaEval1, AlpacaEval2, ChatbotArena), which if I understand correctly in some cases used as both gold standard (AlpacaEval2) and as baselines (LC)."
+      ],
+      "writing_clarity": [
+        "The main weaknesses of the paper include:\n\n * **Presentation:** I found the introduction of the method in Section 3 to be relatively clear, but the experiments in Sections 4 and 5 were much more difficult to understand.",
+        "It would be good to improve the presentation of these such that the results are easier to understand."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [
+        "Assumptions: The proposed method depends heavily on several assumptions, such as (1) decomposition of the biased reward, (2) independence of the bias characteristic, (3) sufficient density, and (4) Lipschitz continuity.",
+        "Bias Exploration: It would be beneficial to explore other biases beyond 'length' and 'style', given that significant improvements are mostly seen in 'length bias'.",
+        "- A slight weakness is the majority focus on length bias."
+      ],
+      "causal_mechanism": [
+        "This could help readers understand why RC-Mean and RC-LWR outperform length penalty, especially if the $\\hat{r}\\_\\theta(c)$ function is quite non-linear."
+      ]
+    }
+  },
+  "iclr25_uq_llm_eval": {
+    "title": "An Empirical Analysis of Uncertainty in Large Language Model Evaluations",
+    "reviews_count": 4,
+    "ratings": [
+      6,
+      6,
+      5,
+      6
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 1,
+      "novelty_incremental": 3,
+      "datasets_coverage": 3,
+      "multitest_stats": 3,
+      "baseline_coverage": 0,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 4,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [
+        "- Evaluation should get increased to more and more standard LLMJ datasets, including e.g., RewardBench and standard summarization and chat datasets used in prior work (SummEval, HANNA, etc).",
+        "I really urge the authors to acknowledge this work in the Related Works section and show the difference with the current work.",
+        "- The paper lacks novelty in some places and feels like a reiteration of existing facts, i.e., most of the findings in section 4.2 are well-known and documented."
+      ],
+      "datasets_coverage": [
+        "This limitation, acknowledged in the paper, constrains the generalizability and scalability of the proposed methods.",
+        "Relying solely on token probabilities as a measure of uncertainty may affect the reliability and generalizability of the conclusions drawn.",
+        "This is slightly concerning as the generalization of the model might be quite less, and there is a good chance of overfitting, especially with 6 epochs."
+      ],
+      "multitest_stats": [
+        "For instance, we can see that GPT-4o-mini exhibits significantly higher average prediction probabilities than GPT-4o across various datasets, can we truly infer that GPT-4o-mini possesses superior \"evaluation quality\"?"
+      ],
+      "baseline_coverage": [],
+      "writing_clarity": [
+        "and the last line in the third point of Section 4.2 is also obvious as evaluation is a hard task, and unless models are explicitly trained for it, they will not be suitable for it."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [
+        "- The paper adopts a simplified view on recent 'LLM-as-a-Judge' (LLMJ) literature, skipping some related work that aimed to improve confidence of LLMJ models via calibration (https://openreview.net/pdf?id=L3FHMoKZcS) or better prompt optimization (PO; https://arxiv.org/pdf/2406.11370).",
+        "NOTE: This has been corrected in the author response\n- This also means that it would be extremely useful to measure how uncertainty/confidence levels change when different bias mitigation or calibration or PO methods get applied.",
+        "This raises concerns about the reliability of using these metrics in LLM-as-Judge systems, which have become popular for their scalability and cost-effectiveness in automating evaluations that traditionally relied on human feedback."
+      ],
+      "causal_mechanism": []
+    }
+  },
+  "iclr25_redeep": {
+    "title": "ReDeEP: Detecting Hallucination in Retrieval-Augmented Generation via Mechanistic Interpretability",
+    "reviews_count": 3,
+    "ratings": [
+      8,
+      8,
+      6
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 1,
+      "novelty_incremental": 2,
+      "datasets_coverage": 0,
+      "multitest_stats": 1,
+      "baseline_coverage": 2,
+      "writing_clarity": 3,
+      "reproducibility": 0,
+      "llm_judge_critique": 1,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [
+        "- Pearson's Correlation in \u00a73: Why measure Pearson\u2019s correlation between ECS and hallucination labels (binary)?",
+        "It would be more informative to report accuracy at a fixed threshold or detection metrics such as AUROC.",
+        "Similarly, for PKS and hallucination, detection metrics like AUROC would be preferable."
+      ],
+      "novelty_incremental": [],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [
+        "## Insufficient experiments\n\n### Hallucination detection experiment\n- For RagTruth dataset there exist baselines provided by the original paper [2] which perform better than all the baselines considered by you, could you please include them?",
+        "Baseline LLama2-13B results fine-tuned on RagTruth have 78.7 F1, see Table 5 in [2] vs yours 78.3 in Table 1.",
+        "I think the comparison makes a lot of sense since you tune many hyperparams using RagTruth validation dataset while you could simply fine-tune that baseline on the same data instead."
+      ],
+      "writing_clarity": [
+        "### Lack of sensitivity experiments\nPlease provide sensitivity experiments to the numerous hyperparameters you introduced (see the section \"Too many hyperparameters\" for the hyperparameters)\n\n## Unclear writing\n- While being core concepts of the paper, Copying Heads (set A) Knowledge FFNs (set F) are not formally defined (line 381).",
+        "The starting point and flow of the diagram are unclear, with too many arrows, making it hard to identify the main computational paths.",
+        "While the performance of AARF seems good (Figure 6) - it would be good to see some example outputs - its unclear how this could effect the model\u2019s output in terms of coherence/writing in general."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [
+        "You can run a simple experiment: use LogitLensed outputs before FFN as final outputs and check whether it removes the parametric knowledge bias using some of the setups for that, for example, the one from [1] (they study it through the prism of the phenomenon you encounter in RQ3 and Appendix E).",
+        "Then you ask gpt-4o to evaluate whether this span supports existence of a conflict in response or not.",
+        "### Hallucination generation experiment\n\nPrompt for truthfulness (Appendix L) creates bias, since GPT-4o knows which answer belongs to the baseline and which to AARF."
+      ],
+      "causal_mechanism": [
+        "If that is the case, I do not understand why this experiment shows whether the model attends (the attention span contains part of the context needed for the correct answer) or mis-attends.",
+        "### Causal experiment\n\n- First of all, I don\u2019t see how a higher NLL difference for the experimental group than for the control group shows a causal relation between hallucinations occurrence and copying heads neglecting necessary knowledge, could you please elaborate?"
+      ]
+    }
+  },
+  "iclr24_selfrag": {
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "reviews_count": 4,
+    "ratings": [
+      "6: marginally above the acceptance threshold",
+      "8: accept, good paper",
+      "8: accept, good paper",
+      "8: accept, good paper"
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 1,
+      "novelty_incremental": 3,
+      "datasets_coverage": 0,
+      "multitest_stats": 2,
+      "baseline_coverage": 2,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 2,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [
+        "- Even though there are a lot of benchmarks and ablations, I still find that many of my questions are not answered by these evaluations\n    - Specifically, I'd like to separate out the contribution from the main two parts of the approach, the self-reflection, and RAG."
+      ],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [
+        "I can understand the reduced MAUVE score, but accuracy on PubMed has also been reduced which tells a similar story\n    - Same is true in Figure 3.a (ablations) where Self-RAG without retrieval is already better than all the other baselines in Table 2."
+      ],
+      "writing_clarity": [
+        "- Since most experiments uses automated evaluation focusing on accuracy and factuality, it is still unclear to me if such a training approach could hurt some aspects of the model, e.g., instruction following, creativity, or reasoning."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [
+        "If GPT-4 somehow can decently provide the labeled data required for each reflection step, it seems intuitive to just instruct GPT-4 to obtain the ideal response that is grounded by the input.",
+        "Also, GPT-4 might make the decisions on whether to retrieve or not differently from the small LMs as GPT-4 memorizes a lot more world knowledge.",
+        "Therefore, the annotation given by GPT-4 might not be suitable for small LMs."
+      ],
+      "causal_mechanism": []
+    }
+  },
+  "iclr24_inside": {
+    "title": "INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection",
+    "reviews_count": 4,
+    "ratings": [
+      "6: marginally above the acceptance threshold",
+      "6: marginally above the acceptance threshold",
+      "6: marginally above the acceptance threshold",
+      "8: accept, good paper"
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 2,
+      "novelty_incremental": 2,
+      "datasets_coverage": 1,
+      "multitest_stats": 1,
+      "baseline_coverage": 2,
+      "writing_clarity": 3,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [
+        "For example, is there any correlation between the number of outliers and accuracy of the answer?"
+      ],
+      "novelty_incremental": [
+        "Only reporting results on QA benchmarks may be insufficient to support the contribution.",
+        "- centralized matrix -> centering matrix\n- Typos: \"prior works that rectifying\", \"nli-roterta-large\"."
+      ],
+      "datasets_coverage": [
+        "Since there are multiple factors that influence the difference between internal states, it's hard to guarantee the generalization ability of the proposed method."
+      ],
+      "multitest_stats": [],
+      "baseline_coverage": [
+        "- In general, it would be nice to see some qualitative examples of hallucinations that are detected by the proposed method, but not detected by the baselines."
+      ],
+      "writing_clarity": [
+        "The proposed method is mainly inspired by uncertainty estimation but how to bridge the connection with hallucination detection is still unclear, even though the results look promising."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "iclr24_express_uq": {
+    "title": "Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs",
+    "reviews_count": 4,
+    "ratings": [
+      "5: marginally below the acceptance threshold",
+      "6: marginally above the acceptance threshold",
+      "8: accept, good paper",
+      "5: marginally below the acceptance threshold"
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 0,
+      "novelty_incremental": 1,
+      "datasets_coverage": 1,
+      "multitest_stats": 1,
+      "baseline_coverage": 0,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [
+        "The strategies presented are reasonable (but not super novel, as far as I understand).",
+        "So the contribution should be evaluated on the empirical evaluation."
+      ],
+      "datasets_coverage": [
+        "Given a new task, it is not clear which method will give the best performance, or even if the best performing method on a hold out set will generalize to real problems in a domain."
+      ],
+      "multitest_stats": [
+        "The experimental results show that the method is useful in identifying uncertainty, but performance varies significantly across benchmark tasks and no single method is clearly better than others."
+      ],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "iclr24_selfcheck": {
+    "title": "SelfCheck: Using LLMs to Zero-Shot Check Their Own Step-by-Step Reasoning",
+    "reviews_count": 4,
+    "ratings": [
+      "5: marginally below the acceptance threshold",
+      "6: marginally above the acceptance threshold",
+      "5: marginally below the acceptance threshold",
+      "8: accept, good paper"
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 0,
+      "novelty_incremental": 0,
+      "datasets_coverage": 2,
+      "multitest_stats": 2,
+      "baseline_coverage": 0,
+      "writing_clarity": 2,
+      "reproducibility": 0,
+      "llm_judge_critique": 3,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [],
+      "datasets_coverage": [
+        "Consequently, for broader applicability, the prompts would need to be rethought and rephrased, raising questions about the approach's generalizability."
+      ],
+      "multitest_stats": [
+        "- The authors claim that SelfCheck significantly outperforms majority voting with both GPT-3.5 and GPT-4."
+      ],
+      "baseline_coverage": [],
+      "writing_clarity": [
+        "- Table 1 is a bit confusing as 2 samples for majority voting does not make much sense.",
+        "Hence, it is a little confusing to state the proposed SelfCheck is general-purpose."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [
+        "So it is hard to judge if this prompting strategy is the best one for mathematical reasoning.",
+        "- The authors claim that SelfCheck significantly outperforms majority voting with both GPT-3.5 and GPT-4.",
+        "However, results in Table 1 (Row 2) show that SelfCheck exhibits inferior performance in GSM8K with GPT-4 as the generator and checker."
+      ],
+      "causal_mechanism": []
+    }
+  },
+  "nips24_kernel_lang_entropy": {
+    "title": "Kernel Language Entropy: Fine-grained Uncertainty Quantification for LLMs from Semantic Similarities",
+    "reviews_count": 4,
+    "ratings": [
+      4,
+      6,
+      7,
+      7
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 2,
+      "novelty_incremental": 2,
+      "datasets_coverage": 1,
+      "multitest_stats": 2,
+      "baseline_coverage": 3,
+      "writing_clarity": 2,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [
+        "For example, in Table 1 for AUROC on BioASQ, $0.88 \\pm 0.03$ for KLE (K_FULL) is overlapping with P(True) at $0.86 \\pm 0.03$.",
+        "Likewise for SVAMP AUROC with $0.77 \\pm 0.02$ for KLE (K Heat) and ER at $0.75 \\pm 0.02$.",
+        "For example, in scenarios like ranking candidate answers, we can use P(True) or PE to estimate answer confidence, which KLE cannot do."
+      ],
+      "novelty_incremental": [],
+      "datasets_coverage": [],
+      "multitest_stats": [
+        "Results should only be bolded if the method\u2019s confidence interval is non-overlapping the confidence intervals of other methods (which they are not)."
+      ],
+      "baseline_coverage": [
+        "However, the empirical results (Table 1) are little to modest gains over baselines.",
+        "In general, the criteria for choosing between kernels are unclear (and not all kernels consistently outperform the baselines across datasets)."
+      ],
+      "writing_clarity": [
+        "In general, the criteria for choosing between kernels are unclear (and not all kernels consistently outperform the baselines across datasets)."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "nips24_haloscope": {
+    "title": "HaloScope: Harnessing Unlabeled LLM Generations for Hallucination Detection",
+    "reviews_count": 4,
+    "ratings": [
+      8,
+      6,
+      9,
+      6
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 0,
+      "novelty_incremental": 1,
+      "datasets_coverage": 1,
+      "multitest_stats": 1,
+      "baseline_coverage": 0,
+      "writing_clarity": 0,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 2
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [],
+      "datasets_coverage": [
+        "The latent space extracted by a specific dataset cannot be generalized to all domains."
+      ],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": [
+        "**Issue on Robustness Comparison:** I don't understand why the proposed method gets higher robustness compared with other methods."
+      ]
+    }
+  },
+  "nips24_graph_uq_longform": {
+    "title": "Graph-based Uncertainty Metrics for Long-form Language Model Generations",
+    "reviews_count": 3,
+    "ratings": [
+      5,
+      5,
+      7
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 1,
+      "novelty_incremental": 2,
+      "datasets_coverage": 2,
+      "multitest_stats": 2,
+      "baseline_coverage": 0,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [
+        "According to the experiments, closeness is the most effective metric for uncertainty estimation."
+      ],
+      "novelty_incremental": [],
+      "datasets_coverage": [
+        "It would be better if the authors could evaluate their method on more datasets or at least more samples."
+      ],
+      "multitest_stats": [
+        "First, if the LLM is not reliable in any of these steps, then the performance will be significantly degraded.",
+        "Both the uncertainty estimation method and UAG require multiple samples from the LLM, which is time-consuming and might significantly increase computational cost."
+      ],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": [
+        "The whole pipeline relies heavily on the LLM for many critical steps such as claim decomposition, causal inference and merging semantically duplicated claims, etc."
+      ]
+    }
+  },
+  "nips24_semantic_density": {
+    "title": "Semantic Density: Uncertainty Quantification for Large Language Models through Confidence Measurement in Semantic Space",
+    "reviews_count": 4,
+    "ratings": [
+      7,
+      6,
+      5,
+      5
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 3,
+      "novelty_incremental": 3,
+      "datasets_coverage": 1,
+      "multitest_stats": 0,
+      "baseline_coverage": 0,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [
+        "- The paper is somewhat vague in distinguishing itself from the closest prior work on Semantic Entropy - this makes its specific contribution unclear."
+      ],
+      "datasets_coverage": [
+        "While the method shows promise for free-form question-answering tasks, its applicability and performance in other types of tasks (e.g., summarization, translation) are not explored, which limits the generalizability of the findings."
+      ],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [
+        "- The paper is somewhat vague in distinguishing itself from the closest prior work on Semantic Entropy - this makes its specific contribution unclear.",
+        "- Some details of the implementation of semantic density are unclear."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "nips25_cocoa": {
+    "title": "CoCoA: A Minimum Bayes Risk Framework Bridging Confidence and Consistency for Uncertainty Quantification in LLMs",
+    "reviews_count": 4,
+    "ratings": [
+      6,
+      4,
+      4,
+      4
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 0,
+      "novelty_incremental": 1,
+      "datasets_coverage": 0,
+      "multitest_stats": 0,
+      "baseline_coverage": 0,
+      "writing_clarity": 0,
+      "reproducibility": 0,
+      "llm_judge_critique": 1,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "nips25_signal_noise": {
+    "title": "Signal and Noise: A Framework for Reducing Uncertainty in Language Model Evaluation",
+    "reviews_count": 4,
+    "ratings": [
+      5,
+      5,
+      4,
+      5
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 0,
+      "novelty_incremental": 0,
+      "datasets_coverage": 1,
+      "multitest_stats": 1,
+      "baseline_coverage": 0,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "nips25_inv_entropy": {
+    "title": "Inv-Entropy: A Fully Probabilistic Framework for Uncertainty Quantification in Language Models",
+    "reviews_count": 5,
+    "ratings": [
+      5,
+      5,
+      4,
+      4,
+      2
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 1,
+      "novelty_incremental": 0,
+      "datasets_coverage": 0,
+      "multitest_stats": 0,
+      "baseline_coverage": 1,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 2
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "nips25_diversity_sampling": {
+    "title": "Efficient semantic uncertainty quantification in language models via diversity-steered sampling",
+    "reviews_count": 4,
+    "ratings": [
+      4,
+      4,
+      5,
+      4
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 0,
+      "novelty_incremental": 0,
+      "datasets_coverage": 0,
+      "multitest_stats": 0,
+      "baseline_coverage": 0,
+      "writing_clarity": 0,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "iclr25_hademif": {
+    "title": "HaDeMiF: Hallucination Detection and Mitigation in Large Language Models",
+    "reviews_count": 5,
+    "ratings": [
+      6,
+      6,
+      6,
+      6,
+      6
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 3,
+      "novelty_incremental": 1,
+      "datasets_coverage": 4,
+      "multitest_stats": 1,
+      "baseline_coverage": 0,
+      "writing_clarity": 2,
+      "reproducibility": 0,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [
+        "Limited Metric Scope: While the framework considers multiple metrics, the scope is still relatively constrained, potentially limiting detection performance in more complex scenarios.",
+        "Furthermore, we observe in the experimental results that the ECE metric, representing calibration, and the acc@50 metric, representing hallucination, show an inverse relationship to some extent in certain methods.",
+        "However, they only provided the impact of various metrics on the output space in the experiments, without focusing on the interpretability of metric itself."
+      ],
+      "novelty_incremental": [],
+      "datasets_coverage": [
+        "However, the authors did not specify the initialization of the detector's weights, which we believe could lead to incorrect gradients being applied to the LLM initially, thereby reducing its generalizability.",
+        "This makes it difficult to assess the generalizability of the framework."
+      ],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [
+        "Unclear Training Data: The paper lacks clarity on where the training data for the D3T and MLP models come from.",
+        "It is unclear whether hallucinations are labeled manually, generated synthetically, or detected through other processes."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "iclr25_sdlg": {
+    "title": "Improving Uncertainty Estimation through Semantically Diverse Language Generation",
+    "reviews_count": 4,
+    "ratings": [
+      6,
+      5,
+      8,
+      5
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 2,
+      "novelty_incremental": 4,
+      "datasets_coverage": 1,
+      "multitest_stats": 2,
+      "baseline_coverage": 4,
+      "writing_clarity": 1,
+      "reproducibility": 1,
+      "llm_judge_critique": 0,
+      "causal_mechanism": 2
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [
+        "The reference in L.409 (\u201cin general...\u201d) requires citation if it\u2019s a general principle, and L.411-414 discussing AUROC are somewhat confusing, particularly the sentence \u201cAUROC is used as a metric for classifying.\u201d\n- **Baselines and Related Work**: It is unclear why some relevant works, such as [1], are not included as baselines.",
+        "The current evaluation uses a simple mean (line 426-428)  \"we derive the final token score ranking by straightforwardly averaging the three individual token score\"."
+      ],
+      "novelty_incremental": [],
+      "datasets_coverage": [
+        "Expanding the analysis outside OPT's scope would strengthen the findings and make them more generalizable."
+      ],
+      "multitest_stats": [],
+      "baseline_coverage": [
+        "The reference in L.409 (\u201cin general...\u201d) requires citation if it\u2019s a general principle, and L.411-414 discussing AUROC are somewhat confusing, particularly the sentence \u201cAUROC is used as a metric for classifying.\u201d\n- **Baselines and Related Work**: It is unclear why some relevant works, such as [1], are not included as baselines.",
+        "The examples in the appendix (Table 3) include only comparisons between SDLG and SE, but not DBS - To promote both baselines to the same level, adding examples for DBS and providing a detailed analysis of where and why SDLG outperforms DBS would strengthen the paper."
+      ],
+      "writing_clarity": [
+        "- **Experimental Clarity**: The experimental section lacks clarity, particularly in explaining how ROUGE and BLEURT metrics were applied.",
+        "The reference in L.409 (\u201cin general...\u201d) requires citation if it\u2019s a general principle, and L.411-414 discussing AUROC are somewhat confusing, particularly the sentence \u201cAUROC is used as a metric for classifying.\u201d\n- **Baselines and Related Work**: It is unclear why some relevant works, such as [1], are not included as baselines."
+      ],
+      "reproducibility": [
+        "[HADES dataset](https://aclanthology.org/2022.acl-long.464.pdf, code and data [available](https://github.com/microsoft/HaDes))."
+      ],
+      "llm_judge_critique": [],
+      "causal_mechanism": [
+        "- Due to space constraints, the current main paper does not include a detailed illustration of its scoring mechanism and how the specific token pairs are selected and replaced.",
+        "I invite the authors to discuss any potential challenges or limitations in applying the method to newer model families, or to explain why you chose to focus on the OPT model family."
+      ]
+    }
+  },
+  "iclr25_instr_uq": {
+    "title": "Do LLMs estimate uncertainty well in instruction-following?",
+    "reviews_count": 4,
+    "ratings": [
+      6,
+      8,
+      1,
+      8
+    ],
+    "bucket_hits": {
+      "length_verbosity": 1,
+      "auroc_eval": 0,
+      "novelty_incremental": 1,
+      "datasets_coverage": 0,
+      "multitest_stats": 1,
+      "baseline_coverage": 0,
+      "writing_clarity": 1,
+      "reproducibility": 0,
+      "llm_judge_critique": 1,
+      "causal_mechanism": 0
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [],
+      "novelty_incremental": [
+        "The paper raises many novel concepts and findings, but it does not seem to provide much direct help in enhancing instruction-following capabilities."
+      ],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [],
+      "writing_clarity": [],
+      "reproducibility": [],
+      "llm_judge_critique": [],
+      "causal_mechanism": []
+    }
+  },
+  "iclr25_provence": {
+    "title": "Provence: efficient and robust context pruning for retrieval-augmented generation",
+    "reviews_count": 4,
+    "ratings": [
+      8,
+      3,
+      6,
+      8
+    ],
+    "bucket_hits": {
+      "length_verbosity": 0,
+      "auroc_eval": 3,
+      "novelty_incremental": 1,
+      "datasets_coverage": 0,
+      "multitest_stats": 0,
+      "baseline_coverage": 2,
+      "writing_clarity": 2,
+      "reproducibility": 0,
+      "llm_judge_critique": 1,
+      "causal_mechanism": 1
+    },
+    "sample_quotes": {
+      "length_verbosity": [],
+      "auroc_eval": [
+        "Thus, it may be helpful to introduce a unified metric that incorporates both compression ratio and LLM evaluation performance, potentially using a measure akin to AUROC.",
+        "This work misses some relevant citations and does not compare to these methods, for example:\n\n[1] DSLR: Document Refinement with Sentence-Level Re-ranking and Reconstruction to Enhance Retrieval-Augmented Generation."
+      ],
+      "novelty_incremental": [],
+      "datasets_coverage": [],
+      "multitest_stats": [],
+      "baseline_coverage": [
+        "This work misses some relevant citations and does not compare to these methods, for example:\n\n[1] DSLR: Document Refinement with Sentence-Level Re-ranking and Reconstruction to Enhance Retrieval-Augmented Generation."
+      ],
+      "writing_clarity": [
+        "- Figure 2\u2019s main results are intuitive; however, this presentation style may open the door to different, subjective interpretations among readers.",
+        "\u2022 Overall results figures are all hard to read, esp."
+      ],
+      "reproducibility": [],
+      "llm_judge_critique": [
+        "The authors do not consider an adequate retrieval pipeline for comparison with existing approaches (as Splade + DeBERTa may introduce bias favoring Provence), and the impact of the hyperparameter k in retrieving the top-k relevant passages is not discussed."
+      ],
+      "causal_mechanism": []
+    }
+  }
+}

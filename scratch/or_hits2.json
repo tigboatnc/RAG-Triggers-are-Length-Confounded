@@ -1,0 +1,1002 @@
+{
+  "ICLR24": [
+    [
+      "bDWXhzZT40",
+      9383,
+      "Learning model uncertainty as variance-minimizing instance weights"
+    ],
+    [
+      "lAhQCHuANV",
+      8889,
+      "Assessing Uncertainty in Similarity Scoring: Performance & Fairness in Face Recognition"
+    ],
+    [
+      "mlJLVigNHp",
+      8767,
+      "RECOMP: Improving Retrieval-Augmented LMs with Context Compression and Selective Augmentation"
+    ],
+    [
+      "8dN7gApKm3",
+      8730,
+      "Uncertainty-aware Graph-based Hyperspectral Image Classification"
+    ],
+    [
+      "ZS4m74kZpH",
+      7143,
+      "Making Retrieval-Augmented Language Models Robust to Irrelevant Context"
+    ],
+    [
+      "A7t7z6g6tM",
+      6833,
+      "Hyper Evidential Deep Learning to Quantify Composite Classification Uncertainty"
+    ],
+    [
+      "YcM6ofShwY",
+      6736,
+      "BayesDiff: Estimating Pixel-wise Uncertainty in Diffusion via Bayesian Inference"
+    ],
+    [
+      "22OTbutug9",
+      6563,
+      "RA-DIT: Retrieval-Augmented Dual Instruction Tuning"
+    ],
+    [
+      "hSyW5go0v8",
+      6283,
+      "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection"
+    ],
+    [
+      "KgaBScZ4VI",
+      6173,
+      "Language Model Cascades: Token-Level Uncertainty And Beyond"
+    ],
+    [
+      "WNQjN5HzXt",
+      6015,
+      "AUGCAL: Improving Sim2Real Adaptation by Uncertainty Calibration on Augmented Synthetic Images"
+    ],
+    [
+      "Zj12nzlQbz",
+      5370,
+      "INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection"
+    ],
+    [
+      "nsNyDvNQTc",
+      5267,
+      "Leveraging Uncertainty Estimates To Improve Classifier Performance"
+    ],
+    [
+      "yV6fD7LYkF",
+      5104,
+      "ValUES: A Framework for Systematic Validation of Uncertainty Estimation in Semantic Segmentation"
+    ],
+    [
+      "ILYjDvUM6U",
+      5021,
+      "Uncertainty-aware Constraint Inference in Inverse Constrained Reinforcement Learning"
+    ],
+    [
+      "adSGeugiuj",
+      4935,
+      "On the Posterior Distribution in Denoising: Application to Uncertainty Quantification"
+    ],
+    [
+      "oMNkj4ER7V",
+      4649,
+      "A Unified Framework for Bayesian Optimization under Contextual Uncertainty"
+    ],
+    [
+      "cZttUMTiPL",
+      4440,
+      "Uncertainty Quantification via Stable Distribution Propagation"
+    ],
+    [
+      "1CPta0bfN2",
+      4117,
+      "Adaptive Retrieval and Scalable Indexing for k-NN Search with Cross-Encoders"
+    ],
+    [
+      "D7KJmfEDQP",
+      3827,
+      "Model Merging by Uncertainty-Based Gradient Matching"
+    ],
+    [
+      "gjeQKFxFpZ",
+      3593,
+      "Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs"
+    ],
+    [
+      "Yb5KvPkKQg",
+      2369,
+      "Composed Image Retrieval with Text Feedback via Multi-grained Uncertainty Regularization"
+    ],
+    [
+      "ruGY8v10mK",
+      1899,
+      "A Data-Driven Measure of Relative Uncertainty for Misclassification Detection"
+    ],
+    [
+      "ZL6yd6N1S2",
+      1502,
+      "Accurate and Scalable Estimation of Epistemic Uncertainty for Graph Neural Networks"
+    ],
+    [
+      "pTHfApDakA",
+      204,
+      "SelfCheck: Using LLMs to Zero-Shot Check Their Own Step-by-Step Reasoning"
+    ]
+  ],
+  "ICLR25": [
+    [
+      "pDDODPtpx9",
+      13804,
+      "Distribution-Free Data Uncertainty for Neural Network Regression"
+    ],
+    [
+      "FvQsk3la17",
+      13486,
+      "Langevin Soft Actor-Critic: Efficient Exploration through Uncertainty-Driven Critic Learning"
+    ],
+    [
+      "k3y0oyK7sn",
+      13279,
+      "Predictive Uncertainty Quantification for Bird's Eye View Segmentation: A Benchmark and Novel Loss Function"
+    ],
+    [
+      "hxUMQ4fic3",
+      13251,
+      "Neural Stochastic Differential Equations for Uncertainty-Aware Offline RL"
+    ],
+    [
+      "Y4aWwRh25b",
+      12866,
+      "Follow My Instruction and Spill the Beans: Scalable Data Extraction from Retrieval-Augmented Generation Systems"
+    ],
+    [
+      "JvkuZZ04O7",
+      12839,
+      "Simple is Effective: The Roles of Graphs and Large Language Models in Knowledge-Graph-Based Retrieval-Augmented Generation"
+    ],
+    [
+      "UgPoHhYQ2U",
+      12790,
+      "Uncertainty Herding: One Active Learning Method for All Label Budgets"
+    ],
+    [
+      "TId1SHe8JG",
+      12521,
+      "Provable Uncertainty Decomposition via Higher-Order Calibration"
+    ],
+    [
+      "DKgAFfCs5F",
+      12089,
+      "Cocoon: Robust Multi-Modal Perception with Uncertainty-Aware Sensor Fusion"
+    ],
+    [
+      "iOMnn1hSBO",
+      11273,
+      "Utility-Directed Conformal Prediction: A Decision-Aware Framework for Actionable Uncertainty Quantification"
+    ],
+    [
+      "TDy5Ih78b4",
+      10706,
+      "Provence: efficient and robust context pruning for retrieval-augmented generation"
+    ],
+    [
+      "HSi4VetQLj",
+      10297,
+      "Improving Uncertainty Estimation through Semantically Diverse Language Generation"
+    ],
+    [
+      "Usklli4gMc",
+      9148,
+      "MRAG-Bench: Vision-Centric Evaluation for Retrieval-Augmented Multimodal Models"
+    ],
+    [
+      "J4xLuCt2kg",
+      8766,
+      "An Empirical Analysis of Uncertainty in Large Language Model Evaluations"
+    ],
+    [
+      "xJXq6FkqEw",
+      8700,
+      "Enhancing Uncertainty Estimation and Interpretability with Bayesian Non-negative Decision Layer"
+    ],
+    [
+      "nx9Z5Kva96",
+      8466,
+      "Revisiting Source-Free Domain Adaptation: a New Perspective via Uncertainty Control"
+    ],
+    [
+      "w8LMtFY97b",
+      7885,
+      "Hierarchical Uncertainty Estimation for Learning-based Registration in Neuroimaging"
+    ],
+    [
+      "TYSQYx9vwd",
+      7838,
+      "Uncertainty Modeling in Graph Neural Networks via Stochastic Differential Equations"
+    ],
+    [
+      "HE6pJoNnFp",
+      7636,
+      "Accelerating Inference of Retrieval-Augmented Generation via Sparse Context Selection"
+    ],
+    [
+      "IOg47mg74i",
+      6883,
+      "Training Large Language Models for Retrieval-Augmented Question Answering through Backtracking Correction"
+    ],
+    [
+      "f65RuQgVlp",
+      6777,
+      "Federated Continual Learning Goes Online: Uncertainty-Aware Memory Management for Vision Tasks and Beyond"
+    ],
+    [
+      "zG459X3Xge",
+      6463,
+      "VisRAG: Vision-based Retrieval-augmented Generation on Multi-modality Documents"
+    ],
+    [
+      "RKOAU5ti1y",
+      6083,
+      "A Distributional Approach to Uncertainty-Aware Preference Alignment Using Offline Demonstrations"
+    ],
+    [
+      "V3zobHnS61",
+      5511,
+      "RA-TTA: Retrieval-Augmented Test-Time Adaptation for Vision-Language Models"
+    ],
+    [
+      "tbx3u2oZAu",
+      5411,
+      "A Theory for Token-Level Harmonization in Retrieval-Augmented Generation"
+    ],
+    [
+      "NdHka08uWn",
+      5410,
+      "RAG-SR: Retrieval-Augmented Generation for Neural Symbolic Regression"
+    ],
+    [
+      "Iu8RytBaji",
+      5267,
+      "Post-hoc Reward Calibration: A Case Study on Length Bias"
+    ],
+    [
+      "IzYczpPqKq",
+      5136,
+      "Learning to Steer Markovian Agents under Model Uncertainty"
+    ],
+    [
+      "cv2iMNWCsh",
+      5087,
+      "Credal Wrapper of Model Averaging for Uncertainty Estimation in Classification"
+    ],
+    [
+      "P1qhkp8gQT",
+      4836,
+      "InstructRAG: Instructing Retrieval-Augmented Generation via Self-Synthesized Rationales"
+    ],
+    [
+      "Acvo2RGSCy",
+      4817,
+      "DeLLMa: Decision Making Under Uncertainty with Large Language Models"
+    ],
+    [
+      "uuPkll6i7m",
+      4772,
+      "Towards Certification of Uncertainty Calibration under Adversarial Attacks"
+    ],
+    [
+      "w5ZtXOzMeJ",
+      4665,
+      "Auto-GDA: Automatic Domain Adaptation for Efficient Grounding Verification in Retrieval-Augmented Generation"
+    ],
+    [
+      "IHp3vOVQO2",
+      4000,
+      "Do LLMs estimate uncertainty well in instruction-following?"
+    ],
+    [
+      "3PDklqqqfN",
+      3882,
+      "Multi-Field Adaptive Retrieval"
+    ],
+    [
+      "eC2ICbECNM",
+      3640,
+      "Ctrl-U: Robust Conditional Image Generation via Uncertainty-aware Reward Modeling"
+    ],
+    [
+      "ztzZDzgfrh",
+      3536,
+      "ReDeEP: Detecting Hallucination in Retrieval-Augmented Generation via Mechanistic Interpretability"
+    ],
+    [
+      "Pnktu2PBXD",
+      3503,
+      "RAG-DDR: Optimizing Retrieval-Augmented Generation Using Differentiable Data Rewards"
+    ],
+    [
+      "iZl0VqEdxa",
+      2968,
+      "Uncertainty modeling for fine-tuned implicit functions"
+    ],
+    [
+      "iamWnRpMuQ",
+      1579,
+      "Uncertainty and Influence aware Reward Model Refinement for Reinforcement Learning from Human Feedback"
+    ],
+    [
+      "cWfpt2t37q",
+      1292,
+      "From Risk to Uncertainty: Generating Predictive Uncertainty Measures via Bayesian Estimation"
+    ],
+    [
+      "hPpyUv1XyQ",
+      1172,
+      "Uncertainty-Aware Decoding with Minimum Bayes Risk"
+    ],
+    [
+      "VwOYxPScxB",
+      1099,
+      "HaDeMiF: Hallucination Detection and Mitigation in Large Language Models"
+    ],
+    [
+      "NxyfSW6mLK",
+      961,
+      "REGENT: A Retrieval-Augmented Generalist Agent That Can Act In-Context in New Environments"
+    ],
+    [
+      "E8gYIrbP00",
+      956,
+      "Beyond correlation: The impact of human uncertainty in measuring the effectiveness of automatic evaluation and LLM-as-a-judge"
+    ]
+  ],
+  "NeurIPS24": [
+    [
+      "RQCmMSSzvI",
+      20492,
+      "Non-Asymptotic Uncertainty Quantification in High-Dimensional Learning"
+    ],
+    [
+      "k6iyUfwdI9",
+      20115,
+      "To Believe or Not to Believe Your LLM: Iterative Prompting for Estimating Epistemic Uncertainty"
+    ],
+    [
+      "P6nVDZRZRB",
+      19595,
+      "Are Uncertainty Quantification Capabilities of Evidential Deep Learning a Mirage?"
+    ],
+    [
+      "zXfhHJnMB2",
+      18932,
+      "Neural Conditional Probability for Uncertainty Quantification"
+    ],
+    [
+      "Wc0vlQuoLb",
+      18862,
+      "I Don't Know: Explicit Modeling of Uncertainty with an [IDK] Token"
+    ],
+    [
+      "LgeHswiWef",
+      18660,
+      "Enhancing Protein Mutation Effect Prediction through a Retrieval-Augmented Framework"
+    ],
+    [
+      "j2wCrWmgMX",
+      18357,
+      "Kernel Language Entropy: Fine-grained Uncertainty Quantification for LLMs from Semantic Similarities"
+    ],
+    [
+      "1vPqOmqSfO",
+      17623,
+      "Sketched Lanczos uncertainty score: a low-memory summary of the Fisher information"
+    ],
+    [
+      "rTxCIWsfsD",
+      16300,
+      "Uncertainty-based Offline Variational Bayesian Reinforcement Learning for Robustness under Diverse Data Corruptions"
+    ],
+    [
+      "qpeAtfUWOQ",
+      15780,
+      "Variational Multi-scale Representation for Estimating Uncertainty in 3D Gaussian Splatting"
+    ],
+    [
+      "0sycTGl4In",
+      15212,
+      "4D Gaussian Splatting in the Wild with Uncertainty-Aware Regularization"
+    ],
+    [
+      "OFmclNhp0y",
+      15056,
+      "Deterministic Uncertainty Propagation for Improved Model-Based Offline Reinforcement Learning"
+    ],
+    [
+      "LpXV29Ggl3",
+      14547,
+      "Exploratory Retrieval-Augmented Planning For Continual Embodied Instruction Following"
+    ],
+    [
+      "QNieOPt4fg",
+      13705,
+      "SelectIT: Selective Instruction Tuning for LLMs via Uncertainty-Aware Self-Reflection"
+    ],
+    [
+      "dRJJt0Ji48",
+      13528,
+      "Retrieval-Augmented Diffusion Models for Time Series Forecasting"
+    ],
+    [
+      "S1fc92uemC",
+      12320,
+      "RankRAG: Unifying Context Ranking with Retrieval-Augmented Generation in LLMs"
+    ],
+    [
+      "LOH6qzI7T6",
+      11252,
+      "Semantic Density: Uncertainty Quantification for Large Language Models through Confidence Measurement in Semantic Space"
+    ],
+    [
+      "6vNPPtWH1Q",
+      10036,
+      "Energy-based Epistemic Uncertainty for Graph Neural Networks"
+    ],
+    [
+      "dVqZ0a7LdP",
+      9920,
+      "ReMAP: Neural Model Reprogramming with Network Inversion and Retrieval-Augmented Mapping for Adaptive Motion Forecasting"
+    ],
+    [
+      "UddVRqTrjt",
+      9906,
+      "Hierarchical Uncertainty Exploration via Feedforward Posterior Trees"
+    ],
+    [
+      "GLUIuli3Sm",
+      9660,
+      "On the Convergence of Loss and Uncertainty-based Active Learning Algorithms"
+    ],
+    [
+      "CVpuVe1N22",
+      9476,
+      "Uncertainty of Thoughts: Uncertainty-Aware Planning Enhances Information Seeking in LLMs"
+    ],
+    [
+      "MPJ3oXtTZl",
+      9267,
+      "G-Retriever: Retrieval-Augmented Generation for Textual Graph Understanding and Question Answering"
+    ],
+    [
+      "6pTlXqrO0p",
+      9004,
+      "xRAG: Extreme Context Compression for Retrieval-augmented Generation with One Token"
+    ],
+    [
+      "YgJPQW0lkO",
+      8821,
+      "Graph-based Uncertainty Metrics for Long-form Language Model Generations"
+    ],
+    [
+      "XOVks7JHQA",
+      8583,
+      "Linear Uncertainty Quantification of Graphical Model Inference"
+    ],
+    [
+      "Dzk2cRUFMt",
+      8566,
+      "RAGraph: A General Retrieval-Augmented Graph Learning Framework"
+    ],
+    [
+      "kYio3xH6eb",
+      7983,
+      "Mitigating Reward Overoptimization via Lightweight Uncertainty Estimation"
+    ],
+    [
+      "6KThdqFgmA",
+      7805,
+      "Fair and Welfare-Efficient Constrained Multi-Matchings under Uncertainty"
+    ],
+    [
+      "xeXRhTUmcf",
+      6359,
+      "Combining Statistical Depth and Fermat Distance for Uncertainty Quantification"
+    ],
+    [
+      "RDsDvSHGkA",
+      6352,
+      "Quantifying Aleatoric Uncertainty of the Treatment Effect: A Novel Orthogonal Learner"
+    ],
+    [
+      "qNXRXUC90b",
+      5483,
+      "Uncertainty-aware Fine-tuning of Segmentation Foundation Models"
+    ],
+    [
+      "WPxa6OcIdg",
+      4848,
+      "Estimating Epistemic and Aleatoric Uncertainty with a Single Model"
+    ],
+    [
+      "pqi4vqBYXW",
+      4654,
+      "Hallo3D: Multi-Modal Hallucination Detection and Mitigation for Consistent 3D Content Generation"
+    ],
+    [
+      "nfK0ZXFFSn",
+      4205,
+      "HaloScope: Harnessing Unlabeled LLM Generations for Hallucination Detection"
+    ],
+    [
+      "NIcIdhyfQX",
+      4057,
+      "Q-Distribution guided Q-learning for offline reinforcement learning: Uncertainty penalized Q-value via consistency model"
+    ],
+    [
+      "wcxHbAY8B3",
+      3674,
+      "GaussianMarker: Uncertainty-Aware Copyright Protection of 3D Gaussian Splatting"
+    ],
+    [
+      "KvAaIJhqhI",
+      3121,
+      "Style Adaptation and Uncertainty Estimation for Multi-Source Blended-Target Domain Adaptation"
+    ],
+    [
+      "PCgnTiGC9K",
+      2909,
+      "Credal Deep Ensembles for Uncertainty Quantification"
+    ],
+    [
+      "4TlUE0ufiz",
+      2620,
+      "Introspective Planning: Aligning Robots' Uncertainty with Inherent Task Ambiguity"
+    ],
+    [
+      "KI5TANE02e",
+      1704,
+      "Score-based generative models are provably robust: an uncertainty quantification perspective"
+    ]
+  ],
+  "NeurIPS25": [
+    [
+      "00Bwl1woOJ",
+      28834,
+      "Uncertainty-Sensitive Privileged Learning"
+    ],
+    [
+      "H1NGlLNaVC",
+      28493,
+      "CoCoA: A Minimum Bayes Risk Framework Bridging Confidence and Consistency for Uncertainty Quantification in LLMs"
+    ],
+    [
+      "AWU93F6Bup",
+      28444,
+      "MoodAngels: A Retrieval-augmented Multi-agent Framework for Psychiatry Diagnosis"
+    ],
+    [
+      "9QyNYxKeKr",
+      28102,
+      "Unveiling the Uncertainty in Embodied and Operational Carbon of Large AI Models through a Probabilistic Carbon Accounting Model"
+    ],
+    [
+      "3BTqvtwZYY",
+      28079,
+      "CURV: Coherent Uncertainty-Aware Reasoning in Vision-Language Models for X-Ray Report Generation"
+    ],
+    [
+      "0M2M2EVreG",
+      27595,
+      "DUET: Dual-Perspective Pseudo Labeling and  Uncertainty-aware Exploration & Exploitation  Training for Source-Free Domain Adaptation"
+    ],
+    [
+      "D2XdJf1tXW",
+      27544,
+      "Cooperative Retrieval-Augmented Generation for Question Answering: Mutual Information Exchange and Ranking by Contrasting Layers"
+    ],
+    [
+      "ngBOb9wSYN",
+      27539,
+      "Quantifying Uncertainty in Error Consistency: Towards Reliable Behavioral Comparison of Classifiers"
+    ],
+    [
+      "sH0ZwzDJZn",
+      27330,
+      "UFO-RL: Uncertainty-Focused Optimization for Efficient Reinforcement Learning Data Selection"
+    ],
+    [
+      "sAFottNlra",
+      26329,
+      "Signal and Noise: A Framework for Reducing Uncertainty in Language Model Evaluation"
+    ],
+    [
+      "TUh4GDposM",
+      26314,
+      "AANet: Virtual Screening under Structural Uncertainty via Alignment and Aggregation"
+    ],
+    [
+      "EXIKFM1Q9R",
+      25926,
+      "Abstract Rendering:  Certified Rendering Under 3D Semantic Uncertainty"
+    ],
+    [
+      "ugaepulZyA",
+      25503,
+      "Influence Guided Context Selection for Effective Retrieval-Augmented Generation"
+    ],
+    [
+      "jusQeCotOF",
+      25354,
+      "Uncertainty-Calibrated Prediction of Randomly-Timed Biomarker Trajectories with Conformal Bands"
+    ],
+    [
+      "fKerD2AQai",
+      25191,
+      "Understanding protein function with a multimodal retrieval-augmented foundation model"
+    ],
+    [
+      "Grpqzwpwv8",
+      25033,
+      "Knowledge Distillation of Uncertainty using Deep Latent Factor Model"
+    ],
+    [
+      "0qRXETZZwv",
+      24798,
+      "A Principled Approach to Randomized Selection under Uncertainty: Applications to Peer Review and Grant Funding"
+    ],
+    [
+      "4kTpb8pITI",
+      24433,
+      "NeuroGenPoisoning: Neuron-Guided Attacks on Retrieval-Augmented Generation of LLM via Genetic Optimization of External Knowledge"
+    ],
+    [
+      "QfKpJ00t2L",
+      24258,
+      "Grammars of Formal Uncertainty: When to Trust LLMs in Automated Reasoning Tasks"
+    ],
+    [
+      "lTP1RxTFSX",
+      24180,
+      "Smooth Sailing: Lipschitz-Driven Uncertainty Quantification for Spatial Associations"
+    ],
+    [
+      "H918WyPf0s",
+      24177,
+      "AcuRank: Uncertainty-Aware Adaptive Computation for Listwise Reranking"
+    ],
+    [
+      "ZL7RuWd6QK",
+      24045,
+      "Uncertainty Quantification for Deep Regression using Contextualised Normalizing Flows"
+    ],
+    [
+      "kcmw3OH5bh",
+      23953,
+      "Multi-Environment POMDPs: Discrete Model Uncertainty Under Partial Observability"
+    ],
+    [
+      "YXSKYFZweV",
+      23130,
+      "Light-Weight Diffusion Multiplier and Uncertainty Quantification for Fourier Neural Operators"
+    ],
+    [
+      "KoVKLxn3Nb",
+      23086,
+      "Conformal Prediction Beyond the Seen: A Missing Mass Perspective for Uncertainty Quantification in Generative Models"
+    ],
+    [
+      "CrwzbjO3aU",
+      22974,
+      "Multi-Agent Learning under Uncertainty: Recurrence vs. Concentration"
+    ],
+    [
+      "KMbl8lg5Rv",
+      22655,
+      "Inv-Entropy: A Fully Probabilistic Framework for Uncertainty Quantification in Language Models"
+    ],
+    [
+      "NuCtKoflsV",
+      22332,
+      "DynamicRAG: Leveraging Outputs of Large Language Model as Feedback for Dynamic Reranking in Retrieval-Augmented Generation"
+    ],
+    [
+      "siPeAstQLq",
+      22127,
+      "C-LoRA: Contextual Low-Rank Adaptation for Uncertainty Estimation in Large Language Models"
+    ],
+    [
+      "ZTYlxJZF1z",
+      21945,
+      "Seeing through Uncertainty: Robust Task-Oriented Optimization in Visual Navigation"
+    ],
+    [
+      "ioYzPQb7cL",
+      21784,
+      "Incentivizing Desirable Effort Profiles in Strategic Classification: The Role of Causality and Uncertainty"
+    ],
+    [
+      "LSS6JMvgha",
+      21769,
+      "Towards Robust Uncertainty Calibration for Composed Image Retrieval"
+    ],
+    [
+      "CyUq9D99vE",
+      21246,
+      "ParamMute: Suppressing Knowledge-Critical FFNs for Faithful Retrieval-Augmented Generation"
+    ],
+    [
+      "aJ7AdfOfij",
+      20966,
+      "Beyond Token Probes: Hallucination Detection via Activation Tensors with ACT-ViT"
+    ],
+    [
+      "NFuoxl5CCc",
+      20880,
+      "Bootstrap Your Uncertainty: Adaptive Robust Classification Driven by Optimal-Transport"
+    ],
+    [
+      "QH2xGLgObM",
+      20251,
+      "Alleviating Hallucinations in Large Language Models through Multi-Model Contrastive Decoding and Dynamic Hallucination Detection"
+    ],
+    [
+      "r3LYE0Ct3G",
+      20239,
+      "PlanU: Large Language Model Reasoning through Planning under Uncertainty"
+    ],
+    [
+      "yqBIKzTFT8",
+      19590,
+      "MotionRAG: Motion Retrieval-Augmented Image-to-Video Generation"
+    ],
+    [
+      "RjkAnKu6Hi",
+      19198,
+      "QuARI: Query Adaptive Retrieval Improvement"
+    ],
+    [
+      "ravS5h8MNg",
+      19127,
+      "HyperGraphRAG: Retrieval-Augmented Generation via Hypergraph-Structured Knowledge Representation"
+    ],
+    [
+      "1GIQOV3NAj",
+      18997,
+      "Tru-POMDP: Task Planning Under Uncertainty via Tree of Hypotheses and Open-Ended POMDPs"
+    ],
+    [
+      "hzMkfIrdDT",
+      18992,
+      "Know What You Don't Know: Uncertainty Calibration of Process Reward Models"
+    ],
+    [
+      "PymOnHw4Ty",
+      18651,
+      "TS-RAG: Retrieval-Augmented Generation based Time Series Foundation Models are Stronger Zero-Shot Forecaster"
+    ],
+    [
+      "lu4cGylISh",
+      16815,
+      "Uncertainty-Aware Multi-Objective Reinforcement Learning-Guided Diffusion Models for 3D De Novo Molecular Design"
+    ],
+    [
+      "LAflniLUwx",
+      14749,
+      "Enhancing Vision-Language Model Reliability with Uncertainty-Guided Dropout Decoding"
+    ],
+    [
+      "rBlWKIUQey",
+      14270,
+      "Search and Refine During Think: Facilitating Knowledge Refinement for Improved Retrieval-Augmented Reasoning"
+    ],
+    [
+      "9CzRx5MZct",
+      13921,
+      "Asymmetric Duos: Sidekicks Improve Uncertainty"
+    ],
+    [
+      "MWikv8GJfY",
+      13898,
+      "Uncertainty-Based Smooth Policy Regularisation for Reinforcement Learning with Few Demonstrations"
+    ],
+    [
+      "MqGZIJxZ1z",
+      13806,
+      "Variational Uncertainty Decomposition for In-Context Learning"
+    ],
+    [
+      "04p7u1gIsv",
+      13647,
+      "Quantifying Uncertainty in the Presence of Distribution Shifts"
+    ],
+    [
+      "HFcQGutJJn",
+      13444,
+      "Uncertainty Quantification for Physics-Informed Neural Networks with Extended Fiducial Inference"
+    ],
+    [
+      "IiEtQPGVyV",
+      13335,
+      "Efficient semantic uncertainty quantification in language models via diversity-steered sampling"
+    ],
+    [
+      "AjOl3iahHd",
+      13021,
+      "Improving Perturbation-based Explanations by Understanding the Role of Uncertainty Calibration"
+    ],
+    [
+      "c768Z1FwDL",
+      12820,
+      "NeuralSurv: Deep Survival Analysis with Bayesian Uncertainty Quantification"
+    ],
+    [
+      "IJGEtuVqwf",
+      12739,
+      "Robust Reinforcement Learning in Finance:  Modeling Market Impact with Elliptic Uncertainty Sets"
+    ],
+    [
+      "5SqbLPaBww",
+      12299,
+      "Epistemic Uncertainty for Generated Image Detection"
+    ],
+    [
+      "68OW8tLSh2",
+      12050,
+      "Towards Reliable LLM-based Robots Planning via Combined Uncertainty Estimation"
+    ],
+    [
+      "4VKVUmE1I8",
+      11817,
+      "RAGRouter: Learning to Route Queries to Multiple Retrieval-Augmented Language Models"
+    ],
+    [
+      "Ro1a0MTRq5",
+      11152,
+      "Uncertainty Quantification with the Empirical Neural Tangent Kernel"
+    ],
+    [
+      "alCdOdH7zn",
+      10818,
+      "UGG-ReID: Uncertainty-Guided Graph Model for Multi-Modal Object Re-Identification"
+    ],
+    [
+      "PInrbKWnbV",
+      10749,
+      "Uncertainty-Informed Meta Pseudo Labeling for Surrogate Modeling with Limited Labeled Data"
+    ],
+    [
+      "PsVp5Gxm0s",
+      10662,
+      "Epistemic Uncertainty Estimation in Regression Ensemble Models with Pairwise Epistemic Estimators"
+    ],
+    [
+      "RfNiN2rENM",
+      10479,
+      "Uncertainty-quantified Rollout Policy Adaptation for Unlabelled Cross-domain Video Temporal Grounding"
+    ],
+    [
+      "iBRfJY91QQ",
+      10348,
+      "Exploiting the Asymmetric Uncertainty Structure of Pre-trained VLMs on the Unit Hypersphere"
+    ],
+    [
+      "N6ujq5Yfwa",
+      10279,
+      "Uncertainty Estimation by Flexible Evidential Deep Learning"
+    ],
+    [
+      "15mlgnyaFt",
+      9692,
+      "Diffusion Transformers for Imputation: Statistical Efficiency and Uncertainty Quantification"
+    ],
+    [
+      "Pm50n1szgP",
+      9279,
+      "ImageSentinel: Protecting Visual Datasets from Unauthorized Retrieval-Augmented Image Generation"
+    ],
+    [
+      "9Ia0KiVAut",
+      8260,
+      "Improving Retrieval-Augmented Generation through Multi-Agent Reinforcement Learning"
+    ],
+    [
+      "0enwkxV3sx",
+      8112,
+      "VimoRAG: Video-based Retrieval-augmented 3D Motion Generation for Motion Language Models"
+    ],
+    [
+      "hPfICQIDOm",
+      7976,
+      "Vicinal Label Supervision for Reliable Aleatoric and Epistemic Uncertainty Estimation"
+    ],
+    [
+      "lg51XnHt2H",
+      7942,
+      "Conformal Prediction in The Loop: A Feedback-Based Uncertainty Model for Trajectory Optimization"
+    ],
+    [
+      "cuUsD5FJbe",
+      7706,
+      "Enhancing GUI Agent with Uncertainty-Aware Self-Trained Evaluator"
+    ],
+    [
+      "3q6lJTN45T",
+      7700,
+      "Uncertainty-Guided Exploration for Efficient AlphaZero Training"
+    ],
+    [
+      "VewW9QYUA6",
+      6952,
+      "TRUST: Test-Time Refinement using Uncertainty-Guided SSM Traverses"
+    ],
+    [
+      "Xx0cJGXU7n",
+      6247,
+      "Non-rectangular Robust MDPs with Normed  Uncertainty Sets"
+    ],
+    [
+      "sORaSF9Uxo",
+      6117,
+      "Intrinsic Benefits of Categorical Distributional Loss: Uncertainty-aware Regularized Exploration in Reinforcement Learning"
+    ],
+    [
+      "it0kkaFFpK",
+      6036,
+      "On Epistemic Uncertainty of Visual Tokens for Object Hallucinations in Large Vision-Language Models"
+    ],
+    [
+      "oG1CIBWQ77",
+      5827,
+      "Uncertainty-aware Preference Alignment for Diffusion Policies"
+    ],
+    [
+      "Iicv9iTPcU",
+      5515,
+      "RAD: Towards Trustworthy Retrieval-Augmented Multi-modal Clinical Diagnosis"
+    ],
+    [
+      "SuewCbLYBS",
+      5403,
+      "Fuz-RL: A Fuzzy-Guided Robust Framework for Safe Reinforcement Learning under Uncertainty"
+    ],
+    [
+      "skx3QgGKEF",
+      5218,
+      "Uncertainty Estimation on Graphs with Structure Informed Stochastic Partial Differential Equations"
+    ],
+    [
+      "gOwqPdBlRB",
+      4529,
+      "Robust Hallucination Detection in LLMs via Adaptive Token Selection"
+    ],
+    [
+      "FDAI0PY9Qp",
+      2497,
+      "AdaVideoRAG: Omni-Contextual Adaptive Retrieval-Augmented Efficient Long Video Understanding"
+    ],
+    [
+      "kITPSoTBUo",
+      2210,
+      "Exploring Semantic-constrained Adversarial  Example with Instruction Uncertainty Reduction"
+    ],
+    [
+      "p58mKXaeWC",
+      1991,
+      "Exploring and Exploiting Model Uncertainty in Bayesian Optimization"
+    ],
+    [
+      "QaZxGWlbgO",
+      652,
+      "Video-RAG: Visually-aligned Retrieval-Augmented Long Video Comprehension"
+    ],
+    [
+      "EKJhU5ioSo",
+      245,
+      "GAM-Agent: Game-Theoretic and Uncertainty-Aware Collaboration for Complex Visual Reasoning"
+    ]
+  ],
+  "COLM24": [],
+  "COLM25": []
+}

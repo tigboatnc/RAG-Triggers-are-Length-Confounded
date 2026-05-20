@@ -1,0 +1,325 @@
+
+# STRENGTHS SECTIONS FROM HIGH-RATED REVIEWS
+
+
+## iclr25_lengthbias_reward: Post-hoc Reward Calibration: A Case Study on Length Bias
+
+--- R rating=6 sound=2 pres=3 contrib=2 ---
+STRENGTHS:
+**Originality**: The paper proposes a unique, post-hoc calibration approach to mitigate reward model biases related to LLM output length without requiring additional data or retraining.
+
+**Efficiency**: This method is computationally efficient, applying bias correction as a post-processing step, making it easily applicable across tasks without modifying reward models.
+
+**Empirical Validation**: The approach is thoroughly evaluated on three tasks, effectively demonstrating its capacity to mitigate length bias.
+
+--- R rating=8 sound=3 pres=2 contrib=2 ---
+STRENGTHS:
+The proposed method is relatively simple and is well-motivated conceptually. The fact that it can be applied post-hoc means that retraining is not required, which is helpful. I am not very familiar with the literature in this area but to my knowledge it is also novel. The results are extensive and seem to generally support that post-hoc reward calibration effectively removes length bias.
+
+--- R rating=6 sound=2 pres=3 contrib=2 ---
+STRENGTHS:
+1.	The authors effectively identify common limitations in reward models and propose a method to enhance their reliability.
+
+2.	The proposed method is claimed to be computationally efficient.
+
+3.	Experimental results confirm the method's effectiveness.
+
+--- R rating=8 sound=4 pres=4 contrib=3 ---
+STRENGTHS:
+- The proposed method, RC-LWR, is post-hoc and so does not require intervention during the training of the RM. It is also fast to compute. This means you can make many post-hoc corrections and sweep over hyper parameters all without needing to retrain. This is a huge advantage over adding a length penalty or other penalty term during RM training. This means you can try to correct for as many different biases as you want to do and try out combinations of them all post-hoc.
+
+- RC-LWR is also robust to the curvature of the bias term due to using locally weighted regression, and only relies on the bias being locally close to linear.
+
+- The paper is very clear and easy to follow.
+
+## iclr25_uq_llm_eval: An Empirical Analysis of Uncertainty in Large Language Model Evaluations
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+- The first paper that empirically examines the role of uncertainty within the context of LLMJ, offering a series of empirical findings that motivate the creation of an uncertainty-aware LLM evaluator.
+- Despite the large number of experiments, it is quite clear what the focus is in each of the experiments, and it's good to see some intuitions properly empirically verified.
+- The choice of underlying model is quite good, which helps with generalising some of the empirical findings.
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+The paper addresses a timely and increasingly relevant issue, the stability of LLMs-as-Judges. While the use of log probabilities as a measure of confidence is not novel in itself, the original contribution lies in its application within the context of evaluators. It investigates methods on how to improve the evaluators confidence and even recognize incorrect responses. 
+The work is significant for its practical approach to improving LLM evaluator reliability, especially in OOD scenarios. The findings could impact the deployment and trustworthiness of automated evaluators in various applications.
+
+The paper is clearly written, with a well-organized structure that helps with following the multiple methodologies and conducted experiments. Limitations are also acknowledged.
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+- Firstly, I appreciate the dataset and model created in this paper. These can surely benefit the community in future research in this domain. 
+- The paper is well-written and provides cogent and coherent arguments till the end. 
+- The problem discussed in the paper is also quite interesting and important as there is a significant shift towards LLMs as evaluators, however, there are several uncertainties and interpretability issues associated with those judgments, that need to be acknowledged and studied in depth. 
+- The paper aggregates several tiny established yet undocumented/poorly documented ideas into one place as a formal work.
+
+## iclr25_redeep: ReDeEP: Detecting Hallucination in Retrieval-Augmented Generation via Mechanistic Interpre
+
+--- R rating=8 sound=3 pres=2 contrib=3 ---
+STRENGTHS:
+- Authors provide a straightforward method to detect hallucinations in RAGs that does not require model fine-tuning.
+- Empirical results provided by the authors look good.
+
+--- R rating=8 sound=4 pres=3 contrib=4 ---
+STRENGTHS:
+Each step is thoughtfully motivated, with both conceptual reasoning and empirical validations in §3. The detection method shows effective results in Table 1, and the RAG truthfulness improves using AARF, as shown in Figure 6.
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+1. The development of the ECS and PKS metrics to understand the contributions external and internal knowledge have on the LLM's generation is a compelling and novel way to understand LLM outputs. 
+
+2. They demonstrated great empirical validation by running extensive experiments across two datasets, three LLMs, and many baseline methods. 
+
+3. They also introduce a method to curb hallucinations called AARF - which relates back to the introduced metrics nicely.
+
+## iclr24_selfrag: Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection
+
+--- R rating=6: marginally above the acceptance threshold sound=3 good pres=2 fair contrib=3 good ---
+STRENGTHS:
+- The RAG method, which the authors set out to improve, has become highly used in the industry while having obvious limitations. This is a hard problem and any improvements on this problem will have great significance
+- The framework tries to integrate two very useful LLM approaches, RAG and self-reflection in an optimized manner
+
+--- R rating=8: accept, good paper sound=3 good pres=3 good contrib=3 good ---
+STRENGTHS:
+- The proposed method is novel in a way that it integrates the critic model information at training time so that the LLMs could reuse the output signals to guide the next step.
+- The proposed method can be easily adapted to generate responses with certain properties.
+- SELF-RAG significantly outperforms baselines in most cases.
+
+--- R rating=8: accept, good paper sound=4 excellent pres=4 excellent contrib=3 good ---
+STRENGTHS:
+- The paper is well written and nicely presented.
+- The paper proposes a novel framework that enables dynamic, un-demand retrieval and self-reflection in LM decoding. It address a key limitation in most existing RAG framework, that the model does not know when to retrieve. 
+- The proposed method provides an interesting alternative to RLHF for using critique models. I really like its controllability and interpretability that RLHF doesn't have. 
+- Experiments and ablations are sound and convincing.
+
+--- R rating=8: accept, good paper sound=3 good pres=4 excellent contrib=4 excellent ---
+STRENGTHS:
+1.	The proposed method addresses two key problems including relevance and grounding by simply adding special tokens learned through fine-tuning.
+2.	The fine-tuning does not rely heavily on human annotation. Rather, it makes use of GPT-4 to provide the training data.
+3.	The reflection tokens allow users to have more control over the generation process to customize the expected response.
+
+## iclr24_inside: INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection
+
+--- R rating=6: marginally above the acceptance threshold sound=3 good pres=3 good contrib=2 fair ---
+STRENGTHS:
+1. This paper studies a timely and important research problem in llm. Preventing hallucinations in inference time is a huge research challenge in the community.
+2. This paper is easy to follow.
+3. The proposed approach is effect in detecting hallucinations.
+
+--- R rating=6: marginally above the acceptance threshold sound=3 good pres=3 good contrib=3 good ---
+STRENGTHS:
+1. The paper is very interesting and easy to follow 
+2. The paper poses a unique angle to detect hallucination from internal states with eigenscore
+3. The idea is overall innovative while some key points are inspired by previous work
+4. The experiments are solid to support the paper's claim
+
+--- R rating=6: marginally above the acceptance threshold sound=2 fair pres=3 good contrib=3 good ---
+STRENGTHS:
+If we don't consider concurrent works, such as "Representation Engineering: A Top-Down Approach to AI Transparency", the proposed method is novel and feasible since measuring covariance between several independent generations is intuitive. 
+
+The proposed method is simple and easy to implement and use without tuning models, and the performance improvement is significant.
+
+--- R rating=8: accept, good paper sound=4 excellent pres=4 excellent contrib=3 good ---
+STRENGTHS:
+The proposed method is simple, intuitive and it is well explained. The idea of looking into the internal states for hallucination detection is well motivated. I enjoyed the clear presentation of the paper. For example, the background section was quite useful for the understanding of the methods. The results seem to clearly show the advantage of the proposed method over several established baselines. The experiments are conducted on several diverse datasets, and several language models. The advantage of an alternative method on a benchmark with short answers is well explained and it is useful to inform the reader in which situations the proposed method should be employed. The ablation studies are quite complete and they show that the proposed method works under a wide range of settings.
+
+## iclr24_express_uq: Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in L
+
+--- R rating=6: marginally above the acceptance threshold sound=4 excellent pres=3 good contrib=3 good ---
+STRENGTHS:
+- Uncertainty estimation is an important question for LLMs. The findings of this study can be impactful in practice
+- The 3-part framework of prompting strategy, sampling and aggregation provide clarity.
+-The evaluation is comprehensive across many datasets.
+
+--- R rating=8: accept, good paper sound=4 excellent pres=4 excellent contrib=3 good ---
+STRENGTHS:
+1. The paper is very well-written and tackles the black box confidence calibration in a timely manner. The approach is very targeted to LLMs which provide many insights that are not available from calibrating image classification models.
+
+2. The evaluation is very thorough and the two calibration tasks defined are reasonable.
+
+## iclr24_selfcheck: SelfCheck: Using LLMs to Zero-Shot Check Their Own Step-by-Step Reasoning
+
+--- R rating=6: marginally above the acceptance threshold sound=3 good pres=3 good contrib=3 good ---
+STRENGTHS:
+1. This paper explores the self-checking capabilities of LLMs by elaborating a regenerate-and-compare schema to assess their reasoning and recognize errors, which potentially has broader insights beyond a wider range of tasks.
+
+2. The authors introduce an intriguing and reasonable ensemble method for multiple solutions, which employs an integration function and calculates confidence scores in the final voting stage.
+
+3. The authors provide a comprehensive and detailed analysis to validate the effectiveness of each stage of the proposed SelfCheck.
+
+--- R rating=8: accept, good paper sound=3 good pres=4 excellent contrib=3 good ---
+STRENGTHS:
+**A:** The method is straightforward yet proves to be effective. Although there are questions regarding its efficiency and effectiveness in comparison to majority voting (refer to weaknesses), the analysis confirms that SelfVerification is indeed taking place. 
+
+**B:** The paper demonstrates that LLMs can self-correct for reasoning problems in certain cases, providing a valuable answer to a significant question currently of interest to the community.
+
+## nips24_kernel_lang_entropy: Kernel Language Entropy: Fine-grained Uncertainty Quantification for LLMs from Semantic Si
+
+--- R rating=6 sound=4 pres=3 contrib=3 ---
+STRENGTHS:
+Originality: This paper extends semantic entropy to Kernel Language Entropy, which additionally takes into account the semantic similarity between clusters. The idea is well-motivated.
+
+Quality: This paper provides detailed theoretical analysis and designs several variants. The experimental results demonstrate the effectiveness of these designs. The experiments are extensive.
+
+Clarity: This paper is well-structured.
+
+Significance: This paper focuses on estimating LLM uncertainty, which is significant for LLM applications, as they often make mistakes in their responses. The techniques proposed in this work could be beneficial in addressing this issue.
+
+--- R rating=7 sound=3 pres=2 contrib=3 ---
+STRENGTHS:
+- The paper proposes a novel approach to estimate uncertainty in LLMs.
+- It presents a solid theoretical foundation by showing that Kernel Language Entropy generalizes Semantic Entropy.
+
+--- R rating=7 sound=3 pres=4 contrib=3 ---
+STRENGTHS:
+1. The authors propose Kernel Language Entropy, a novel method for uncertainty quantification in natural language generation.
+
+2. The authors propose concrete design choices for our method that are effective in practice, for instance, graph kernels and weight functions.
+
+3. The authors empirically compare our approach against baselines methods across several tasks an LLMs with up to 70B parameters (60 scenarios total), achieving SoTA results.
+
+## nips24_haloscope: HaloScope: Harnessing Unlabeled LLM Generations for Hallucination Detection
+
+--- R rating=8 sound=3 pres=3 contrib=4 ---
+STRENGTHS:
+* Very interesting empirical results on the provided Q+A datasets. 
+* Method is clear and simple, assuming access available to the internals of the LLM.
+* The ablations across all of section 4.3 are very thorough. These answered the questions I had noted down reading up to that point of the paper.
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+* Leveraging unlabeled generation for hallucination detection without any need for human annotation.
+* The method scales well for larger models. 
+* The method does not require sampling multiple generations.
+
+--- R rating=9 sound=4 pres=4 contrib=4 ---
+STRENGTHS:
+The paper is very well-written. The key idea behind HaloScope while being simple in retrospect is novel and a welcome contribution. The exposition in the paper is very clear and the simulations have been excellently presented with all the relevant details. The work on ablation studies (Sections 4.2-4.4) is also a welcome contribution and adds to the overall value of the work.
+
+The reviewer believes the research community will benefit and draw upon the ideas and simulations presented in this paper.
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+* The idea of using unlabeled LLM generation is interesting and show the potential over other counter parts.
+* Ablation study may include key components we can alter.
+* The paper is clearly written and solve an important challenge - distinguishing hallucination or not.
+
+## nips24_graph_uq_longform: Graph-based Uncertainty Metrics for Long-form Language Model Generations
+
+--- R rating=7 sound=4 pres=4 contrib=3 ---
+STRENGTHS:
+Originality: The idea of introducing graph metrics to estimate claim uncertainty is novel. The authors also design a new decoding paradigm for long-form generation.
+
+Quality: Experiments indicate the effectiveness of the proposed methods. The evaluation is thorough, and the analysis is concise and to the point.
+
+Clarity: The paper is well-written and easy to follow.
+
+Significance: The introduced uncertainty estimation method helps users assess the reliability of generated content. The decoding method also contributes to generating more accurate content.
+
+## nips24_semantic_density: Semantic Density: Uncertainty Quantification for Large Language Models through Confidence 
+
+--- R rating=7 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+- The proposed approach seems sufficiently different from prior work and combines existing ideas meaningfully. The approach is convincingly validated in experiments.
+- The paper is clear for the most part.
+- The problem of uncertainty estimation for generation tasks is meaningful.
+
+--- R rating=6 sound=3 pres=3 contrib=2 ---
+STRENGTHS:
+* The proposed metric is not restricted to any specific task but measuring the general LLM ability
+* The experiments show the effectiveness of the proposed approach, outperforming the other previous metrics
+
+## nips25_cocoa: CoCoA: A Minimum Bayes Risk Framework Bridging Confidence and Consistency for Uncertainty 
+
+## iclr25_hademif: HaDeMiF: Hallucination Detection and Mitigation in Large Language Models
+
+--- R rating=6 sound=2 pres=3 contrib=3 ---
+STRENGTHS:
+Comprehensive Detection: HADEMIF captures hallucinations in both output and internal spaces, providing a more holistic approach compared to previous methods that focus on single aspects.
+
+Interpretable Model: The D3T model offers interpretability, allowing for the identification of key characteristics that impact hallucination detection.
+
+Efficiency: The framework introduces less than 2% additional parameters relative to the LLMs, making it efficient in terms of computational resources.
+
+Versatility: HADEMIF can be applied during both inference and fine-tuning phases, enhancing its applicability across different stages of LLM deployment.
+
+Improved Calibration: The framework significantly reduces the expected calibration error and Brier scores, indicating better alignment between model confidence and accuracy.
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+- Originality: Novel use of D3T and MLP for multifaceted hallucination detection.
+- Quality: Demonstrated robustness through extensive evaluations, including accuracy and Expected Calibration Error (ECE).
+- Clarity: Mostly lear methodology, though technical details may be challenging for broader audiences.
+
+--- R rating=6 sound=2 pres=3 contrib=2 ---
+STRENGTHS:
+1. The authors integrate multiple metrics to simultaneously assess hallucination in both output space and hidden states, achieving a certain degree of interpretability.
+2. The author considers hallucination at multiple levels in the experiments and employs various LLM backbones.
+
+--- R rating=6 sound=3 pres=2 contrib=2 ---
+STRENGTHS:
+1. A comprehensive approach that addresses both external outputs and internal token states for hallucination detection.
+2. The framework introduces less than 2% additional parameters, making it lightweight.
+3. Extensive experiments to show the reduced hallucination rates.
+
+--- R rating=6 sound=2 pres=3 contrib=2 ---
+STRENGTHS:
+- The authors benchmarked the proposed framework with a comprehensive suite of datasets.
+- The paper is mostly easy to follow.
+
+## iclr25_sdlg: Improving Uncertainty Estimation through Semantically Diverse Language Generation
+
+--- R rating=6 sound=3 pres=2 contrib=3 ---
+STRENGTHS:
+The paper proposes an innovative and effective method to quantify uncertainty in language models, addressing a significant challenge in NLG. The approach of considering semantic diversity rather than relying on traditional sampling methods for uncertainty estimation is both straightforward and sound. By integrating a smaller NLI model, the paper also makes strides in computational efficiency, making it practical for real-world applications. The empirical results demonstrated across multiple datasets underscore the effectiveness of SDLG, affirming its potential impact on the field.
+
+--- R rating=8 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+Positive points include the following:
+
+- The paper is clearly written and easy to follow.
+- The simplicity of the method is appealing. 
+- The evaluation setup closely follows prior work by [Kuhn et al. (2023)](https://arxiv.org/pdf/2302.09664) measuring AUROC on the same three datasets and with the same OPT models.
+- The paper uses open-access LLMs (OPT family) as Kuhn et al., (2023) and replicates their results, with makes them comparable.
+- Compared to Kuhn et al. (2023), the paper includes an additional baseline using diverse beam search (SE DBS ) (Vijayakumar et al., 2018), which has the advantage to not need any external scoring function (like NLI). 
+- The observation that fewer samples of SDLG approximate the 10-generations well is interesting and in favor or the efficiency of the method. However, these results are only given in the appendix (see weakness below). 
+- Computational cost implications are discussed in the paper (lines 446-461).
+
+## iclr25_instr_uq: Do LLMs estimate uncertainty well in instruction-following?
+
+--- R rating=6 sound=3 pres=2 contrib=3 ---
+STRENGTHS:
+1. The authors provide a systematic evaluation, identifying multiple factors that affect uncertainty estimation and are entangled within naturally generated responses, which helps isolate the influence of various factors and allows for a more accurate assessment of estimation methods' capabilities.
+2. The study offers thorough comparisons between different uncertainty estimation methods, various LLMs, and distinct datasets.
+
+--- R rating=8 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+- the paper introduces new benchmark datasets (Controlled and Realistic versions) that isolate factors influencing uncertainty estimation in instruction-following, filling an existing research gap.
+- the methodologies employed are rigorous, with comprehensive experimental setups involving multiple LLMs and uncertainty estimation techniques.
+- the writing is clear, and the results are presented in a way that is easy to follow, supported by well-designed figures and tables.
+- the findings offer valuable insights for advancing the field, particularly the observation that models’ internal states can be leveraged for improved uncertainty estimation.
+
+--- R rating=8 sound=4 pres=3 contrib=3 ---
+STRENGTHS:
+This paper reveals the uncertainty challenges faced by today's LLMs and presents new methods to better gauge LLM ability to estimate its own uncertainty. I think this is a timely work raising awareness to the community.
+
+I'm not surprised by the top performance of probe-based method because internal states do not lie. Unclaimed by the authors, but the paper hints at open models' advantages to critical tasks, because its white box properties welcome scrutiny and checking by anyone. IMO internal states should be accessible by read APIs.
+
+## iclr25_provence: Provence: efficient and robust context pruning for retrieval-augmented generation
+
+--- R rating=8 sound=3 pres=4 contrib=3 ---
+STRENGTHS:
+- The draft is well-structured, making it easy for readers to grasp the core concepts. I genuinely enjoyed reading it.
+- Unlike previous approaches that employ LLMs, the proposed method is specifically optimized for the target task, allowing it to achieve both effectiveness and efficiency.
+- A series of diverse experiments highlight the merits of the proposed approach from various angles, instilling confidence in readers about the method’s reliability.
+
+--- R rating=6 sound=3 pres=3 contrib=3 ---
+STRENGTHS:
+The proposed method shows a good adaptation ability and efficiency on different tasks. When the compression rate is higher than 50%, the method still achieves a reasonable performance.
+
+--- R rating=8 sound=3 pres=2 contrib=3 ---
+STRENGTHS:
+- Provence is a novel approach that enables context compression without performance drop, outperforming baseline models.
+- It offers practical advantages, including query-dependent, sentence-level, dynamic compression, and adaptability across multiple domains.
+- The authors conduct extensive analysis to understand the properties of Provence and explore various design options to enhance its effectiveness.

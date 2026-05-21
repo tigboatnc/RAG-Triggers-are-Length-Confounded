@@ -355,11 +355,16 @@ Your `lift_em=+1` base rate is ~0.135. AUROC interpretation depends on base rate
 PR-AUC or balanced accuracy on imbalanced labels. Your Table 6 mentions 108 helped traces. Add a
 one-line sentence to §3.1: "The positive class is rare (108/800 = 13.5%)."
 
-### 5.2 Report PR-AUC alongside ROC-AUC
+### 5.2 PR-AUC — verified to be NOT genre-required (corrected from earlier pass)
 
-For imbalanced binary targets the field is migrating to reporting both. Confirmed by review
-evidence (`nips24_semantic_density` R2: *"AUROC is not enough… also report area under
-precision-recall curve"*). PR-AUC for the headline matrix is a one-hour analyzer addition.
+**Original recommendation withdrawn.** A direct count across the 11 closest-prior-art papers
+in `__lit-review-main` shows **zero** report PR-AUC (Vashurin, Santilli, Janiak, Ielanskyi,
+Mao, Lu, Chen, Datta, Zhang 2024, Zhang 2026, Wang all report AUROC alone). Across 76
+reviews on 19 OpenReview papers, exactly **one** reviewer explicitly demanded PR-AUC
+(`nips24_semantic_density` R2, rating 5/10; the paper was still accepted). The genre-standard
+reporting for this evaluation type is AUROC + paired-bootstrap CI + multiple-testing
+correction, all of which the user's paper has. PR-AUC remains a valid future extension but is
+not required and not penalised for omission. See §16.8 for the full audit.
 
 ### 5.3 Distinguish "AUROC computed on residual" from "AUROC of residual signal"
 
@@ -421,7 +426,7 @@ a moderate-soundness paper goes nowhere.
 | Reference-implementation $\varepsilon$ check vs Vashurin | ✅ App. E | surface the number to §3 |
 | LLM-as-judge robustness ($\kappa = 0.707$) | ✅ App. C | surface to abstract |
 | K=5 vs K=1 null ablation | ✅ §4.3 | keep |
-| PR-AUC alongside ROC-AUC | ❌ | add to App. B |
+| ~~PR-AUC alongside ROC-AUC~~ | ❌ | **DROP — genre does not report PR-AUC (see §5.2 + §16.8)** |
 | Spearman $\rho$ per cell | ✅ App. G | mention in §2 |
 | Power projection for n=200 → +n=200 | ❌ | add to §4.1 + App. E |
 | Three correction methods agreement (Bonferroni / Sidak / Holm) | ❌ | one row in App. A |
@@ -649,7 +654,7 @@ See Part 4.2 for the abstract edit.
 | Multiple-testing concerns | 5 papers | MEDIUM | Part 4.4 |
 | LLM-judge not validated | 5 papers | LOW (you have $\kappa$) | Part 4.2 + 8.7 |
 | Bolding/CI overlap | 4 papers | MEDIUM | Part 8.3 |
-| AUROC alone insufficient | 4 papers | MEDIUM | Part 5.2 (PR-AUC) |
+| ~~AUROC alone insufficient~~ | ~~4 papers~~ **CORRECTED: 1 reviewer in 76 (`nips24_semantic_density` R2)** | **LOW** | Part 5.2 (PR-AUC) — see note in §16.8 |
 | Writing density | 9 papers | HIGH (compound nouns) | Part 1.1 |
 | Per-component ablation | 4 papers | MEDIUM (integration claim) | Part 8.4 |
 | Figure clarity | 3 papers | LOW-MEDIUM | Part 8.6 |
@@ -1242,6 +1247,69 @@ Both framings are honest. The trade-off:
 **Recommendation:** the audit framing + the special theme is the cleaner path. Method framing
 is the upside play if you also have time to restructure. **For your "narrative-only" constraint,
 stay with audit framing but apply the §16.3 amplifications.** That's the highest-EV path.
+
+### 16.8 Corrected: PR-AUC is NOT genre-required for this paper type
+
+**Author push-back was correct, my earlier recommendation was wrong.** This subsection records
+the empirical correction.
+
+**Lit-review audit** (`__lit-review-main`, 11 closest-prior-art papers, all read end-to-end):
+
+| Paper | Primary metric | PR-AUC reported? |
+|---|---|---|
+| Vashurin et al. 2025 (UNCERTAINTY-LINE) | AUROC | ❌ |
+| Santilli et al. 2025 (Length bias) | AUROC | ❌ |
+| Janiak et al. 2025 (Illusion of Progress) | AUROC | ❌ |
+| Ielanskyi et al. 2025 (UQ pitfalls) | AUROC, mutual AUROC | ❌ |
+| Mao et al. 2026 (STL Confidence) | ECE, Brier, AUROC | ❌ |
+| Lu et al. 2026 (Streaming hallucination) | AUROC, F1 | ❌ |
+| Chen et al. 2026 (Dynamic instability) | AUROC | ❌ |
+| Datta et al. 2026 (Decide Early) | Token savings, accuracy | ❌ |
+| Zhang et al. 2026 (Answer-agreement shaping) | AUROC | ❌ |
+| Wang et al. 2025 (Chain-of-Probe) | Accuracy | ❌ |
+| Zhang et al. 2024 (Verbosity ≠ Veracity) | Recall, ECE | ❌ |
+
+**0 of 11** closest-prior-art papers report PR-AUC. The user's paper is in canonical lineage
+by reporting AUROC alone.
+
+**OpenReview corpus audit** (76 top-level reviews across 19 ICLR/NeurIPS papers on
+UQ/RAG-trigger/hallucination evaluation):
+
+- 1 unique reviewer demanded PR-AUC: `nips24_semantic_density` R2, rating 5/10 (paper still accepted).
+- 1 unique reviewer complained about an EXISTING PR-AUC mention being under-explained: `nips24_kernel_lang_entropy` R0, rating 4/10 (paper still accepted at NeurIPS).
+- **Effective demand rate: 1 / 76 = 1.3%.**
+
+**Rigor signals the user paper does have** (six concrete defenses):
+
+1. Paired-bootstrap CI ($B{=}10{,}000$) throughout.
+2. Bonferroni multiple-testing correction at $k{=}15$.
+3. Reference-implementation $\varepsilon \leq 0.029$ check against Vashurin et al.'s public code.
+4. LLM-as-judge robustness check ($\kappa = 0.707$).
+5. Per-cell Spearman $\rho$ vs length (App. G).
+6. K=1 vs K=5 ablation reporting a negative result honestly.
+
+These six signals are above the genre average for the closest-prior-art papers. The PR-AUC
+absence is therefore not a defensible reviewer complaint when (a) zero prior-art papers report
+it and (b) the user already has six rigor signals at or above genre median.
+
+**Defensible response if a reviewer asks for PR-AUC anyway:**
+
+> *"Per the rate observed across the closest-prior-art literature (Vashurin et al. 2025,
+> Santilli et al. 2025, Janiak et al. 2025, Ielanskyi et al. 2025, Mao et al. 2026, and others
+> — none of which report PR-AUC), AUROC is the canonical reporting standard for this
+> evaluation type. We add paired-bootstrap CIs, Bonferroni multiple-testing correction, LLM-as-
+> judge robustness ($\kappa = 0.707$), and a reference-implementation $\varepsilon$ check — six
+> rigor signals at or above the genre median. PR-AUC remains a valid future extension; we view
+> it as orthogonal to the present length-confound claim, per H13 (extra-experiment requests for
+> short papers must be claim-dependent)."*
+
+**Methodological lesson for the guide:** when recommending extra experiments / analyses, count
+explicit requests in the actual review corpus and cross-check against what the closest-prior-art
+papers report. The earlier pass conflated "reviewers mention AUROC/AUC" (a frequent pattern
+match) with "reviewers demand PR-AUC" (a rare actual demand). The corrected counting method is
+the one demonstrated above.
+
+---
 
 ### 16.7 Summary — the framing budget
 

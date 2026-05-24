@@ -105,37 +105,37 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. A converging recent literature has shown this protocol is length-confounded on adjacent QA selective-prediction and UQ tasks, yet most dynamic-RAG trigger evaluations still use it. We present the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC on a paired-oracle target ($\texttt{lift\_em}{=}+1$: retrieval rescue). On two open-weight chat models over two multi-hop QA datasets ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap, and four survive Bonferroni at $k{=}15$ across four signal families. We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive: high on traces where the model commits to its final answer only late in the decode. FCT exceeds the length baseline by $\Delta = +0.190$ [+0.093, +0.287] (Bonferroni lower bound $+0.047$), the strongest length-orthogonal signal. On the held-out 2Wiki cells, raw answer length is \emph{anti}-predictive of retrieval need (AUROC $\leq 0.52$), inverting the verbosity-compensation pattern observed on single-hop QA. The survivor set is \textbf{robust to a semantic-equivalence judge}: under a GPT-4o-Mini correctness function agreeing with EM at $\kappa = 0.707$, eight of nine survivors are preserved and FCT \emph{strengthens} to $\Delta = +0.222$. Length-residualized and raw AUROC disagree most on the cells where retrieval matters most, motivating both protocols in dynamic-RAG trigger comparisons on multi-hop QA.
+Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. A converging recent literature has shown this protocol is length-confounded on adjacent QA selective-prediction and UQ tasks, yet most dynamic-RAG trigger evaluations still use it. We present the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC on a paired-oracle target ($\texttt{lift\_em}{=}+1$: retrieval rescue). On two open-weight chat models over two multi-hop QA datasets ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap, and four survive Bonferroni at $k{=}15$ across three signal families (attention, token-probability, answer-trajectory). We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive: high on traces where the model commits to its final answer only late in the decode. FCT exceeds the length baseline by $\Delta = +0.190$ [+0.093, +0.287] (Bonferroni lower bound $+0.047$), the strongest length-orthogonal signal. On the held-out 2Wiki cells, raw answer length is \emph{anti}-predictive of retrieval need (AUROC $\leq 0.52$), inverting the verbosity-compensation pattern observed on single-hop QA. The survivor set is \textbf{robust to a semantic-equivalence judge}: under a GPT-4o-Mini correctness function agreeing with EM at $\kappa = 0.707$, eight of nine survivors are preserved and FCT \emph{strengthens} to $\Delta = +0.222$. Length-residualized and raw AUROC disagree most on the cells where retrieval matters most, motivating both protocols in dynamic-RAG trigger comparisons on multi-hop QA.
 \end{abstract}
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figs/survivor_forest.png}
-\caption{\textbf{Length-orthogonal trigger signals on the headline pool.} Paired-bootstrap forest plot of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ on Qwen2.5-7B + Gemma-4-26B-A4B-it $\times$ \{HotpotQA, 2WikiMHQA\} ($n{=}800$ paired traces, $B{=}10{,}000$; $\texttt{lift\_em}{=}+1$ flags traces with closed-book wrong $\rightarrow$ gold-context right, base rate $13.5\%$). Thick bars: nominal 95\% CIs; thin extensions: Bonferroni-corrected $\sim$99.67\% CIs at $k{=}15$. Nine signals clear length; four survive Bonferroni and span four signal families. The strongest length-robust trigger is \textbf{FCT} ($\Delta = +0.190$ [+0.093, +0.287]), a forward-looking first-commitment-time signal in the answer-trajectory family.}
+\caption{\textbf{Length-orthogonal trigger signals on the headline pool.} Paired-bootstrap forest plot of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ on Qwen2.5-7B + Gemma-4-26B-A4B-it $\times$ \{HotpotQA, 2WikiMHQA\} ($n{=}800$ paired traces, $B{=}10{,}000$; $\texttt{lift\_em}{=}+1$ flags traces with closed-book wrong $\rightarrow$ gold-context right, base rate $13.5\%$). Thick bars: nominal 95\% CIs; thin extensions: Bonferroni-corrected $\sim$99.67\% CIs at $k{=}15$. Nine signals clear length; four survive Bonferroni and span three signal families. The strongest length-robust trigger is \textbf{FCT} (first-commitment time; $\Delta = +0.190$ [+0.093, +0.287]), a forward-looking variant of the answer-trajectory primitive.}
 \label{fig:survivor-forest}
 \end{figure}
 
 \section{Introduction}
 \label{sec:intro}
 
-Dynamic retrieval-augmented generation (RAG) systems retrieve external evidence during decoding to ground generation in source material \citep{lewis_retrieval-augmented_2021, trivedi_interleaving_2023, shao_enhancing_2023}. The control point of every such system is the \emph{retrieval trigger}: a scalar function of the partial generation that decides when to invoke retrieval. The published pool of training-free triggers spans five signal families that each read a different decode-time observable: attention-based DRAGIN \citep{su_dragin_2024} (token importance from attention dynamics), token-probability FLARE \citep{jiang_active_2023} (next-token entropy / max log-prob at the decode head), hidden-state SeaKR \citep{yao_seakr_nodate} (internal-state covariance across $K$ samples), multi-sample text-consistency SelfCheckGPT \citep{manakul_selfcheckgpt_2023} (cross-sample answer agreement on the generated text), and entropy-trend ETC \citep{li_modeling_2026} (second-difference of step entropy). All five follow the same evaluation protocol --- rank traces by the trigger score and report raw AUROC against a binary correctness label --- and all predate the length-confound literature. 
+Dynamic retrieval-augmented generation (RAG) systems retrieve external evidence during decoding to ground generation in source material \citep{lewis_retrieval-augmented_2021, trivedi_interleaving_2023, shao_enhancing_2023}. The control point of every such system is the \emph{retrieval trigger}: a scalar function of the partial generation that decides when to invoke retrieval. The published peer pool of training-free triggers spans six signal families that each read a different decode-time observable: attention-based DRAGIN \citep{su_dragin_2024} (token importance from attention dynamics), token-probability FLARE \citep{jiang_active_2023} (next-token entropy / max log-prob at the decode head), entropy-trend ETC \citep{li_modeling_2026} (second-difference of step entropy), hidden-state SeaKR \citep{yao_seakr_nodate} (regularized Gram determinant of $K$ sample EOS hidden states) with INSIDE \citep{chen_inside_2024} as the EigenScore variant, multi-sample text-consistency RSUS \citep{guo_realm_2026} (cross-sample step-boundary continuation agreement), and hedging-marker SELFDOUBT-T1 \citep{pandey_selfdoubt_2026} (hedge-to-verify ratio over the reasoning trace text). The contemporaneous answer-trajectory family \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026} (step-level dynamics of the model's predicted answer over the decode) extends this pool with step-level signals. All seven follow the same evaluation protocol (rank traces by the trigger score; report raw AUROC against a binary correctness label); the six published peer families predate the length-confound literature. 
 
-Recent work shows that length confounds the standard protocol. \citet{santilli_revisiting_2025} prove that shared length confounding systematically distorts AUROC, with Spearman $\rho = -0.7$ between length and Perplexity. \citet{janiak_illusion_nodate} report that switching ROUGE to LLM-as-Judge drops Perplexity AUROC by 45.9\% and EigenScore by 30.4\%; \citet{zhang_verbosity_2024} document the behavioral mechanism (verbose responses when uncertain) on the multi-hop QA family used here; and \citet{ielanskyi_addressing_2025} show that approximate correctness functions disagree on UQ rankings. \citet{vashurin_uncertainty-line_2025} propose \textsc{Uncertainty-Line}, a regression-residualization protocol applied to Neural Machine Translation (NMT), summarization, and mathematical reasoning; dynamic-RAG triggers remain an untested application domain.
+A converging recent literature has shown the standard AUROC protocol is length-confounded on adjacent QA selective-prediction and UQ tasks. \citet{santilli_revisiting_2025} prove that shared length confounding systematically distorts AUROC, with Spearman $\rho = -0.7$ between length and Perplexity. \citet{janiak_illusion_nodate} report that switching ROUGE to LLM-as-Judge drops Perplexity AUROC by 45.9\% and EigenScore by 30.4\%; \citet{zhang_verbosity_2024} document the behavioral mechanism (verbose responses when uncertain) on the multi-hop QA family used here; and \citet{ielanskyi_addressing_2025} show that approximate correctness functions disagree on UQ rankings. \citet{vashurin_uncertainty-line_2025} propose \textsc{Uncertainty-Line}, a regression-residualization protocol applied to Neural Machine Translation (NMT), summarization, and mathematical reasoning; dynamic-RAG triggers remain an untested application domain.
 
-We evaluate the published trigger pool under length-residualized AUROC against a paired-oracle target, $\texttt{lift\_em}{=}+1$, which labels each closed-book trace by whether re-decoding under gold context flips a wrong answer to a right one \citep{mallen_when_2023}. The paired design shares the same exact-match correctness function across both arms, which partially cancels the function-bias critique of \citet{ielanskyi_addressing_2025}. We introduce \textbf{FCT}, a forward-looking first-commitment-time signal in the recently-emerged answer-trajectory family \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026}: FCT is the strongest length-robust trigger in the audited pool, exceeding the length baseline by $\Delta = +0.190$ AUROC (Bonferroni-significant at $k{=}15$). On the held-out 2Wiki cells, length is itself anti-predictive of retrieval need, inverting the verbosity-compensation pattern observed on single-hop QA.
+We present the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC against a paired-oracle target, $\texttt{lift\_em}{=}+1$, which labels each closed-book trace by whether re-decoding under gold context flips a wrong answer to a right one \citep{mallen_when_2023}. The paired design shares the same exact-match correctness function across both arms, which partially cancels the function-bias critique of \citet{ielanskyi_addressing_2025}. We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026}: FCT is the strongest length-robust trigger in the audited pool, exceeding the length baseline by $\Delta = +0.190$ AUROC (Bonferroni-significant at $k{=}15$). On the held-out 2Wiki cells, length is itself anti-predictive of retrieval need, inverting the verbosity-compensation pattern observed on single-hop QA.
 
 \paragraph{Contributions.}
 \begin{itemize}
-\item A length-controlled evaluation of the published training-free dynamic-RAG trigger pool (the first to our knowledge), identifying four length-robust signals from four distinct signal families not previously distinguished under the raw-AUROC protocol.
-\item We introduce \textbf{FCT} (first-commitment time), a forward-looking signal in the answer-trajectory family, exceeding the length baseline by $\Delta = +0.190$ [+0.093, +0.287] AUROC (Bonferroni lower bound $+0.047$) and reaching raw AUROC \textbf{0.784} on the held-out Gemma$\times$2Wiki cell.
-\item Cross-architecture and cross-domain validation on one dense (Qwen2.5-7B) and one MoE-hybrid (Gemma-4-26B-A4B-it) open-weight chat model over two multi-hop QA benchmarks ($n{=}800$ paired traces; base rate $13.5\%$): nine signals clear length at nominal 95\% paired-bootstrap and four survive Bonferroni at $k{=}15$.
+\item A length-controlled audit of the published training-free dynamic-RAG trigger pool (the first to our knowledge), identifying four length-robust signals from three signal families (attention, token-probability, and the emerging answer-trajectory family) not previously contrasted under the length-residualized AUROC protocol.
+\item We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive, exceeding the length baseline by $\Delta = +0.190$ [+0.093, +0.287] AUROC (Bonferroni lower bound $+0.047$) and reaching raw AUROC \textbf{0.784} on the held-out Gemma$\times$2Wiki cell.
+\item Cross-architecture and cross-domain validation on one dense (Qwen2.5-7B) and one MoE-hybrid (Gemma-4-26B-A4B-it) open-weight chat model over two multi-hop QA benchmarks ($n{=}800$ paired traces; base rate $13.5\%$): nine signals clear length at 95\% paired-bootstrap and four survive Bonferroni at $k{=}15$.
 \item A direct robustness check against the LLM-as-judge critique of \citet{janiak_illusion_nodate}: under a GPT-4o-Mini semantic-equivalence judge agreeing with EM at Cohen's $\kappa = 0.707$, eight of nine paired-significant survivors and all four Bonferroni-robust signals are preserved; FCT strengthens to $\Delta = +0.222$.
 \end{itemize}
 
 \section{Related Work}
 \label{sec:related}
 
-Length confounds the standard AUROC protocol for LLM uncertainty quantification \citep{santilli_revisiting_2025, vashurin_uncertainty-line_2025, janiak_illusion_nodate, zhang_verbosity_2024, ielanskyi_addressing_2025}; \citet{mao_confidence_2026} note that joint generation probability suffers severe length bias. Step-level answer-trajectory triggers are an emerging length-orthogonal signal class \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026, zhang_harnessing_2026, lu_streaming_2026}. The training-free trigger pool we audit spans attention-based DRAGIN \citep{su_dragin_2024} and DR-RAG \citep{hei_dr-rag_2024}, token-probability FLARE \citep{jiang_active_2023}, multi-sample text-consistency SelfCheckGPT \citep{manakul_selfcheckgpt_2023} and SAC$^3$ \citep{zhang_sac3_2023}, hidden-state INSIDE \citep{chen_inside_2024} and SeaKR \citep{yao_seakr_nodate}, and entropy-trend ETC \citep{li_modeling_2026}. Trained alternatives that require per-architecture supervised data \citep{asai_self-rag_2023, tang_mba-rag_2024, chen_think_2026, guo_dior_2025} fall outside our training-free scope. The conceptual parent of our paired-oracle target is \citet{mallen_when_2023}, who asks when retrieval helps a parametric model.
+Length confounds the standard AUROC protocol for LLM uncertainty quantification \citep{santilli_revisiting_2025, vashurin_uncertainty-line_2025, janiak_illusion_nodate, zhang_verbosity_2024, ielanskyi_addressing_2025}; \citet{mao_confidence_2026} note that joint generation probability suffers severe length bias. Step-level answer-trajectory triggers are an emerging length-orthogonal signal class \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026, zhang_harnessing_2026, lu_streaming_2026}. The training-free trigger pool we audit spans attention-based DRAGIN \citep{su_dragin_2024} and DR-RAG \citep{hei_dr-rag_2024}, token-probability FLARE \citep{jiang_active_2023}, multi-sample text-consistency RSUS \citep{guo_realm_2026} (with related approaches SelfCheckGPT \citep{manakul_selfcheckgpt_2023} and SAC$^3$ \citep{zhang_sac3_2023}), hidden-state INSIDE \citep{chen_inside_2024} and SeaKR \citep{yao_seakr_nodate}, hedging-marker SELFDOUBT \citep{pandey_selfdoubt_2026}, and entropy-trend ETC \citep{li_modeling_2026}. Trained alternatives that require per-architecture supervised data \citep{asai_self-rag_2023, tang_mba-rag_2024, chen_think_2026, guo_dior_2025} fall outside our training-free scope. The conceptual parent of our paired-oracle target is \citet{mallen_when_2023}, who asks when retrieval helps a parametric model.
 
 \section{Methods}
 \label{sec:methods}
@@ -158,7 +158,7 @@ For each trigger signal $s$ on a cohort of paired traces, we compute the length-
 s_{\text{resid}} = s - \hat{\alpha} - \hat{\beta}\,\log(\texttt{tokens} + 1),
 \label{eq:residualize}
 \end{equation}
-where $\hat{\alpha}, \hat{\beta}$ are OLS coefficients fit on the cohort. $\mathrm{AUROC}(s_{\text{resid}})$ measures whether the signal carries information beyond length. We use $\log(\texttt{tokens}+1)$ rather than raw length $L$ because multi-hop reasoning traces have a long-tailed token distribution; a linear-in-$\log L$ regression is the natural homoscedastic counterpart of \citeauthor{vashurin_uncertainty-line_2025}'s linear-in-$L$ regression on their shorter NMT and summarization traces. Both parameterizations agree within $\varepsilon \leq 0.029$ AUROC against the public \textsc{Uncertainty-Line} reference implementation on both architectures (Appendix~\ref{sec:appendix-uline}); higher-order polynomial regressors give no further improvement, consistent with \citeauthor{vashurin_uncertainty-line_2025}'s App. D.1 finding that the linear fit is sufficient.
+where $\hat{\alpha}, \hat{\beta}$ are OLS coefficients fit on the cohort. $\mathrm{AUROC}(s_{\text{resid}})$ measures whether the signal carries information beyond length. We use $\log(\texttt{tokens}+1)$ rather than raw length $L$ because multi-hop reasoning traces have a long-tailed token distribution; a linear-in-$\log L$ regression is the natural homoscedastic counterpart of \citeauthor{vashurin_uncertainty-line_2025}'s linear-in-$L$ regression on their shorter NMT and summarization traces. Both parameterizations agree within $\varepsilon \leq 0.029$ AUROC against the public \textsc{Uncertainty-Line} reference implementation on both architectures (Appendix~\ref{sec:appendix-uline}); higher-order polynomial regressors give no further improvement, consistent with \citeauthor{vashurin_uncertainty-line_2025}'s App. D.1 finding that the linear fit is sufficient. ETC, FLARE, the SeaKR primitive, and SELFDOUBT-T1 are evaluated as trace-level summary statistics rather than online triggers; granularity adapters relative to the originating papers are detailed in Appendix~\ref{sec:appendix-adapters}.
 
 \subsection{FCT and the Answer-Trajectory Family}
 \label{sec:methods-fct}
@@ -166,7 +166,7 @@ where $\hat{\alpha}, \hat{\beta}$ are OLS coefficients fit on the cohort. $\math
 At each reasoning-step boundary (detected by spaCy sentence segmentation with a 32-token fallback), we sample $K{=}5$ boundary completions at temperature $\tau{=}0.6$, top-$p$~0.9, and extract per-step answers via a regex over the model's \texttt{Answer:} prefix. From the resulting trajectory $\mathcal{M} = (m_1, \ldots, m_n)$ of per-step $K{=}5$ majority answers, we define four trace-level aggregations:
 \begin{itemize}
 \item \texttt{flip\_rate}: fraction of consecutive-step majority disagreements;
-\item \texttt{late\_flips}: same, restricted to the last half of the trace;
+\item \texttt{late\_flips}: count of consecutive-step disagreements between the per-step $K{=}5$ answer \emph{sets} (any change in the multiset of sampled answers, not only majority shifts), restricted to the last half of the trace; we use \texttt{late\_flips} as a raw-incidence counterpart to the fraction-based \texttt{flip\_rate};
 \item \texttt{min\_majority}: $1 - \min_t (\max_{\text{count}}/K)$, the worst within-step disagreement;
 \item \textbf{FCT}, a forward-looking first-commitment time
 \begin{equation}
@@ -176,13 +176,20 @@ At each reasoning-step boundary (detected by spaCy sentence segmentation with a 
 \end{itemize}
 \noindent High FCT denotes extended deliberation: the trace has not converged on its final answer until late in the decode. These aggregations adapt the \texttt{AnswerSwitches} primitive of \citet{datta_large_2026} to non-thinking-mode chat models; Appendix~\ref{sec:appendix-fct-tstar} tabulates the operational differences from Datta's $t^\star$. A $K{=}1$ vs.\ $K{=}5$ ablation of \texttt{flip\_rate} is null on both architectures (\S\ref{sec:results-ablation}), and we recommend $K{=}1$ for deployment efficiency.
 
+\paragraph{CABV (continuous answer-belief velocity).} We additionally compute \textbf{CABV}, a continuous between-step generalization of \texttt{flip\_rate}: at each populated step $t$, build the Laplace-smoothed empirical distribution $p_t$ over the union of $K{=}5$ answers ever observed in the trace, and average the Jensen--Shannon divergence between consecutive populated steps,
+\begin{equation}
+\textsc{CABV} = \frac{1}{|\mathcal{P}|-1}\sum_{t \in \mathcal{P}} \mathrm{JSD}(p_t, p_{t+1}),
+\label{eq:cabv}
+\end{equation}
+where $\mathcal{P}$ is the set of populated step indices. CABV is high on traces whose answer-belief mass continues to redistribute through the decode; it reduces to \texttt{flip\_rate} when each step is a delta on a single answer, and is conceptually closest to the inference-time instability signal of \citet{chen_i_2026} (which uses JSD over token distributions rather than over $K{=}5$ answer distributions).
+
 \section{Results}
 \label{sec:results}
 
 \subsection{Cross-Architecture Survivor Matrix}
 \label{sec:results-matrix}
 
-Nine signals clear length at nominal 95\% and four survive Bonferroni at $k{=}15$ across four distinct signal families (Figure~\ref{fig:survivor-forest}): attention-based DRAGIN-RIND ($\Delta = +0.167$), logit-family \texttt{ent.max} ($+0.137$), answer-trajectory \texttt{min\_majority} ($+0.149$), and the forward-looking commitment-time signal \textbf{FCT} ($+0.190$, the strongest length-robust trigger in the audited pool). Confidence intervals are paired-bootstrap at nominal 95\% and Bonferroni-corrected $\sim$99.67\% ($\alpha{=}0.0033$, $B{=}10{,}000$). The full table of all 17 signals is in Appendix~\ref{sec:appendix-hero}.
+Nine signals clear length at 95\% and four survive Bonferroni at $k{=}15$ across three signal families (Figure~\ref{fig:survivor-forest}): attention-based DRAGIN-RIND ($\Delta = +0.167$), token-probability \texttt{ent.max} ($+0.137$), answer-trajectory \texttt{min\_majority} ($+0.149$), and the forward-looking commitment-time signal \textbf{FCT} ($+0.190$, the strongest length-robust trigger in the audited pool). Confidence intervals are paired-bootstrap at nominal 95\% and Bonferroni-corrected $\sim$99.67\% ($\alpha{=}0.0033$, $B{=}10{,}000$). The full nominal-95\% set of nine survivors spans five of the seven declared families (attention, token-probability, entropy-trend, text-consistency, answer-trajectory); hidden-state and hedging-marker (SELFDOUBT-T1) have no nominal-95\% survivor. The full table of all 16 signals is in Appendix~\ref{sec:appendix-hero}.
 
 \subsection{Length Is Anti-Predictive on the Held-Out 2Wiki Cells}
 \label{sec:results-inverted}
@@ -213,7 +220,7 @@ Gemma $\times$ HotpotQA & 200 & 19 & 0.642 \\
 \subsection{Survivor Set Is Robust to a Semantic-Equivalence Judge}
 \label{sec:results-llmjudge}
 
-We addressed the correctness-function critique of \citet{janiak_illusion_nodate} and \citet{ielanskyi_addressing_2025} by relabelling both arms of every paired trace via a GPT-4o-Mini semantic-equivalence judge (Janiak's exact choice) and re-running the full survivor matrix. EM and the judge agreed at Cohen's $\kappa = 0.707$ (substantial agreement; \citealp{landis_measurement_1977}). Eight of the nine paired-significant survivors under EM remained significant under the judge, with one out-in swap (\texttt{etc} loses, \texttt{flare.max} gains) that does not affect the Bonferroni-robust four. FCT strengthened under the judge from $\Delta = +0.190$ [+0.093, +0.287] to $\Delta = +0.222$ [+0.132, +0.312] (Appendix~\ref{sec:appendix-llmjudge}).
+The survivor matrix is robust to a semantic-equivalence judge. We relabelled both arms of every paired trace via a GPT-4o-Mini judge (Janiak's exact choice) and re-ran the full survivor matrix, addressing the correctness-function critique of \citet{janiak_illusion_nodate} and \citet{ielanskyi_addressing_2025}. EM and the judge agreed at Cohen's $\kappa = 0.707$ (substantial agreement; \citealp{landis_measurement_1977}). Eight of the nine paired-significant survivors under EM remained significant under the judge, with one out-in swap (\texttt{etc} loses, \texttt{flare.max} gains) that does not affect the Bonferroni-robust four. FCT strengthened under the judge from $\Delta = +0.190$ [+0.093, +0.287] to $\Delta = +0.222$ [+0.132, +0.312] (Appendix~\ref{sec:appendix-llmjudge}).
 
 \subsection{The $K{=}5$ Multi-Sample Variant Is Null}
 \label{sec:results-ablation}
@@ -256,12 +263,14 @@ The mechanism behind FCT reads naturally as \emph{premature commitment}, the int
 \section{Conclusion}
 \label{sec:conclusion}
 
-We evaluated the published training-free dynamic-RAG trigger pool under length-residualized AUROC on a paired-oracle target ($\texttt{lift\_em}{=}+1$). On two open-weight chat models over two multi-hop QA datasets, nine signals retained a length-orthogonal positive margin at nominal 95\% paired-bootstrap and four survived Bonferroni at $k{=}15$ across four distinct signal families. The strongest length-robust trigger is \textbf{FCT}, a forward-looking first-commitment-time signal in the answer-trajectory family. The survivor set is robust to a GPT-4o-Mini semantic-equivalence judge ($\kappa = 0.707$, eight of nine survivors preserved). We argue that length-controlled evaluation should be reported alongside raw AUROC in every dynamic-RAG trigger comparison.
+We presented the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC on a paired-oracle target ($\texttt{lift\_em}{=}+1$). On two open-weight chat models over two multi-hop QA datasets, nine signals beat the length baseline at 95\% paired-bootstrap and four survived Bonferroni at $k{=}15$ across three signal families (attention, token-probability, answer-trajectory). The strongest length-robust trigger is \textbf{FCT}, a forward-looking variant of the answer-trajectory primitive. The survivor set is robust to a GPT-4o-Mini semantic-equivalence judge ($\kappa = 0.707$, eight of nine survivors preserved). Length-residualized and raw AUROC disagree most on the cells where retrieval matters most, motivating both protocols in dynamic-RAG trigger comparisons on multi-hop QA.
 
 \section*{Limitations}
 \label{sec:limitations}
 
 \paragraph{Signal-level audit, not end-to-end pipelines.} We audit trigger \emph{signals} as defined in their original papers, not full deployment pipelines (threshold tuning, retriever choice, prompt format). Our claims pertain to signal-level discriminative power on $\texttt{lift\_em}$.
+
+\paragraph{Bonferroni knife-edge.} Two of the four Bonferroni-robust survivors carry $\sim$99.67\% lower bounds within $5{\times}10^{-3}$ of zero (\texttt{ent.max} LB $= +0.001$; \texttt{min\_majority} LB $= +0.004$, App.~\ref{sec:appendix-bonferroni}). The headline ``four Bonferroni-robust signals across three signal families'' claim survives the loss of either signal as ``three across two,'' but the four-count is fragile to small bootstrap-seed or signal-set perturbations; the FCT and DRAGIN-RIND survivors are robust ($+0.047$ and $+0.039$ respectively). We report this transparently rather than tightening $B$ from $10{,}000$ to widen the margin.
 
 \paragraph{Architecture and dataset coverage.} The headline pool covers two architectures (Qwen2.5-7B dense, Gemma-4-26B-A4B-it MoE-hybrid) and two multi-hop QA benchmarks. The cheapest extensions that would tighten the cross-architecture claim are a third open-weight chat model (e.g., Llama-3.1-8B-Instruct) and a third multi-hop benchmark (MuSiQue, \citealp{trivedi_musique_2022}); we report the current Bonferroni lower bound on FCT ($+0.047$, App.~\ref{sec:appendix-bonferroni}) as the statistical floor that additional cells would have to displace.
 
@@ -316,7 +325,7 @@ etc ($\Delta^2 H$)        & $+0.107$ & $[+0.018, +0.196]$ & $[-0.026, +0.235]$ \
 \section{Full Headline Survivor Matrix}
 \label{sec:appendix-hero}
 
-Table~\ref{tab:hero-full} reports all 17 audited signals on the headline pool with length-residualized AUROC and $\Delta$ vs.\ \texttt{tokens\_generated}.
+Table~\ref{tab:hero-full} reports all 16 audited signals on the headline pool with length-residualized AUROC and $\Delta$ vs.\ \texttt{tokens\_generated}.
 
 \begin{table*}[t]
 \centering\small
@@ -329,21 +338,20 @@ Table~\ref{tab:hero-full} reports all 17 audited signals on the headline pool wi
 \textbf{FCT}              & answer-trajectory & 0.691 & $+0.190$ & $[+0.093, +0.287]$ \\
 \textbf{DRAGIN-RIND}      & attention         & 0.640 & $+0.167$ & $[+0.082, +0.249]$ \\
 \textbf{min\_majority}    & answer-trajectory & 0.626 & $+0.149$ & $[+0.054, +0.240]$ \\
-\textbf{ent.max}          & logit             & 0.611 & $+0.137$ & $[+0.050, +0.223]$ \\
-CABV                      & answer-velocity   & 0.641 & $+0.137$ & $[+0.041, +0.229]$ \\
+\textbf{ent.max}          & token-probability & 0.611 & $+0.137$ & $[+0.050, +0.223]$ \\
+CABV                      & answer-trajectory & 0.641 & $+0.137$ & $[+0.041, +0.229]$ \\
 flip\_rate $K{=}5$        & answer-trajectory & 0.640 & $+0.135$ & $[+0.037, +0.233]$ \\
-u\_cons.max               & $K{=}5$ text      & 0.593 & $+0.120$ & $[+0.028, +0.213]$ \\
+u\_cons.max               & $K{=}3$ text      & 0.593 & $+0.120$ & $[+0.028, +0.213]$ \\
 flip\_rate $K{=}1$        & answer-trajectory & 0.621 & $+0.116$ & $[+0.016, +0.217]$ \\
-etc ($\Delta^2 H$)        & logit             & 0.580 & $+0.107$ & $[+0.018, +0.196]$ \\
+etc ($\Delta^2 H$)        & entropy-trend     & 0.580 & $+0.107$ & $[+0.018, +0.196]$ \\
 \midrule
-CABV$\times$LAAS          & answer-velocity   & 0.593 & $+0.089$ & $[-0.016, +0.191]$ \\
 late\_flips               & answer-trajectory & 0.586 & $+0.081$ & $[-0.016, +0.175]$ \\
-flare.max                 & logit             & 0.553 & $+0.080$ & $[-0.008, +0.165]$ \\
-hvr.max                   & text              & 0.505 & $+0.032$ & $[-0.089, +0.150]$ \\
-hidden\_norm.range        & hidden            & 0.499 & $+0.026$ & $[-0.058, +0.108]$ \\
-drift\_cosine.max         & hidden            & 0.493 & $+0.020$ & $[-0.064, +0.101]$ \\
-seakr\_k5\_proxy.logdet   & $K{=}5$ hidden    & 0.491 & $+0.018$ & $[-0.077, +0.112]$ \\
-var\_l2\_window.max       & hidden            & 0.473 & $+0.000$ & $[-0.091, +0.090]$ \\
+flare.max                 & token-probability & 0.553 & $+0.080$ & $[-0.008, +0.165]$ \\
+hvr.max (SELFDOUBT-T1)\,\citep{pandey_selfdoubt_2026}    & text              & 0.505 & $+0.032$ & $[-0.089, +0.150]$ \\
+hidden\_norm.range        & hidden (CRV)      & 0.499 & $+0.026$ & $[-0.058, +0.108]$ \\
+drift\_cosine.max         & hidden (CRV)      & 0.493 & $+0.020$ & $[-0.064, +0.101]$ \\
+seakr\_k5.logdet          & $K{=}5$ hidden    & 0.491 & $+0.018$ & $[-0.077, +0.112]$ \\
+var\_l2\_window.max       & hidden (CRV)      & 0.473 & $+0.000$ & $[-0.091, +0.090]$ \\
 \bottomrule
 \end{tabular}
 \caption{Full cross-architecture survivor matrix on the headline pool (Qwen2.5-7B + Gemma-4-26B-A4B-it $\times$ \{HotpotQA, 2WikiMHQA\}, $n{=}800$ paired traces). All AUROCs are length-residualized (\S\ref{sec:methods-residualization}). 95\% CIs are paired-bootstrap ($B{=}10{,}000$) of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$. \textbf{Bold}: Bonferroni-robust at $k{=}15$ (lower bound of the 99.67\% CI strictly positive; see Table~\ref{tab:bonferroni}).}
@@ -457,7 +465,6 @@ late\_flips          & $+0.29$ & $+0.37$ & $+0.25$ & $+0.30$ \\
 min\_majority        & $+0.18$ & $+0.12$ & $+0.14$ & $+0.09$ \\
 CABV                 & $+0.22$ & $+0.17$ & $+0.22$ & $+0.36$ \\
 FCT                  & $+0.20$ & $+0.14$ & $+0.15$ & $+0.30$ \\
-CABV$\times$LAAS     & $+0.30$ & $+0.14$ & $+0.11$ & $+0.14$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -465,9 +472,25 @@ CABV$\times$LAAS     & $+0.30$ & $+0.14$ & $+0.11$ & $+0.14$ \\
 \label{tab:spearman}
 \end{table}
 
+\section{Adapter Notes}
+\label{sec:appendix-adapters}
+
+We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limitations}). Several primitives in the published trigger pool are originally framed as online per-token triggers or per-trace scores; we evaluate their underlying statistic at the trace level. Adapter scope per signal:
+
+\paragraph{ETC \citep{li_modeling_2026}.} The original ETC operates on a token-level entropy stream; we evaluate $\Delta^2 H$ on the per-step mean entropy series captured at boundary-detection events (\S\ref{sec:methods-fct}). Step-level smoothing is the only adapter; the second-difference operator is byte-faithful.
+
+\paragraph{FLARE \citep{jiang_active_2023}.} The original FLARE is an online per-token retrieval trigger ($\max_t p_t < \tau$); we audit the underlying primitive (low-confidence detection) as a trace-level summary $\max$ over steps of $1 - \min p_t$. The trigger \emph{policy} is not audited; the trigger \emph{statistic} is.
+
+\paragraph{SeaKR \citep{yao_seakr_nodate}.} K=5 EOS hidden states (vs.\ K=20 in the paper, with the paper's best-$k$ interval $[10, 25]$); the regularized Gram determinant we compute is the same primitive as the paper's self-aware uncertainty score. INSIDE \citep{chen_inside_2024} is the closest peer, using the EigenScore on the centered sample covariance; the K nonzero eigenvalues of our uncentered Gram and INSIDE's centered covariance are rank-equivalent up to centering.
+
+\paragraph{SELFDOUBT-T1 \citep{pandey_selfdoubt_2026}.} HVR $= h/(v+1)$ is computed per step and aggregated as $\max$ over steps; the original paper computes a single trace-level HVR with a Tier-1 ``HVR=0'' high-precision correctness gate. The per-step adapter is recoverable as the paper's gate by setting our threshold to $0$.
+
+\paragraph{Datta's $t^\star$ vs.\ FCT.} Operational differences are tabulated in Appendix~\ref{sec:appendix-fct-tstar}.
+
 \section{Reproducibility}
 \label{sec:appendix-repro}
 
 All trace JSONLs are committed at \texttt{runs/v2\_headline\_\{arch\}/} for arch $\in$ \{qwen2.5-7b-instruct, gemma-4-26b-a4b-it\}. Slice manifests with SHA-256 checksums are at \texttt{runs/v2\_headline\_\{arch\}/checkpoints/slice\_manifest.json}. Decoding command lines are at \texttt{runs/v2\_headline\_\{arch\}/logs/00\_master.log}. Analysis scripts are at \texttt{analysis/r1\_paired\_audit.py}, \texttt{analysis/a1\_k1\_vs\_k5\_ablation.py}, \texttt{analysis/uncertainty\_line\_audit.py}, \texttt{analysis/moonshot\_explore.py}, and \texttt{analysis/llm\_judge\_audit.py}. The judge cache (800 per-call JSONs) is at \texttt{analysis/llm\_judge\_cache/}. Compute box: single NVIDIA A800 80\,GB, wall-clock $\sim$15\,h.
 
 \end{document}
+

@@ -1,0 +1,17 @@
+{
+  "UGTxt38PTJ": {
+    "title": "ensemble-based uncertainty quantification (UQ) framework for calcified plaque segmentation in carotid CT angiography (CTA) images",
+    "venue": "?",
+    "query": "length bias uncertainty quantification language model",
+    "reviews": [
+      {
+        "note_id": "FGJ3YDHcJE",
+        "forum": "UGTxt38PTJ",
+        "summary": "This paper presents an ensemble-based uncertainty quantification (UQ) framework for calcified plaque segmentation in carotid CT angiography (CTA) images. Segmentation is performed by nnU-Net and voxel-level uncertainty is derived from the ensemble probability maps. Proposed framework extends from reliable plaque boundary detection to exploratory outer wall estimation using variance-based tissue characterization.",
+        "strengths": "This paper adresses the important problem of uncertainty quantification for calcified plaque segmentation in carotid CT angiography (CTA) images. The authors combine ensemble-based uncertainty quantification for calcified plaque segmentation with variance-based outer wall estimation where reliable annotation is unavailable.\nThe paper is clear and well-written.\nAll implementations are open source on their GitHub repository.",
+        "weaknesses": "As indicated by the authors, the dataset is small (n=70, 14 test) and comes from only one center which may limit generalizability.\nMoreover it could have been interesting to adress also non-calcified plaque. \nThe outer-wall component is limited to 27 cases with lumen annotations.",
+        "rating": 5
+      }
+    ]
+  }
+}

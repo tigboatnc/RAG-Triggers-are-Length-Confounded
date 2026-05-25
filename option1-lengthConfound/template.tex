@@ -296,7 +296,7 @@ We presented the first length-residualized audit of the dynamic-RAG trigger pool
 \section{Bonferroni-Corrected Survivor Set}
 \label{sec:appendix-bonferroni}
 
-Table~\ref{tab:bonferroni} reports the Bonferroni-corrected $\sim$99.67\% paired-bootstrap CI of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ at $k{=}15$ ($\alpha = 0.05/15 = 0.0033$) on the headline pool. Bonferroni $k$ is the number of signals tested for the survivor-matrix claim. Four signals retain a strictly positive lower CI bound under correction: FCT, DRAGIN-RIND, \texttt{min\_majority}, and \texttt{ent.max}.\footnote{$k{=}15$ was the multiple-comparison count fixed at test time, when the audited pool included a CABV$\times$LAAS composite that we later dropped from presentation (\S\ref{sec:methods-fct}). The current table reports 16 audited signals plus the length baseline. Re-running at $k{=}14$ or $k{=}16$ shifts the Bonferroni LBs by less than $\pm 0.005$ AUROC and does not change the four-survivor count; we report the test as run.}
+Table~\ref{tab:bonferroni} reports the Bonferroni-corrected $\sim$99.67\% paired-bootstrap CI of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ at $k{=}15$ ($\alpha = 0.05/15 = 0.0033$) on the headline pool. Bonferroni $k$ is the number of signals tested for the survivor-matrix claim. Four signals retain a strictly positive lower CI bound under correction: FCT, DRAGIN-RIND, \texttt{min\_majority}, and \texttt{ent.max}.\footnote{$k{=}15$ was the multiple-comparison count fixed at test time, when the audited pool included a CABV$\times$LAAS composite that we later dropped from presentation (\S\ref{sec:methods-fct}). The current table reports 16 audited signals plus the length baseline. We estimate that re-running at $k{=}14$ or $k{=}16$ would shift the Bonferroni lower bounds by less than $\pm 0.005$ AUROC without changing the four-survivor count. We report the test as run.}
 
 \begin{table}[h]
 \centering
@@ -365,7 +365,7 @@ var\_l2\_window.max       & hidden (CRV)      & 0.473 & $+0.000$ & $[-0.091, +0.
 \section{Correctness-Function Robustness: LLM-as-Judge}
 \label{sec:appendix-llmjudge}
 
-\paragraph{Protocol.} For each of the $n{=}800$ paired traces in the headline pool, we re-labelled both arms via an OpenAI \texttt{gpt-4o-mini} semantic-equivalence judge under a strict prompt (``You are a strict semantic-equivalence judge for multi-hop QA. Reply with exactly one word: YES or NO. No explanation.''). The judge target is
+\paragraph{Protocol.} For each of the $n{=}800$ paired traces in the headline pool, we re-labelled both arms via an OpenAI \texttt{gpt-4o-mini} semantic-equivalence judge under a strict three-sentence system prompt: ``You are a strict semantic-equivalence judge for multi-hop QA. Your task is to decide whether a model-predicted answer is semantically equivalent to a gold answer. Reply with exactly one word: YES or NO. No explanation.'' The judge target is
 \begin{equation}
 \texttt{lift\_em}_{\textsc{judge}}(q) = \mathbb{1}\!\bigl[\mathrm{judge}(a_o^{(q)}){=}\textsc{YES} \;\wedge\; \mathrm{judge}(a_c^{(q)}){=}\textsc{NO}\bigr].
 \label{eq:lift-em-judge}
@@ -374,7 +374,7 @@ We re-ran the full headline survivor matrix with paired bootstrap $B{=}10{,}000$
 
 \paragraph{Inter-label agreement.} EM identifies 108 helped traces and the judge identifies 113; the intersection is 87. The two labels jointly produce a multi-class Cohen's $\kappa = 0.707$ on the 3-class $\texttt{lift\_em} \in \{+1, 0, -1\}$ label set, in the substantial-agreement band of \citet{landis_measurement_1977}.
 
-\paragraph{Survivor matrix transfer.} Table~\ref{tab:llmjudge} reports the headline survivor matrix under both correctness functions side-by-side. Eight of the nine paired-significant survivors under EM remained significant under the judge; \texttt{etc} loses significance and \texttt{flare.max} gains it. FCT strengthened under the judge from $\Delta = +0.190$ [+0.093, +0.287] to $\Delta = +0.222$ [+0.132, +0.312] ($+17\%$ in point estimate, $+42\%$ in 95\% CI lower-bound margin). All four Bonferroni-robust survivors retain nominal-95\% significance under the judge.
+\paragraph{Survivor matrix transfer.} Table~\ref{tab:llmjudge} reports the headline survivor matrix under both correctness functions side-by-side. Eight of the nine paired-significant survivors under EM remain significant under the judge, with a single swap: \texttt{etc} loses significance and \texttt{flare.max} gains it. FCT strengthens under the judge from $\Delta = +0.190$ [+0.093, +0.287] to $\Delta = +0.222$ [+0.132, +0.312] ($+17\%$ in point estimate, $+42\%$ in 95\% CI lower-bound margin), the opposite of what a string-level EM artifact would predict. All four Bonferroni-robust survivors retain nominal-95\% significance under the judge.
 
 \begin{table}[h]
 \centering\small
@@ -394,7 +394,7 @@ etc ($\Delta^2 H$)        & $+0.107$         & $+0.088^{\ast}$ \\
 flare.max                 & $+0.080^{\ast}$  & $+0.115$ \\
 \bottomrule
 \end{tabular}
-\caption{Side-by-side $\Delta$ under EM and LLM-as-Judge on the headline pool ($n{=}800$, $B{=}10{,}000$). $^{\ast}$95\% CI straddles zero. FCT \emph{strengthens} under the judge; eight of nine paired-significant EM survivors are preserved; all four Bonferroni-robust survivors retain nominal-95\% significance.}
+\caption{Side-by-side $\Delta$ under EM and LLM-as-Judge on the headline pool ($n{=}800$, $B{=}10{,}000$). $^{\ast}$95\% CI straddles zero. FCT \emph{strengthens} under the judge. Eight of nine paired-significant EM survivors are preserved, and all four Bonferroni-robust survivors retain nominal-95\% significance.}
 \label{tab:llmjudge}
 \end{table}
 
@@ -439,7 +439,7 @@ Trace model class  & Thinking (\texttt{</think>}) & Delayed-verdict templates & 
 \bottomrule
 \end{tabular}%
 }
-\caption{Operational differences across three concurrent commitment-time primitives. \citet{datta_large_2026}'s $t^\star$ is backward-looking on per-step intermediate answers, applied to early stopping. \citet{zhang_commit_2026}'s $\tau_{\text{commit}}$ is forward-looking on the model's finite-answer continuation log-odds, applied to pre-verbalization commitment analysis. FCT (ours) is forward-looking on $K{=}5$-majority answer extracts, applied to retrieval triggering. For monotonically converging trajectories, $t_{\text{commit}} \approx t^\star + 1$; under $K{=}5$ majority sampling on non-thinking-mode chat models this equivalence does not hold in general.}
+\caption{Operational differences across three concurrent commitment-time primitives. \citet{datta_large_2026}'s $t^\star$ is backward-looking on per-step intermediate answers, applied to early stopping. \citet{zhang_commit_2026}'s $\tau_{\text{commit}}$ is forward-looking on the model's finite-answer continuation distribution (log-odds in binary tasks), applied to pre-verbalization commitment analysis. FCT (ours) is forward-looking on $K{=}5$-majority answer extracts, applied to retrieval triggering. For monotonically converging trajectories, $t_{\text{commit}} \approx t^\star + 1$; under $K{=}5$ majority sampling on non-thinking-mode chat models this equivalence does not hold in general.}
 \label{tab:fct-vs-tstar}
 \end{table}
 
@@ -475,20 +475,20 @@ FCT                  & $+0.20$ & $+0.14$ & $+0.15$ & $+0.30$ \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Spearman $\rho(\texttt{tokens\_generated}, \text{signal})$ per cell on closed-book traces. Bold: $|\rho| \geq 0.5$. The peer-pool signals (DRAGIN, ent.max, etc, flare.max, u\_cons.max, seakr\_k5) carry $\rho \in [+0.26, +0.46]$; \texttt{hvr.max} reaches $+0.51$ on Gemma$\times$2Wiki; the auxiliary CRV diagnostics span $\rho \in [-0.07, +0.36]$. The answer-trajectory aggregations (bottom block) average $\approx 0.1$ lower in $|\rho|$ than the peer-pool block. $^{\ast}$Qwen$\times$Hot \texttt{hvr.max} is constant; Spearman undefined.}
+\caption{Spearman $\rho(\texttt{tokens\_generated}, \text{signal})$ per cell on closed-book traces. Bold: $|\rho| \geq 0.5$. The peer-pool signals (DRAGIN, ent.max, etc, flare.max, u\_cons.max, seakr\_k5) carry $\rho \in [+0.26, +0.46]$, \texttt{hvr.max} reaches $+0.51$ on Gemma$\times$2Wiki, and the auxiliary CRV diagnostics span $\rho \in [-0.07, +0.36]$. The answer-trajectory aggregations (bottom block) average $\approx 0.15$ lower in $|\rho|$ than the peer-pool block, the per-cell quantitative version of the family-level finding from \S\ref{sec:results-matrix}. $^{\ast}$Qwen$\times$Hot \texttt{hvr.max} is constant, so Spearman is undefined.}
 \label{tab:spearman}
 \end{table}
 
 \section{Adapter Notes}
 \label{sec:appendix-adapters}
 
-We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limitations}). Several primitives in the published trigger pool are originally framed as online per-token triggers or per-trace scores; we evaluate their underlying statistic at the trace level. Adapter scope per signal:
+We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limitations}). Several primitives in the published trigger pool are originally framed as online per-token triggers or per-trace scores, and we evaluate their underlying statistic at the trace level. The per-signal notes below state the original primitive, our trace-level adaptation, and any sign or granularity drift.
 
-\paragraph{ETC \citep{li_modeling_2026}.} The original ETC operates on a token-level entropy stream; we evaluate $\Delta^2 H$ on the per-step mean entropy series captured at boundary-detection events (\S\ref{sec:methods-fct}). Step-level smoothing is the only adapter; the second-difference operator is byte-faithful.
+\paragraph{ETC \citep{li_modeling_2026}.} The original ETC operates on a token-level entropy stream; we evaluate $\Delta^2 H$ on the per-step mean entropy series captured at boundary-detection events (\S\ref{sec:methods-fct}). We score $\max |\Delta^2 H|$ rather than the signed second-difference, so the adapter is magnitude-faithful but not sign-faithful.
 
 \paragraph{FLARE \citep{jiang_active_2023}.} The original FLARE is an online per-token retrieval trigger ($\max_t p_t < \tau$); we audit the underlying primitive (low-confidence detection) as a trace-level summary $\max$ over steps of $1 - \min p_t$. The trigger \emph{policy} is not audited; the trigger \emph{statistic} is.
 
-\paragraph{SeaKR \citep{yao_seakr_nodate}.} K=5 EOS hidden states (vs.\ K=20 in the paper, with the paper's best-$k$ interval $[10, 25]$); the regularized Gram determinant we compute is the same primitive as the paper's self-aware uncertainty score. INSIDE \citep{chen_inside_2024} is the closest peer, using the EigenScore on the centered sample covariance; the K nonzero eigenvalues of our uncentered Gram and INSIDE's centered covariance are rank-equivalent up to centering.
+\paragraph{SeaKR \citep{yao_seakr_nodate}.} We use $K{=}5$ EOS hidden states for compute efficiency, smaller than the paper's reported best-$k$ interval $K \in [10, 25]$. The regularized Gram determinant we compute is the same primitive as the paper's self-aware uncertainty score. INSIDE \citep{chen_inside_2024} is the closest peer, using the EigenScore on the centered sample covariance; the $K$ nonzero eigenvalues of our uncentered Gram and INSIDE's centered covariance are rank-equivalent up to centering.
 
 \paragraph{SELFDOUBT-T1 \citep{pandey_selfdoubt_2026}.} HVR $= h/(v+1)$ is computed per step and aggregated as $\max$ over steps; the original paper computes a single trace-level HVR with a Tier-1 ``HVR=0'' high-precision correctness gate. The per-step adapter is recoverable as the paper's gate by setting our threshold to $0$.
 
@@ -497,7 +497,7 @@ We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limi
 \section{Reproducibility}
 \label{sec:appendix-repro}
 
-All trace JSONLs are committed at \texttt{runs/v2\_headline\_\{arch\}/} for arch $\in$ \{qwen2.5-7b-instruct, gemma-4-26b-a4b-it\}. Slice manifests with SHA-256 checksums are at \texttt{runs/v2\_headline\_\{arch\}/checkpoints/slice\_manifest.json}. Decoding command lines are at \texttt{runs/v2\_headline\_\{arch\}/logs/00\_master.log}. Analysis scripts are at \texttt{analysis/r1\_paired\_audit.py}, \texttt{analysis/a1\_k1\_vs\_k5\_ablation.py}, \texttt{analysis/uncertainty\_line\_audit.py}, \texttt{analysis/moonshot\_explore.py}, and \texttt{analysis/llm\_judge\_audit.py}. The judge cache (800 per-call JSONs) is at \texttt{analysis/llm\_judge\_cache/}. Compute box: single NVIDIA A800 80\,GB, wall-clock $\sim$15\,h.
+All trace JSONLs are committed at \texttt{runs/v2\_headline\_\{arch\}/} for arch $\in$ \{qwen2.5-7b-instruct, gemma-4-26b-a4b-it\}. Slice manifests with SHA-256 checksums are at \texttt{runs/v2\_headline\_\{arch\}/checkpoints/slice\_manifest.json}, and decoding command lines are at \texttt{runs/v2\_headline\_\{arch\}/logs/00\_master.log}. Analysis scripts are at \texttt{analysis/r1\_paired\_audit.py}, \texttt{analysis/a1\_k1\_vs\_k5\_ablation.py}, \texttt{analysis/uncertainty\_line\_audit.py}, \texttt{analysis/moonshot\_explore.py}, \texttt{analysis/llm\_judge\_audit.py}, and \texttt{analysis/e7\_bonferroni\_and\_spearman.py} (the last produces Table~\ref{tab:bonferroni} and Table~\ref{tab:spearman}). The judge cache contains 1{,}600 per-call JSONs (oracle and closed arm for each of 800 paired traces) at \texttt{analysis/llm\_judge\_cache/}. Compute box: single NVIDIA A800 80\,GB, wall-clock $\sim$15\,h.
 
 \end{document}
 

@@ -130,7 +130,6 @@ We extend the length-residualization protocol of \citet{vashurin_uncertainty-lin
 \label{sec:related}
 
 The length-confound critique of standard UQ AUROC evaluation comes from QA UQ and hallucination detection \citep{santilli_revisiting_2025, janiak_illusion_nodate, zhang_verbosity_2024, ielanskyi_addressing_2025, vashurin_uncertainty-line_2025, mao_confidence_2026}. The answer-trajectory family \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026} provides the parent primitives for FCT. Two related supervised methods sit outside our training-free scope: \citet{lu_streaming_2026} train hidden-state probes for streaming hallucination detection, and \citet{zhang_harnessing_2026} contrastively shape answer embeddings under latent perturbation at the trace boundary, where their ``answer agreement'' differs from our $K{=}5$ boundary-completion ``answer-trajectory.'' Trained adaptive-retrieval policies likewise fall outside our audit \citep{asai_self-rag_2023, guo_dior_2025}. Our paired-oracle target operationalizes the question of when retrieval helps a parametric model \citep{mallen_when_2023}, replacing static entity-popularity proxies with per-trace closed-vs-oracle re-decode.
-
 \section{Methods}
 \label{sec:methods}
 
@@ -138,13 +137,14 @@ The length-confound critique of standard UQ AUROC evaluation comes from QA UQ an
 \label{sec:methods-protocol}
 
 For each question $q$, we run two greedy decodes on the same chat model: a closed-book pass that produces trace $\tau_c^{(q)}$ and answer $a_c^{(q)}$, and an oracle pass conditioned on the gold supporting paragraphs that produces $a_o^{(q)}$. We read all trigger signals from $\tau_c^{(q)}$. The oracle decode only supplies the label. The discrimination target is
+
 \begin{equation}
 \texttt{lift\_em}(q) = \mathbb{1}\!\left[\mathrm{EM}(a_o^{(q)}) > \mathrm{EM}(a_c^{(q)})\right],
 \label{eq:lift-em}
 \end{equation}
 which flags traces where retrieval would convert a wrong answer to right. The published trigger pool instead targets single-arm correctness, which length predicts moderately well on multi-hop QA (\S\ref{sec:discussion-causal}).
 
-We evaluate on HotpotQA \citep{yang_hotpotqa_2018} and 2WikiMultiHopQA \citep{ho_constructing_2020}, holding the latter out as a cross-dataset cell, at $n{=}200$ paired traces per architecture-by-dataset cell. The two models are Qwen2.5-7B-Instruct (dense) and Gemma-4-26B-A4B-it (MoE-hybrid), chosen for cross-architecture coverage within a single 80\,GB GPU budget. The positive class is rare: 108 of 800 paired traces, base rate $13.5\%$.
+We evaluate on HotpotQA \citep{yang_hotpotqa_2018} and 2WikiMultiHopQA \citep{ho_constructing_2020}, holding the latter out as a cross-dataset cell, at $n{=}200$ paired traces per architecture-by-dataset cell. The two models are Qwen2.5-7B-Instruct (dense) and Gemma-4-26B-A4B-it (MoE-hybrid), chosen for cross-architecture coverage. The positive class is rare: 108 of 800 paired traces, base rate $13.5\%$.
 
 \subsection{Length Residualization}
 \label{sec:methods-residualization}
@@ -154,7 +154,7 @@ We adopt the residualization protocol of \citet{vashurin_uncertainty-line_2025}.
 s_{\text{resid}} = s - \hat{\alpha} - \hat{\beta}\,\log(\texttt{tokens} + 1).
 \label{eq:residualize}
 \end{equation}
-$\mathrm{AUROC}(s_{\text{resid}})$ then measures whether the signal carries information beyond length. We use $\log(\texttt{tokens}+1)$ rather than the raw $L$ of \citeauthor{vashurin_uncertainty-line_2025}'s shorter NMT and summarization traces, because multi-hop reasoning traces are long-tailed in token count and a linear-in-$\log L$ fit matches that geometry. The two parameterizations agree within $\varepsilon \leq 0.029$ AUROC against the public reference implementation on our cohorts (App.~\ref{sec:appendix-uline}). Several signals in the audited pool (ETC, FLARE, SeaKR, SELFDOUBT-T1) are originally online or per-token, and we evaluate each as a trace-level summary statistic with granularity adapters in Appendix~\ref{sec:appendix-adapters}.
+$\mathrm{AUROC}(s_{\text{resid}})$ then measures whether the signal carries information beyond length. Our $\log(\texttt{tokens}+1)$ parameterization agrees within $\varepsilon \leq 0.029$ AUROC with the public reference implementation on our cohorts (App.~\ref{sec:appendix-uline}). Several signals in the audited pool (ETC, FLARE, SeaKR, SELFDOUBT-T1) are originally online or per-token, and we evaluate each as a trace-level summary statistic with granularity adapters in Appendix~\ref{sec:appendix-adapters}.
 
 \subsection{FCT and the Answer-Trajectory Family}
 \label{sec:methods-fct}
@@ -216,7 +216,7 @@ The natural alternative explanation for the survivor matrix is that it reflects 
 \subsection{The $K{=}5$ Multi-Sample Variant Is Null}
 \label{sec:results-ablation}
 
-A second design choice worth stress-testing is the $K{=}5$ sampling regime in the answer-trajectory family. On both architectures, the paired-bootstrap CI on $\Delta_{K{=}5 - K{=}1}$ for \texttt{flip\_rate} straddles zero (Qwen $-0.002$, $[-0.040, +0.031]$; Gemma $+0.033$, $[-0.025, +0.092]$; App.~\ref{sec:appendix-k-ablation}). The audit reports $K{=}5$ throughout because that was the capture protocol when the ablation came back null. Re-running at $K{=}1$ would not change the survivor matrix at our power, and for deployment $K{=}1$ delivers the same triggering performance at $5\times$ less compute per boundary.
+A second design choice worth stress-testing is the $K{=}5$ sampling regime in the answer-trajectory family. On both architectures, the paired-bootstrap CI on $\Delta_{K{=}5 - K{=}1}$ for \texttt{flip\_rate} straddles zero (Qwen $-0.002$, $[-0.040, +0.031]$; Gemma $+0.033$, $[-0.025, +0.092]$; App.~\ref{sec:appendix-k-ablation}). The audit reports $K{=}5$ throughout because that was the capture protocol when the ablation came back null, and for deployment $K{=}1$ delivers the same triggering performance at $5\times$ less compute per boundary.\textbf{}
 
 \section{Discussion}
 \label{sec:discussion}

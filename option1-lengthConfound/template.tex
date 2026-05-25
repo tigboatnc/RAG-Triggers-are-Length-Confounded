@@ -105,13 +105,13 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. A converging recent literature has shown this protocol is length-confounded on adjacent QA selective-prediction and UQ tasks, yet most dynamic-RAG trigger evaluations still use it. We present the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC on a paired-oracle target ($\texttt{lift\_em}{=}+1$: retrieval rescue). On two open-weight chat models over two multi-hop QA datasets ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap, and four survive Bonferroni at $k{=}15$ across three signal families (attention, token-probability, answer-trajectory). We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive: high on traces where the model commits to its final answer only late in the decode. FCT exceeds the length baseline by $\Delta = +0.190$ [+0.093, +0.287] (Bonferroni lower bound $+0.047$), the strongest length-orthogonal signal. On the held-out 2Wiki cells, raw answer length is \emph{anti}-predictive of retrieval need (AUROC $\leq 0.52$), inverting the verbosity-compensation pattern observed on single-hop QA. The survivor set is \textbf{robust to a semantic-equivalence judge}: under a GPT-4o-Mini correctness function agreeing with EM at $\kappa = 0.707$, eight of nine survivors are preserved and FCT \emph{strengthens} to $\Delta = +0.222$. Length-residualized and raw AUROC disagree most on the cells where retrieval matters most, motivating both protocols in dynamic-RAG trigger comparisons on multi-hop QA.
+Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. A converging recent literature has shown this protocol is length-confounded on adjacent QA selective-prediction and UQ tasks, yet most dynamic-RAG trigger evaluations still use it. We present the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC on a paired-oracle target ($\texttt{lift\_em}{=}+1$: retrieval rescue). On two open-weight chat models over two multi-hop QA datasets ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap, and four survive Bonferroni at $k{=}15$ across three signal families. We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive that flags traces where the model commits to its final answer only late in the decode; FCT exceeds the length baseline by $\Delta = +0.190$ [+0.093, +0.287], the strongest length-orthogonal signal. On the held-out 2Wiki cells, raw answer length is \emph{anti}-predictive of retrieval need (AUROC $\leq 0.52$), inverting the verbosity-compensation pattern documented on adjacent QA tasks. The survivor set is \textbf{robust to a semantic-equivalence judge}: under a GPT-4o-Mini correctness function (vs.\ EM, $\kappa = 0.707$), eight of nine survivors are preserved and FCT \emph{strengthens} to $\Delta = +0.222$.
 \end{abstract}
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figs/survivor_forest.png}
-\caption{\textbf{Length-orthogonal trigger signals on the headline pool.} Paired-bootstrap forest plot of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ on Qwen2.5-7B + Gemma-4-26B-A4B-it $\times$ \{HotpotQA, 2WikiMHQA\} ($n{=}800$ paired traces, $B{=}10{,}000$; $\texttt{lift\_em}{=}+1$ flags traces with closed-book wrong $\rightarrow$ gold-context right, base rate $13.5\%$). Thick bars: nominal 95\% CIs; thin extensions: Bonferroni-corrected $\sim$99.67\% CIs at $k{=}15$. Nine signals clear length; four survive Bonferroni and span three signal families. The strongest length-robust trigger is \textbf{FCT} (first-commitment time; $\Delta = +0.190$ [+0.093, +0.287]), a forward-looking variant of the answer-trajectory primitive.}
+\caption{\textbf{Four trigger signals carry length-orthogonal information beyond the length baseline; the strongest is \textsc{FCT} (first-commitment time, this paper).} Paired-bootstrap forest plot of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ on $n{=}800$ paired traces (Qwen2.5-7B + Gemma-4-26B-A4B-it $\times$ \{HotpotQA, 2WikiMHQA\}, $B{=}10{,}000$). Thick bars: 95\% paired-bootstrap CIs; thin extensions: Bonferroni-corrected $\sim$99.67\% CIs at $k{=}15$. Setup: \S\ref{sec:methods}; full numerical tables: App.~\ref{sec:appendix-bonferroni}, App.~\ref{sec:appendix-hero}.}
 \label{fig:survivor-forest}
 \end{figure}
 
@@ -120,9 +120,9 @@ Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve fr
 
 Dynamic retrieval-augmented generation (RAG) systems retrieve external evidence during decoding to ground generation in source material \citep{lewis_retrieval-augmented_2021, trivedi_interleaving_2023, shao_enhancing_2023}. The control point of every such system is the \emph{retrieval trigger}: a scalar function of the partial generation that decides when to invoke retrieval. The published peer pool of training-free triggers spans six signal families that each read a different decode-time observable: attention-based DRAGIN \citep{su_dragin_2024} (token importance from attention dynamics), token-probability FLARE \citep{jiang_active_2023} (next-token entropy / max log-prob at the decode head), entropy-trend ETC \citep{li_modeling_2026} (second-difference of step entropy), hidden-state SeaKR \citep{yao_seakr_nodate} (regularized Gram determinant of $K$ sample EOS hidden states) with INSIDE \citep{chen_inside_2024} as the EigenScore variant, multi-sample text-consistency RSUS \citep{guo_realm_2026} (cross-sample step-boundary continuation agreement), and hedging-marker SELFDOUBT-T1 \citep{pandey_selfdoubt_2026} (hedge-to-verify ratio over the reasoning trace text). The contemporaneous answer-trajectory family \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026} (step-level dynamics of the model's predicted answer over the decode) extends this pool with step-level signals. All seven follow the same evaluation protocol (rank traces by the trigger score; report raw AUROC against a binary correctness label); the six published peer families predate the length-confound literature. 
 
-A converging recent literature has shown the standard AUROC protocol is length-confounded on adjacent QA selective-prediction and UQ tasks. \citet{santilli_revisiting_2025} prove that shared length confounding systematically distorts AUROC, with Spearman $\rho = -0.7$ between length and Perplexity. \citet{janiak_illusion_nodate} report that switching ROUGE to LLM-as-Judge drops Perplexity AUROC by 45.9\% and EigenScore by 30.4\%; \citet{zhang_verbosity_2024} document the behavioral mechanism (verbose responses when uncertain) on the multi-hop QA family used here; and \citet{ielanskyi_addressing_2025} show that approximate correctness functions disagree on UQ rankings. \citet{vashurin_uncertainty-line_2025} propose \textsc{Uncertainty-Line}, a regression-residualization protocol applied to Neural Machine Translation (NMT), summarization, and mathematical reasoning; dynamic-RAG triggers remain an untested application domain.
+A converging recent literature has shown the standard AUROC protocol is length-confounded on adjacent QA selective-prediction and UQ tasks. \citet{santilli_revisiting_2025} prove that shared length confounding systematically distorts AUROC, with Spearman $\rho = -0.7$ between length and Perplexity. \citet{janiak_illusion_nodate} report Perplexity AUROC drops of up to 45.9\% and EigenScore drops of up to 30.4\% when switching ROUGE to LLM-as-Judge on certain Mistral cells; \citet{zhang_verbosity_2024} document the behavioral mechanism (verbose responses when uncertain) on adjacent QA tasks including the multi-hop bundle in LongBench; and \citet{ielanskyi_addressing_2025} show that approximate correctness functions disagree on UQ rankings. \citet{vashurin_uncertainty-line_2025} propose \textsc{Uncertainty-Line}, a regression-residualization protocol applied to Neural Machine Translation (NMT), summarization, and mathematical reasoning; dynamic-RAG triggers remain an untested application domain.
 
-We present the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC against a paired-oracle target, $\texttt{lift\_em}{=}+1$, which labels each closed-book trace by whether re-decoding under gold context flips a wrong answer to a right one \citep{mallen_when_2023}. The paired design shares the same exact-match correctness function across both arms, which partially cancels the function-bias critique of \citet{ielanskyi_addressing_2025}. We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026}: FCT is the strongest length-robust trigger in the audited pool, exceeding the length baseline by $\Delta = +0.190$ AUROC (Bonferroni-significant at $k{=}15$). On the held-out 2Wiki cells, length is itself anti-predictive of retrieval need, inverting the verbosity-compensation pattern observed on single-hop QA.
+We present the first length-controlled audit of the published training-free dynamic-RAG trigger pool under length-residualized AUROC against a paired-oracle target, $\texttt{lift\_em}{=}+1$, which labels each closed-book trace by whether re-decoding under gold context flips a wrong answer to a right one \citep{mallen_when_2023}. The paired design shares the same exact-match correctness function across both arms, which partially cancels the function-bias critique of \citet{ielanskyi_addressing_2025}. We propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026, zhang_commit_2026}; the operational distinction from \citeauthor{zhang_commit_2026}'s concurrent commitment-time primitive (which projects the continuation distribution onto a finite answer set) is detailed in App.~\ref{sec:appendix-fct-tstar}. FCT is the strongest length-robust trigger in the audited pool, exceeding the length baseline by $\Delta = +0.190$ AUROC (Bonferroni-significant at $k{=}15$). On the held-out 2Wiki cells, length is itself anti-predictive of retrieval need, inverting the verbosity-compensation pattern documented on adjacent QA tasks.
 
 \paragraph{Contributions.}
 \begin{itemize}
@@ -174,7 +174,7 @@ At each reasoning-step boundary (detected by spaCy sentence segmentation with a 
 \label{eq:fct}
 \end{equation}
 \end{itemize}
-\noindent High FCT denotes extended deliberation: the trace has not converged on its final answer until late in the decode. These aggregations adapt the \texttt{AnswerSwitches} primitive of \citet{datta_large_2026} to non-thinking-mode chat models; Appendix~\ref{sec:appendix-fct-tstar} tabulates the operational differences from Datta's $t^\star$. A $K{=}1$ vs.\ $K{=}5$ ablation of \texttt{flip\_rate} is null on both architectures (\S\ref{sec:results-ablation}), and we recommend $K{=}1$ for deployment efficiency.
+\noindent High FCT denotes extended deliberation: the trace has not converged on its final answer until late in the decode. These aggregations adapt the \texttt{AnswerSwitches} primitive of \citet{datta_large_2026} to non-thinking-mode chat models; Appendix~\ref{sec:appendix-fct-tstar} tabulates the operational differences from Datta's $t^\star$ and \citeauthor{zhang_commit_2026}'s concurrent commitment-time primitive. A $K{=}1$ vs.\ $K{=}5$ ablation of \texttt{flip\_rate} is null on both architectures (\S\ref{sec:results-ablation}), and we recommend $K{=}1$ for deployment efficiency.
 
 \paragraph{CABV (continuous answer-belief velocity).} We additionally compute \textbf{CABV}, a continuous between-step generalization of \texttt{flip\_rate}: at each populated step $t$, build the Laplace-smoothed empirical distribution $p_t$ over the union of $K{=}5$ answers ever observed in the trace, and average the Jensen--Shannon divergence between consecutive populated steps,
 \begin{equation}
@@ -194,7 +194,7 @@ Nine signals clear length at 95\% and four survive Bonferroni at $k{=}15$ across
 \subsection{Length Is Anti-Predictive on the Held-Out 2Wiki Cells}
 \label{sec:results-inverted}
 
-On the held-out 2Wiki cells (Qwen $\times$ 2Wiki and Gemma $\times$ 2Wiki), raw answer length is \emph{anti}-predictive of retrieval need: the \texttt{tokens\_generated} baseline reaches raw AUROC \textbf{0.457} and \textbf{0.518} on $\texttt{lift\_em}{=}+1$, both at or below chance. Longer traces on the held-out multi-hop cells are systematically \emph{less} retrieval-helpful --- a direct inversion of the verbosity-compensation pattern \citet{zhang_verbosity_2024} document on single-hop QA. The four Bonferroni-robust survivors clear the length baseline by a wider margin on these cells than on the HotpotQA cells, suggesting the raw-AUROC protocol miscredits the length signal on exactly the cells where retrieval matters most.
+On the held-out 2Wiki cells (Qwen $\times$ 2Wiki and Gemma $\times$ 2Wiki), raw answer length is \emph{anti}-predictive of retrieval need: the \texttt{tokens\_generated} baseline reaches raw AUROC \textbf{0.457} and \textbf{0.518} on $\texttt{lift\_em}{=}+1$, both at or below chance. Longer traces on the held-out multi-hop cells are systematically \emph{less} retrieval-helpful, inverting the verbosity-compensation pattern \citet{zhang_verbosity_2024} document on adjacent QA tasks. The four Bonferroni-robust survivors clear the length baseline by a wider margin on these cells than on the HotpotQA cells, suggesting the raw-AUROC protocol miscredits the length signal on exactly the cells where retrieval matters most.
 
 \subsection{FCT Discriminates Strongest on the Held-Out MoE Cell}
 \label{sec:results-fct-percell}
@@ -253,7 +253,7 @@ The headline finding (four Bonferroni-robust signals with FCT strongest) is inva
 \subsection{Why Length Predicts Retrieval-Helpfulness}
 \label{sec:discussion-causal}
 
-On the secondary $\texttt{closed\_em}{=}0$ target, \texttt{tokens\_generated} reached raw AUROC 0.539 on the headline pool and was the single strongest pre-residualization signal on several cells. This is consistent with the \emph{verbosity compensation} mechanism documented by \citet{zhang_verbosity_2024} across multi-hop QA, where verbose-when-uncertain is a real LLM behavior on the HotpotQA, MuSiQue, and 2WikiMHQA family. A plausible causal chain underlying this pattern is $\text{length} \rightarrow \text{verbosity compensation} \rightarrow \text{uncertainty} \rightarrow \text{incorrectness} \rightarrow \text{retrieval need}$: under this picture, length confounds the evaluation because it proxies the proximal cause, and the trigger pool's signals receive partial AUROC credit for tracking length because length correlates with the deeper uncertainty mechanism. Residualization (\S\ref{sec:methods-residualization}) removes the length pathway and isolates the residual signal.
+On the secondary $\texttt{closed\_em}{=}0$ target, \texttt{tokens\_generated} reached raw AUROC 0.539 on the headline pool and was the single strongest pre-residualization signal on several cells. This is consistent with the \emph{verbosity compensation} mechanism documented by \citet{zhang_verbosity_2024}, where verbose-when-uncertain is a real LLM behavior on the multi-hop QA family represented in LongBench (which includes HotpotQA, MuSiQue, and 2WikiMHQA). A plausible causal chain underlying this pattern is $\text{length} \rightarrow \text{verbosity compensation} \rightarrow \text{uncertainty} \rightarrow \text{incorrectness} \rightarrow \text{retrieval need}$: under this picture, length confounds the evaluation because it proxies the proximal cause, and the trigger pool's signals receive partial AUROC credit for tracking length because length correlates with the deeper uncertainty mechanism. Residualization (\S\ref{sec:methods-residualization}) removes the length pathway and isolates the residual signal.
 
 \subsection{Why Answer-Trajectory Stability Predicts Retrieval Need}
 \label{sec:discussion-fct}
@@ -292,7 +292,7 @@ We presented the first length-controlled audit of the published training-free dy
 \section{Bonferroni-Corrected Survivor Set}
 \label{sec:appendix-bonferroni}
 
-Table~\ref{tab:bonferroni} reports the Bonferroni-corrected $\sim$99.67\% paired-bootstrap CI of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ at $k{=}15$ ($\alpha = 0.05/15 = 0.0033$) on the headline pool. Bonferroni $k$ is the number of signals tested for the survivor-matrix claim. Four signals retain a strictly positive lower CI bound under correction: FCT, DRAGIN-RIND, \texttt{min\_majority}, and \texttt{ent.max}.
+Table~\ref{tab:bonferroni} reports the Bonferroni-corrected $\sim$99.67\% paired-bootstrap CI of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ at $k{=}15$ ($\alpha = 0.05/15 = 0.0033$) on the headline pool. Bonferroni $k$ is the number of signals tested for the survivor-matrix claim. Four signals retain a strictly positive lower CI bound under correction: FCT, DRAGIN-RIND, \texttt{min\_majority}, and \texttt{ent.max}.\footnote{$k{=}15$ was the multiple-comparison count fixed at test time, when the audited pool included a CABV$\times$LAAS composite that we later dropped from presentation (\S\ref{sec:methods-fct}). The current table reports 16 audited signals plus the length baseline. Re-running at $k{=}14$ or $k{=}16$ shifts the Bonferroni LBs by less than $\pm 0.005$ AUROC and does not change the four-survivor count; we report the test as run.}
 
 \begin{table}[h]
 \centering
@@ -347,7 +347,7 @@ etc ($\Delta^2 H$)        & entropy-trend     & 0.580 & $+0.107$ & $[+0.018, +0.
 \midrule
 late\_flips               & answer-trajectory & 0.586 & $+0.081$ & $[-0.016, +0.175]$ \\
 flare.max                 & token-probability & 0.553 & $+0.080$ & $[-0.008, +0.165]$ \\
-hvr.max (SELFDOUBT-T1)\,\citep{pandey_selfdoubt_2026}    & text              & 0.505 & $+0.032$ & $[-0.089, +0.150]$ \\
+hvr.max (SELFDOUBT-T1)\,\citep{pandey_selfdoubt_2026}    & hedging-marker    & 0.505 & $+0.032$ & $[-0.089, +0.150]$ \\
 hidden\_norm.range        & hidden (CRV)      & 0.499 & $+0.026$ & $[-0.058, +0.108]$ \\
 drift\_cosine.max         & hidden (CRV)      & 0.493 & $+0.020$ & $[-0.064, +0.101]$ \\
 seakr\_k5.logdet          & $K{=}5$ hidden    & 0.491 & $+0.018$ & $[-0.077, +0.112]$ \\
@@ -368,7 +368,7 @@ var\_l2\_window.max       & hidden (CRV)      & 0.473 & $+0.000$ & $[-0.091, +0.
 \end{equation}
 We re-ran the full headline survivor matrix with paired bootstrap $B{=}10{,}000$.
 
-\paragraph{Inter-label agreement.} EM identifies 108 helped traces and the judge identifies 113; the intersection is 87. The two labels jointly produce Cohen's $\kappa = 0.707$ over the 3-class $\{+1, 0, -1\}$ label set, in the substantial-agreement band of \citet{landis_measurement_1977}.
+\paragraph{Inter-label agreement.} EM identifies 108 helped traces and the judge identifies 113; the intersection is 87. The two labels jointly produce a multi-class Cohen's $\kappa = 0.707$ on the 3-class $\texttt{lift\_em} \in \{+1, 0, -1\}$ label set, in the substantial-agreement band of \citet{landis_measurement_1977}.
 
 \paragraph{Survivor matrix transfer.} Table~\ref{tab:llmjudge} reports the headline survivor matrix under both correctness functions side-by-side. Eight of the nine paired-significant survivors under EM remained significant under the judge; \texttt{etc} loses significance and \texttt{flare.max} gains it. FCT strengthened under the judge from $\Delta = +0.190$ [+0.093, +0.287] to $\Delta = +0.222$ [+0.132, +0.312] ($+17\%$ in point estimate, $+42\%$ in 95\% CI lower-bound margin). All four Bonferroni-robust survivors retain nominal-95\% significance under the judge.
 
@@ -407,32 +407,35 @@ To pre-empt the reimplementation critique, we ran our protocol (Eq.~\ref{eq:resi
 \toprule
 \textbf{Arch} & $\varepsilon^{\text{prot}}_{\max}$ & $\varepsilon^{\text{prot}}_{\text{mean}}$ & $\varepsilon^{\text{prot}}_{\text{med}}$ & $\varepsilon^{\text{samp}}_{\max}$ \\
 \midrule
-Qwen2.5  & 0.029 & 0.012 & 0.012 & 0.062 \\
-Gemma    & 0.027 & 0.0095 & 0.0047 & 0.070 \\
+Qwen2.5  & 0.029 & 0.012 & 0.012 & 0.111 \\
+Gemma    & 0.027 & 0.0095 & 0.0047 & 0.106 \\
 \bottomrule
 \end{tabular}
-\caption{$\varepsilon_{\text{protocol}} = |\text{ours}_{\text{resid}} - \text{LINE}_{\text{full}}|$; $\varepsilon_{\text{sampling}} = |\text{LINE}_{\text{full}} - \text{LINE}_{\text{split}}|$ (latter averaged over 5 seeds). Both architectures show $\varepsilon_{\text{protocol}} \leq 0.029$, well below the conventional threshold of $0.05$.}
+\caption{$\varepsilon_{\text{protocol}} = |\text{ours}_{\text{resid}} - \text{LINE}_{\text{full}}|$; $\varepsilon_{\text{sampling}} = |\text{LINE}_{\text{full}} - \text{LINE}_{\text{split}}|$ (latter averaged over 3 seeds). Both architectures show $\varepsilon_{\text{protocol}} \leq 0.029$, well below the conventional threshold of $0.05$. Train/test sampling noise ($\varepsilon_{\text{sampling}}$) dominates the protocol gap by a factor of $3$--$4\times$, indicating that the $\log(\texttt{tokens}+1)$ vs.\ raw-MinMax math difference is small relative to evaluation-set variance at $n{=}200$.}
 \label{tab:uline-repl}
 \end{table}
 
-\section{FCT vs.\ Datta's $t^\star$: Operational Differences}
+\section{FCT vs.\ Concurrent Commitment-Time Primitives: Operational Differences}
 \label{sec:appendix-fct-tstar}
 
-FCT (\S\ref{sec:methods-fct}) is motivated by the final-switch index $t^\star = \max\{i : A_i \neq A_{i+1}\}$ of \citet{datta_large_2026} and is operationally distinct on four axes.
+FCT (\S\ref{sec:methods-fct}) is motivated by the final-switch index $t^\star = \max\{i : A_i \neq A_{i+1}\}$ of \citet{datta_large_2026}, with a concurrent forward-looking commitment-time primitive proposed by \citet{zhang_commit_2026} on the model's finite-answer continuation distribution. The three are operationally distinct on five axes.
 
 \begin{table}[h]
-\centering\small
-\begin{tabular}{@{}lll@{}}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
 \toprule
-\textbf{Axis} & \textbf{Datta} $\boldsymbol{t^\star}$ & \textbf{FCT (ours)} \\
+\textbf{Axis} & \textbf{Datta} $\boldsymbol{t^\star}$ & \textbf{Zhang} $\boldsymbol{\tau_{\text{commit}}}$ & \textbf{FCT (ours)} \\
 \midrule
-Temporal direction & Backward (last switch) & Forward (first stable) \\
-Sampling regime    & $K{=}1$ greedy & $K{=}5$ majority \\
-Application target & Early stopping & Retrieval triggering \\
-Trace model class  & Thinking (\texttt{</think>}) & Non-thinking chat \\
+Temporal direction & Backward (last switch) & Forward (first stable) & Forward (first stable) \\
+Signal class       & Per-step answer & Continuation log-odds & $K{=}5$ majority answer \\
+Sampling regime    & $K{=}1$ forced-completion & Single deterministic state & $K{=}5$ stochastic \\
+Application target & Early stopping & Pre-verbalization commitment & Retrieval triggering \\
+Trace model class  & Thinking (\texttt{</think>}) & Delayed-verdict templates & Non-thinking chat \\
 \bottomrule
-\end{tabular}
-\caption{Operational differences between Datta's $t^\star$ and our FCT. For trajectories that converge monotonically without re-flipping, $t_{\text{commit}} \approx t^\star + 1$; under $K{=}5$ majority sampling on non-thinking-mode chat models this equivalence does not hold in general.}
+\end{tabular}%
+}
+\caption{Operational differences across three concurrent commitment-time primitives. \citet{datta_large_2026}'s $t^\star$ is backward-looking on per-step intermediate answers, applied to early stopping. \citet{zhang_commit_2026}'s $\tau_{\text{commit}}$ is forward-looking on the model's finite-answer continuation log-odds, applied to pre-verbalization commitment analysis. FCT (ours) is forward-looking on $K{=}5$-majority answer extracts, applied to retrieval triggering. For monotonically converging trajectories, $t_{\text{commit}} \approx t^\star + 1$; under $K{=}5$ majority sampling on non-thinking-mode chat models this equivalence does not hold in general.}
 \label{tab:fct-vs-tstar}
 \end{table}
 
@@ -468,7 +471,7 @@ FCT                  & $+0.20$ & $+0.14$ & $+0.15$ & $+0.30$ \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Spearman $\rho(\texttt{tokens\_generated}, \text{signal})$ per cell on closed-book traces. Bold: $|\rho| \geq 0.5$. The published trigger pool (top block) carries $\rho \in [+0.18, +0.46]$; the answer-trajectory aggregations (bottom block) average $\approx 0.1$ lower in $|\rho|$. $^{\ast}$Qwen$\times$Hot \texttt{hvr.max} is constant; Spearman undefined.}
+\caption{Spearman $\rho(\texttt{tokens\_generated}, \text{signal})$ per cell on closed-book traces. Bold: $|\rho| \geq 0.5$. The peer-pool signals (DRAGIN, ent.max, etc, flare.max, u\_cons.max, seakr\_k5) carry $\rho \in [+0.26, +0.46]$; \texttt{hvr.max} reaches $+0.51$ on Gemma$\times$2Wiki; the auxiliary CRV diagnostics span $\rho \in [-0.07, +0.36]$. The answer-trajectory aggregations (bottom block) average $\approx 0.1$ lower in $|\rho|$ than the peer-pool block. $^{\ast}$Qwen$\times$Hot \texttt{hvr.max} is constant; Spearman undefined.}
 \label{tab:spearman}
 \end{table}
 
@@ -485,7 +488,7 @@ We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limi
 
 \paragraph{SELFDOUBT-T1 \citep{pandey_selfdoubt_2026}.} HVR $= h/(v+1)$ is computed per step and aggregated as $\max$ over steps; the original paper computes a single trace-level HVR with a Tier-1 ``HVR=0'' high-precision correctness gate. The per-step adapter is recoverable as the paper's gate by setting our threshold to $0$.
 
-\paragraph{Datta's $t^\star$ vs.\ FCT.} Operational differences are tabulated in Appendix~\ref{sec:appendix-fct-tstar}.
+\paragraph{Concurrent commitment-time primitives.} Operational differences between \citet{datta_large_2026}'s $t^\star$, \citet{zhang_commit_2026}'s $\tau_{\text{commit}}$, and our FCT are tabulated in Appendix~\ref{sec:appendix-fct-tstar}.
 
 \section{Reproducibility}
 \label{sec:appendix-repro}

@@ -1,0 +1,290 @@
+
+--- Query: 'Self-RAG self-reflective' ---
+  - ? | venue=? | forum=NU5i4gZJev
+  - ? | venue=? | forum=XdRIno98gG
+  - ? | venue=? | forum=hSyW5go0v8
+  - Self-RAG: Self-reflective Retrieval Augmented Generation | venue=Instruction Workshop @ NeurIPS 2023 | forum=jbNjgmE0OP
+  - ? | venue=? | forum=hSyW5go0v8
+
+--- Query: 'Self-RAG reflection' ---
+  - ? | venue=? | forum=eBaNSamS2V
+  - ? | venue=? | forum=hSyW5go0v8
+  - ? | venue=? | forum=hSyW5go0v8
+  - ? | venue=? | forum=eBaNSamS2V
+  - ? | venue=? | forum=79uLTCNMpJ
+
+--- Query: 'Asai Self-RAG' ---
+  - ? | venue=? | forum=eBaNSamS2V
+  - Self-RAG: Self-reflective Retrieval Augmented Generation | venue=Instruction Workshop @ NeurIPS 2023 | forum=jbNjgmE0OP
+  - Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection | venue=ICLR 2024 oral | forum=hSyW5go0v8
+  - ? | venue=? | forum=NhIaRz9Qf5
+  - ? | venue=? | forum=QqjUfdPkkb
+
+================================================================================
+REVIEW EXTRACTION
+================================================================================
+
+
+################################################################################
+# FLARE-EMNLP2023 (forum=WLZX3et7VT)
+################################################################################
+
+----- Note id=ab4TRuPOUT | inv=Edit -----
+  [recommendation]:
+    5: Sound and Exciting: Accept to Main Conference
+
+
+################################################################################
+# SelfCheckGPT-EMNLP2023 (forum=RwzFNbJ3Ez)
+################################################################################
+
+----- Note id=7iGqvltgIF | inv=Edit -----
+  [recommendation]:
+    5: Sound and Exciting: Accept to Main Conference
+
+
+################################################################################
+# SeaKR-ICLR2025 (forum=NhIaRz9Qf5)
+################################################################################
+
+----- Note id=ayL0F3Zni8 | inv=Edit -----
+  [summary]:
+    This paper introduces a self-aware knowledge retrieval approach for RAG. Instead of retrieving information for all queries, this technique triggers retrieval only when the language model is uncertain 
+  [strengths]:
+    - The proposed method is well-motivated and performs effectively on benchmarks.
+    - The new uncertainty measurement is interesting and empirically outperforms previous methods like Perplexity or energy-based approaches.
+    - This paper conducts extensive experiments, and the results are insightful and support its main claims.
+  [weaknesses]:
+    - The proposed method includes using the consistency of parallel sampling (with a sample time of 20) to determine the uncertainty of the LLM. This is performed at each retrieval step, which may increa
+    - I suggest moving Section 3.4 to an earlier position in the paper, as it appears to be the key proposal and is referenced in Sections 3.1, 3.2, and 3.3. Additionally, the current Section 3.4 is somew
+    - The paper finds that more retrieval steps decreases model performance, as shown in Table 3. This may be due to the use of a weak retriever (BM25) and the recall of only a few documents (top-3). The 
+  [soundness]: 3
+  [rating]: 6
+  [questions]:
+    None
+
+----- Note id=OaKycRu2oB | inv=Edit -----
+  [summary]:
+    The paper introduces SEAKR, a novel approach for adaptive Retrieval-Augmented Generation (RAG) that utilizes self-awareness within large language models (LLMs) to optimize when and how to retrieve ext
+  [strengths]:
+    - The writing is easy to follow and the logic is clear.
+    - The authors provide extensive experimental results across both complex and simple question-answering tasks , validating the robustness and superiority of SEAKR over state-of-the-art approaches. 
+    - SEAKR is one of the first methods to use self-aware uncertainty within the internal states of LLMs to guide retrieval decisions. By utilizing the model’s internal consistency, SEAKR ensures that ret
+  [weaknesses]:
+    - Sensitivity to Uncertainty Thresholds: SEAKR’s reliance on a carefully chosen uncertainty threshold for retrieval introduces challenges in generalizability. Determining the optimal threshold can be 
+    - Challenges in Numerical and Logical Reasoning: The paper notes that SEAKR’s improvement on datasets requiring numerical reasoning (e.g., IIRC) is limited. This suggests that while SEAKR can handle g
+  [soundness]: 3
+  [rating]: 8
+  [questions]:
+    - Why self-aware uncertainty from the internal state of LLMs can more accurately determines the knowledge demand compared with the output?
+    - What strategies could be introduced to better handle tasks that require numerical or logical reasoning?
+
+----- Note id=DVkx8ben9A | inv=Edit -----
+  [summary]:
+    This paper proposes an adaptive RAG model that uses a multi-step reasoning strategy and dynamically decides whether to retrieve external knowledge based on an uncertainty estimator. The experiments sh
+  [strengths]:
+    1. Using hidden states of the last token and the corresponding Gram matrix by sampling multiple generations to measure the generation uncertainty is novel compared to previous probability-based uncert
+    2. Experiments show significant improvement over selected baselines.
+  [weaknesses]:
+    1. The organization and writing of the methodology introduction are a little bit confusing.
+    The first paragraph of Section 3 notes that the self-aware uncertainty estimator is the most important module. However, this paragraph only uses a symbol $U(c)$ to represent it without some clear intr
+    2. Lack of demonstrations of model design details.
+    In Section 3.1, what is the difference between "the pseudo-generated rationale" and "generated rationale"? How a query is generated specifically? More function, detailed introduction, and the correspo
+    3. The calculation details of the "Gram matrix" can be provided to enrich the technique details of the paper.
+    4. The calculation of the "Gram matrix" relies on the multi-generation of LLMs. For each generation, the "<EOS>"'s hidden state still relies on the previously generated tokens. Does this process still
+    5. Since most of the modules are prompt-based, the stability of the proposed method is difficult to guarantee.
+    6. The selected search engine, BM25, is too old. A more advanced dense retriever or hybrid retriever could be utilized.
+  [soundness]: 2
+  [rating]: 3
+  [questions]:
+    1. Why the Section 3.1 is called "Self-aware retrieval"? It doesn't demonstrates more about retrieval process, but focuses on the generation of the next rationale and the next query.
+    2. For the "Query Generation" in Section 3.1, what does the symbol "r" refer to? Should it be "r_s"? 
+    3. Why "Gram matrix" can reliably measure the uncertainty of LLM on its generation? Are there some related analyses or theoretical proven?
+    4. Why evaluations are conducted on sampled test instances? It leads to different model performance values in Tables 1, 2, and 3, which is very confusing.
+
+----- Note id=ydSRQK3Yzc | inv=Edit -----
+  [summary]:
+    The paper introduces SEAKR, a novel adaptive RAG model designed to improve the performance of LLMs by reducing hallucinations. SEAKR enhances RAG by dynamically invoking knowledge retrieval based on L
+  [strengths]:
+    The paper proposes using the internal self-awareness of LLMs to enhance the effectiveness of adaptive RAG. Experimental results show that the proposed method significantly improves the accuracy of LLM
+  [weaknesses]:
+    1. Some statements regarding the contributions in this paper are flawed. For example, the paper claims that existing adaptive RAG methods determine whether retrieval is needed solely based on the mode
+    2. The method proposed in this paper mainly consists of three processes: retrieval, re-ranking, and reasoning. The overall pipeline design is not novel, and the innovation of this paper lies primarily
+    3. Computing self-aware uncertainty seems to be a very time-consuming and computationally expensive process, yet the paper does not discuss the time and computational cost of the entire reasoning proc
+    4. The experiment uses the F1 measure as an evaluation method, but in practice, when calculating F1, the model's output is matched word-by-word against the ground truth in an N-to-N fashion. This is n
+    [1] Asai, Akari, et al. "Self-rag: Learning to retrieve, generate, and critique through self-reflection." arXiv preprint arXiv:2310.11511 (2023).
+    [2] Yu, Yue, et al. "RankRAG: Unifying Context Ranking with Retrieval-Augmented Generation in LLMs." arXiv preprint arXiv:2407.02485 (2024).
+    [3] Chen, Zhanpeng, et al. "MLLM Is a Strong Reranker: Advancing Multimodal Retrieval-augmented Generation via Knowledge-enhanced Reranking and Noise-injected Training." arXiv preprint arXiv:2407.2143
+  [soundness]: 2
+  [rating]: 5
+  [questions]:
+    1. How long is the inference time required for the entire pipeline? Compared to the Prompt method, how much additional computation is needed when using the self-aware uncertainty estimator proposed in
+    2. Since the proposed self-aware uncertainty estimator can only be applied to local models, could the LLM be fine-tuned with an additonal adapter to better calculate uncertainty?
+    3. When determining whether retrieval is necessary, could a simpler and more effective approach be used, like Chain of Knowledge[4], where self-consistency is employed to assess the need for retrieval
+    4. From Table 3, it seems that just using the LLM-generated rationale can achieve results close to those that require external retrieval. Does this imply that the knowledge retrieval in this method is
+    5. Even if the LLM-generated rationale has low uncertainty, it may still represent a strong hallucination. How can this issue be avoided to better filter and re-rank the LLM-generated rationales?
+    [4] Li, Xingxuan, et al. "Chain-of-knowledge: Grounding large language models via dynamic knowledge adapting over heterogeneous sources." arXiv preprint arXiv:2305.13269 (2023).
+
+
+################################################################################
+# Verbosity!=Veracity-ICLR2025 (forum=l49uZcEIcq)
+################################################################################
+
+----- Note id=NGBhFIca4e | inv=Edit -----
+  [summary]:
+    This paper proposes a concept termed “Verbosity Compensation” (VC), where LLMs respond with overly verbose answers to compensate for uncertainty. VC is shown to decrease response efficiency, increase 
+  [strengths]:
+    Interesting research problem.
+  [weaknesses]:
+    1. In the verbosity compensation and uncertainty section, how to quantity the uncertainty for each split is not clear. How to get the perplexity evaluation metric and eigenvalues is not clear.
+    2. In my understanding, In performance difference calculation, the recall is calculated by exact matching, checking if the generation contains the exact same string of the ground truth answer. There m
+    3. The proposed cascade model selection method can leak the ground truth answer. In the selection process, the detector would take ground truth answer as input for answer selection.
+    4. In section 4.2, what does the |r|>3 mean? 
+    5. In line 365 and figure 3, what does the llama-3-80b mean? I believe llama-3 doesn’t have the 80B version.
+  [soundness]: 2
+  [rating]: 5
+  [questions]:
+    please see the weaknesses above
+
+----- Note id=sXOuIjBZ0s | inv=Edit -----
+  [summary]:
+    This paper studied the verbosity issue of LLMs. The authors tested the frequency that LLMs generate verbose answers (a behavior defined as **verbosity compensation** by the authors), and showed the fo
+    (1) All mainstream LLMs generate verbose answers.
+    (2) Models have different performance when generating concise and verbose answers. Most models perform worse when their response are verbose.
+    (3) There is a positive correlation between answer verbosity and model uncertainty. This means that models are usually more uncertain about the answers when they generate excessively long answers.
+    (4) Using verbosity as an indicator to route models (if the smaller model generates a verbose answer, then we give this example to the larger model) is a promising approach to balance model performanc
+  [strengths]:
+    1. The authors are the first to formally define the verbosity compensation (VC) behavior of LLMs which refers to generating an answer that is more verbose than required.
+    2. The authors collected a benchmark from existing NLP task data to analyze the frequency of VC in LLMs. They further designed metrics to calculate the impact of VC on model performance.
+    3. The authors did extensive experiments to test the correlation between VC and (1) model performance (2) model uncertainty. These experiments led to the findings I listed in paper summary.
+    4. The authors proposed a simple but effective model routing technique based on their findings on VC: routing the instance to stronger models if the weaker model exhibits verbosity in answering. They 
+    5. The paper is well written and the experimental results are clearly presented.
+  [weaknesses]:
+    1. The fairness of evaluation metrics is questionable. This includes two aspects:
+    (1) The authors wrote in section 3.1: *We define a response $r$ to be verbose if and only if it can be further compressed with fewer tokens
+    while keeping the same meaning.* However, in actual experiments, they directly used "the number of tokens in the response" as the verbosity detector. **They did not measure "whether the answer can be 
+    (2) In section 3.2, the authors define $\Delta$ (performance difference) as the model score on cases where its answer is verbose minus the score on cases where its answer is concise. This means, **the
+    2. The evaluation set is limited to scenarios where the gold answer is less than 4 words. However, I think such short-form QA is just one of the possible situations where verbosity may occur, and it m
+    3. When evaluating the proposed cascading approach in model routing, the authors only compared it with randomly selecting models. However, they did not compare with more related baselines such as "mod
+  [soundness]: 3
+  [rating]: 8
+  [questions]:
+    1. The equation in section 3.2 uses the score of cases where $V(x,y,r)=1$ as the minuend, and the score of cases where $V(x,y,r)=0$ as the subtrahend. However, the authors defined the formula as "the 
+    2. I have concerns about the definition of verbosity. From Figure 1 and the definition of verbosity detector, it seems like answers like *Paris is the capital of France* will be judged as verbose for 
+
+----- Note id=ww4x6vGIIF | inv=Edit -----
+  [summary]:
+    The paper introduces a novel concept of verbosity compensation in LLMs. They define this term, explore it's presence in different models using combination of different datasets, also they try to come 
+  [strengths]:
+    The model has a new concept of verbosity compensation
+    They explore 14 different LLM for comparison and performance evaluation
+    The idea of different type of VCs
+    The work also introduces algorithm to mitigate the issue that has been defined in the paper
+  [weaknesses]:
+    - > The problem doesn't seem to very well defined, I couldn't understand the exact research question the paper is trying to solve.
+    If the problem is about the length of output, I don't see it as a major issue.
+     -> The dataset used for this experiment is creates using existing datasets from previous works, most of these are from previous years and there is high chance that these were in the training data tha
+    -> The prompt used for the experiment is not clear, more details on why 3 words was choose and why is it mentioned multiple times single phrase if possible, but then you mention single phrase and also
+    -> Though there is mention of verbosity detector the actual definition and formula on how you calculate it is missing.
+    -> There is introduction of algorithm, the paper mentions that VC might causes latency, there can be latency due to algorithm as well.
+    -> Writing can be improved
+    -> Most of the examples mentioned in the paper have some numbers in the answers, out of 3 correctly given answers 2 doesn't have any numbers, given that there is existing research that LLMs are not go
+  [soundness]: 2
+  [rating]: 5
+  [questions]:
+    N/A
+
+
+################################################################################
+# Self-RAG-ICLR2024 (forum=hSyW5go0v8)
+################################################################################
+
+----- Note id=YY8sNoSAvQ | inv=Edit -----
+  [summary]:
+    The authors propose a new framework called self-reflective retrieval augment generation (Self-RAG) to improve upon the vanilla RAG approach that always incorporates a fixed number of retrieved passage
+    To this end, they first generate data for and train a critic model, whose role is to evaluate and generate data for the generation model. The data for doing so is created using GPT-4 via specifically 
+    For evaluation, the model is compared against 3 set of datasets (closed-set for fact verification, short form generation from open-domain QA datasets, and long form generation). The model is then comp
+  [strengths]:
+    - The RAG method, which the authors set out to improve, has become highly used in the industry while having obvious limitations. This is a hard problem and any improvements on this problem will have g
+    - The framework tries to integrate two very useful LLM approaches, RAG and self-reflection in an optimized manner
+  [weaknesses]:
+    - Even though there are a lot of benchmarks and ablations, I still find that many of my questions are not answered by these evaluations
+        - Specifically, I'd like to separate out the contribution from the main two parts of the approach, the self-reflection, and RAG. I don't see much ablation or comparison on the self-reflection side
+        - The RAG also has many details that I'm not certain have been compared against, other than simply changing the underlying model, which is not that interesting IMO. I believe simple changes to pro
+        - I would have also liked to see at least an attempt at trying to combine self reflection with RAG without any pre-training
+    - I find some of the numbers reported not convincing and in need of more investigation
+        - Ret-ChatGPT in Table 2: in all but the Long-form generation tasks, ChatGPT performs better than the retrieval-augmented version. This is curious and tells me either the model has seen the data (
+        - I have a similar (but less important) observation for the Alpaca models (specifically 13B). I can understand the reduced MAUVE score, but accuracy on PubMed has also been reduced which tells a s
+        - Same is true in Figure 3.a (ablations) where Self-RAG without retrieval is already better than all the other baselines in Table 2. Is this because there has been a data leak? If yes, that comple
+  [soundness]:
+    3 good
+  [rating]:
+    6: marginally above the acceptance threshold
+  [questions]:
+    - The authors claim in the abstract that "Self-RAG outperforms ChatGPT ... on Open-domain QA ... tasks". However, the results in Table 2 are dominated by ChatGPT and Ret-ChatGPT. They only get outperf
+    - The authors claim that "GPT-4 reflection token predictions show high agreement with human evaluations". I find that hard to believe, given personal experience and reported results, e.g. PandaLM whic
+    - The repetitive self-reflection methods of Self-RAG will likely have an outsized effect on the computation requirements and the latency of the model. As such, I would love to see some numbers and com
+
+----- Note id=Nt4aOkdwey | inv=Edit -----
+  [summary]:
+    This paper introduces a novel framework known as Self-Reflective Retrieval-augmented Generation (SELF-RAG), designed to enhance the generation quality and factuality of Large Language Models (LLMs). D
+  [strengths]:
+    - The proposed method is novel in a way that it integrates the critic model information at training time so that the LLMs could reuse the output signals to guide the next step.
+    - The proposed method can be easily adapted to generate responses with certain properties.
+    - SELF-RAG significantly outperforms baselines in most cases.
+  [weaknesses]:
+    - The critic model plays a pivotal role within the framework, and the authors have reported its accuracy in the Appendix. However, the paper does not include an evaluation of the LLM's accuracy in pre
+    - The retrieval threshold is predetermined, but the authors have not provided an analysis of how variations in the retrieval threshold might affect downstream task performance.
+    - In the ablation study, the paper only investigates 'Retrieve top1,' while SELF-RAG utilizes top 5 or top 10. Furthermore, the study exclusively focuses on 'Remove[IsSup],' neglecting an examination 
+  [soundness]:
+    3 good
+  [rating]:
+    8: accept, good paper
+  [questions]:
+    - Did the authors investigate the influence of reflection token distributions on the performance of the critic model? 
+    - Is there a possibility that the critic model may exhibit certain biases? Additionally, have they examined the distribution of retrieval tokens and its correlation with the retrieval threshold?
+
+----- Note id=FtbG62823x | inv=Edit -----
+  [summary]:
+    This paper proposes a new framework, named Self-RAG, for training LMs to retrieve passages, generate text, and evaluate its own generation on-demand. Specifically, the proposed framework first uses a 
+  [strengths]:
+    - The paper is well written and nicely presented.
+    - The paper proposes a novel framework that enables dynamic, un-demand retrieval and self-reflection in LM decoding. It address a key limitation in most existing RAG framework, that the model does not
+    - The proposed method provides an interesting alternative to RLHF for using critique models. I really like its controllability and interpretability that RLHF doesn't have. 
+    - Experiments and ablations are sound and convincing.
+  [weaknesses]:
+    - There are some related search that prompts the model to decide when retrieval is needed and how to use retrieval during decoding. E.g., "Active retrieval augmented generation." by Jiang et al [1]. I
+    - Since most experiments uses automated evaluation focusing on accuracy and factuality, it is still unclear to me if such a training approach could hurt some aspects of the model, e.g., instruction fo
+    - One limitation of the proposed Self-RAG is that the model sees each passage independent from the others. The generator cannot synthesize multiple passages. 
+    [1] Jiang, Zhengbao, et al. "Active retrieval augmented generation." arXiv preprint arXiv:2305.06983 (2023).
+  [soundness]:
+    4 excellent
+  [rating]:
+    8: accept, good paper
+  [questions]:
+    - How does Self-RAG's training affect the model in terms of aspects other than factuality?  e.g., instruction following, creativity, or reasoning.  
+    - How good is the model at deciding when to retrieve? It would be nice to show the triggering rates of "retrieval" token on different types of tasks. 
+    - How much training data is needed? Does the training data needs to be carefully sampled, e.g., focusing on fact-seeking slices?
+
+----- Note id=qptNCoCYSC | inv=Edit -----
+  [summary]:
+    The paper studies retrieval-augmented generation, where it aims to train a language model (LM) that learns to retrieve external documents on demand and generate a better response. Especially, the mode
+  [strengths]:
+    1.	The proposed method addresses two key problems including relevance and grounding by simply adding special tokens learned through fine-tuning.
+    2.	The fine-tuning does not rely heavily on human annotation. Rather, it makes use of GPT-4 to provide the training data.
+    3.	The reflection tokens allow users to have more control over the generation process to customize the expected response.
+  [weaknesses]:
+    1.	The reflection tokens might be useful to select more promising generations during the decoding time. But it seems that they do not affect (or guide) the generation process from the beginning and mi
+    2.	If GPT-4 somehow can decently provide the labeled data required for each reflection step, it seems intuitive to just instruct GPT-4 to obtain the ideal response that is grounded by the input. Also,
+  [soundness]:
+    3 good
+  [rating]:
+    8: accept, good paper
+  [questions]:
+    1.	In section 3.2.2, the authors mention that during the training time, they mask out the retrieved text chunks. What is the purpose of this masking step?
+    2.	Other than just providing post hoc feedback on how good the current generation is, do the reflection tokens also affect/guide the generation process somehow?
+
+
+################################################################################
+# ToRetrieveOrNot-QUESTION (forum=nTcpR9ls01)
+################################################################################

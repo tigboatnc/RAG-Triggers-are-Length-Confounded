@@ -1,0 +1,164 @@
+================================================================================
+STEP 1: Resolve forum IDs for relevant papers
+================================================================================
+
+--- Query: 'UNCERTAINTY-LINE length invariant'
+  + [CoRR 2025] UNCERTAINTY-LINE: Length-Invariant Estimation of Uncertainty for Large Language Models | forum=GedoF7kQJ9
+
+--- Query: 'Vashurin uncertainty length invariant'
+  - (no title) | forum=crID4ZT2NP
+  - (no title) | forum=crID4ZT2NP
+  + [NeurIPS 2025 poster] CoCoA: A Minimum Bayes Risk Framework Bridging Confidence and Consistency for Uncertainty Quantifica | forum=H1NGlLNaVC
+
+--- Query: 'Santilli revisiting uncertainty quantification length'
+  + [ACL (2) 2025] Revisiting Uncertainty Quantification Evaluation in Language Models: Spurious Interactions with Resp | forum=NQVqD6Hz0m
+
+--- Query: 'Janiak illusion of progress hallucination'
+  + [CoRR 2025] The Illusion of Progress: Re-evaluating Hallucination Detection in LLMs | forum=kQzteLEPez
+
+--- Query: 'Ielanskyi uncertainty estimation NLG pitfalls'
+  + [QUESTION Poster] Addressing Pitfalls in the Evaluation of Uncertainty Estimation Methods for Natural Language Generat | forum=hbIpwrdfE1
+
+--- Query: 'verbosity veracity verbosity compensation Zhang'
+  + [Submitted to ICLR 2025] Verbosity $\neq$ Veracity: Demystify Verbosity Compensation Behavior of Large Language Models | forum=l49uZcEIcq
+
+--- Query: 'Datta decide early explain later'
+  - (no title) | forum=7EK2hqWmvz
+  - (no title) | forum=Ow3R7zyfYC
+  + [ICME 2025] DATTA: Domain Diversity Aware Test-Time Adaptation for Dynamic Domain Shift Data Streams | forum=bM61FGiLYd
+
+--- Query: 'Chain of Probe necessity accuracy CoT step'
+  + [CoRR 2024] Chain-of-Probe: Examing the Necessity and Accuracy of CoT Step-by-Step | forum=IkynIZLai6
+
+--- Query: 'dynamic instability LLM reasoning Chen'
+  + [Sys2-Reasoning Poster] MemReasoner: A Memory-augmented LLM Architecture for Multi-hop Reasoning | forum=ODcMy97cVZ
+
+--- Query: 'answer agreement representation shaping ICML'
+  - (no title) | forum=hwUAApRXsC
+  - (no title) | forum=dm8e7gsH0d
+  - (no title) | forum=tijmpS9Vy2
+  - (no title) | forum=32QQlzm9ft
+
+--- Query: 'streaming hallucination chain of thought Lu'
+  + [ACL ARR 2026 January Submission] Streaming Hallucination Detection in Long Chain-of-Thought Reasoning | forum=y46kwdz3oQ
+
+--- Query: 'DRAGIN real time information needs dynamic retrieval'
+  + [?] DRAGIN: Dynamic Retrieval Augmented Generation based on the Real-time Information Needs of Large Lan | forum=ziJck8BqhV
+
+--- Query: 'active retrieval augmented generation FLARE'
+  + [EMNLP 2023 Main] Active Retrieval Augmented Generation | forum=WLZX3et7VT
+
+--- Query: 'INSIDE EigenScore internal states detect hallucination'
+  - (no title) | forum=Zj12nzlQbz
+  + [CoRR 2024] INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection | forum=CQ8CecedXN
+
+--- Query: 'Mallen when to trust language models retrieval popularity'
+  + [CoRR 2022] When Not to Trust Language Models: Investigating Effectiveness and Limitations of Parametric and Non | forum=vvgz1wmrHE
+
+--- Query: 'DTR decide then retrieve dual path'
+  - (no title) | forum=LaIkPfPu9K
+  - (no title) | forum=cxazQGSsQa
+  - (no title) | forum=57ncx24sRy
+  - (no title) | forum=a5TEibKZ9z
+
+--- Query: 'CtrlA adaptive retrieval probe'
+  - (no title) | forum=QYvtX2XA8p
+  + [CoRR 2024] CtrlA: Adaptive Retrieval-Augmented Generation via Probe-Guided Control | forum=xmXHD6hQov
+
+--- Query: 'DioR adaptive cognitive detection retrieval'
+  + [ACL (1) 2025] DioR: Adaptive Cognitive Detection and Contextual Retrieval Optimization for Dynamic Retrieval-Augme | forum=XwLQaigsws
+
+--- Query: 'QuCo-RAG corpus uncertainty pretraining'
+  - (no title) | forum=xUS8SBL5iM
+  - (no title) | forum=SosBN9PjJ2
+  - (no title) | forum=rpnPKosij5
+  - (no title) | forum=vb7nRwmjXI
+
+--- Query: 'MIND token entropy attention multi-hop retrieval'
+  + [CoRR 2025] Memory-Aware and Uncertainty-Guided Retrieval for Multi-Hop Question Answering | forum=ZIH8dfcwwx
+
+--- Query: 'when does language model commit pre-verbalization'
+Retrying request: GET /notes/search?term=when+does+language+model+commit+pre-verbalization&group=all&source=all&limit=4, response: {'name': 'RateLimitError', 'message': 'Too many requests: You have made 21 requests, surpassing the limit of 20 requests. Please try again in 39 seconds (2026-05-24-8422033)', 'status': 429, 'details': {'limit': 20, 'remaining': 0, 'resetTime': '2026-05-24T16:53:30.604Z', 'used': 21, 'current': 21, 'reqId': '2026-05-24-8422033'}}, error: None
+  - (no title) | forum=HEziSGQNxj
+  - (no title) | forum=HEziSGQNxj
+  - (no title) | forum=8yjWLJy2eX
+  - (no title) | forum=wyolJ5sGCT
+
+--- Query: 'probing trajectories reasoning traces large language models'
+  - (no title) | forum=0n1YcK0yuQ
+  - (no title) | forum=Q5mkmW0cUD
+  - (no title) | forum=Tn5B6Udq3E
+  - (no title) | forum=lN3yKqqzF1
+
+--- Query: 'point of no return deceptive commitment'
+  + [Decision Making Advances] Performance of a Five-Layer ANN Model for Earthquake Magnitude Prediction and Spatial Risk Mapping i | forum=844qKD16ds
+
+--- Query: 'first commitment time decode answer'
+  - (no title) | forum=GfXMTAJaxZ
+  - (no title) | forum=qhLjdFHdXm
+  - (no title) | forum=MYmHznX3aB
+  - (no title) | forum=R6FOuWv5MD
+
+
+Total forums resolved: 18
+
+================================================================================
+STEP 2: Fetch reviews for each resolved forum
+================================================================================
+
+### UNCERTAINTY-LINE: Length-Invariant Estimation of Uncertainty for Large Language Models [CoRR 2025] (forum=GedoF7kQJ9)
+   (no reviews)
+
+### CoCoA: A Minimum Bayes Risk Framework Bridging Confidence and Consistency for Uncertainty  [NeurIPS 2025 poster] (forum=H1NGlLNaVC)
+   4 review-like notes
+
+### Revisiting Uncertainty Quantification Evaluation in Language Models: Spurious Interactions [ACL (2) 2025] (forum=NQVqD6Hz0m)
+   (no reviews)
+
+### The Illusion of Progress: Re-evaluating Hallucination Detection in LLMs [CoRR 2025] (forum=kQzteLEPez)
+   (no reviews)
+
+### Addressing Pitfalls in the Evaluation of Uncertainty Estimation Methods for Natural Langua [QUESTION Poster] (forum=hbIpwrdfE1)
+   (no reviews)
+
+### Verbosity $\neq$ Veracity: Demystify Verbosity Compensation Behavior of Large Language Mod [Submitted to ICLR 2025] (forum=l49uZcEIcq)
+   3 review-like notes
+
+### DATTA: Domain Diversity Aware Test-Time Adaptation for Dynamic Domain Shift Data Streams [ICME 2025] (forum=bM61FGiLYd)
+   (no reviews)
+
+### Chain-of-Probe: Examing the Necessity and Accuracy of CoT Step-by-Step [CoRR 2024] (forum=IkynIZLai6)
+   (no reviews)
+
+### MemReasoner: A Memory-augmented LLM Architecture for Multi-hop Reasoning [Sys2-Reasoning Poster] (forum=ODcMy97cVZ)
+   (no reviews)
+
+### Streaming Hallucination Detection in Long Chain-of-Thought Reasoning [ACL ARR 2026 January Submission] (forum=y46kwdz3oQ)
+   (no reviews)
+
+### DRAGIN: Dynamic Retrieval Augmented Generation based on the Real-time Information Needs of [?] (forum=ziJck8BqhV)
+   (no reviews)
+
+### Active Retrieval Augmented Generation [EMNLP 2023 Main] (forum=WLZX3et7VT)
+   1 review-like notes
+
+### INSIDE: LLMs' Internal States Retain the Power of Hallucination Detection [CoRR 2024] (forum=CQ8CecedXN)
+   (no reviews)
+
+### When Not to Trust Language Models: Investigating Effectiveness and Limitations of Parametr [CoRR 2022] (forum=vvgz1wmrHE)
+   (no reviews)
+
+### CtrlA: Adaptive Retrieval-Augmented Generation via Probe-Guided Control [CoRR 2024] (forum=xmXHD6hQov)
+   (no reviews)
+
+### DioR: Adaptive Cognitive Detection and Contextual Retrieval Optimization for Dynamic Retri [ACL (1) 2025] (forum=XwLQaigsws)
+   (no reviews)
+
+### Memory-Aware and Uncertainty-Guided Retrieval for Multi-Hop Question Answering [CoRR 2025] (forum=ZIH8dfcwwx)
+   (no reviews)
+
+### Performance of a Five-Layer ANN Model for Earthquake Magnitude Prediction and Spatial Risk [Decision Making Advances] (forum=844qKD16ds)
+   (no reviews)
+
+
+[ok] Wrote /Users/sanegi/Documents/projects/recollection.local/.scratch/openreview_targeted_dump.json (3 forums w/ reviews)

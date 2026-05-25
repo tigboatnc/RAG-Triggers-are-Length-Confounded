@@ -105,13 +105,13 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. A converging recent literature has shown this protocol is length-confounded on adjacent QA selective-prediction and uncertainty-quantification (UQ) tasks, where length itself rivals internal-signal triggers. We present the first length-residualized audit of the training-free dynamic-RAG trigger pool on a paired-oracle target ($\texttt{lift\_em}{=}+1$) that asks whether retrieval flips a wrong answer to a right one, isolating the causal retrieval-helpfulness signal from length-correlated incorrectness. Across two open-weight chat models on HotpotQA and 2WikiMultiHopQA ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap and only four survive Bonferroni at $k{=}15$ across three families. On the held-out 2Wiki cells, raw length itself collapses to at-or-below chance (AUROC $\leq 0.52$), and on those same cells our \textbf{FCT} (first-commitment time, a forward-looking answer-trajectory signal) reaches raw AUROC $\textbf{0.784}$ on Gemma~$\times$~2Wiki, the strongest length-orthogonal trigger in the audited pool. The survivor set is robust to a GPT-4o-Mini semantic-equivalence judge ($\kappa = 0.707$ with EM), and FCT itself \emph{strengthens} from $\Delta = +0.190$ to $\Delta = +0.222$ under the judge, the opposite of what a string-level EM artifact would predict.
+Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. Recent work has shown this protocol is length-confounded on adjacent QA selective-prediction and uncertainty-quantification (UQ) tasks. We present the first length-residualized audit of the training-free dynamic-RAG trigger pool on a paired-oracle target ($\texttt{lift\_em}{=}+1$) that asks whether retrieval flips a wrong answer to a right one, isolating the causal retrieval-helpfulness signal from length-correlated incorrectness. Across two open-weight chat models on HotpotQA and 2WikiMultiHopQA ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap and only four survive Bonferroni at $k{=}15$. On the held-out 2Wiki cells, raw length collapses to at-or-below chance (AUROC $\leq 0.52$), and our \textbf{FCT} (first-commitment time, a forward-looking answer-trajectory signal) reaches raw AUROC $\textbf{0.784}$ on Gemma~$\times$~2Wiki, the strongest length-orthogonal signal in the pool. The survivor set is robust to a GPT-4o-Mini semantic-equivalence judge ($\kappa = 0.707$), and FCT itself \emph{strengthens} from $\Delta = +0.190$ to $\Delta = +0.222$ under the judge, the opposite of what a string-level EM artifact would predict.
 \end{abstract}
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figs/survivor_forest.png}
-\caption{\textbf{Four trigger signals from three families carry length-orthogonal information; the strongest is \textsc{FCT}, our forward-looking commitment-time signal.} Forest plot of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ on the $\texttt{lift\_em}{=}+1$ target. Values above zero mean the residualized signal beats the length baseline. Thick bars: 95\% paired-bootstrap CIs ($n{=}800$, $B{=}10{,}000$). Thin extensions: Bonferroni-corrected $\sim$99.67\% CIs at $k{=}15$. Setup: \S\ref{sec:methods}. Numerical tables: App.~\ref{sec:appendix-bonferroni}, \ref{sec:appendix-hero}.}
+\caption{\textbf{Four trigger signals from three families carry length-orthogonal information beyond the length baseline; \textsc{FCT} (this paper) is strongest.} Forest plot of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ on $\texttt{lift\_em}{=}+1$ ($n{=}800$ paired traces). Thick bars: 95\% paired-bootstrap CIs; thin extensions: Bonferroni-corrected 99.67\% CIs at $k{=}15$. Setup: \S\ref{sec:methods}. Tables: App.~\ref{sec:appendix-bonferroni}, \ref{sec:appendix-hero}.}
 \label{fig:survivor-forest}
 \end{figure}
 
@@ -124,12 +124,7 @@ Recent work has shown this convention is length-confounded on adjacent QA select
 
 We extend the length-residualization protocol of \citet{vashurin_uncertainty-line_2025} to the training-free dynamic-RAG trigger pool. Rather than score triggers against single-arm correctness, we re-decode each closed-book trace under gold context and ask whether retrieval flips a wrong answer to a right one, defining a paired-oracle target $\texttt{lift\_em}{=}+1$ conceptually motivated by \citet{mallen_when_2023}. This isolates the \emph{causal} retrieval-helpfulness signal from the length-correlated incorrectness signal that the published pool actually measures (\S\ref{sec:discussion-causal}). We also propose \textbf{FCT} (first-commitment time), a forward-looking variant of the answer-trajectory primitive \citep{datta_large_2026, wang_chain--probe_nodate, chen_i_2026, zhang_commit_2026}. FCT reads $K{=}5$ majority answers from non-thinking-mode chat models, where neither Datta's \texttt{</think>}-anchored forced completion nor \citeauthor{zhang_commit_2026}'s finite-set continuation projection applies directly (App.~\ref{sec:appendix-fct-tstar}). On the held-out 2Wiki cells, length itself becomes anti-predictive of retrieval need, inverting the verbosity-compensation pattern \citet{zhang_verbosity_2024} document on adjacent QA tasks.
 
-\paragraph{Contributions.}
-\begin{itemize}
-\item The first length-residualized audit of the dynamic-RAG trigger pool, on a paired-oracle target ($\texttt{lift\_em}{=}+1$): nine signals clear length at 95\% paired-bootstrap and four survive Bonferroni at $k{=}15$ across three families (attention, token-probability, answer-trajectory) on $n{=}800$ paired traces from one dense (Qwen2.5-7B) and one MoE-hybrid (Gemma-4-26B-A4B-it) open-weight chat model over HotpotQA and 2WikiMultiHopQA.
-\item \textbf{FCT} (first-commitment time), our forward-looking answer-trajectory variant, exceeds the length baseline by $\Delta = +0.190$ AUROC (Bonferroni LB $+0.047$) and reaches raw AUROC \textbf{0.784} on the held-out Gemma$\times$2Wiki cell.
-\item Robustness against the correctness-function critique of \citet{janiak_illusion_nodate} and \citet{ielanskyi_addressing_2025}: under a GPT-4o-Mini judge agreeing with EM at Cohen's $\kappa = 0.707$, all four Bonferroni-robust signals are preserved and FCT \emph{strengthens} to $\Delta = +0.222$.
-\end{itemize}
+\paragraph{Contributions.} (1) A length-residualized audit of the dynamic-RAG trigger pool, the first to our knowledge, scored against a paired-oracle target ($\texttt{lift\_em}{=}+1$). (2) \textbf{FCT} (first-commitment time), our forward-looking variant of the answer-trajectory primitive and the strongest length-orthogonal trigger in the audited pool. (3) A correctness-function robustness check against \citet{janiak_illusion_nodate} and \citet{ielanskyi_addressing_2025}, under which the survivor matrix is preserved and FCT \emph{strengthens}.
 
 \section{Related Work}
 \label{sec:related}
@@ -147,7 +142,7 @@ For each question $q$, we run two greedy decodes on the same chat model: a close
 \texttt{lift\_em}(q) = \mathbb{1}\!\left[\mathrm{EM}(a_o^{(q)}) > \mathrm{EM}(a_c^{(q)})\right],
 \label{eq:lift-em}
 \end{equation}
-which flags traces where retrieval would convert a wrong answer to right. The published trigger pool instead targets single-arm correctness, which length predicts moderately well on multi-hop QA (\S\ref{sec:discussion-causal}). Our target asks whether retrieval would have rescued the trace, isolating the causal retrieval-helpfulness signal from the length-correlated incorrectness pathway.
+which flags traces where retrieval would convert a wrong answer to right. The published trigger pool instead targets single-arm correctness, which length predicts moderately well on multi-hop QA (\S\ref{sec:discussion-causal}).
 
 We evaluate on HotpotQA \citep{yang_hotpotqa_2018} and 2WikiMultiHopQA \citep{ho_constructing_2020}, holding the latter out as a cross-dataset cell, at $n{=}200$ paired traces per architecture-by-dataset cell. The two models are Qwen2.5-7B-Instruct (dense) and Gemma-4-26B-A4B-it (MoE-hybrid), chosen for cross-architecture coverage within a single 80\,GB GPU budget. The positive class is rare: 108 of 800 paired traces, base rate $13.5\%$.
 
@@ -159,9 +154,7 @@ We adopt the residualization protocol of \citet{vashurin_uncertainty-line_2025}.
 s_{\text{resid}} = s - \hat{\alpha} - \hat{\beta}\,\log(\texttt{tokens} + 1).
 \label{eq:residualize}
 \end{equation}
-$\mathrm{AUROC}(s_{\text{resid}})$ then measures whether the signal carries information beyond length. We use $\log(\texttt{tokens}+1)$ rather than the raw $L$ of \citeauthor{vashurin_uncertainty-line_2025}'s shorter NMT and summarization traces, because multi-hop reasoning traces are long-tailed in token count and a linear-in-$\log L$ fit matches that geometry. The two parameterizations agree within $\varepsilon \leq 0.029$ AUROC against the public reference implementation on our cohorts (App.~\ref{sec:appendix-uline}).
-
-In their originating papers, ETC, FLARE, the SeaKR primitive, and SELFDOUBT-T1 are online or per-token signals. We evaluate each as a trace-level summary statistic, with granularity adapters detailed in Appendix~\ref{sec:appendix-adapters}.
+$\mathrm{AUROC}(s_{\text{resid}})$ then measures whether the signal carries information beyond length. We use $\log(\texttt{tokens}+1)$ rather than the raw $L$ of \citeauthor{vashurin_uncertainty-line_2025}'s shorter NMT and summarization traces, because multi-hop reasoning traces are long-tailed in token count and a linear-in-$\log L$ fit matches that geometry. The two parameterizations agree within $\varepsilon \leq 0.029$ AUROC against the public reference implementation on our cohorts (App.~\ref{sec:appendix-uline}). Several signals in the audited pool (ETC, FLARE, SeaKR, SELFDOUBT-T1) are originally online or per-token, and we evaluate each as a trace-level summary statistic with granularity adapters in Appendix~\ref{sec:appendix-adapters}.
 
 \subsection{FCT and the Answer-Trajectory Family}
 \label{sec:methods-fct}
@@ -225,19 +218,13 @@ The natural alternative explanation for the survivor matrix is that it reflects 
 
 A second design choice worth stress-testing is the $K{=}5$ sampling regime in the answer-trajectory family. On both architectures, the paired-bootstrap CI on $\Delta_{K{=}5 - K{=}1}$ for \texttt{flip\_rate} straddles zero (Qwen $-0.002$, $[-0.040, +0.031]$; Gemma $+0.033$, $[-0.025, +0.092]$; App.~\ref{sec:appendix-k-ablation}). The audit reports $K{=}5$ throughout because that was the capture protocol when the ablation came back null. Re-running at $K{=}1$ would not change the survivor matrix at our power, and for deployment $K{=}1$ delivers the same triggering performance at $5\times$ less compute per boundary.
 
-\subsection{Robustness Summary}
-\label{sec:results-robustness}
-
-The headline finding survives three modal critiques a length-confound reviewer would raise: the correctness-function critique (\S\ref{sec:results-llmjudge}), the sampling-regime ambiguity in the answer-trajectory family (\S\ref{sec:results-ablation}), and the dataset-cherry-picking critique. On the last, FCT discriminates strongest on the held-out Gemma~$\times$~2Wiki cell at raw AUROC \textbf{0.784} (\S\ref{sec:results-fct-percell}, \S\ref{sec:results-inverted}).
-
-
 \section{Discussion}
 \label{sec:discussion}
 
 \subsection{Why Length Predicts Retrieval-Helpfulness}
 \label{sec:discussion-causal}
 
-On the secondary $\texttt{closed\_em}{=}0$ target, \texttt{tokens\_generated} reaches raw AUROC $0.539$ on the headline pool, competitive with several internal signals. This pattern matches \citet{zhang_verbosity_2024}'s verbosity-compensation mechanism: longer responses when uncertain are a real LLM behavior on multi-hop QA. A plausible causal chain is $\text{length} \rightarrow \text{verbosity compensation} \rightarrow \text{uncertainty} \rightarrow \text{incorrectness} \rightarrow \text{retrieval need}$. Length predicts $\texttt{closed\_em}{=}0$ moderately well because it proxies the upstream incorrectness step. The paired-oracle target $\texttt{lift\_em}{=}+1$ strips that step by conditioning on closed-book wrongness, which is why length collapses on the held-out 2Wiki cells (\S\ref{sec:results-inverted}). Residualization (\S\ref{sec:methods-residualization}) provides the complementary control on any candidate trigger.
+On the secondary $\texttt{closed\_em}{=}0$ target, \texttt{tokens\_generated} reaches raw AUROC $0.539$ on the headline pool, competitive with several internal signals. This pattern matches \citet{zhang_verbosity_2024}'s verbosity-compensation mechanism. A plausible causal chain is $\text{length} \rightarrow \text{verbosity compensation} \rightarrow \text{uncertainty} \rightarrow \text{incorrectness} \rightarrow \text{retrieval need}$, and length predicts $\texttt{closed\_em}{=}0$ moderately well because it proxies the upstream incorrectness step. The paired-oracle target $\texttt{lift\_em}{=}+1$ strips that step by conditioning on closed-book wrongness, which is why length collapses on the held-out 2Wiki cells (\S\ref{sec:results-inverted}). Residualization (\S\ref{sec:methods-residualization}) provides the complementary control on any candidate trigger.
 
 \subsection{Why Answer-Trajectory Stability Predicts Retrieval Need}
 \label{sec:discussion-fct}
@@ -264,7 +251,7 @@ We presented the first length-residualized audit of the dynamic-RAG trigger pool
 
 \paragraph{Non-thinking-mode chat models.} The audited models are non-thinking-mode chat variants. \citet{datta_large_2026} developed their answer-trajectory primitive on thinking-mode reasoning models with explicit \texttt{</think>} tokens. Our $K{=}5$ boundary-completion adaptation is not byte-faithful to that protocol.
 
-\paragraph{Risks.} Our work concerns evaluation methodology for retrieval triggering on open-weight chat models and public multi-hop QA benchmarks. We release no new datasets or trained models, and direct risks are limited. One methodological risk is that the length-residualized protocol could be cited in isolation to defend deployed dynamic-RAG systems whose triggers track length more strongly than residualization alone would reveal. We therefore recommend reporting raw, length-residualized, and LLM-judge-validated AUROC together (\S\ref{sec:results-llmjudge}, \S\ref{sec:results-robustness}) rather than substituting one for another.
+\paragraph{Risks.} Our work concerns evaluation methodology for retrieval triggering on open-weight chat models and public multi-hop QA benchmarks. We release no new datasets or trained models, and direct risks are limited. One methodological risk is that the length-residualized protocol could be cited in isolation to defend deployed dynamic-RAG systems whose triggers track length more strongly than residualization alone would reveal. We therefore recommend reporting raw, length-residualized, and LLM-judge-validated AUROC together (\S\ref{sec:results-llmjudge}) rather than substituting one for another.
 
 % Bibliography
 \bibliography{custom}

@@ -105,7 +105,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. Recent work has shown this protocol is length-confounded on adjacent question-answering (QA) selective-prediction and uncertainty-quantification (UQ) tasks. We present the first length-residualized audit of the training-free dynamic-RAG trigger pool on a paired-oracle target ($\texttt{lift\_em}{=}+1$) that asks whether retrieval flips a wrong answer to a right one, isolating the causal retrieval-helpfulness signal from length-correlated incorrectness. Across two open-weight chat models on HotpotQA and 2WikiMultiHopQA ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap and only four survive Bonferroni at $k{=}15$. On the held-out 2Wiki cells, raw length collapses to at-or-below chance (AUROC $\leq 0.52$), and our \textbf{FCT} (first-commitment time, a forward-looking answer-trajectory signal) reaches raw AUROC $\textbf{0.784}$ on Gemma~$\times$~2Wiki, the strongest length-residualized signal in the pool. The survivor set is robust to a GPT-4o-Mini semantic-equivalence judge ($\kappa = 0.707$), and FCT itself \emph{strengthens} from $\Delta = +0.190$ to $\Delta = +0.222$ under the judge, the opposite of what a string-level (exact-match) EM artifact would predict.
+Dynamic retrieval-augmented generation systems decide \emph{when} to retrieve from a scalar trigger signal, scored by raw AUROC against binary correctness. Recent work has shown this protocol is length-confounded on adjacent question-answering (QA) selective-prediction and uncertainty-quantification (UQ) tasks. We present the first length-residualized audit of the training-free dynamic-RAG trigger pool on a paired-oracle target ($\texttt{lift\_em}{=}+1$) that asks whether retrieval flips a wrong answer to a right one, isolating the causal retrieval-helpfulness signal from length-correlated incorrectness. Across two open-weight chat models on HotpotQA and 2WikiMultiHopQA ($n{=}800$ paired traces), nine signals beat the length baseline at 95\% paired-bootstrap and only four survive Bonferroni at $k{=}15$. On the held-out 2Wiki cells, raw length collapses to at-or-below chance (AUROC $\leq 0.52$), and our \textbf{FCT} (first-commitment time, a forward-looking answer-trajectory signal) reaches raw AUROC $\textbf{0.784}$ on Gemma~$\times$~2Wiki, the strongest length-residualized signal in the pool. The survivor set is robust to a GPT-4o-Mini semantic-equivalence judge ($\kappa = 0.707$), and FCT itself \emph{strengthens} from $\Delta = +0.190$ to $\Delta = +0.222$ under the judge. 
 \end{abstract}
 
 \begin{figure}[!t]
@@ -173,9 +173,7 @@ t_{\text{commit}} &= \min\{\, k : m_j = a_{\text{final}} \;\forall\, j > k \,\},
 \end{equation}
 \noindent with $k \in \{0, \dots, n{-}1\}$.
 \end{itemize}
-\noindent Intuitively, FCT is the (normalized) decode position at which the model first committed to its final answer. For example, on a 5-step trace with per-step majorities $(m_1, \ldots, m_5) = (X, X, Y, Y, Y)$ and final answer $Y$, the smallest cutoff $k$ such that $m_j{=}Y$ for all $j{>}k$ is $t_{\text{commit}}{=}2$, so $\textsc{FCT}{=}\,2/4{=}0.5$ (a worked computation on a real \texttt{lift\_em}${=}{+}1$ trace from the headline pool is in App.~\ref{sec:appendix-prompts}). Low FCT denotes early commitment; high FCT denotes a trace that kept flipping until close to the end of the decode, the traces where retrieval is most likely to help. All four aggregations adapt the \texttt{AnswerSwitches} primitive of \citet{datta_large_2026} to non-thinking-mode chat models with $K{=}5$ majority-answer extracts. Neither Datta's \texttt{</think>}-anchored forced completion nor \citeauthor{zhang_when_2026}'s finite-set continuation projection applies directly in this regime (App.~\ref{sec:appendix-fct-tstar}).
-
-\paragraph{Continuous variant.} We additionally evaluate \textbf{CABV} (continuous answer-belief velocity), a between-step generalization of \texttt{flip\_rate} defined in App.~\ref{sec:appendix-cabv} and reported in Tables~\ref{tab:bonferroni} and \ref{tab:hero-full}.
+\noindent High FCT denotes late convergence: traces that have not settled on a final answer until close to the end of the decode are the traces where retrieval is most likely to help (worked example: App.~\ref{sec:appendix-prompts}). All four aggregations adapt the \texttt{AnswerSwitches} primitive of \citet{datta_large_2026} to non-thinking-mode chat models with $K{=}5$ majority-answer extracts. Neither Datta's \texttt{</think>}-anchored forced completion nor \citeauthor{zhang_when_2026}'s finite-set continuation projection applies directly in this regime (App.~\ref{sec:appendix-fct-tstar}).
 
 \section{Results}
 \label{sec:results}
@@ -290,7 +288,7 @@ etc ($\Delta^2 H$)        & $+0.107$ & $[+0.018, +0.196]$ & $[-0.026, +0.235]$ \
 \bottomrule
 \end{tabular}%
 }
-\caption{Bonferroni-corrected survivor set on the headline pool (Qwen+Gemma, $n{=}800$ paired, $\texttt{lift\_em}{=}+1$, $B{=}10{,}000$). The \texttt{etc} ($\Delta^2 H$) signal is the Entropy-Trend Constraint trigger of \citet{li_modeling_2026}.}
+\caption{Bonferroni-corrected survivor set on the headline pool (Qwen+Gemma, $n{=}800$ paired, $\texttt{lift\_em}{=}+1$, $B{=}10{,}000$). The \texttt{etc} ($\Delta^2 H$) signal is the Entropy-Trend Constraint trigger of \citet{li_modeling_2026}. CABV (continuous answer-belief velocity) is defined in App.~\ref{sec:appendix-cabv}.}
 \label{tab:bonferroni}
 \end{table}
 

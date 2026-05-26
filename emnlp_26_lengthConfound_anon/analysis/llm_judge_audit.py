@@ -1,64 +1,3 @@
-"""LLM-as-Judge robustness check for the headline survivor matrix.
-
-Replaces the exact-match (EM) correctness function with an LLM-issued
-semantic-equivalence judgement on both arms of the paired-oracle target.
-This is the Janiak 2025-style robustness check that the length-confound
-literature demands (Janiak, Santilli, Ielanskyi all explicitly recommend
-LLM-as-Judge over lexical-overlap correctness).
-
-Recipe (matches Janiak EMNLP 2025): a small-tier OpenAI model issues a
-binary YES/NO call on whether the predicted answer is semantically
-equivalent to the gold answer. Both closed-book and oracle decodes are
-judged with the same prompt; we then define
-
-    lift_em_judge(q) = 1[ judge(a_o)=YES  AND  judge(a_c)=NO ]
-
-and re-evaluate Δ = AUROC(s_resid) − AUROC(tokens) on the headline pool
-under this new target. Cohen's κ between lift_em and lift_em_judge is
-reported as the agreement metric (Janiak Cohen's κ = 0.799 for
-GPT-4o-Mini vs human; we report κ vs EM as the within-paper anchor).
-
-API setup
----------
-The OpenAI Python SDK auto-reads OPENAI_API_KEY from the environment. Per
-the official quickstart (https://developers.openai.com/api/docs/quickstart):
-
-    export OPENAI_API_KEY="sk-..."
-
-Two convenience fallbacks (in priority order):
-  1. $OPENAI_API_KEY environment variable (standard)
-  2. secrets/openai_api_key.txt (single-line file, gitignored)
-
-Model choice
-------------
-Default model is gpt-5-mini (the 2026 successor to gpt-4o-mini, which is
-what Janiak EMNLP 2025 used). Override with --model. For literal Janiak
-replication pass --model gpt-4o-mini. For paranoid cost control pass
---model gpt-5-nano.
-
-Cost @ gpt-5-mini, n=200 × 2 arms × 2 datasets × 2 archs = 1,600 calls of
-~80 input + 5 output tokens ≈ $0.05 total. (gpt-5-nano: ~$0.01.
-gpt-4o-mini: ~$0.10.)
-
-Caching
--------
-Every judgement is cached per (arch, dataset, qid, arm) under
-analysis/llm_judge_cache/. Re-runs skip cached entries; the script is
-resumable. Delete the cache directory to force a clean re-run.
-
-Usage
------
-    python analysis/llm_judge_audit.py --arch qwen2.5-7b-instruct
-    python analysis/llm_judge_audit.py --arch gemma-4-26b-a4b-it
-    python analysis/llm_judge_audit.py --arch both                 # pooled
-    python analysis/llm_judge_audit.py --arch both --model gpt-5-nano
-
-Outputs
--------
-    analysis/llm_judge_audit_<arch>.out    (per-arch + pooled summary)
-    analysis/llm_judge_audit_<arch>.json   (machine-readable)
-    analysis/llm_judge_cache/<arch>/<dataset>/<qid>_<arm>.json   (cache)
-"""
 from __future__ import annotations
 
 import argparse
@@ -117,14 +56,6 @@ Is the predicted answer semantically equivalent to the gold answer? Reply YES or
 # ============================================================================ #
 
 def resolve_api_key() -> str:
-    """Resolve the OpenAI API key from env var or secrets file.
-
-    The secrets file is parsed leniently: comment lines (starting with '#')
-    and blank lines are skipped; the first remaining non-blank line is
-    treated as the key.  This means you can paste your key into the
-    example file as-is, or into the canonical file without surrounding
-    comments — both work.
-    """
     env_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if env_key:
         return env_key
@@ -152,7 +83,6 @@ def resolve_api_key() -> str:
 
 
 def build_client():
-    """Lazy-import openai so importing this module doesn't require the SDK."""
     try:
         from openai import OpenAI
     except ImportError as exc:

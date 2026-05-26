@@ -1,39 +1,3 @@
-"""SOTA-baseline decode-time capture utilities (Phase 4.8 / 4.9 / 4.10 handoff).
-
-This module is the *engine-agnostic* feature-capture layer that the decode
-driver (`scripts/04f_run_qa_sota.py`) calls into to harvest the auxiliary
-signals that the three true-SOTA baselines need:
-
-  - DRAGIN (Su et al., `arXiv:2403.10081v3`) — per-token RIND score
-        ``RIND_i = H_i * a_max(i) * s_i``
-    where ``H_i`` is next-token entropy, ``a_max(i)`` is the max
-    attention an *already-generated* token receives from later tokens in
-    the last attention-bearing layer, and ``s_i`` is a 0/1 stopword
-    filter. Per-step decision = max RIND over the step's tokens.
-    See `RindAccumulator` below.
-
-  - ReaLM-Retrieve / RSUS (Guo et al., 2026) — per-step combination
-        ``RSUS = a*U_verb + b*U_ent + c*U_cons``
-    with paper-published weights (a=0.40, b=0.35, c=0.25) and a fixed
-    retrieval threshold τ=0.65. Each component is captured at a step
-    boundary by the helpers below.
-
-  - SELFDOUBT-Full (Pandey et al., 2026) — fuses Tier-1 HVR with
-    verbalized confidence via per-model z-scores. Shares ``U_verb``
-    capture with ReaLM-Retrieve so a single forward pass yields both.
-
-All non-trivial GPU calls (verbalized-confidence fork, consistency
-sampling) trim the KV cache back to its pre-fork sequence length on
-exit so the main generation trajectory is preserved bit-exactly — see
-`_AGENT.md` 2026-05-11 #16 for why we reject deep-copy forking on
-~40 GB caches.
-
-The module deliberately has zero hard dependency on transformers at
-import time; everything is type-late and behind a function boundary so
-the no-GPU dev box can still ``import scripts.crv.sota_capture`` for
-unit tests on the regex / BM25 / NER pieces.
-"""
-
 from __future__ import annotations
 
 import math
@@ -82,9 +46,6 @@ def _ensure_spacy_stopwords() -> set[str]:
             from spacy.lang.en.stop_words import STOP_WORDS  # type: ignore
             _SPACY_STOPWORDS = set(STOP_WORDS)
         except Exception:  # pragma: no cover - smoke-test will catch
-            # Fallback to a minimal-but-functional set so the gate
-            # remains operational if spaCy is not installed on the
-            # compute box. Documented in `_AGENT.md` #17.
             _SPACY_STOPWORDS = {
                 "a", "an", "the", "and", "or", "but", "is", "are", "was",
                 "were", "be", "been", "being", "have", "has", "had", "do",
@@ -116,26 +77,6 @@ def stopword_filter(token_text: str) -> int:
 
 
 def amax_from_last_layer_attentions(attentions_last: Any, token_pos: int) -> float:
-    """Max attention an already-generated token receives from later tokens.
-
-    DRAGIN's ``a_max(i)`` is defined (§3.2) as the maximum attention
-    received by token i from any subsequent token j > i in the *last*
-    transformer layer. With KV-cache decoding, at each generated step
-    we get attentions of shape ``[B, n_heads, q_len, kv_len]`` where
-    q_len == 1 (the new token's row only) and kv_len is the full cache
-    length so far. The "j > i" maximum therefore accumulates online:
-
-        per_token_amax[i] = max(per_token_amax[i], max_h a[h, 0, i])
-
-    after each new-token forward pass. This function returns that
-    single-step contribution; the caller (RindAccumulator) keeps the
-    running maximum per token position.
-
-    Hybrid-architecture note (Qwen 3.6 / Gated DeltaNet): full-attention
-    layers exist only at fixed strides. We use the last *full-attention*
-    layer for ``attentions_last``; the driver selects this layer by
-    config. See `_AGENT.md` 2026-05-11 #16 for layer-selection details.
-    """
     import torch
     a = attentions_last.detach().to(torch.float32)
     # a shape: [B, H, 1, kv_len]
@@ -145,14 +86,6 @@ def amax_from_last_layer_attentions(attentions_last: Any, token_pos: int) -> flo
 
 @dataclass
 class RindAccumulator:
-    """Streaming DRAGIN RIND score accumulator.
-
-    Call ``observe_new_token(token_text, entropy, prompt_len, ...)``
-    on every generated token, and ``ingest_attention_row(attn_last)``
-    every step so per-position a_max stays current. At each step
-    boundary call ``commit_step()`` to get the step's max RIND score
-    (or None if no content tokens in the step).
-    """
     prompt_len: int = 0
     per_pos_entropy: list[float] = field(default_factory=list)
     per_pos_amax: list[float] = field(default_factory=list)
@@ -400,24 +333,6 @@ class VerbalizedConfidenceProbe:
 
 
 class EntityEntropyScorer:
-    """Per-step entity grounding entropy via spaCy NER + BM25 over passages.
-
-    Guo et al. §3.2: extract NEs from the step text, look up each NE's
-    posterior over the 10 distractor passages by BM25 score, normalise
-    to a probability simplex, take the Shannon entropy in nats, and
-    average across NEs. Higher entropy = the step references entities
-    whose support is spread across passages = less confidently
-    grounded. We follow the paper exactly except for one substitution
-    noted below.
-
-    Substitution (documented in `_AGENT.md` 2026-05-11 #17):
-      Guo et al. use the BGE-M3 cross-encoder reranker for the
-      entity-grounding probability. We use BM25 (rank_bm25) because the
-      cross-encoder inference cost dominates per-step latency and is
-      out of scope for this iteration. The simulator caveat
-      ``u_ent_bm25_proxy_for_bge_reranker`` is stamped into every
-      emitted record.
-    """
 
     def __init__(self, paragraphs: Sequence[dict]) -> None:
         # paragraphs as in the HotpotQA-distractor dataset rows.
@@ -434,10 +349,6 @@ class EntityEntropyScorer:
         try:
             return spacy.load("en_core_web_sm")
         except OSError:
-            # Fallback: use the blank "en" pipeline with rule-based NER.
-            # The compute-box runbook (`_AGENT.md` #17) installs the
-            # full model; this branch keeps the smoke test green even
-            # if the model download is delayed.
             nlp = spacy.blank("en")
             return nlp
 

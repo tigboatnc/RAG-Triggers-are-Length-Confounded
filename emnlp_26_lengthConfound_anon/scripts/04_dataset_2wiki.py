@@ -1,40 +1,3 @@
-"""Phase 4 / #21 OOD slice assembly: 200-question 2WikiMultiHopQA-distractor
-slice for the zero-shot transfer test (Qwen3.6 only, frozen thresholds from
-HotpotQA #20 calibration).
-
-Mirrors ``scripts/04_dataset.py`` (HotpotQA) but for 2WikiMultiHopQA. All 200
-questions are tagged ``split = "ood_test"`` on disk: there is no calibration
-or validation partition because *no thresholds and no model-selection knobs
-are fit on this dataset* — this is a frozen-threshold OOD transfer test, not
-an in-distribution evaluation. See ``_AGENT.md`` #21 for the full
-pre-registration.
-
-Schema is otherwise byte-compatible with the HotpotQA slice so the existing
-sweep driver (``scripts/04f_run_qa_sota.py``) reads it without modification:
-
-  - split       (str): "ood_test" for every row
-  - split_idx   (int): row index in the source split
-  - id          (str): 2Wiki ``_id``
-  - question    (str)
-  - answer      (str)
-  - type        (str): "compositional" | "inference" | "comparison" | "bridge_comparison"
-  - level       (str): "" (2Wiki has no difficulty annotation; kept for schema parity)
-  - paragraphs  (list): [{paragraph_idx, title, sentences, joined_text}, ...]
-  - supporting_facts (list): [{title, sent_id}, ...]
-
-2WikiMultiHopQA source: the original release (Ho et al. 2020) stores
-``context`` as ``list[ [title, list[str_sentences]] ]`` (10 entries: ~2
-supporting + ~8 distractors). HF mirrors generally preserve this shape but
-field names vary. We try the most common mirror first
-(``xanhho/2WikiMultihopQA``), fall back to alternatives, and stamp the
-chosen mirror in the manifest so the audit trail is unambiguous. If none
-load cleanly the user is told which one to try with --hf-name.
-
-Usage:
-    python scripts/04_dataset_2wiki.py                  # default: 200 q, seed 20260511
-    python scripts/04_dataset_2wiki.py --n 5            # smoke slice
-    python scripts/04_dataset_2wiki.py --hf-name voidful/2WikiMultihopQA  # override mirror
-"""
 
 from __future__ import annotations
 
@@ -390,7 +353,6 @@ def main() -> None:
             "policy": (
                 "single ood_test split (no calibration, no validation). This "
                 "slice is evaluated under HotpotQA-frozen thresholds per "
-                "_AGENT.md #21 pre-registration; no knobs are tuned on it."
             ),
             "tag": SPLIT_TAG,
             "counts": {SPLIT_TAG: len(records)},
@@ -398,7 +360,6 @@ def main() -> None:
             "per_type_counts_in_source": type_counts,
             "contract": [
                 "ood_test: opened under frozen Qwen thresholds + mode from HotpotQA-distractor calibration (#20).",
-                "No threshold fitting on this slice. No model selection on this slice. See _AGENT.md #21.",
             ],
             "id_to_split": id_to_split,
         },
@@ -413,7 +374,6 @@ def main() -> None:
             "paragraphs: [{paragraph_idx, title, sentences, joined_text}, ...]",
             "supporting_facts: [{title, sent_id}, ...]",
         ],
-        "preregistration_entry": "_AGENT.md #21 (2026-05-11)",
         "frozen_thresholds_source": "runs/phase4_bootstrap_dragin.json (entry #20)",
     }
     with manifest_path.open("w") as f:

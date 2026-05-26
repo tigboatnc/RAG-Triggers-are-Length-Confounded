@@ -1,49 +1,4 @@
-"""Phase 4.8/4.9/4.10 driver: per-question multi-hop QA + true-SOTA captures.
 
-Drop-in replacement for ``scripts/04_run_qa.py`` that *additionally* captures
-the auxiliary signals the three true-SOTA baseline gates need:
-
-  - DRAGIN ``RIND = H_i * a_max(i) * s_i`` over content tokens
-    (requires ``output_attentions=True`` on the forward pass).
-  - ReaLM-Retrieve RSUS = α·U_verb + β·U_ent + γ·U_cons, with
-    α=0.40, β=0.35, γ=0.25, τ=0.65 (Guo et al. Footnote 1).
-  - SELFDOUBT-Full: Tier-1 HVR fused with U_verb by per-model z-scores.
-
-Reuses ``04_run_qa`` for chat-template / model-loading / grading / dataset
-plumbing (imported via ``importlib.import_module("04_run_qa")``) and only
-diverges in the decode loop, where the SOTA captures are interleaved.
-
-Output JSONL schema is a superset of ``runs/phase4_qa_<model>_<lm>.jsonl``:
-each step record gains the fields documented in
-``crv/baseline_gates.py`` ("Step-record contract for the SOTA gates").
-
-Compute envelope (per `_AGENT.md` 2026-05-11 #17):
-
-  - Verbalized-confidence probe:    ~12 extra forward steps per step boundary.
-  - Consistency sampling (K=3, 40t): ~120 extra forward steps per step boundary.
-  - Entity entropy:                 CPU-only spaCy + BM25; negligible.
-  - DRAGIN attention capture:       no extra compute (just ``output_attentions``).
-
-Estimated wall-clock at ~8 steps/question, 200 questions, 3 archs on A800:
-~15-18 hours total (matches Guo et al.'s reported overhead).
-
-Usage (compute box):
-  python scripts/04f_run_qa_sota.py --model qwen2.5-7b-instruct --limit 5  # smoke
-  python scripts/04f_run_qa_sota.py --model qwen2.5-7b-instruct            # full
-  python scripts/04f_run_qa_sota.py --model gemma-4-26b-a4b-it
-  python scripts/04f_run_qa_sota.py --model gemma-4-26b-a4b-it --no-cons   # skip U_cons
-
-TODO(compute-box):
-  - Verify ``output_attentions=True`` returns expected shape on each arch
-    (Qwen 3.6 hybrid stack may need ``attn_implementation="eager"`` because
-    flash-attention does not materialise attentions). See smoke test 04h.
-  - On Qwen 3.6, the layer index of the last *full-attention* block must
-    be passed via ``--dragin-attn-layer-idx``. The full-attention indices
-    are read from ``config.layer_types``; the smoke test prints them.
-  - Per-step wall-clock budget: the consistency sampler dominates. If
-    runtime overruns, drop K from 3 to 2 (``--cons-k 2``) — Guo et al.
-    Footnote 2 documents that this trades 0.4% AUROC for ~33% speed-up.
-"""
 
 from __future__ import annotations
 

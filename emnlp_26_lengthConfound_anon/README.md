@@ -94,10 +94,6 @@ shipped `.out` / `.json` files are the canonical numbers used in the paper.
 
 ## OpenAI API key (only needed for `llm_judge_audit.py`)
 
-The LLM-as-Judge robustness appendix requires an OpenAI API key. The script
-follows the [official quickstart](https://developers.openai.com/api/docs/quickstart)
-pattern and auto-resolves the key from one of two places, in priority order:
-
 1. **`OPENAI_API_KEY` environment variable** (recommended):
    ```bash
    export OPENAI_API_KEY="sk-..."
@@ -108,10 +104,6 @@ pattern and auto-resolves the key from one of two places, in priority order:
    cp secrets/openai_api_key.txt.example secrets/openai_api_key.txt
    # edit secrets/openai_api_key.txt and replace `sk-REPLACE-ME` with your key
    ```
-
-Get a key at https://platform.openai.com/api-keys. The `.gitignore` in this
-folder excludes `secrets/openai_api_key.txt` and `.env` so the key is never
-committed.
 
 ### Model choice
 
@@ -203,22 +195,3 @@ load both archs and produce the pooled headline numbers.
 Decoding: single NVIDIA A800 80 GB (or A100 80 GB / H100), driver 550+,
 CUDA 12.4+. Total wall ~15 h for the two-arch headline decode.
 Analysis: pure CPU + numpy, ~5 min total across all scripts at `B = 10,000`.
-
-## Citations to ship with the paper
-
-- Vashurin et al. 2025 — UNCERTAINTY-LINE (the residualisation protocol we adopt)
-- Santilli et al. 2025 — formal proof of length-confounded AUROC
-- Janiak et al. 2025 — "length rivals complex hallucination detection"
-- Y. Zhang et al. 2024 — verbosity compensation as the behavioural mechanism
-- Ielanskyi et al. 2025 — correctness-function-disagreement pitfall (motivates `lift_em` paired design)
-- Datta et al. 2026 — AnswerSwitches / `t*` (FCT's primitive parent)
-- Li et al. 2025 — ETC = Entropy-Trend Constraint (the `etc` Δ²H signal we audit)
-- Wang et al. 2025 — Chain-of-Probe (decide-early phenomenon)
-- Chen et al. 2026 — Dynamic Instability (corrective vs destructive timing)
-- Su et al. 2024 — DRAGIN (the attention-based survivor)
-- Manakul et al. 2023 — SelfCheckGPT (u_cons.max parent)
-- Jiang et al. 2023 — FLARE
-- Yao et al. — SeaKR
-- Mallen et al. 2023 — "when not to trust LMs" (lift_em conceptual parent)
-- Yang et al. 2018 — HotpotQA
-- Ho et al. 2020 — 2WikiMultiHopQA

@@ -1,77 +1,3 @@
-"""Phase 3 / 4 baseline gates.
-
-The active gate pool (as of `_AGENT.md` 2026-05-11 #16):
-
-  - ``SelfDoubtTier1Gate`` — true Hedge-to-Verify Ratio (HVR) gate from
-    Pandey et al. (`arXiv:2604.06389v1`). Computes
-    ``HVR_t = h_t / (v_t + 1)`` over the step text, where ``h_t`` is the
-    count of hedge markers and ``v_t`` is the count of verify markers in
-    the current step. Fires when ``HVR_t`` exceeds a calibrated threshold.
-    Adapted to per-step incremental firing from the paper's trace-final
-    framing; the adaptation is documented in the paper §5.
-
-  - ``EtcGate`` — Entropy-Trend Constraint from Li et al. (Modeling
-    Uncertainty Trends, 2026). Computes the second-order difference of
-    the per-step mean entropy series: ``D2H_t = H_{t+1} - 2 H_t + H_{t-1}``
-    and fires when ``|D2H_t|`` exceeds a calibrated threshold. Adapted
-    to step-mean entropy from the paper's per-token formulation; that
-    adaptation is also documented in the paper §5.
-
-  - ``RandomGate`` — Bernoulli baseline at the matched per-step rate.
-    Deterministic seed.
-
-  - ``LatentGateAdapter`` — wraps the CRV trigger so the showdown driver
-    can dispatch uniformly.
-
-Deprecated gates (kept for regression compatibility; never appear in §5/§6
-of the paper):
-
-  - ``RealmRetrieveSimGate`` — hybrid simulator combining a *stand-in* RSU
-    score (per-step mean next-token entropy) with a discourse-marker regex
-    branch we added. Documented as a simulator with two substitutions in
-    every emitted row's ``simulation_caveats`` field. The discourse-marker
-    branch was originally intended as a proxy for ReaLM-Retrieve's
-    hesitation cues; on careful reading of Guo et al. (2026) the actual
-    method uses a trained MLP proxy or the full RSUS equation, neither of
-    which this simulator implements. **Deprecated 2026-05-11; superseded
-    by the true ReaLM-RSUS implementation in `_PLAN.md` Phase 4.9 once
-    compute is available.**
-
-  - ``GripSimGate`` — hybrid simulator (entropy z-score conjunction with
-    discourse marker). GRIP requires SFT on 40 k samples + DAPO RL on 5 k
-    samples; reproducing it from forward-pass quantities is categorically
-    impossible. **Deprecated 2026-05-11; GRIP is moved to §2 Related Work
-    under training-required RAG, out of scope by design.**
-
-All four gates (these three + the latent ``CRVTrigger``) emit rows that
-match the unified Phase 3.4 schema::
-
-    {
-      "run_id":      str,           # provenance for joining across files
-      "model":       str,
-      "prompt_class": str,
-      "layer_mode":  str | None,    # None for non-latent gates (informational)
-      "step_idx":    int,           # logical step index at this boundary
-      "token_idx":   int,           # absolute decode-step index of boundary
-      "gate_name":   str,           # "latent" | "realm_sim" | "grip_sim" | "random"
-      "fired":       bool,
-      "score":       float,         # gate-internal score (higher = more "fire-y")
-      "reason":      str,           # short human explanation of which sub-rule fired
-      "simulation_caveats": list[str],  # L3 honesty: empty for latent + random; non-empty for the sims
-    }
-
-Discourse-marker patterns are precompiled regex (case-insensitive) so the
-text scan is O(L) per step. The pattern set is defensible-and-public:
-direct quotes from the ReaLM-Retrieve and GRIP papers' qualitative
-examples plus a small handful of common reasoning-model fillers
-("hmm,", "wait,", "on second thought").
-
-Public API: each gate has ``evaluate(step_record)`` returning a dict
-matching the schema above (minus ``run_id``/``model``/``prompt_class``,
-which are stamped in by the driver). ``RandomGate`` additionally has
-``calibrate_rate(other_gate_decisions)`` and ``finalize(step_records)``.
-"""
-
 from __future__ import annotations
 
 import random
@@ -649,26 +575,6 @@ class EtcGate:
         }
 
 
-# =============================================================================
-# Compute-required SOTA gates (Phase 4.8 / 4.9 / 4.10 — handoff to GPU box).
-#
-# These three gates consume *precomputed* per-step features harvested by the
-# decode driver (`scripts/04f_run_qa_sota.py`) via `crv.sota_capture`. They
-# perform no GPU work themselves — they are pure scoring functions over the
-# captured step records — so calibration and bootstrap analysis run identically
-# on the local dev box once the captured JSONLs have been transferred back.
-#
-# Step-record contract for the SOTA gates (in addition to the base contract):
-#
-#   - ``dragin_rind_max``       float — per-step max RIND from RindAccumulator
-#   - ``u_verb``                float | None — 1 - verbalized_confidence
-#   - ``u_ent``                 float — entity grounding entropy (normalised)
-#   - ``u_cons``                float — 1 - mean pairwise cosine of K samples
-#   - ``hvr``                   float — Hedge-to-Verify Ratio (regex)
-#
-# See `_AGENT.md` 2026-05-11 #17 for handoff state.
-# =============================================================================
-
 
 class DraginGate:
     """True DRAGIN RIND gate per Su et al. (`arXiv:2403.10081v3`), §3.2.
@@ -729,30 +635,6 @@ RSUS_THRESHOLD_DEFAULT: float = 0.65
 
 
 class RealmRsusGate:
-    """True ReaLM-Retrieve RSUS gate per Guo et al. (2026), §3.
-
-    Per-step decision::
-
-        RSUS = a * U_verb + b * U_ent + c * U_cons        (a, b, c published)
-        fired = RSUS > rsus_threshold
-
-    Each component is captured at the step boundary by
-    ``crv.sota_capture``:
-
-      - ``U_verb`` — 1 minus the model's verbalized confidence integer
-        on a KV-cache-forked probe ("Rate your confidence 0..100").
-      - ``U_ent``  — mean Shannon entropy (normalised to [0, 1]) of
-        BM25 posteriors over the 10 distractor passages for each
-        spaCy-NER entity in the step text.
-      - ``U_cons`` — 1 minus the mean pairwise sentence-BERT cosine
-        across K=3 forked continuations (T=0.6, top-p=0.9).
-
-    Scope note (per `_AGENT.md` 2026-05-11 #17): we evaluate ReaLM-
-    Retrieve's *detection* mechanism, not its RL-trained intervention
-    policy π_θ. The paper introduces RSUS as the detector that feeds
-    π_θ; we threshold RSUS directly. Reported as **ReaLM-RSUS
-    (Thresholded)** in the paper.
-    """
 
     name = "realm_rsus"
 

@@ -136,7 +136,7 @@ The length-confound critique of standard UQ AUROC evaluation comes from QA UQ an
 \subsection{Paired-Oracle \texttt{lift\_em} Protocol}
 \label{sec:methods-protocol}
 
-The published trigger pool scores against single-arm correctness, a target length predicts moderately well on multi-hop QA (\S\ref{sec:discussion-causal}). We instead define a paired target that flags traces where retrieval would convert a wrong answer to right, isolating the \emph{causal} retrieval-helpfulness signal from length-correlated incorrectness. Concretely, for each question $q$, we run two greedy decodes on the same chat model: a closed-book pass that produces trace $\tau_c^{(q)}$ and answer $a_c^{(q)}$, and an oracle pass conditioned on the gold supporting paragraphs that produces $a_o^{(q)}$. We read all trigger signals from $\tau_c^{(q)}$; the oracle decode only supplies the label. The discrimination target is
+The published trigger pool scores against single-arm correctness, a target length predicts moderately well on multi-hop QA (\S\ref{sec:discussion-causal}). We instead define a paired target that flags traces where retrieval would convert a wrong answer to right, isolating the \emph{causal} retrieval-helpfulness signal from length-correlated incorrectness. Concretely, for each question $q$, we run two greedy decodes on the same chat model: a closed-book pass that produces trace $\tau_c^{(q)}$ and answer $a_c^{(q)}$, and an oracle pass conditioned on the gold supporting paragraphs that produces $a_o^{(q)}$ (decoding prompts and answer-extraction details: App.~\ref{sec:appendix-prompts}). We read all trigger signals from $\tau_c^{(q)}$; the oracle decode only supplies the label. The discrimination target is
 
 \begin{equation}
 \texttt{lift\_em}(q) = \mathbb{1}\!\left[\mathrm{EM}(a_o^{(q)}) > \mathrm{EM}(a_c^{(q)})\right]
@@ -158,18 +158,18 @@ Intuitively, $s_{\text{resid}}$ keeps only the part of $s$ that length cannot li
 \subsection{FCT and the Answer-Trajectory Family}
 \label{sec:methods-fct}
 
-At each reasoning-step boundary (detected by tokenizer-level sentence-end token matchings), we sample $K{=}5$ boundary completions at temperature $\tau{=}0.6$, top-$p$~0.9, and extract a per-step answer from each via a regex over the model's \texttt{Answer:} prefix. From the resulting per-step $K{=}5$ majority sequence $\mathcal{M} = (m_1, \ldots, m_n)$ we compute four trace-level aggregations:
+At each reasoning-step boundary (detected by tokenizer-level sentence-end token matchings), we sample $K{=}5$ boundary completions at temperature $\tau{=}0.6$, top-$p$~0.9, and extract a per-step answer from each via a regex over the model's \texttt{Answer:} prefix (sampler config and extractor regex: App.~\ref{sec:appendix-prompts}). From the resulting per-step $K{=}5$ majority sequence $\mathcal{M} = (m_1, \ldots, m_n)$ we compute four trace-level aggregations:
 \begin{itemize}
 \item \texttt{flip\_rate}: fraction of consecutive-step majority disagreements;
 \item \texttt{late\_flips}: count of $K{=}5$ answer-\emph{set} disagreements in the last half of the trace;
 \item \texttt{min\_majority}: $1 - \min_t (\max_{\text{count}}/K)$, the worst within-step disagreement;
 \item \textbf{FCT}, a forward-looking first-commitment time
 \begin{equation}
-\textsc{FCT} = \frac{\min \{ i : m_j = a_{\text{final}} \;\forall\, j \geq i \}}{\max(1, n - 1)} \in [0, 1].
+\textsc{FCT} = \frac{t_{\text{commit}}}{\max(1, n - 1)} \in [0, 1], \;\; t_{\text{commit}} = \min\bigl\{\, k \in \{0, \dots, n{-}1\} : m_j = a_{\text{final}} \;\forall\, j > k \,\bigr\}.
 \label{eq:fct}
 \end{equation}
 \end{itemize}
-\noindent Intuitively, FCT is the (normalized) decode position at which the model first committed to its final answer. For example, on a 5-step trace with per-step majorities $(X, X, Y, Y, Y)$ and final answer $Y$ first reached at step $i{=}3$, FCT $= 3/4 = 0.75$. Low FCT denotes early commitment; high FCT denotes a trace that kept flipping until close to the end of the decode, the traces where retrieval is most likely to help. All four aggregations adapt the \texttt{AnswerSwitches} primitive of \citet{datta_large_2026} to non-thinking-mode chat models with $K{=}5$ majority-answer extracts. Neither Datta's \texttt{</think>}-anchored forced completion nor \citeauthor{zhang_when_2026}'s finite-set continuation projection applies directly in this regime (App.~\ref{sec:appendix-fct-tstar}).
+\noindent Intuitively, FCT is the (normalized) decode position at which the model first committed to its final answer. For example, on a 5-step trace with per-step majorities $(m_1, \ldots, m_5) = (X, X, Y, Y, Y)$ and final answer $Y$, the smallest cutoff $k$ such that $m_j{=}Y$ for all $j{>}k$ is $t_{\text{commit}}{=}2$, so $\textsc{FCT}{=}\,2/4{=}0.5$ (a worked computation on a real \texttt{lift\_em}${=}{+}1$ trace from the headline pool is in App.~\ref{sec:appendix-prompts}). Low FCT denotes early commitment; high FCT denotes a trace that kept flipping until close to the end of the decode, the traces where retrieval is most likely to help. All four aggregations adapt the \texttt{AnswerSwitches} primitive of \citet{datta_large_2026} to non-thinking-mode chat models with $K{=}5$ majority-answer extracts. Neither Datta's \texttt{</think>}-anchored forced completion nor \citeauthor{zhang_when_2026}'s finite-set continuation projection applies directly in this regime (App.~\ref{sec:appendix-fct-tstar}).
 
 \paragraph{Continuous variant.} We additionally evaluate \textbf{CABV} (continuous answer-belief velocity), a between-step generalization of \texttt{flip\_rate} defined in App.~\ref{sec:appendix-cabv} and reported in Tables~\ref{tab:bonferroni} and \ref{tab:hero-full}.
 
@@ -364,6 +364,62 @@ flare.max                 & $+0.080^{\ast}$  & $+0.115$ \\
 
 \paragraph{Caveat.} \citet{zheng_judging_2023} document that GPT-4-tier judges exhibit a verbosity bias, preferring longer responses; our cross-judge check demonstrates \emph{pattern stability} rather than full verbosity-independence. The load-bearing length-orthogonality argument rests on the \textsc{Uncertainty-Line} residualization (\S\ref{sec:methods-residualization}) and the paired-oracle design (\S\ref{sec:methods-protocol}); the judge check confirms the survivor matrix is not an artifact of any single correctness function.
 
+\section{Decoding Prompts, Answer Extraction, and a Worked Example}
+\label{sec:appendix-prompts}
+
+\paragraph{Closed-book and oracle decoding.} Both arms of the paired-oracle target (\S\ref{sec:methods-protocol}) use a single chat-template message pair with a system role and a user role; the oracle arm differs only by paragraph filtering (gold supporting paragraphs only, distractors removed). Decoding is greedy ($\arg\max$ over post-repetition-penalty logits with \texttt{repetition\_penalty}~$=1.0$ on both architectures), \texttt{max\_new\_tokens}~$=1024$, with early stop on EOS or the first \texttt{Answer:\,$\langle$...$\rangle$\textbackslash n} line (checked every 16 generated tokens to amortize the decode cost). The shared system instruction is
+
+\begin{quote}\small\itshape
+You are a careful reasoner. Read the provided paragraphs, think step by step, and answer the question concisely. End your response with a single line of the form \mbox{`Answer: $\langle$your answer$\rangle$'} where $\langle$your answer$\rangle$ is as short as possible (typically 1--5 words).
+\end{quote}
+
+\noindent and the user payload is rendered as
+
+\begin{quote}\small\ttfamily
+Paragraphs:\\[1pt]
+\mbox{[Paragraph 1: $\langle$Title 1$\rangle$]}\\
+$\langle$Body 1$\rangle$\\[1pt]
+\mbox{[Paragraph 2: $\langle$Title 2$\rangle$]}\\
+$\langle$Body 2$\rangle$\\[1pt]
+\dots\\[1pt]
+Question: $\langle$Q$\rangle$\\[1pt]
+Reason step by step, then end with \mbox{`Answer: ...'}.
+\end{quote}
+
+\noindent Both messages are rendered through each model's native chat template via Hugging Face \texttt{apply\_chat\_template} with default kwargs (no thinking-mode toggle on either model; Qwen2.5 has none, Gemma-4-26B-A4B-it leaves the thought channel empty under defaults). On HotpotQA the closed-book arm sees all 10 distractor paragraphs; the oracle arm sees only paragraphs whose title appears in the gold \texttt{supporting\_facts} (typically 2). Per-step boundary detection fires on tokenizer-level sentence-end tokens (period, newline, etc.) with a 32-token cap.
+
+\paragraph{$K{=}5$ boundary completions.} At each detected boundary, the model state is forked from the cached \texttt{past\_key\_values} and 5 continuations are sampled at $\tau{=}0.6$, top-$p{=}0.9$, \texttt{max\_new\_tokens}~$=40$, multinomial over the nucleus, with the cache truncated back to the boundary on exit. Random seed $20260511$ is offset per step. The same $K{=}5$ samples feed both the answer-trajectory family (\S\ref{sec:methods-fct}) and the SeaKR-K=5 hidden proxy (App.~\ref{sec:appendix-adapters}).
+
+\paragraph{Trace-level answer extraction.} The final-answer extractor scans for the \emph{last} occurrence of one of \{\texttt{final answer:}, \texttt{final\_answer:}, \texttt{answer:}, \texttt{\#\# answer}, \texttt{**answer**}, \texttt{**final answer**}\} (case-insensitive) whose payload does not begin with a placeholder echo (\texttt{<} or \texttt{[}), takes the first non-empty line, truncates at the first sentence-end punctuation followed by whitespace, splits at the first lower\texttt{->}upper seam past character 1 (defensive against decode-loop concatenation artefacts), and hard-caps at 100 characters. EM uses HotpotQA-standard SQuAD normalization: lowercase, strip articles ($\{a, an, the\}$), drop punctuation, collapse whitespace.
+
+\paragraph{Per-step answer extraction (FCT input).} The per-step answer regex is intentionally tighter and faster, since it runs $5n$ times per trace:
+\begin{quote}\small\ttfamily
+\textbackslash bAnswer\textbackslash s*:\textbackslash s*(.+?)(?:[\textbackslash n.]|\$)
+\end{quote}
+\noindent (\texttt{re.IGNORECASE}). Per-step normalization keeps only \texttt{[a-z0-9 ]}, lowercases, and truncates at 30 characters. Per-step majority is \texttt{Counter(answers).most\_common(1)[0][0]}; FCT (Eq.~\ref{eq:fct}) is then the smallest index $t_{\text{commit}}$ such that every populated step at or after $t_{\text{commit}}$ has majority equal to the trace-level final answer, normalized by $\max(1, n_{\text{populated}}{-}1)$.
+
+\paragraph{Worked example.} Qwen2.5-7B-Instruct $\times$ HotpotQA, question \texttt{5abd01205542992ac4f3819b} (a real \texttt{lift\_em}${=}{+}1$ trace from the headline pool):
+\begin{quote}\small
+\textbf{Q:} ``Mummulgum is a stop on the Bruxner Highway before reaching the town on the banks of which river?''\\
+\textbf{Gold:} \emph{Richmond}\\
+\textbf{Closed-book final answer:} \emph{Casino} (EM${=}0$)\\
+\textbf{Oracle final answer:} \emph{Richmond} (EM${=}1$)\\
+$\Rightarrow$ \texttt{lift\_em}${=}{+}1$.
+\end{quote}
+The closed-book trace has $n{=}3$ step boundaries. Per-step $K{=}5$ majority answers extracted from the boundary completions:
+\begin{center}\small
+\begin{tabular}{@{}rll@{}}
+\toprule
+\textbf{step} & \textbf{$K{=}5$ extracted answers} & \textbf{majority} \\
+\midrule
+1 & \{\texttt{casino}\} (1/5 emit \texttt{Answer:})       & \texttt{casino} \\
+2 & \{\texttt{casino}$\times$4, \texttt{richmond river}\} & \texttt{casino} \\
+3 & \{\texttt{casino}$\times$5\}                          & \texttt{casino} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent All three step-majorities equal the trace-level final answer (\texttt{casino}), so $t_{\text{commit}}{=}0$ and \textbf{FCT} ${=}\,0/(3{-}1){=}0.000$. This trace is a per-trace \emph{false negative} for FCT: the model committed to a wrong answer early, a mode FCT cannot distinguish from confident-correct early commitment. Aggregate FCT raw AUROC on \texttt{lift\_em}${=}{+}1$ is $0.784$ on Gemma~$\times$~2Wiki (Table~\ref{tab:fct-percell}); the Bonferroni 99.67\% lower bound is $+0.047$ (Table~\ref{tab:bonferroni}). FCT is the strongest length-orthogonal discriminator in the audited pool, not a per-trace oracle. The full trace JSON (closed and oracle arms, all 5 boundary samples per step, per-token logprobs, per-step entropies, hidden-state captures, gate decisions) will be released with the code (App.~\ref{sec:appendix-repro}).
+
 \section{Uncertainty-Line Reference Replication}
 \label{sec:appendix-uline}
 
@@ -470,7 +526,7 @@ Gemma & 394 & 42 & $+0.033$ & $[-0.025, +0.092]$ \\
 \section{Adapter Notes}
 \label{sec:appendix-adapters}
 
-We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limitations}). Several primitives in the published trigger pool are originally framed as online per-token triggers or per-trace scores, and we evaluate their underlying statistic at the trace level. The per-signal notes below state the original primitive, our trace-level adaptation, and any sign or granularity drift.
+We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limitations}). Several primitives in the published trigger pool are originally framed as online per-token triggers or per-trace scores, and we evaluate their underlying statistic at the trace level on the closed-book trace $\tau_c^{(q)}$ decoded with the prompt of App.~\ref{sec:appendix-prompts}. The per-signal notes below state the original primitive, our trace-level adaptation, and any sign or granularity drift.
 
 \paragraph{ETC \citep{li_modeling_2026}.} The original ETC operates on a token-level entropy stream; we evaluate $\Delta^2 H$ on the per-step mean entropy series captured at boundary-detection events (\S\ref{sec:methods-fct}). We score $\max |\Delta^2 H|$ rather than the signed second-difference, so the adapter is magnitude-faithful but not sign-faithful.
 
@@ -485,7 +541,7 @@ We audit signal-level discriminative power on \texttt{lift\_em} (\S\ref{sec:limi
 \section{Reproducibility}
 \label{sec:appendix-repro}
 
-All trace JSONLs are committed at \texttt{runs/v2\_headline\_\{arch\}/} for arch $\in$ \{qwen2.5-7b-instruct, gemma-4-26b-a4b-it\}. Slice manifests with SHA-256 checksums are at \texttt{runs/v2\_headline\_\{arch\}/checkpoints/slice\_manifest.json}, and decoding command lines are at \texttt{runs/v2\_headline\_\{arch\}/logs/00\_master.log}. Analysis scripts are at \texttt{analysis/r1\_paired\_audit.py}, \texttt{analysis/a1\_k1\_vs\_k5\_ablation.py}, \texttt{analysis/uncertainty\_line\_audit.py}, \texttt{analysis/moonshot\_explore.py}, \texttt{analysis/llm\_judge\_audit.py}, and \texttt{analysis/e7\_bonferroni\_and\_spearman.py} (the last produces Table~\ref{tab:bonferroni} and Table~\ref{tab:spearman}). The judge cache contains 1{,}600 per-call JSONs (oracle and closed arm for each of 800 paired traces) at \texttt{analysis/llm\_judge\_cache/}. Compute box: single NVIDIA A800 80\,GB, wall-clock $\sim$15\,h.
+All decoding traces, paired closed-vs-oracle JSONLs, slice manifests with SHA-256 checksums, decoding command lines, and the LLM-as-Judge call cache (1{,}600 per-call JSONs, oracle and closed arm for each of 800 paired traces) will be released alongside the analysis scripts that produce every table and figure in this paper, including the worked example trace of App.~\ref{sec:appendix-prompts}. Compute box: single NVIDIA A800 80\,GB, wall-clock $\sim$15\,h end-to-end.
 
 \end{document}
 

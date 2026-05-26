@@ -1,5 +1,162 @@
-% Bibliography for the paper. Only entries actually cited in main.tex are kept.
+% Use this file for citations not found in the ACL Anthology (contained in "anthology.bib").
 
+@book{Aho:72,
+    author  = {Alfred V. Aho and Jeffrey D. Ullman},
+    title   = {The Theory of Parsing, Translation and Compiling},
+    year    = "1972",
+    volume  = "1",
+    publisher = {Prentice-Hall},
+    address = {Englewood Cliffs, NJ}
+}
+
+@book{APA:83,
+    author  = {{American Psychological Association}},
+    title   = {Publications Manual},
+    year    = "1983",
+    publisher = {American Psychological Association},
+    address = {Washington, DC}
+}
+
+@article{Chandra:81,
+	author = {Ashok K. Chandra and Dexter C. Kozen and Larry J. Stockmeyer},
+	year = "1981",
+	title = {Alternation},
+	journal = {Journal of the Association for Computing Machinery},
+	volume = "28",
+	number = "1",
+	pages = "114--133",
+	doi = "10.1145/322234.322243",
+}
+
+@inproceedings{andrew2007scalable,
+  title={Scalable training of {L1}-regularized log-linear models},
+  author={Andrew, Galen and Gao, Jianfeng},
+  booktitle={Proceedings of the 24th International Conference on Machine Learning},
+  pages={33--40},
+  year={2007},
+}
+
+@book{Gusfield:97,
+    author  = {Dan Gusfield},
+    title   = {Algorithms on Strings, Trees and Sequences},
+    year    = "1997",
+    publisher = {Cambridge University Press},
+    address = {Cambridge, UK}
+}
+
+@article{rasooli-tetrault-2015,
+    author    = {Mohammad Sadegh Rasooli and Joel R. Tetreault},
+    title     = {Yara Parser: {A} Fast and Accurate Dependency Parser},
+    journal   = {Computing Research Repository},
+    volume    = {arXiv:1503.06733},
+    year      = {2015},
+    url       = {http://arxiv.org/abs/1503.06733},
+    note    = {version 2}
+}
+
+@article{Ando2005,
+	Acmid = {1194905},
+	Author = {Ando, Rie Kubota and Zhang, Tong},
+	Issn = {1532-4435},
+	Issue_Date = {12/1/2005},
+	Journal = {Journal of Machine Learning Research},
+	Month = dec,
+	Numpages = {37},
+	Pages = {1817--1853},
+	Publisher = {JMLR.org},
+	Title = {A Framework for Learning Predictive Structures from Multiple Tasks and Unlabeled Data},
+	Volume = {6},
+	Year = {2005}
+}
+
+@misc{bocharnikov_kv_2026,
+    title = {{KV} {Cache} {Offloading} for {Context}-{Intensive} {Tasks}},
+    url = {http://arxiv.org/abs/2604.08426},
+    doi = {10.48550/arXiv.2604.08426},
+    abstract = {With the growing demand for long-context LLMs across a wide range of applications, the key–value (KV) cache has become a critical bottleneck for both latency and memory usage. Recently, KV-cache offloading has emerged as a promising approach to reduce memory footprint and inference latency while preserving accuracy. Prior evaluations have largely focused on tasks that do not require extracting large amounts of information from the context. In this work, we study KV-cache offloading on context-intensive tasks: problems where the solution requires looking up a lot of information from the input prompt. We create and release the Text2JSON benchmark, a highly context-intensive task that requires extracting structured knowledge from raw text. We evaluate modern KV offloading on Text2JSON and other context-intensive tasks and find significant performance degradation on both Llama 3 and Qwen 3 models. Our analysis identifies two key reasons for poor accuracy: low-rank projection of keys and unreliable landmarks, and proposes a simpler alternative strategy that significantly improves accuracy across multiple LLM families and benchmarks. These findings highlight the need for a comprehensive and rigorous evaluation of long-context compression techniques.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Bocharnikov, Andrey and Ermakov, Ivan and Kuznedelev, Denis and Zhdanovskiy, Vyacheslav and Yershov, Yegor},
+    month = may,
+    year = {2026},
+    note = {arXiv:2604.08426 [cs]},
+    keywords = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language, Computer Science - Machine Learning},
+}
+@misc{yang_gated_2025,
+    title = {Gated {Delta} {Networks}: {Improving} {Mamba2} with {Delta} {Rule}},
+    shorttitle = {Gated {Delta} {Networks}},
+    url = {http://arxiv.org/abs/2412.06464},
+    doi = {10.48550/arXiv.2412.06464},
+    abstract = {Linear Transformers have gained attention as efficient alternatives to standard Transformers, but their performance in retrieval and long-context tasks has been limited. To address these limitations, recent work has explored two distinct mechanisms: gating for adaptive memory control and the delta update rule for precise memory modifications. We observe that these mechanisms are complementary: gating enables rapid memory erasure while the delta rule facilitates targeted updates. Building on this insight, we introduce the gated delta rule and develop a parallel training algorithm optimized for modern hardware. Our proposed architecture, Gated DeltaNet, consistently surpasses existing models like Mamba2 and DeltaNet across multiple benchmarks, including language modeling, common-sense reasoning, in-context retrieval, length extrapolation, and long-context understanding. We further enhance performance by developing hybrid architectures that combine Gated DeltaNet layers with sliding window attention or Mamba2 layers, achieving both improved training efficiency and superior task performance.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Yang, Songlin and Kautz, Jan and Hatamizadeh, Ali},
+    month = mar,
+    year = {2025},
+    note = {arXiv:2412.06464 [cs]},
+    keywords = {Computer Science - Computation and Language, Computer Science - Machine Learning},
+}
+@misc{sun_fg2-gdn_2026,
+    title = {{FG}\${\textasciicircum}2\$-{GDN}: {Enhancing} {Long}-{Context} {Gated} {Delta} {Networks} with {Doubly} {Fine}-{Grained} {Control}},
+    copyright = {Creative Commons Attribution 4.0 International},
+    shorttitle = {{FG}\${\textasciicircum}2\$-{GDN}},
+    url = {https://arxiv.org/abs/2604.19021},
+    doi = {10.48550/ARXIV.2604.19021},
+    abstract = {Linear attention mechanisms have emerged as promising alternatives to softmax attention, offering linear-time complexity during inference. Recent advances such as Gated DeltaNet (GDN) and Kimi Delta Attention (KDA) have demonstrated that the delta rule an online gradient descent update enables superior associative recall compared to simple additive updates. While KDA refined the coarse headwise decay gate into channel-wise decay, the learning rate βt in the delta update remains a scalar, limiting the model’s capacity for dimension-specific adaptation. We introduce FG2-GDN, which replaces the scalar βt with a channel-wise vector analogous to the transition from SGD to per-coordinate adaptive optimizers such as AdaGrad and Adam. We further propose FG2-GDN+, which decouples the scaling for keys and values, enabling independent control of erasure strength and write strength. Experiments on synthetic and real-world benchmarks show that FG2GDN and its variant improve associative recall and long-context understanding over GDN and KDA, with comparable computational efficiency.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Sun, Pingwei and Hu, Yuxuan and Tan, Jianchao and Wang, Xue and Zhang, Jiaqi and Lu, Yifan and Sun, Yerui and Xie, Yuchen and Cai, Xunliang},
+    year = {2026},
+    note = {Version Number: 2},
+    keywords = {FOS: Computer and information sciences, Machine Learning (cs.LG)},
+}
+@misc{gupta_persistent-state_2026,
+    title = {A {Persistent}-{State} {Dataflow} {Accelerator} for {Memory}-{Bound} {Linear} {Attention} {Decode} on {FPGA}},
+    url = {http://arxiv.org/abs/2603.05931},
+    doi = {10.48550/arXiv.2603.05931},
+    abstract = {Gated DeltaNet (GDN) is a linear attention mechanism that replaces the growing KV cache with a fixed-size recurrent state. Hybrid LLMs like Qwen3-Next use 75\% GDN layers and achieve competitive accuracy to attention-only models. However, at batch-1, GDN decode is memory-bound on GPUs since the full recurrent state must be round-tripped through HBM every token. We show that this bottleneck is architectural, not algorithmic, as all subquadratic sequence models exhibit arithmetic intensities below 1 FLOP/B at decode time, making them more memory-bound than standard Transformers. We present an FPGA accelerator that eliminates this bottleneck by holding the full 2 MB recurrent state persistently in onchip BRAM, converting the workload from memory-bound to compute-bound. Our design fuses the GDN recurrence into a five-phase pipelined datapath that performs only one read and one write pass over each state matrix per token, exploits Grouped Value Attention for paired-head parallelism, and overlaps preparation, computation, and output storage via dataflow pipelining. We explore four design points on an AMD Alveo U55C using Vitis HLS, varying head-level parallelism from 2 to 16 value-heads per iteration. Our fastest configuration achieves 63 µs per token, 4.5× faster than the GPU reference on NVIDIA H100 PCIe. Postimplementation power analysis reports 9.96 W on-chip, yielding up to 60× greater energy efficiency per token decoded.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Gupta, Neelesh and Wang, Peter and Kannan, Rajgopal and Prasanna, Viktor K.},
+    month = mar,
+    year = {2026},
+    note = {arXiv:2603.05931 [cs]},
+    keywords = {Computer Science - Hardware Architecture, Computer Science - Machine Learning},
+}
+@misc{manik_gemma_2026,
+    title = {Gemma 4, {Phi}-4, and {Qwen3}: {Accuracy}-{Efficiency} {Tradeoffs} in {Dense} and {MoE} {Reasoning} {Language} {Models}},
+    shorttitle = {Gemma 4, {Phi}-4, and {Qwen3}},
+    url = {http://arxiv.org/abs/2604.07035},
+    doi = {10.48550/arXiv.2604.07035},
+    abstract = {Mixture-of-experts (MoE) language models are often expected to offer better quality–efficiency tradeoffs than dense models because only a subset of parameters is activated per token, but the practical value of that advantage depends on end-to-end behavior under realistic inference constraints. We present a controlled empirical benchmark of seven recent reasoning-oriented instruction-tuned models spanning dense and MoE designs, namely Gemma-4-E2B, Gemma-4E4B, Gemma-4-26B-A4B, Phi-4-mini-reasoning, Phi-4-reasoning, Qwen3-8B, and Qwen3-30BA3B, evaluated on four benchmarks—ARC-Challenge, GSM8K, Math Level 1–3, and TruthfulQA MC1—under three prompting strategies: zero-shot, chain-of-thought, and few-shot chain-ofthought. The study covers 8,400 total model–dataset–prompt evaluations and records accuracy, latency, peak GPU memory usage (VRAM), and an approximate floating-point operations (FLOPs)-per-token proxy. Across the weighted multi-task summary, Gemma-4-E4B with fewshot chain-of-thought achieved the best overall result, reaching weighted accuracy 0.675 with mean VRAM 14.9 GB, while Gemma-4-26B-A4B was close in accuracy at 0.663 but substantially more memory intensive at 48.1 GB. At the task level, Gemma models dominated ARC and Math, Phi models were strongest on TruthfulQA, and GSM8K showed the largest prompt sensitivity, including a sharp drop for Phi-4-reasoning from 0.67 under chain-of-thought to 0.11 under few-shot chain-of-thought. These results show that sparse activation alone does not guarantee the best practical operating point: observed accuracy–efficiency tradeoffs depend jointly on architecture, prompting protocol, and task composition. We release a reproducible benchmark pipeline, aggregated results, and paired statistical analyses to support deployment-oriented evaluation of reasoning LLMs under real resource constraints.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Manik, Md Motaleb Hossen and Wang, Ge},
+    month = apr,
+    year = {2026},
+    note = {arXiv:2604.07035 [cs]},
+    keywords = {Computer Science - Computation and Language},
+}
+@misc{ainslie_gqa_2023,
+    title = {{GQA}: {Training} {Generalized} {Multi}-{Query} {Transformer} {Models} from {Multi}-{Head} {Checkpoints}},
+    shorttitle = {{GQA}},
+    url = {http://arxiv.org/abs/2305.13245},
+    doi = {10.48550/arXiv.2305.13245},
+    abstract = {Multi-query attention (MQA), which only uses a single key-value head, drastically speeds up decoder inference. However, MQA can lead to quality degradation, and moreover it may not be desirable to train a separate model just for faster inference. We (1) propose a recipe for uptraining existing multi-head language model checkpoints into models with MQA using 5\% of original pre-training compute, and (2) introduce grouped-query attention (GQA), a generalization of multi-query attention which uses an intermediate (more than one, less than number of query heads) number of key-value heads. We show that uptrained GQA achieves quality close to multi-head attention with comparable speed to MQA.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Ainslie, Joshua and Lee-Thorp, James and Jong, Michiel de and Zemlyanskiy, Yury and Lebrón, Federico and Sanghai, Sumit},
+    month = dec,
+    year = {2023},
+    note = {arXiv:2305.13245 [cs]},
+    keywords = {Computer Science - Computation and Language, Computer Science - Machine Learning},
+}
 @misc{zhang_harnessing_2026,
     title = {Harnessing {Reasoning} {Trajectories} for {Hallucination} {Detection} via {Answer}-agreement {Representation} {Shaping}},
     url = {http://arxiv.org/abs/2601.17467},
@@ -14,7 +171,67 @@
     note = {arXiv:2601.17467 [cs]},
     keywords = {Computer Science - Machine Learning},
 }
-
+@misc{zhang_100_2025,
+    title = {100 {Days} {After} {DeepSeek}-{R1}: {A} {Survey} on {Replication} {Studies} and {More} {Directions} for {Reasoning} {Language} {Models}},
+    shorttitle = {100 {Days} {After} {DeepSeek}-{R1}},
+    url = {http://arxiv.org/abs/2505.00551},
+    doi = {10.48550/arXiv.2505.00551},
+    abstract = {The recent development of reasoning language models (RLMs) represents a novel evolution in large language models. In particular, the recent release of DeepSeekR1 has generated widespread social impact and sparked enthusiasm in the research community for exploring the explicit reasoning paradigm of language models. However, the implementation details of the released models have not been fully open-sourced by DeepSeek, including DeepSeek-R1-Zero, DeepSeek-R1, and the distilled small models. As a result, many replication studies have emerged aiming to reproduce the strong performance achieved by DeepSeek-R1, reaching comparable performance through similar training procedures and fully open-source data resources. These works have investigated feasible strategies for supervised finetuning (SFT) and reinforcement learning from verifiable rewards (RLVR), focusing on data preparation and method design, yielding various valuable insights. In this report, we provide a summary of recent replication studies to inspire future research. We primarily focus on SFT and RLVR as two main directions, introducing the details for data construction, method design and training procedure of current replication studies. Moreover, we conclude key findings from the implementation details and experimental results reported by these studies, anticipating to inspire future research. We also discuss additional techniques of enhancing RLMs, highlighting the potential of expanding the application scope of these models, and discussing the challenges in development. By this survey, we aim to help researchers and developers of RLMs stay updated with the latest advancements, and seek to inspire new ideas to further enhance RLMs.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Zhang, Chong and Deng, Yue and Lin, Xiang and Wang, Bin and Ng, Dianwen and Ye, Hai and Li, Xingxuan and Xiao, Yao and Mo, Zhanfeng and Zhang, Qi and Bing, Lidong},
+    month = may,
+    year = {2025},
+    note = {arXiv:2505.00551 [cs]},
+    keywords = {Computer Science - Computation and Language},
+}
+@article{fu_multiple_2026,
+    title = {Multiple {Choice} {Questions}: {Reasoning} {Makes} {Large} {Language} {Models} ({LLMs}) {More} {Self}-{Confident}, {Especially} {When} {They} are {Wrong}},
+    issn = {1541-1672, 1941-1294},
+    shorttitle = {Multiple {Choice} {Questions}},
+    url = {http://arxiv.org/abs/2501.09775},
+    doi = {10.1109/MIS.2026.3660833},
+    abstract = {Multiple Choice Question (MCQ) tests are among the most used methods for evaluating large language models (LLMs). Besides checking the correctness of the selected answer, evaluations often consider the model’s confidence through the probability assigned to its response. In this work, we investigate how LLM confidence is influenced by the answering approach when the model answers directly or reasons before responding. Experiments on a general knowledge benchmark, covering 57 subjects and seven LLMs, show that models are systematically more confident when providing reasoning before answering, and that this confidence increase is larger when the selected answer is incorrect than when it is correct. We hypothesize that the reasoning process alters token probabilities, as the final answer prediction depends jointly on the question and the model’s self-generated reasoning, leading to inflated confidence estimates. Using standard calibration metrics such as Expected Calibration Error and Brier score, we further show that Chain-of-Thought (CoT) prompting degrades calibration by increasing the proportion of high-confidence wrong answers. These findings indicate that, in MCQ evaluation settings with CoT prompting, LLM-estimated probabilities should be used with caution as a basis for evaluation and metacognitive mechanisms.},
+    language = {en},
+    urldate = {2026-05-11},
+    journal = {IEEE Intelligent Systems},
+    author = {Fu, Tairan and Conde, Javier and Martínez, Gonzalo and Grandury, María and Reviriego, Pedro},
+    year = {2026},
+    note = {arXiv:2501.09775 [cs]},
+    keywords = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language},
+    pages = {1--10},
+}
+@misc{wu_when_2025,
+    title = {When {More} is {Less}: {Understanding} {Chain}-of-{Thought} {Length} in {LLMs}},
+    shorttitle = {When {More} is {Less}},
+    url = {http://arxiv.org/abs/2502.07266},
+    doi = {10.48550/arXiv.2502.07266},
+    abstract = {Large Language Models (LLMs) employ Chain-of-Thought (CoT) reasoning to deconstruct complex problems. While longer CoTs are often presumed superior, this paper challenges that notion, arguing that longer is not always better. Drawing on combined evidence from real-world observations, controlled experiments, and theoretical analysis, we demonstrate that task accuracy typically follows an inverted U-shaped curve with CoT length, where performance initially improves but eventually decreases as the number of CoT steps increases. With controlled experiments, we further uncover the scaling behaviors of the optimal CoT length: it increases with task difficulty but decreases with model capability, exposing an inherent simplicity bias where more capable models favor shorter, more efficient CoT reasoning. This bias is also evident in Reinforcement Learning (RL) training, where models gravitate towards shorter CoTs as their accuracy improves. To have a deep understanding of these dynamics, we establish a simple theoretical model that formally proves these phenomena, including the optimal length’s scaling laws and the emergence of simplicity bias during RL. Guided by this framework, we demonstrate significant practical benefits from training with optimally-lengthed CoTs and employing length-aware filtering at inference. These findings offer both a principled understanding of the "overthinking" phenomenon and multiple practical guidelines for CoT calibration, enabling LLMs to achieve optimal reasoning performance with adaptive CoTs tailored to task complexity and model capability.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Wu, Yuyang and Wang, Yifei and Ye, Ziyu and Du, Tianqi and Jegelka, Stefanie and Wang, Yisen},
+    month = may,
+    year = {2025},
+    note = {arXiv:2502.07266 [cs]},
+    keywords = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language, Computer Science - Machine Learning},
+}
+@misc{chen_think_2026,
+    title = {Think {Deep}, {Not} {Just} {Long}: {Measuring} {LLM} {Reasoning} {Effort} via {Deep}-{Thinking} {Tokens}},
+    shorttitle = {Think {Deep}, {Not} {Just} {Long}},
+    url = {http://arxiv.org/abs/2602.13517},
+    doi = {10.48550/arXiv.2602.13517},
+    abstract = {Large language models (LLMs) have demonstrated impressive reasoning capabilities by scaling test-time compute via long Chain-of-Thought (CoT). However, recent findings suggest that raw token counts are unreliable proxies for reasoning quality: increased generation length does not consistently correlate with accuracy and may instead signal "overthinking," leading to performance degradation. In this work, we quantify inference-time effort by identifying deep-thinking tokens -- tokens where internal predictions undergo significant revisions in deeper model layers prior to convergence. Across four challenging mathematical and scientific benchmarks (AIME 24/25, HMMT 25, and GPQA-diamond) and a diverse set of reasoning-focused models (GPT-OSS, DeepSeek-R1, and Qwen3), we show that deep-thinking ratio (the proportion of deep-thinking tokens in a generated sequence) exhibits a robust and consistently positive correlation with accuracy, substantially outperforming both length-based and confidence-based baselines. Leveraging this insight, we introduce Think@n, a test-time scaling strategy that prioritizes samples with high deep-thinking ratios. We demonstrate that Think@n matches or exceeds standard self-consistency performance while significantly reducing inference costs by enabling the early rejection of unpromising generations based on short prefixes.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Chen, Wei-Lin and Peng, Liqian and Tan, Tian and Zhao, Chao and Chen, Blake JianHang and Lin, Ziqian and Go, Alec and Meng, Yu},
+    month = feb,
+    year = {2026},
+    note = {arXiv:2602.13517 [cs]},
+    keywords = {Computer Science - Computation and Language},
+}
 @inproceedings{trivedi_interleaving_2023,
     address = {Toronto, Canada},
     title = {Interleaving {Retrieval} with {Chain}-of-{Thought} {Reasoning} for {Knowledge}-{Intensive} {Multi}-{Step} {Questions}},
@@ -29,7 +246,6 @@
     year = {2023},
     pages = {10014--10037},
 }
-
 @inproceedings{shao_enhancing_2023,
     address = {Singapore},
     title = {Enhancing {Retrieval}-{Augmented} {Large} {Language} {Models} with {Iterative} {Retrieval}-{Generation} {Synergy}},
@@ -44,7 +260,6 @@
     year = {2023},
     pages = {9248--9274},
 }
-
 @misc{lewis_retrieval-augmented_2021,
     title = {Retrieval-{Augmented} {Generation} for {Knowledge}-{Intensive} {NLP} {Tasks}},
     url = {http://arxiv.org/abs/2005.11401},
@@ -59,7 +274,6 @@
     note = {arXiv:2005.11401 [cs.CL]},
     keywords = {Computer Science - Computation and Language, Computer Science - Machine Learning},
 }
-
 @misc{su_dragin_2024,
     title = {{DRAGIN}: {Dynamic} {Retrieval} {Augmented} {Generation} based on the {Information} {Needs} of {Large} {Language} {Models}},
     copyright = {arXiv.org perpetual, non-exclusive license},
@@ -74,7 +288,6 @@
     note = {Version Number: 3},
     keywords = {Computation and Language (cs.CL), FOS: Computer and information sciences, Information Retrieval (cs.IR)},
 }
-
 @misc{jiang_active_2023,
     title = {Active {Retrieval} {Augmented} {Generation}},
     url = {http://arxiv.org/abs/2305.06983},
@@ -89,7 +302,21 @@
     note = {arXiv:2305.06983 [cs]},
     keywords = {Computer Science - Computation and Language, Computer Science - Machine Learning},
 }
-
+@misc{manakul_selfcheckgpt_2023,
+    title = {{SelfCheckGPT}: {Zero}-{Resource} {Black}-{Box} {Hallucination} {Detection} for {Generative} {Large} {Language} {Models}},
+    shorttitle = {{SelfCheckGPT}},
+    url = {http://arxiv.org/abs/2303.08896},
+    doi = {10.48550/arXiv.2303.08896},
+    abstract = {Generative Large Language Models (LLMs) such as GPT-3 are capable of generating highly fluent responses to a wide variety of user prompts. However, LLMs are known to hallucinate facts and make non-factual statements which can undermine trust in their output. Existing fact-checking approaches either require access to the output probability distribution (which may not be available for systems such as ChatGPT) or external databases that are interfaced via separate, often complex, modules. In this work, we propose "SelfCheckGPT", a simple sampling-based approach that can be used to fact-check the responses of black-box models in a zero-resource fashion, i.e. without an external database. SelfCheckGPT leverages the simple idea that if an LLM has knowledge of a given concept, sampled responses are likely to be similar and contain consistent facts. However, for hallucinated facts, stochastically sampled responses are likely to diverge and contradict one another. We investigate this approach by using GPT-3 to generate passages about individuals from the WikiBio dataset, and manually annotate the factuality of the generated passages. We demonstrate that SelfCheckGPT can: i) detect non-factual and factual sentences; and ii) rank passages in terms of factuality. We compare our approach to several baselines and show that our approach has considerably higher AUC-PR scores in sentence-level hallucination detection and higher correlation scores in passage-level factuality assessment compared to grey-box methods.},
+    language = {en},
+    urldate = {2026-05-11},
+    publisher = {arXiv},
+    author = {Manakul, Potsawee and Liusie, Adian and Gales, Mark J. F.},
+    month = oct,
+    year = {2023},
+    note = {arXiv:2303.08896 [cs]},
+    keywords = {Computer Science - Computation and Language},
+}
 @inproceedings{santilli_revisiting_2025,
     title = {Revisiting {Uncertainty} {Quantification} {Evaluation} in {Language} {Models}: {Spurious} {Interactions} with {Response} {Length} {Bias} {Results}},
     shorttitle = {Revisiting {Uncertainty} {Quantification} {Evaluation} in {Language} {Models}},
@@ -105,7 +332,6 @@
     keywords = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language, Computer Science - Machine Learning, dRag\_supply},
     pages = {743--759},
 }
-
 @misc{zhang_verbosity_2024,
     title = {Verbosity \${\textbackslash}neq\$ {Veracity}: {Demystify} {Verbosity} {Compensation} {Behavior} of {Large} {Language} {Models}},
     shorttitle = {Verbosity \${\textbackslash}neq\$ {Veracity}},
@@ -121,7 +347,6 @@
     note = {arXiv:2411.07858 [cs.CL]},
     keywords = {Computer Science - Computation and Language, dRag\_supply},
 }
-
 @misc{ielanskyi_addressing_2025,
     title = {Addressing {Pitfalls} in the {Evaluation} of {Uncertainty} {Estimation} {Methods} for {Natural} {Language} {Generation}},
     url = {http://arxiv.org/abs/2510.02279},
@@ -136,7 +361,6 @@
     note = {arXiv:2510.02279 [cs.LG]},
     keywords = {Computer Science - Artificial Intelligence, Computer Science - Machine Learning, dRag\_supply},
 }
-
 @misc{vashurin_uncertainty-line_2025,
     title = {{UNCERTAINTY}-{LINE}: {Length}-{Invariant} {Estimation} of {Uncertainty} for {Large} {Language} {Models}},
     shorttitle = {{UNCERTAINTY}-{LINE}},
@@ -152,7 +376,6 @@
     note = {arXiv:2505.19060 [cs.CL]},
     keywords = {Computer Science - Computation and Language, dRag\_supply},
 }
-
 @inproceedings{mallen_when_2023,
     address = {Toronto, Canada},
     title = {When {Not} to {Trust} {Language} {Models}: {Investigating} {Effectiveness} of {Parametric} and {Non}-{Parametric} {Memories}},
@@ -167,7 +390,6 @@
     year = {2023},
     pages = {9802--9822},
 }
-
 @misc{datta_large_2026,
     title = {Large {Language} {Models} {Decide} {Early} and {Explain} {Later}},
     url = {http://arxiv.org/abs/2604.22266},
@@ -182,7 +404,6 @@
     note = {arXiv:2604.22266 [cs.CL]},
     keywords = {Computer Science - Computation and Language, dRag\_sourceSide},
 }
-
 @misc{chen_i_2026,
     title = {"{I} {May} {Not} {Have} {Articulated} {Myself} {Clearly}": {Diagnosing} {Dynamic} {Instability} in {LLM} {Reasoning} at {Inference} {Time}},
     shorttitle = {"{I} {May} {Not} {Have} {Articulated} {Myself} {Clearly}"},
@@ -198,7 +419,6 @@
     note = {arXiv:2602.02863 [cs.AI]},
     keywords = {Computer Science - Artificial Intelligence, Computer Science - Machine Learning},
 }
-
 @misc{mao_confidence_2026,
     title = {Confidence over {Time}: {Confidence} {Calibration} with {Temporal} {Logic} for {Large} {Language} {Model} {Reasoning}},
     shorttitle = {Confidence over {Time}},
@@ -214,7 +434,6 @@
     note = {arXiv:2601.13387 [cs.CL]},
     keywords = {Computer Science - Computation and Language, Computer Science - Machine Learning, dRag\_sourceSide},
 }
-
 @misc{lu_streaming_2026,
     title = {Streaming {Hallucination} {Detection} in {Long} {Chain}-of-{Thought} {Reasoning}},
     url = {http://arxiv.org/abs/2601.02170},
@@ -229,7 +448,6 @@
     note = {arXiv:2601.02170 [cs.AI]},
     keywords = {Computer Science - Artificial Intelligence, dRag\_sourceSide},
 }
-
 @misc{asai_self-rag_2023,
     title = {Self-{RAG}: {Learning} to {Retrieve}, {Generate}, and {Critique} through {Self}-{Reflection}},
     shorttitle = {Self-{RAG}},
@@ -245,7 +463,20 @@
     note = {arXiv:2310.11511 [cs]},
     keywords = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language, Computer Science - Machine Learning},
 }
-
+@misc{tang_mba-rag_2024,
+    title = {{MBA}-{RAG}: a {Bandit} {Approach} for {Adaptive} {Retrieval}-{Augmented} {Generation} through {Question} {Complexity}},
+    copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International},
+    shorttitle = {{MBA}-{RAG}},
+    url = {https://arxiv.org/abs/2412.01572},
+    doi = {10.48550/ARXIV.2412.01572},
+    abstract = {Retrieval Augmented Generation (RAG) has proven to be highly effective in boosting the generative performance of language model in knowledge-intensive tasks. However, existing RAG framework either indiscriminately perform retrieval or rely on rigid single-class classifiers to select retrieval methods, leading to inefficiencies and suboptimal performance across queries of varying complexity. To address these challenges, we propose a reinforcement learning-based framework that dynamically selects the most suitable retrieval strategy based on query complexity. \% our solution Our approach leverages a multi-armed bandit algorithm, which treats each retrieval method as a distinct ``arm'' and adapts the selection process by balancing exploration and exploitation. Additionally, we introduce a dynamic reward function that balances accuracy and efficiency, penalizing methods that require more retrieval steps, even if they lead to a correct result. Our method achieves new state of the art results on multiple single-hop and multi-hop datasets while reducing retrieval costs. Our code are available at https://github.com/FUTUREEEEEE/MBA .},
+    urldate = {2026-05-13},
+    publisher = {arXiv},
+    author = {Tang, Xiaqiang and Gao, Qiang and Li, Jian and Du, Nan and Li, Qi and Xie, Sihong},
+    year = {2024},
+    note = {Version Number: 4},
+    keywords = {Artificial Intelligence (cs.AI), FOS: Computer and information sciences},
+}
 @misc{guo_dior_2025,
     title = {{DioR}: {Adaptive} {Cognitive} {Detection} and {Contextual} {Retrieval} {Optimization} for {Dynamic} {Retrieval}-{Augmented} {Generation}},
     copyright = {arXiv.org perpetual, non-exclusive license},
@@ -260,7 +491,20 @@
     note = {Version Number: 2},
     keywords = {Computation and Language (cs.CL), FOS: Computer and information sciences},
 }
-
+@misc{hei_dr-rag_2024,
+    title = {{DR}-{RAG}: {Applying} {Dynamic} {Document} {Relevance} to {Retrieval}-{Augmented} {Generation} for {Question}-{Answering}},
+    copyright = {Creative Commons Attribution Non Commercial No Derivatives 4.0 International},
+    shorttitle = {{DR}-{RAG}},
+    url = {https://arxiv.org/abs/2406.07348},
+    doi = {10.48550/ARXIV.2406.07348},
+    abstract = {Retrieval-Augmented Generation (RAG) has recently demonstrated the performance of Large Language Models (LLMs) in the knowledge-intensive tasks such as Question-Answering (QA). RAG expands the query context by incorporating external knowledge bases to enhance the response accuracy. However, it would be inefficient to access LLMs multiple times for each query and unreliable to retrieve all the relevant documents by a single query. We have found that even though there is low relevance between some critical documents and query, it is possible to retrieve the remaining documents by combining parts of the documents with the query. To mine the relevance, a two-stage retrieval framework called Dynamic-Relevant Retrieval-Augmented Generation (DR-RAG) is proposed to improve document retrieval recall and the accuracy of answers while maintaining efficiency. Additionally, a compact classifier is applied to two different selection strategies to determine the contribution of the retrieved documents to answering the query and retrieve the relatively relevant documents. Meanwhile, DR-RAG call the LLMs only once, which significantly improves the efficiency of the experiment. The experimental results on multi-hop QA datasets show that DR-RAG can significantly improve the accuracy of the answers and achieve new progress in QA systems.},
+    urldate = {2026-05-13},
+    publisher = {arXiv},
+    author = {Hei, Zijian and Liu, Weiling and Ou, Wenjie and Qiao, Juyi and Jiao, Junming and Song, Guowen and Tian, Ting and Lin, Yi},
+    year = {2024},
+    note = {Version Number: 3},
+    keywords = {Computation and Language (cs.CL), FOS: Computer and information sciences, Machine Learning (cs.LG)},
+}
 @misc{chen_inside_2024,
     title = {{INSIDE}: {LLMs}' {Internal} {States} {Retain} the {Power} of {Hallucination} {Detection}},
     shorttitle = {{INSIDE}},
@@ -276,7 +520,6 @@
     note = {arXiv:2402.03744 [cs]},
     keywords = {Computer Science - Computation and Language},
 }
-
 @article{li_modeling_2026,
     title = {Modeling {Uncertainty} {Trends} for {Timely} {Retrieval} in {Dynamic} {RAG}},
     volume = {40},
@@ -295,7 +538,6 @@
     keywords = {Computer Science - Computation and Language},
     pages = {31527--31535},
 }
-
 @inproceedings{janiak_illusion_2025,
     address = {Suzhou, China},
     title = {The {Illusion} of {Progress}: {Re}-evaluating {Hallucination} {Detection} in {LLMs}},
@@ -310,7 +552,6 @@
     year = {2025},
     pages = {34716--34733},
 }
-
 @misc{guo_when_2026,
     title = {When to {Retrieve} {During} {Reasoning}: {Adaptive} {Retrieval} for {Large} {Reasoning} {Models}},
     copyright = {Creative Commons Attribution 4.0 International},
@@ -326,7 +567,6 @@
     note = {Version Number: 1},
     keywords = {Artificial Intelligence (cs.AI), Computation and Language (cs.CL), FOS: Computer and information sciences, H.3.3; I.2.7, Information Retrieval (cs.IR)},
 }
-
 @inproceedings{wang_chain--probe_2025,
     address = {Albuquerque, New Mexico},
     title = {Chain-of-{Probe}: {Examining} the {Necessity} and {Accuracy} of {CoT} {Step}-by-{Step}},
@@ -341,7 +581,6 @@
     year = {2025},
     pages = {2586--2606},
 }
-
 @misc{pandey_selfdoubt_2026,
     title = {{SELFDOUBT}: {Uncertainty} {Quantification} for {Reasoning} {LLMs} via the {Hedge}-to-{Verify} {Ratio}},
     shorttitle = {{SELFDOUBT}},
@@ -357,7 +596,6 @@
     note = {arXiv:2604.06389 [cs]},
     keywords = {Artificial Intelligence (cs.AI), Computer Science - Artificial Intelligence, FOS: Computer and information sciences},
 }
-
 @misc{zhang_when_2026,
     title = {When {Does} a {Language} {Model} {Commit}? {A} {Finite}-{Answer} {Theory} of {Pre}-{Verbalization} {Commitment}},
     shorttitle = {When {Does} a {Language} {Model} {Commit}?},
@@ -373,7 +611,6 @@
     note = {arXiv:2605.06723 [cs.AI]},
     keywords = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language, Computer Science - Machine Learning},
 }
-
 @inproceedings{yang_hotpotqa_2018,
     address = {Brussels, Belgium},
     title = {{HotpotQA}: {A} {Dataset} for {Diverse}, {Explainable} {Multi}-hop {Question} {Answering}},
@@ -388,7 +625,6 @@
     year = {2018},
     pages = {2369--2380},
 }
-
 @inproceedings{ho_constructing_2020,
     address = {Barcelona, Spain (Online)},
     title = {Constructing {A} {Multi}-hop {QA} {Dataset} for {Comprehensive} {Evaluation} of {Reasoning} {Steps}},
@@ -402,7 +638,6 @@
     year = {2020},
     pages = {6609--6625},
 }
-
 @article{trivedi__2022,
     title = {♫ {MuSiQue}: {Multihop} {Questions} via {Single}-hop {Question} {Composition}},
     volume = {10},
@@ -420,7 +655,6 @@
     year = {2022},
     pages = {539--554},
 }
-
 @inproceedings{yao_seakr_2025,
     address = {Vienna, Austria},
     title = {{SeaKR}: {Self}-aware {Knowledge} {Retrieval} for {Adaptive} {Retrieval} {Augmented} {Generation}},
@@ -435,7 +669,6 @@
     year = {2025},
     pages = {27022--27043},
 }
-
 @article{landis_measurement_1977,
     title = {The measurement of observer agreement for categorical data},
     volume = {33},
@@ -450,14 +683,17 @@
     keywords = {Humans, Multiple Sclerosis, Statistics as Topic},
     pages = {159--174},
 }
-
-@inproceedings{zheng_judging_2024,
+@misc{zheng_judging_2023,
     title = {Judging {LLM}-as-a-{Judge} with {MT}-{Bench} and {Chatbot} {Arena}},
     url = {http://arxiv.org/abs/2306.05685},
     doi = {10.48550/arXiv.2306.05685},
-    booktitle = {Advances in {Neural} {Information} {Processing} {Systems} 36 ({NeurIPS} 2023) {Datasets} and {Benchmarks} {Track}},
+    abstract = {Evaluating large language model (LLM) based chat assistants is challenging due to their broad capabilities and the inadequacy of existing benchmarks in measuring human preferences. To address this, we explore using strong LLMs as judges to evaluate these models on more open-ended questions. We examine the usage and limitations of LLM-as-a-judge, including position, verbosity, and self-enhancement biases, as well as limited reasoning ability, and propose solutions to mitigate some of them. We then verify the agreement between LLM judges and human preferences by introducing two benchmarks: MT-bench, a multi-turn question set; and Chatbot Arena, a crowdsourced battle platform. Our results reveal that strong LLM judges like GPT-4 can match both controlled and crowdsourced human preferences well, achieving over 80\% agreement, the same level of agreement between humans. Hence, LLM-as-a-judge is a scalable and explainable way to approximate human preferences, which are otherwise very expensive to obtain. Additionally, we show our benchmark and traditional benchmarks complement each other by evaluating several variants of LLaMA and Vicuna. The MT-bench questions, 3K expert votes, and 30K conversations with human preferences are publicly available at https: //github.com/lm-sys/FastChat/tree/main/fastchat/llm\_judge.},
+    language = {en},
+    urldate = {2026-05-25},
+    publisher = {arXiv},
     author = {Zheng, Lianmin and Chiang, Wei-Lin and Sheng, Ying and Zhuang, Siyuan and Wu, Zhanghao and Zhuang, Yonghao and Lin, Zi and Li, Zhuohan and Li, Dacheng and Xing, Eric P. and Zhang, Hao and Gonzalez, Joseph E. and Stoica, Ion},
-    year = {2024},
-    note = {arXiv:2306.05685 [cs]},
+    month = dec,
+    year = {2023},
+    note = {arXiv:2306.05685 [cs.CL]},
+    keywords = {Computer Science - Artificial Intelligence, Computer Science - Computation and Language},
 }
-

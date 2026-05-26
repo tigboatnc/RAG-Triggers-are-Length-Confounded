@@ -1,0 +1,17 @@
+# Secrets (never commit) — anything inside secrets/ except .example template files
+secrets/*
+!secrets/*.example
+.env
+
+# LLM-judge cache (re-runnable, not paper-canonical)
+analysis/llm_judge_cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Local model weights / data / traces — not shipped in this folder
+models/
+data/
+runs/v2_headline_*/

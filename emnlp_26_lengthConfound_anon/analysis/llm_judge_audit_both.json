@@ -1,0 +1,11 @@
+{
+  "model": "gpt-4o-mini",
+  "arch": "both",
+  "bootstrap_b": 10000,
+  "n_pool": 800,
+  "n_paired": 800,
+  "cohens_kappa_em_vs_judge": 0.7073007308665485,
+  "n_helped_em": 108,
+  "n_helped_judge": 113,
+  "n_helped_both": 87
+}

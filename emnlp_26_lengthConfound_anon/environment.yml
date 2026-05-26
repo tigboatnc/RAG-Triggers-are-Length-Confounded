@@ -1,0 +1,39 @@
+# Conda environment for the recollection.local prototype.
+# Single supported path: Linux + NVIDIA CUDA. Mac/Metal deferred (see _PLAN.md).
+#
+# Pins are floor-pinned (>=) here. After the first clean install, exact
+# resolved versions get captured in `runs/env_lockfile.txt` and we tighten
+# pins from there. Same pattern as the model revision SHAs.
+#
+# torch is installed by scripts/setup.sh from the cu124 wheel index, not here,
+# because the index URL is platform-specific.
+
+name: recollection
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - cmake>=3.27
+  - pkg-config
+  - pip:
+      # core inference + quantization
+      - "transformers>=4.50"
+      - "accelerate>=1.0"
+      - "safetensors>=0.4"
+      - "bitsandbytes>=0.45"
+      # data + retrieval (Phase 1+)
+      - "huggingface_hub>=0.27"
+      - "sentence-transformers>=3.0"
+      - "lancedb>=0.18"
+      - "datasets>=3.0"
+      - "pandas>=2.2"
+      # observability
+      - "psutil>=6.0"
+      - "numpy>=2.0"
+      - "matplotlib>=3.8"
+      # scientific (used by analysis/uncertainty_line_audit.py +
+      # analysis/e7_bonferroni_and_spearman.py)
+      - "scikit-learn>=1.5"
+      # LLM-as-Judge robustness check (analysis/llm_judge_audit.py)
+      - "openai>=1.50"

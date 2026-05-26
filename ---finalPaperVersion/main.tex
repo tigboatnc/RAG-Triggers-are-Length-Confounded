@@ -159,7 +159,7 @@ $\mathrm{AUROC}(s_{\text{resid}})$ then measures whether the signal carries info
 \subsection{FCT and the Answer-Trajectory Family}
 \label{sec:methods-fct}
 
-At each reasoning-step boundary (detected by spaCy sentence segmentation with a 32-token fallback), we sample $K{=}5$ boundary completions at temperature $\tau{=}0.6$, top-$p$~0.9, and extract a per-step answer from each via a regex over the model's \texttt{Answer:} prefix. From the resulting per-step $K{=}5$ majority sequence $\mathcal{M} = (m_1, \ldots, m_n)$ we compute four trace-level aggregations:
+At each reasoning-step boundary (detected by tokenizer-level sentence-end token matchings), we sample $K{=}5$ boundary completions at temperature $\tau{=}0.6$, top-$p$~0.9, and extract a per-step answer from each via a regex over the model's \texttt{Answer:} prefix. From the resulting per-step $K{=}5$ majority sequence $\mathcal{M} = (m_1, \ldots, m_n)$ we compute four trace-level aggregations:
 \begin{itemize}
 \item \texttt{flip\_rate}: fraction of consecutive-step majority disagreements;
 \item \texttt{late\_flips}: count of $K{=}5$ answer-\emph{set} disagreements in the last half of the trace;
@@ -180,7 +180,7 @@ At each reasoning-step boundary (detected by spaCy sentence segmentation with a 
 \subsection{Cross-Architecture Survivor Matrix}
 \label{sec:results-matrix}
 
-Of the 16 audited signals, nine clear the length baseline at nominal 95\% paired-bootstrap, and only four survive Bonferroni correction at $k{=}15$ (Figure~\ref{fig:survivor-forest}): attention-based DRAGIN-RIND ($\Delta = +0.167$), token-probability \texttt{ent.max} ($+0.137$), answer-trajectory \texttt{min\_majority} ($+0.149$), and \textbf{FCT} ($+0.190$, the strongest length-orthogonal trigger in the pool). The four survivors span three of the seven declared families, which suggests the length-orthogonal signal is not a quirk of any one mechanism. Two families have no nominal-95\% survivor: hidden-state (SeaKR, INSIDE, the CRV variants) and hedging-marker (SELFDOUBT-T1) are entirely absorbed by length under our protocol, consistent with their high length-correlation per cell (App.~\ref{sec:appendix-spearman}). The full table is in App.~\ref{sec:appendix-hero}.
+Of the 16 audited signals, nine clear the length baseline at nominal 95\% paired-bootstrap, and only four survive Bonferroni correction at $k{=}15$ (Figure~\ref{fig:survivor-forest}): attention-based DRAGIN-RIND ($\Delta = +0.167$), token-probability \texttt{ent.max} ($+0.137$), answer-trajectory \texttt{min\_majority} ($+0.149$), and \textbf{FCT} ($+0.190$, the strongest length-orthogonal trigger in the pool). The four survivors span three of the seven declared families, which suggests the length-orthogonal signal is not a quirk of any one mechanism. Two families have no nominal-95\% survivor: hidden-state (SeaKR, INSIDE, the CRV [Concept Representation Vector] variants) and hedging-marker (SELFDOUBT-T1) are entirely absorbed by length under our protocol, consistent with their high length-correlation per cell (App.~\ref{sec:appendix-spearman}). The full table is in App.~\ref{sec:appendix-hero}.
 
 \subsection{Length Is Anti-Predictive on the Held-Out 2Wiki Cells}
 \label{sec:results-inverted}
@@ -261,7 +261,7 @@ We presented the first length-residualized audit of the dynamic-RAG trigger pool
 \section{Bonferroni-Corrected Survivor Set}
 \label{sec:appendix-bonferroni}
 
-Table~\ref{tab:bonferroni} reports the Bonferroni-corrected $\sim$99.67\% paired-bootstrap CI of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ at $k{=}15$ ($\alpha = 0.05/15 = 0.0033$) on the headline pool. Bonferroni $k$ is the number of signals tested for the survivor-matrix claim. Four signals retain a strictly positive lower CI bound under correction: FCT, DRAGIN-RIND, \texttt{min\_majority}, and \texttt{ent.max}.\footnote{$k{=}15$ was the multiple-comparison count fixed at test time, when the audited pool included a CABV$\times$LAAS composite that we later dropped from presentation (\S\ref{sec:methods-fct}). The current table reports 16 audited signals plus the length baseline. We estimate that re-running at $k{=}14$ or $k{=}16$ would shift the Bonferroni lower bounds by less than $\pm 0.005$ AUROC without changing the four-survivor count. We report the test as run.}
+Table~\ref{tab:bonferroni} reports the Bonferroni-corrected $\sim$99.67\% paired-bootstrap CI of $\Delta = \mathrm{AUROC}(s_{\text{resid}}) - \mathrm{AUROC}(\texttt{tokens\_generated})$ at $k{=}15$ ($\alpha = 0.05/15 = 0.0033$) on the headline pool. Bonferroni $k$ is the number of signals tested for the survivor-matrix claim. Four signals retain a strictly positive lower CI bound under correction: FCT, DRAGIN-RIND, \texttt{min\_majority}, and \texttt{ent.max}.\footnote{$k{=}15$ was the multiple-comparison count fixed at test time, when the audited pool included a CABV$\times$LAAS composite that we later dropped from presentation (\S\ref{sec:methods-fct}). The current table reports 16 audited signals plus the length baseline. The Bonferroni-corrected CI half-widths in the table ($\approx 0.12$--$0.14$ AUROC at $B{=}10{,}000$) dominate any plausible $k$-sensitivity at this signal pool size. We report the test as run.}
 
 \begin{table}[h]
 \centering
@@ -368,7 +368,7 @@ flare.max                 & $+0.080^{\ast}$  & $+0.115$ \\
 \section{Uncertainty-Line Reference Replication}
 \label{sec:appendix-uline}
 
-To pre-empt the reimplementation critique, we ran our protocol (Eq.~\ref{eq:residualize}) and the \citet{vashurin_uncertainty-line_2025} reference implementation side-by-side on the same trace cohort, decomposing the comparison into two $\varepsilon$ components. $\varepsilon_{\text{protocol}}$ isolates the math difference (our $\log(\texttt{tokens}+1)$ single-cohort OLS against the reference MinMax-scaled linear regression on the same cohort); $\varepsilon_{\text{sampling}}$ isolates train/test-split sampling noise at $n{=}200$.
+To pre-empt the reimplementation critique, we ran our protocol (Eq.~\ref{eq:residualize}) and the \citet{vashurin_uncertainty-line_2025} reference implementation side-by-side on the same trace cohort, decomposing the comparison into two $\varepsilon$ components. $\varepsilon_{\text{protocol}}$ isolates the math difference (our $\log(\texttt{tokens}+1)$ single-cohort OLS against the reference MinMax-scaled linear regression on the same cohort); $\varepsilon_{\text{sampling}}$ isolates train/test-split sampling noise at $n{=}200$ (Table~\ref{tab:uline-repl}).
 
 \begin{table}[h]
 \centering\small
@@ -387,7 +387,7 @@ Gemma    & 0.027 & 0.0095 & 0.0047 & 0.106 \\
 \section{FCT vs.\ Concurrent Commitment-Time Primitives: Operational Differences}
 \label{sec:appendix-fct-tstar}
 
-FCT (\S\ref{sec:methods-fct}) is motivated by the final-switch index $t^\star = \max\{i : A_i \neq A_{i+1}\}$ of \citet{datta_large_2026}, with a concurrent forward-looking commitment-time primitive proposed by \citet{zhang_when_2026} on the model's finite-answer continuation distribution. The three are operationally distinct on five axes.
+FCT (\S\ref{sec:methods-fct}) is motivated by the final-switch index $t^\star = \max\{i : A_i \neq A_{i+1}\}$ of \citet{datta_large_2026}, with a concurrent forward-looking commitment-time primitive proposed by \citet{zhang_when_2026} on the model's finite-answer continuation distribution. The three are operationally distinct on five axes (Table~\ref{tab:fct-vs-tstar}).
 
 \begin{table}[h]
 \centering

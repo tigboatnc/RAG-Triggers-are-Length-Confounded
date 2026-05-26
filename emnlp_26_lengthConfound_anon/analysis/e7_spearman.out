@@ -1,0 +1,34 @@
+Length-vs-signal Spearman ρ per cell
+  ρ = Spearman(tokens_generated, signal) on closed-book traces
+  Mandatory per Santilli et al. 2025 Table 2 convention.
+  Per Santilli: |ρ| ≥ 0.5 indicates a strong length confound on that signal.
+
+  signal                      qwen2.5-_  Hotpotqwen2.5-_  2WikiMgemma-4-_  Hotpotgemma-4-_  2WikiM
+  ------------------------------------------------------------------------------------------------
+  DRAGIN-RIND.max                      +0.402          +0.347          +0.376          +0.381 
+  ent.max                              +0.310          +0.261          +0.416          +0.323 
+  etc (Δ²H max)                        +0.322          +0.358          +0.463          +0.398 
+  flare.max (1-min p)                  +0.391          +0.347          +0.449          +0.315 
+  u_cons.max                           +0.395          +0.314          +0.374          +0.391 
+  seakr_k5_proxy.logdet                +0.372          +0.442          +0.458          +0.429 
+  drift_cosine.max                     +0.197          +0.184          -0.066          -0.006 
+  var_l2_window.max                    +0.191          +0.226          +0.223          -0.003 
+  hidden_norm.range                    +0.242          +0.287          +0.362          +0.156 
+  hvr.max                                +nan          +0.056          +0.300          +0.507*
+  flip_rate K=5                        +0.221          +0.123          +0.207          +0.345 
+  flip_rate K=1                        +0.169          +0.150          +0.265          +0.211 
+  late_flips                           +0.288          +0.371          +0.248          +0.297 
+  min_majority                         +0.178          +0.120          +0.140          +0.086 
+  CABV                                 +0.222          +0.171          +0.224          +0.355 
+  FCT                                  +0.195          +0.137          +0.147          +0.301 
+  CABV×LAAS                            +0.297          +0.144          +0.113          +0.144 
+
+  Sanity: ρ(tokens, tokens) per cell:
+    qwen2.5-7b-instruct × HotpotQA            ρ=+1.000  n=200
+    qwen2.5-7b-instruct × 2WikiMHQA           ρ=+1.000  n=200
+    gemma-4-26b-a4b-it × HotpotQA             ρ=+1.000  n=200
+    gemma-4-26b-a4b-it × 2WikiMHQA            ρ=+1.000  n=200
+
+  Interpretation: Signals with |ρ| ≥ 0.5 (starred) are the ones for
+  which length-residualization should most change the AUROC.  Compare
+  against raw vs resid AUROC in Table 1 / Appendix A.
